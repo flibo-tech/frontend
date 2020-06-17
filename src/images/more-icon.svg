@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="9.11" height="31.883" viewBox="0 0 9.11 31.883">
+    <defs>
+        <style>
+            .cls-1{fill:#fff}.cls-2{fill:#333}
+        </style>
+    </defs>
+    <g id="more-icon" transform="translate(-440 -298)">
+        <g id="Group_127" data-name="Group 127" transform="translate(440 298)">
+            <circle id="Ellipse_12" cx="3.577" cy="3.577" r="3.577" class="cls-1" data-name="Ellipse 12" transform="translate(.852 1.192)"/>
+            <path id="Path_120" d="M444.555 307.11a4.555 4.555 0 1 1 4.555-4.555 4.555 4.555 0 0 1-4.555 4.555zm0-6.832a2.277 2.277 0 1 0 2.277 2.277 2.277 2.277 0 0 0-2.277-2.277z" class="cls-2" data-name="Path 120" transform="translate(-440 -298)"/>
+        </g>
+        <g id="Group_128" data-name="Group 128" transform="translate(440 309.387)">
+            <ellipse id="Ellipse_13" cx="3.577" cy="3.13" class="cls-1" data-name="Ellipse 13" rx="3.577" ry="3.13" transform="translate(.852 1.43)"/>
+            <path id="Path_121" d="M444.555 317.109a4.555 4.555 0 1 1 4.555-4.555 4.555 4.555 0 0 1-4.555 4.555zm0-6.832a2.277 2.277 0 1 0 2.277 2.277 2.277 2.277 0 0 0-2.277-2.277z" class="cls-2" data-name="Path 121" transform="translate(-440 -308)"/>
+        </g>
+        <g id="Group_129" data-name="Group 129" transform="translate(440 320.774)">
+            <ellipse id="Ellipse_14" cx="3.577" cy="4.024" class="cls-1" data-name="Ellipse 14" rx="3.577" ry="4.024" transform="translate(.852 .774)"/>
+            <path id="Path_122" d="M444.555 327.109a4.555 4.555 0 1 1 4.555-4.555 4.555 4.555 0 0 1-4.555 4.555zm0-6.832a2.277 2.277 0 1 0 2.277 2.277 2.277 2.277 0 0 0-2.277-2.277z" class="cls-2" data-name="Path 122" transform="translate(-440 -318)"/>
+        </g>
+    </g>
+</svg>
