@@ -357,7 +357,8 @@ export default {
         this.filters_applied.awards = [];
         this.filters_applied.nominations = false;
         this.filters_applied.rating = "10";
-        this.filters_applied.industry = this.filters_meta.industries.slice()[0];
+        this.filters_applied.runtime = "180";
+        this.filters_applied.languages = [];
         this.filters_applied.tab = "All";
         this.store.discover_filters.filtered_content = [];
         this.store.discover_filters.more_filtered_content = [];
@@ -665,7 +666,8 @@ export default {
       this.filters_applied.awards = this.filters_temp.awards.slice();
       this.filters_applied.nominations = this.filters_temp.nominations;
       this.filters_applied.rating = this.filters_temp.rating;
-      this.filters_applied.industry = this.filters_temp.industry;
+      this.filters_applied.runtime = this.filters_temp.runtime;
+      this.filters_applied.languages = this.filters_temp.languages.slice();
       this.filters_applied.tab = this.filters_temp.tab;
 
       var self = this;
@@ -678,8 +680,8 @@ export default {
         self.filters_applied.awards.length ||
         self.filters_applied.platforms.length ||
         self.filters_applied.rating != "10" ||
-        JSON.stringify(self.filters_applied.industry) !=
-          JSON.stringify(self.filters_meta.industries[0])
+        self.filters_applied.runtime != "180" ||
+        self.filters_applied.languages.length
       ) {
         this.$store.state.discover_filters.content_type_tab = ["movie", "tv"];
         this.$store.state.scroll_positions.discover.filter = 0;
@@ -709,6 +711,12 @@ export default {
         var genre;
         for (genre in this.filters_applied.genres) {
           genres.push(this.filters_applied.genres[genre].genre_name);
+        }
+
+        var languages = [];
+        var language;
+        for (language in this.filters_applied.languages) {
+          languages.push(this.filters_applied.languages[language].name);
         }
 
         var awards = [];
@@ -742,7 +750,8 @@ export default {
             awards: awards,
             nominations: self.filters_applied.nominations,
             rating: parseFloat(self.filters_applied.rating) / 10,
-            industry: self.filters_applied.industry.industry_name,
+            runtime: parseInt(self.filters_applied.runtime),
+            languages: languages,
             feed_type: feed_type,
             country:
               self.$store.state.user.profile.country ||

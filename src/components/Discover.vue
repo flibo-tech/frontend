@@ -36,7 +36,9 @@
                   ||
                   (filters_applied.rating != '10')
                   ||
-                  (JSON.stringify(filters_applied.industry) != JSON.stringify(filters_meta.industries[0]))
+                  (filters_applied.runtime != '180')
+                  ||
+                  filters_applied.languages.length
                   )"
                 class="suggestion-filter-active"
                 style="right: 20%;"/>
@@ -1255,7 +1257,8 @@ export default {
       this.filters_applied.awards = this.filters_temp.awards.slice();
       this.filters_applied.nominations = this.filters_temp.nominations;
       this.filters_applied.rating = this.filters_temp.rating;
-      this.filters_applied.industry = this.filters_temp.industry;
+      this.filters_applied.runtime = this.filters_temp.runtime;
+      this.filters_applied.languages = this.filters_temp.languages.slice();
       this.filters_applied.tab = this.filters_temp.tab;
 
       var self = this;
@@ -1267,8 +1270,8 @@ export default {
         self.filters_applied.years.length ||
         self.filters_applied.platforms.length ||
         self.filters_applied.rating != "10" ||
-        JSON.stringify(self.filters_applied.industry) !=
-          JSON.stringify(self.filters_meta.industries[0])
+        self.filters_applied.runtime != "180" ||
+        self.filters_applied.languages.length
       ) {
         this.fetching_filtered = true;
         var master_ids = [];
@@ -1297,6 +1300,12 @@ export default {
           genres.push(this.filters_applied.genres[genre].genre_name);
         }
 
+        var languages = [];
+        var language;
+        for (language in this.filters_applied.languages) {
+          languages.push(this.filters_applied.languages[language].name);
+        }
+
         var years = [];
         var year;
         for (year in this.filters_applied.years) {
@@ -1322,7 +1331,8 @@ export default {
             awards: self.filters_applied.awards,
             nominations: self.filters_applied.nominations,
             rating: parseFloat(self.filters_applied.rating) / 10,
-            industry: self.filters_applied.industry.industry_name,
+            runtime: parseInt(self.filters_applied.runtime),
+            languages: languages,
             feed_type: feed_type,
             country:
               self.$store.state.user.profile.country ||

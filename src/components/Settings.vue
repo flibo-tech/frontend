@@ -210,9 +210,8 @@ export default {
                     response.data.awards),
                   (self.$store.state.rate_filters.filters_meta.platforms =
                     response.data.platforms),
-                  (self.$store.state.rate_filters.filters_meta.industries =
-                    response.data.industries),
-                  (self.$store.state.rate_filters.filters_applied.industry = response.data.industries.slice()[0]),
+                  (self.$store.state.rate_filters.filters_meta.languages =
+                    response.data.languages),
                   (self.$store.state.discover_filters.filters_meta.genres =
                     response.data.genres),
                   (self.$store.state.discover_filters.filters_meta.decades =
@@ -221,9 +220,8 @@ export default {
                     response.data.awards),
                   (self.$store.state.discover_filters.filters_meta.platforms =
                     response.data.platforms),
-                  (self.$store.state.discover_filters.filters_meta.industries =
-                    response.data.industries),
-                  (self.$store.state.discover_filters.filters_applied.industry = response.data.industries.slice()[0]),
+                  (self.$store.state.discover_filters.filters_meta.languages =
+                    response.data.languages),
                   (self.$store.state.watchlist_filters.filters_meta.genres =
                     response.data.genres),
                   (self.$store.state.watchlist_filters.filters_meta.platforms =

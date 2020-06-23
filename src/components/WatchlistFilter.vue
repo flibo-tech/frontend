@@ -798,7 +798,7 @@ export default {
   overflow: hidden;
   background-color: #ffffff;
 }
-.industry-container {
+.language-container {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -811,14 +811,14 @@ export default {
   text-align: left;
   padding: 1%;
 }
-.industry-checkbox-container {
+.language-checkbox-container {
   position: relative;
   overflow: scroll;
   width: 100%;
   top: 3%;
   left: 5.5%;
 }
-.industry-checkbox {
+.language-checkbox {
   display: block;
   position: relative;
   width: 100%;
@@ -826,7 +826,7 @@ export default {
   padding: 8%;
   border-bottom: 1px solid #dad8d8;
 }
-.industry-checkmark-abled {
+.language-checkmark-abled {
   position: absolute;
   top: 19%;
   left: 5.5%;
@@ -834,13 +834,13 @@ export default {
   width: 4.5vw;
   background-color: #ffffff;
 }
-.industry-checkmark-text {
+.language-checkmark-text {
   position: absolute;
   margin-left: 12%;
   margin-top: -5%;
   font-size: calc(14px + 0.3vw);
 }
-.industry-checkbox input:checked ~ .industry-checkmark-abled {
+.language-checkbox input:checked ~ .language-checkmark-abled {
   background-color: #ffffff;
   background-image: url("./../images/checked.svg");
 }

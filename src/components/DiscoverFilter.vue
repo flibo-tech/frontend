@@ -18,7 +18,7 @@
       Use combination of filters. Discover new favorites.
     </p>
 
-    <div class="discoverfilter-tab-filter-box" v-if="store.session_id != null">
+    <div class="discoverfilter-tab-filter-box" v-if="false">
       <p>
         Filter
       </p>
@@ -90,6 +90,35 @@
           </span>
           <span class="discoverfilter-checkmark-text-genre">{{
             genre.genre_name
+          }}</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="discoverfilter-genre-filter-box" style="margin-top: 30px;">
+      <p>
+        Language
+      </p>
+      <div class="discoverfilter-genres-container">
+        <label
+          v-for="language in filters_meta.languages"
+          class="discoverfilter-genre-checkbox"
+        >
+          <input
+            type="checkbox"
+            v-bind:value="language"
+            v-model="filters_temp.languages"
+            class="discoverfilter-checkbox-input"
+          />
+          <span class="discoverfilter-checkmark-abled-genre" />
+          <span class="discoverfilter-genre-cropper">
+            <img
+              v-bind:src="language.picture"
+              class="discoverfilter-genre-icon"
+            />
+          </span>
+          <span class="discoverfilter-checkmark-text-genre">{{
+            language.name
           }}</span>
         </label>
       </div>
@@ -172,6 +201,36 @@
         1
         <span style="float:right;">
           10
+        </span>
+      </div>
+      <div class="discoverfilter-imdb-scale-grids">
+        <div v-for="index in 10" class="discoverfilter-imdb-scale-grid" />
+      </div>
+    </div>
+
+    <div class="discoverfilter-imdb-filter-box" style="margin-top: 30px;">
+      <p>
+        Max Runtime -
+        <span>
+          {{ readableRuntime }}
+        </span>
+      </p>
+      <div class="discoverfilter-imdb-container">
+        <input
+          type="range"
+          min="10"
+          max="180"
+          value="10"
+          v-model="filters_temp.runtime"
+          class="slider"
+          :style="is_mobile ? '' : 'pointer-events: auto;cursor: pointer;'"
+          id="myRange"
+        />
+      </div>
+      <div class="discoverfilter-imdb-rating-endpoints">
+        10 min
+        <span style="float:right;">
+          3 hrs
         </span>
       </div>
       <div class="discoverfilter-imdb-scale-grids">
@@ -333,35 +392,6 @@
         </label>
       </div>
     </div>
-
-    <div class="discoverfilter-genre-filter-box" style="margin-top: 30px;">
-      <p>
-        Industry
-      </p>
-      <div class="discoverfilter-genres-container">
-        <label
-          v-for="industry in filters_meta.industries"
-          class="discoverfilter-genre-checkbox"
-        >
-          <input
-            type="radio"
-            v-bind:value="industry"
-            v-model="filters_temp.industry"
-            class="discoverfilter-checkbox-input"
-          />
-          <span class="discoverfilter-checkmark-abled-genre" />
-          <span class="discoverfilter-genre-cropper">
-            <img
-              v-bind:src="industry.industry_link"
-              class="discoverfilter-genre-icon"
-            />
-          </span>
-          <span class="discoverfilter-checkmark-text-genre">{{
-            industry.industry_name
-          }}</span>
-        </label>
-      </div>
-    </div>
   </div>
 
   <div v-else class="fetching-filters-message">
@@ -404,24 +434,14 @@ export default {
   created() {
     this.filters_temp.artists = this.filters_applied.artists.slice();
     this.filters_temp.genres = this.filters_applied.genres.slice();
+    this.filters_temp.languages = this.filters_applied.languages.slice();
     this.filters_temp.years = this.filters_applied.years.slice();
     this.filters_temp.tags = this.filters_applied.tags.slice();
     this.filters_temp.platforms = this.filters_applied.platforms.slice();
     this.filters_temp.awards = this.filters_applied.awards.slice();
     this.filters_temp.nominations = this.filters_applied.nominations;
     this.filters_temp.rating = this.filters_applied.rating;
-    if (
-      typeof this.filters_applied.industry == "undefined" &&
-      this.store.session_id == null
-    ) {
-      this.filters_temp.industry = {
-        industry_name: "All",
-        industry_link:
-          "https://image.tmdb.org/t/p/w500/9O7gLzmreU0nGkIB6K3BsJbzvNv.jpg"
-      };
-    } else {
-      this.filters_temp.industry = this.filters_applied.industry;
-    }
+    this.filters_temp.runtime = this.filters_applied.runtime;
     this.filters_temp.tab = this.filters_applied.tab;
 
     var artist_ids = [];
@@ -464,13 +484,33 @@ export default {
         (this.filters_temp.platforms.length == 0) &
         (this.filters_temp.awards.length == 0) &
         (this.filters_temp.rating == "10") &
-        (JSON.stringify(this.filters_temp.industry) ==
-          JSON.stringify(this.filters_meta.industries.slice()[0])) &
+        (this.filters_temp.runtime == "180") &
+        (this.filters_temp.languages.length == 0) &
         ["All", "Suggestions"].includes(this.filters_temp.tab)
       ) {
         return true;
       } else {
         return false;
+      }
+    },
+    readableRuntime: function() {
+      var hours = Math.floor(this.filters_temp.runtime / 60);
+      var minutes = this.filters_temp.runtime % 60;
+      if (hours == 3) {
+        return "All";
+      } else if (hours >= 1) {
+        if (minutes > 0) {
+          return (
+            hours +
+            (hours > 1 ? " hrs " : " hr ") +
+            minutes +
+            (minutes > 1 ? " mins" : " min")
+          );
+        } else {
+          return hours + (hours > 1 ? " hrs" : " hr");
+        }
+      } else {
+        return minutes + (minutes > 1 ? " mins" : " min");
       }
     }
   },
@@ -692,7 +732,8 @@ export default {
       this.filters_temp.awards = [];
       this.filters_temp.nominations = false;
       this.filters_temp.rating = "10";
-      this.filters_temp.industry = this.filters_meta.industries.slice()[0];
+      this.filters_temp.runtime = "180";
+      this.filters_temp.languages = [];
       this.filters_temp.tab = "All";
     }
   }
@@ -1383,7 +1424,7 @@ export default {
   overflow: hidden;
   background-color: #ffffff;
 }
-.industry-container {
+.language-container {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -1396,14 +1437,14 @@ export default {
   text-align: left;
   padding: 1%;
 }
-.industry-checkbox-container {
+.language-checkbox-container {
   position: relative;
   overflow: scroll;
   width: 100%;
   top: 3%;
   left: 5.5%;
 }
-.industry-checkbox {
+.language-checkbox {
   display: block;
   position: relative;
   width: 100%;
@@ -1411,7 +1452,7 @@ export default {
   padding: 8%;
   border-bottom: 1px solid #dad8d8;
 }
-.industry-checkmark-abled {
+.language-checkmark-abled {
   position: absolute;
   top: 19%;
   left: 5.5%;
@@ -1419,13 +1460,13 @@ export default {
   width: 4.5vw;
   background-color: #ffffff;
 }
-.industry-checkmark-text {
+.language-checkmark-text {
   position: absolute;
   margin-left: 12%;
   margin-top: -5%;
   font-size: calc(14px + 0.3vw);
 }
-.industry-checkbox input:checked ~ .industry-checkmark-abled {
+.language-checkbox input:checked ~ .language-checkmark-abled {
   background-color: #ffffff;
   background-image: url("./../images/checked.svg");
 }

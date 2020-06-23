@@ -251,28 +251,28 @@
 
     <div class="ratefilter-genre-filter-box">
       <p>
-        Industry
+        Language
       </p>
       <div class="ratefilter-genres-container">
         <label
-          v-for="industry in filters_meta.industries"
+          v-for="language in filters_meta.languages"
           class="ratefilter-genre-checkbox"
         >
           <input
-            type="radio"
-            v-bind:value="industry"
-            v-model="filters_temp.industry"
+            type="checkbox"
+            v-bind:value="language"
+            v-model="filters_temp.languages"
             class="ratefilter-checkbox-input"
           />
           <span class="ratefilter-checkmark-abled-genre" />
           <span class="ratefilter-genre-cropper">
             <img
-              v-bind:src="industry.industry_link"
+              v-bind:src="language.picture"
               class="ratefilter-genre-icon"
             />
           </span>
           <span class="ratefilter-checkmark-text-genre">{{
-            industry.industry_name
+            language.name
           }}</span>
         </label>
       </div>
@@ -311,7 +311,8 @@ export default {
     this.filters_temp.awards = this.filters_applied.awards.slice();
     this.filters_temp.nominations = this.filters_applied.nominations;
     this.filters_temp.rating = this.filters_applied.rating;
-    this.filters_temp.industry = this.filters_applied.industry;
+    this.filters_temp.runtime = this.filters_applied.runtime;
+    this.filters_temp.languages = this.filters_applied.languages.slice();
     this.filters_temp.tab = this.filters_applied.tab;
 
     var artist_ids = [];
@@ -573,7 +574,8 @@ export default {
       this.filters_applied.awards = this.filters_temp.awards.slice();
       this.filters_applied.nominations = this.filters_temp.nominations;
       this.filters_applied.rating = this.filters_temp.rating;
-      this.filters_applied.industry = this.filters_temp.industry;
+      this.filters_applied.runtime = this.filters_temp.runtime;
+      this.filters_applied.languages = this.filters_temp.languages.slice();
       this.filters_applied.tab = this.filters_temp.tab;
 
       var self = this;
@@ -584,8 +586,8 @@ export default {
         self.filters_applied.years.length ||
         self.filters_applied.platforms.length ||
         self.filters_applied.rating != "10" ||
-        JSON.stringify(self.filters_applied.industry) !=
-          JSON.stringify(self.filters_meta.industries[0])
+        self.filters_applied.runtime != "180" ||
+        self.filters_applied.languages.length
       ) {
         var master_ids = [];
 
@@ -613,6 +615,12 @@ export default {
           genres.push(this.filters_applied.genres[genre].genre_name);
         }
 
+        var languages = [];
+        var language;
+        for (language in this.filters_applied.languages) {
+          languages.push(this.filters_applied.languages[language].name);
+        }
+
         var years = [];
         var year;
         for (year in this.filters_applied.years) {
@@ -629,7 +637,8 @@ export default {
             awards: self.filters_applied.awards,
             nominations: self.filters_applied.nominations,
             rating: parseFloat(self.filters_applied.rating) / 10,
-            industry: self.filters_applied.industry.industry_name,
+            runtime: parseInt(self.filters_applied.runtime),
+            languages: languages,
             content_type: self.filters_applied.tab
           })
           .then(function(response) {
@@ -680,7 +689,8 @@ export default {
       this.filters_temp.awards = [];
       this.filters_temp.nominations = false;
       this.filters_temp.rating = "10";
-      this.filters_temp.industry = this.filters_meta.industries.slice()[0];
+      this.filters_temp.runtime = "180";
+      this.filters_temp.languages = [];
       this.filters_temp.tab = "All";
     }
   }
@@ -1333,7 +1343,7 @@ export default {
   overflow: hidden;
   background-color: #ffffff;
 }
-.industry-container {
+.language-container {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -1346,14 +1356,14 @@ export default {
   text-align: left;
   padding: 1%;
 }
-.industry-checkbox-container {
+.language-checkbox-container {
   position: relative;
   overflow: scroll;
   width: 100%;
   top: 3%;
   left: 5.5%;
 }
-.industry-checkbox {
+.language-checkbox {
   display: block;
   position: relative;
   width: 100%;
@@ -1361,7 +1371,7 @@ export default {
   padding: 8%;
   border-bottom: 1px solid #dad8d8;
 }
-.industry-checkmark-abled {
+.language-checkmark-abled {
   position: absolute;
   top: 19%;
   left: 5.5%;
@@ -1369,13 +1379,13 @@ export default {
   width: 4.5vw;
   background-color: #ffffff;
 }
-.industry-checkmark-text {
+.language-checkmark-text {
   position: absolute;
   margin-left: 12%;
   margin-top: -5%;
   font-size: calc(14px + 0.3vw);
 }
-.industry-checkbox input:checked ~ .industry-checkmark-abled {
+.language-checkbox input:checked ~ .language-checkmark-abled {
   background-color: #ffffff;
   background-image: url("./../images/checked.svg");
 }
