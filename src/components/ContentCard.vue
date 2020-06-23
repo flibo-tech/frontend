@@ -101,6 +101,10 @@ export default {
       type: String,
       required: true
     },
+    where_to_watch: {
+      type: Object,
+      required: true
+    },
     isCurrent: {
       type: Boolean,
       required: true
@@ -458,7 +462,8 @@ export default {
         content_id: this.content_id,
         poster: this.poster,
         title: this.title,
-        type: this.content_type
+        type: this.content_type,
+        where_to_watch: this.where_to_watch
       };
 
       this.hideCard();

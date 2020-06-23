@@ -70,7 +70,8 @@
         </div>
 
         <p class="summary-text"
-           :style="(is_mobile) ? '' : 'font-size: 15px;'">
+           :style="(is_mobile) ? '' : 'font-size: 15px;'"
+           v-if="content.data.summary_text">
           {{content.data.summary_text}}
         </p>
 
@@ -102,7 +103,15 @@
           <div class="seasons"
                :style="(is_mobile) ? '' : 'font-size: 15px;margin-top: 6px;'"
                v-if="content.data.type=='tv'">
-              {{content.data.seasons}} Seasons | {{content.data.episodes}} Episodes | {{content.data.runtime}} Each
+               <span v-if="content.data.seasons">
+                 {{content.data.seasons}} {{(content.data.seasons>1) ? 'Seasons | ' : 'Season | '}}
+               </span>
+               <span v-if="content.data.episodes">
+                 {{content.data.episodes}} {{(content.data.episodes>1) ? 'Episodes | ' : 'Episode | '}}
+               </span>
+               <span v-if="content.data.runtime">
+                 {{content.data.runtime}} {{(content.data.episodes) ? 'Each' : 'Each Episode'}}
+               </span>
           </div>
 
           <div class="seasons"
@@ -176,7 +185,7 @@
                    style="width: 125px;height: 187.5px;">
 
               <div class="content-similar-platforms"
-                  style="width: 125px;margin-top: -40.5px;padding: 5px 0px;"
+                  style="width: 125px;"
                   v-if="(Object.keys(item.where_to_watch || {}).includes('stream'))">
                   <div class="content-similar-platforms-container"
                       v-for="stream_item, stream_index in item.where_to_watch.stream">
@@ -190,7 +199,7 @@
               </div>
 
               <div class="content-similar-platforms"
-                  style="width: 125px;margin-top: -40.5px;padding: 5px 0px;"
+                  style="width: 125px;"
                   v-if="(!Object.keys(item.where_to_watch || {}).includes('stream'))
                           &&
                           (Object.keys(item.where_to_watch || {}).includes('rent'))">
@@ -206,7 +215,7 @@
               </div>
 
               <div class="content-similar-platforms"
-                  style="width: 125px;margin-top: -40.5px;padding: 5px 0px;"
+                  style="width: 125px;"
                   v-if="(!Object.keys(item.where_to_watch || {}).includes('stream'))
                           &&
                           (!Object.keys(item.where_to_watch || {}).includes('rent'))
@@ -336,7 +345,7 @@
                    style="width: 125px;height: 187.5px;">
 
               <div class="content-similar-platforms"
-                  style="width: 125px;margin-top: -40.5px;padding: 5px 0px;"
+                  style="width: 125px;"
                   v-if="(Object.keys(item.where_to_watch || {}).includes('stream'))">
                   <div class="content-similar-platforms-container"
                       v-for="stream_item, stream_index in item.where_to_watch.stream">
@@ -350,7 +359,7 @@
               </div>
 
               <div class="content-similar-platforms"
-                  style="width: 125px;margin-top: -40.5px;padding: 5px 0px;"
+                  style="width: 125px;"
                   v-if="(!Object.keys(item.where_to_watch || {}).includes('stream'))
                           &&
                           (Object.keys(item.where_to_watch || {}).includes('rent'))">
@@ -366,7 +375,7 @@
               </div>
 
               <div class="content-similar-platforms"
-                  style="width: 125px;margin-top: -40.5px;padding: 5px 0px;"
+                  style="width: 125px;"
                   v-if="(!Object.keys(item.where_to_watch || {}).includes('stream'))
                           &&
                           (!Object.keys(item.where_to_watch || {}).includes('rent'))

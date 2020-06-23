@@ -11,7 +11,7 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_m == "undefined") {
+    if (typeof my_store.unused_key_q == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       localStorage.clear();
@@ -40,7 +40,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_m: my_store ? my_store.unused_key_m : true,
+    unused_key_q: my_store ? my_store.unused_key_q : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -138,7 +138,8 @@ export const store = new Vuex.Store({
       content_type_tab: my_store
         ? my_store.rate.content_type_tab
         : ["movie", "tv"],
-      fetching_cards: false
+      fetching_cards: false,
+      prev_swipes: my_store ? my_store.rate.prev_swipes : []
     },
     rate_filters: {
       filters_meta: {
@@ -148,9 +149,7 @@ export const store = new Vuex.Store({
         awards: my_store ? my_store.rate_filters.filters_meta.awards : [],
         platforms: my_store ? my_store.rate_filters.filters_meta.platforms : [],
         ratings: ["All", "9+", "8+", "7+", "6+", "<6"],
-        industries: my_store
-          ? my_store.rate_filters.filters_meta.industries
-          : [],
+        languages: my_store ? my_store.rate_filters.filters_meta.languages : [],
         tabs: ["All", "Movies", "TV Series"]
       },
       filters_temp: {
@@ -176,8 +175,11 @@ export const store = new Vuex.Store({
           ? my_store.rate_filters.filters_applied.nominations
           : false,
         rating: my_store ? my_store.rate_filters.filters_applied.rating : "70",
-        industry: my_store
-          ? my_store.rate_filters.filters_applied.industry
+        runtime: my_store
+          ? my_store.rate_filters.filters_applied.runtime
+          : "180",
+        languages: my_store
+          ? my_store.rate_filters.filters_applied.languages
           : {},
         tab: my_store ? my_store.rate_filters.filters_applied.tab : "All"
       },
@@ -194,8 +196,11 @@ export const store = new Vuex.Store({
           ? my_store.rate_filters.filters_applied.nominations
           : false,
         rating: my_store ? my_store.rate_filters.filters_applied.rating : "10",
-        industry: my_store
-          ? my_store.rate_filters.filters_applied.industry
+        runtime: my_store
+          ? my_store.rate_filters.filters_applied.runtime
+          : "180",
+        languages: my_store
+          ? my_store.rate_filters.filters_applied.languages
           : {},
         tab: my_store ? my_store.rate_filters.filters_applied.tab : "All"
       },
@@ -255,8 +260,8 @@ export const store = new Vuex.Store({
           ? my_store.discover_filters.filters_meta.platforms
           : [],
         ratings: ["All", "9+", "8+", "7+", "6+", "<6"],
-        industries: my_store
-          ? my_store.discover_filters.filters_meta.industries
+        languages: my_store
+          ? my_store.discover_filters.filters_meta.languages
           : [],
         tabs: ["All", "Connections", "Suggestions"]
       },
@@ -285,8 +290,11 @@ export const store = new Vuex.Store({
         rating: my_store
           ? my_store.discover_filters.filters_applied.rating
           : "10",
-        industry: my_store
-          ? my_store.discover_filters.filters_applied.industry
+        runtime: my_store
+          ? my_store.discover_filters.filters_applied.runtime
+          : "180",
+        languages: my_store
+          ? my_store.discover_filters.filters_applied.languages
           : {},
         tab: my_store ? my_store.discover_filters.filters_applied.tab : "All"
       },
@@ -311,8 +319,11 @@ export const store = new Vuex.Store({
         rating: my_store
           ? my_store.discover_filters.filters_applied.rating
           : "10",
-        industry: my_store
-          ? my_store.discover_filters.filters_applied.industry
+        runtime: my_store
+          ? my_store.discover_filters.filters_applied.runtime
+          : "180",
+        languages: my_store
+          ? my_store.discover_filters.filters_applied.languages
           : {},
         tab: my_store ? my_store.discover_filters.filters_applied.tab : "All"
       },
