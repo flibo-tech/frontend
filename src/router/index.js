@@ -26,83 +26,83 @@ export default new Router({
     {
       path: "/",
       name: "App",
-      component: App
+      component: App,
     },
     {
       path: "/rate",
       name: "Rate",
-      component: Rate
+      component: Rate,
     },
     {
       path: "/content/:content_id/:title",
       name: "Content",
-      component: Content
+      component: Content,
     },
     {
       path: "/discover",
       name: "Discover",
-      component: Discover
+      component: Discover,
     },
     {
       path: "/watchlist",
       name: "Watchlist",
-      component: Watchlist
+      component: Watchlist,
     },
     {
       path: "/profile/:user_id/:user_name",
       name: "Profile",
-      component: Profile
+      component: Profile,
     },
     {
       path: "/connections",
       name: "Friends",
-      component: Friends
+      component: Friends,
     },
     {
       path: "/about-us",
       name: "AboutUs",
-      component: AboutUs
+      component: AboutUs,
     },
     {
       path: "/signup/:invitation",
       name: "SingUp",
-      component: SignUp
+      component: SignUp,
     },
     {
       path: "/search",
       name: "SearchBar",
-      props: route => ({ search_query: route.query.search }),
-      component: SearchBar
+      props: (route) => ({ search_query: route.query.search }),
+      component: SearchBar,
     },
     {
       path: "/search-results",
       name: "SearchResults",
-      component: SearchResults
+      component: SearchResults,
     },
     {
       path: "/settings",
       name: "Settings",
-      component: Settings
+      component: Settings,
     },
     {
       path: "/search-users",
       name: "SearchUsers",
-      component: SearchUsers
+      component: SearchUsers,
     },
     {
       path: "/privacy-policy",
       name: "PrivacyPolicy",
-      component: PrivacyPolicy
+      component: PrivacyPolicy,
     },
     {
       path: "/alert",
       name: "Alert",
-      component: Alert
+      component: Alert,
     },
     {
       path: "/blog/:content_name_piece",
       name: "Blog",
-      component: Blog
-    }
-  ]
+      component: Blog,
+    },
+  ],
 });
