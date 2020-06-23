@@ -266,10 +266,7 @@
           />
           <span class="ratefilter-checkmark-abled-genre" />
           <span class="ratefilter-genre-cropper">
-            <img
-              v-bind:src="language.picture"
-              class="ratefilter-genre-icon"
-            />
+            <img v-bind:src="language.picture" class="ratefilter-genre-icon" />
           </span>
           <span class="ratefilter-checkmark-text-genre">{{
             language.name
