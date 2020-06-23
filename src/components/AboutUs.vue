@@ -34,12 +34,12 @@
     </textarea>
     <button
       class="submit-message"
-      @click="!submitting & !submitted ? submitMessage() : ''"
       :style="
-        submitting | submitted
+        submitting || submitted
           ? 'border: 2px solid rgb(51, 51, 51);background-color: rgb(255, 255, 255);color: rgb(51, 51, 51);padding: 5px;'
           : ''
       "
+      @click="!submitting & !submitted ? submitMessage() : ''"
     >
       {{
         !submitting & !submitted
