@@ -17,6 +17,7 @@ import SearchUsers from "@/components/SearchUsers.vue";
 import PrivacyPolicy from "@/components/PrivacyPolicy.vue";
 import Alert from "@/components/Alert.vue";
 import Blog from "@/components/Blog.vue";
+import Onboarding from "@/views/Onboarding.vue";
 
 Vue.use(Router);
 
@@ -104,5 +105,10 @@ export default new Router({
       name: "Blog",
       component: Blog,
     },
-  ],
+    {
+      path: "/onboarding",
+      name: "Onboarding",
+      component: Onboarding
+    }
+  ]
 });
