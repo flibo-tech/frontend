@@ -27,7 +27,8 @@
         !this.is_search_page &&
           !this.is_user_search_page &&
           !this.is_onboarding &&
-          !this.is_landing_page
+          !this.is_landing_page &&
+          this.store.suggestions.rate_counter_all
       "
     />
 
@@ -40,7 +41,11 @@
       />
     </transition>
     <MainNavigation
-      v-if="!this.is_onboarding && !this.is_landing_page"
+      v-if="
+        !this.is_onboarding &&
+          !this.is_landing_page &&
+          this.store.suggestions.rate_counter_all
+      "
       @update-api-counter="updateApiCounter"
     />
   </div>
@@ -424,8 +429,18 @@ export default {
               // console.log(error.response.status);
             }
           });
-        if ((current_path != "/") & !this.is_signup_page) {
+        if (
+          current_path != "/" &&
+          current_path != "/onboarding" &&
+          !this.is_signup_page
+        ) {
           this.$store.state.current_path = this.$route.fullPath;
+        }
+
+        if (this.$store.state.current_path) {
+          this.$router.push(this.$store.state.current_path);
+        } else {
+          this.$router.push("/");
         }
 
         var self = this;
@@ -480,7 +495,17 @@ export default {
           .then(function(response) {
             self.$store.state.suggestions.rate_counter_all =
               response.data.contents_rated;
+            if (response.data.contents_rated < 25) {
+              self.$router.push("/onboarding");
+            }
             self.$store.state.user.profile.country = response.data.country;
+            if (
+              self.$store.state.rate.visible_cards.length == 0 &&
+              !self.store.rate.fetching_cards &&
+              response.data.country != null
+            ) {
+              self.getSwipeCards();
+            }
             self.$store.state.user.profile.platforms = response.data.platforms;
             if (self.is_mobile) {
               self.$store.state.instructions_seen =
@@ -499,13 +524,6 @@ export default {
               response.data.suggestions_ready_message_seen;
             if (!self.$route.query.search) {
               self.updateDeviceInfo();
-            }
-            if (!response.data.instructions_seen) {
-              self.$router.push("/onboarding");
-            } else if (self.$store.state.current_path) {
-              self.$router.push(self.$store.state.current_path);
-            } else {
-              self.$router.push("/");
             }
           });
 
@@ -924,30 +942,14 @@ export default {
                 } else {
                   self.$store.state.user.profile.country = "United States";
                 }
-                axios
-                  .post(self.$store.state.api_host + "update_profile", {
-                    session_id: self.$store.state.session_id,
-                    country: self.$store.state.user.profile.country
-                  })
-                  .then(function(response) {
-                    if ([200].includes(response.status)) {
-                    } else {
-                      // console.log(response.status);
-                    }
-                  })
-                  .catch(function(error) {
-                    // console.log(error);
-                    if ([401, 419].includes(error.response.status)) {
-                      window.location =
-                        self.$store.state.login_host +
-                        "logout?session_id=" +
-                        self.$store.state.session_id;
-                      self.$store.state.session_id = null;
-                      self.logging_out = true;
-                    } else {
-                      // console.log(error.response.status);
-                    }
-                  });
+                self.saveCountry();
+
+                if (
+                  self.$store.state.rate.visible_cards.length == 0 &&
+                  !self.store.rate.fetching_cards
+                ) {
+                  self.getSwipeCards();
+                }
               }
             }
 
@@ -1030,6 +1032,65 @@ export default {
           screen_height: window.outerHeight
         });
       }
+    },
+    saveCountry() {
+      var self = this;
+      axios
+        .post(self.$store.state.api_host + "update_profile", {
+          session_id: self.$store.state.session_id,
+          country: self.$store.state.user.profile.country
+        })
+        .then(function(response) {
+          if ([200].includes(response.status)) {
+          } else {
+            // console.log(response.status);
+          }
+        })
+        .catch(function(error) {
+          // console.log(error);
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.logging_out = true;
+          } else {
+            // console.log(error.response.status);
+          }
+        });
+    },
+    getSwipeCards() {
+      var self = this;
+      self.store.rate.fetching_cards = true;
+      axios
+        .post(self.$store.state.api_host + "get_contents_to_rate", {
+          session_id: self.$store.state.session_id,
+          content_ids: null,
+          rest_of_queue: null,
+          visible_cards: null,
+          country: self.$store.state.user.profile.country
+        })
+        .then(
+          response => (
+            (self.$store.state.rate.visible_cards = response.data.contents),
+            (self.$store.state.rate.content_ids = response.data.content_ids),
+            (self.store.rate.fetching_cards = false)
+          )
+        )
+        .catch(function(error) {
+          // console.log(error);
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.logging_out = true;
+          } else {
+            // console.log(error.response.status);
+          }
+        });
     }
   }
 };
@@ -1039,7 +1100,7 @@ export default {
 @import "./styles/mixins.scss";
 // @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800&display=swap');
 // @import url('https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700&display=swap');
-@import url("https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700|Roboto:400,500,700,900&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700|Roboto:400,500,700,900|Roboto:wght@900&display=swap");
 @import url("https://fonts.googleapis.com/css?family=Poiret+One&display=swap");
 
 #app {
