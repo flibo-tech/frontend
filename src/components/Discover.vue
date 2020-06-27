@@ -679,7 +679,7 @@ export default {
   props: {
     to_filter: {
       type: Boolean,
-      required: true
+      required: false
     }
   },
   data() {
