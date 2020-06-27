@@ -106,7 +106,7 @@
     <transition
       appear
       enter-active-class="animated fadeIn"
-      leave-active-class="animated fadeOut"
+      leave-active-class="animated rateFadeOut"
     >
       <button
         v-if="is_mobile && show_last_card_button && this.$store.state.last_card"
@@ -128,7 +128,7 @@
     <transition
       appear
       enter-active-class="animated fadeIn"
-      leave-active-class="animated fadeOut"
+      leave-active-class="animated rateFadeOut"
     >
       <div
         class="rate-item-platforms"
@@ -637,7 +637,7 @@ export default {
 .fadeIn {
   animation: fadeIn 0.3s;
 }
-.fadeOut {
+.rateFadeOut {
   animation: fadeOut 0s;
 }
 .rate-bar {

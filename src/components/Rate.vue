@@ -36,11 +36,20 @@ export default {
     };
   },
   created() {
-    if (this.$store.state.suggestions.rate_counter_all < 25) {
-      this.$router.push("/onboarding");
-    } else {
-      this.$store.state.current_path = "/rate";
-    }
+    var self = this;
+    axios
+      .post(self.$store.state.api_host + "counts", {
+        session_id: self.$store.state.session_id
+      })
+      .then(function(response) {
+        self.$store.state.suggestions.rate_counter_all =
+          response.data.contents_rated;
+        if (response.data.contents_rated < 25) {
+          self.$router.push("/onboarding");
+        } else {
+          self.$store.state.current_path = "/rate";
+        }
+      });
   }
 };
 </script>

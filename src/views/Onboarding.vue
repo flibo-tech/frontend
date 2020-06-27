@@ -32,7 +32,9 @@
   </div>
 
   <div
-    v-else-if="start_rating && store.suggestions.rate_counter_all < 25"
+    v-else-if="
+      start_rating && store.suggestions.rate_counter_all <= ratingThreshold
+    "
     class="onboarding-rate-container"
     :style="`--window_height:` + window_height + `px;`"
   >
@@ -80,7 +82,7 @@
   </div>
 
   <div
-    v-else-if="store.suggestions.rate_counter_all == 25"
+    v-else-if="store.suggestions.rate_counter_all == ratingThreshold + 1"
     class="onboarding-success-container"
     :style="`--window_height:` + window_height + `px;`"
   >
@@ -150,8 +152,34 @@ export default {
     };
   },
   created() {
-    if (this.$store.state.suggestions.rate_counter_all >= 25) {
-      this.$router.push("/rate");
+    var self = this;
+    axios
+      .post(self.$store.state.api_host + "counts", {
+        session_id: self.$store.state.session_id
+      })
+      .then(function(response) {
+        self.$store.state.suggestions.rate_counter_all =
+          response.data.contents_rated;
+        if (response.data.contents_rated >= self.ratingThreshold) {
+          this.$router.push("/rate");
+        }
+      });
+  },
+  computed: {
+    rate_counter: function() {
+      return this.store.suggestions.rate_counter_all;
+    }
+  },
+  watch: {
+    rate_counter: {
+      handler(count) {
+        var self = this;
+        if (count == self.ratingThreshold) {
+          self.timeout = setTimeout(function() {
+            self.store.suggestions.rate_counter_all = self.ratingThreshold + 1;
+          }, 750);
+        }
+      }
     }
   },
   methods: {
