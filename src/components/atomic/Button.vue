@@ -9,6 +9,7 @@
 
 <script>
 export default {
+  name: "Button",
   props: {
     text: {
       type: String,
