@@ -518,8 +518,7 @@
 
         <div class="discover-page-filters"
              :class="{ 'discover-page-filters--hidden': !showRefreshButton }"
-             :style="is_mobile ? '' : 'top: 50px;width: 1000px;height: 110px;'"
-             v-if="!store.suggestions.fetching_suggestions">
+             :style="is_mobile ? '' : 'top: 50px;width: 1000px;height: 110px;'">
 
              <div class="home-quick-filters"
                   :style="is_mobile ? '' : 'height: 40px;'">
