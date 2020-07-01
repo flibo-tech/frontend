@@ -13,7 +13,7 @@
              v-if="!fetching_watchlist">
             <div class="watchlist-filter-platforms-container"
                 :style="(is_mobile) ? ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;' : '') : ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;height: 70px;margin-top: 60px;' : 'height: 70px;margin-top: 60px;')">
-                <label v-for="platform in filters_meta.platforms"
+                <label v-for="platform in watchlist_available_platforms"
                     class="watchlist-filter-platform-checkbox"
                     :style="(is_mobile) ? '' : 'margin-right: 65px;'">
                     <input type="checkbox"
@@ -32,7 +32,7 @@
 
             <div class="watchlist-filter-genres-container"
                 :style="(is_mobile) ? ((get_filtered_genres.length) ? 'background-color: #e1e7fc;' : '') : ((get_filtered_genres.length) ? 'background-color: #e1e7fc;height: 100px;' : 'height: 100px;')">
-                <label v-for="genre in filters_meta.genres"
+                <label v-for="genre in watchlist_available_genres"
                     class="watchlist-filter-genre-checkbox"
                     :style="(is_mobile) ? '' : 'margin-right: 95px;'">
                     <input type="checkbox"
@@ -500,6 +500,46 @@ export default {
     },
     get_filtered_genres() {
       return this.filtered_genres;
+    },
+    watchlist_available_platforms() {
+      var watchlist_platforms = [];
+      this.store.watchlist.forEach(function(item, index) {
+        if (Object.keys(item.where_to_watch || {}).includes("stream")) {
+          watchlist_platforms.push(...Object.keys(item.where_to_watch.stream));
+        } else if (Object.keys(item.where_to_watch || {}).includes("rent")) {
+          watchlist_platforms.push(...Object.keys(item.where_to_watch.rent));
+        } else if (Object.keys(item.where_to_watch || {}).includes("buy")) {
+          watchlist_platforms.push(...Object.keys(item.where_to_watch.buy));
+        }
+      });
+
+      var output = [];
+      var self = this;
+      this.filters_meta.platforms.forEach(function(item, index) {
+        if (
+          watchlist_platforms.indexOf(
+            item.platform_name.replace(/[^a-z0-9]+/gi, "_").toLowerCase()
+          ) != -1
+        ) {
+          output.push(item);
+        }
+      });
+      return output;
+    },
+    watchlist_available_genres() {
+      var watchlist_genres = [];
+      this.store.watchlist.forEach(function(item, index) {
+        watchlist_genres.push(...item.genres);
+      });
+
+      var output = [];
+      var self = this;
+      this.filters_meta.genres.forEach(function(item, index) {
+        if (watchlist_genres.indexOf(item.genre_name) != -1) {
+          output.push(item);
+        }
+      });
+      return output;
     }
   },
   mounted() {

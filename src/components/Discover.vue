@@ -576,7 +576,7 @@
 
             <div class="discover-filter-platforms-container"
                 :style="is_mobile ? ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;' : '') : ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;height: 50px;' : 'height: 50px;')">
-                <label v-for="platform in quick_filters_meta.platforms"
+                <label v-for="platform in user_platforms"
                     class="discover-filter-platform-checkbox"
                     :style="is_mobile ? '' : 'margin-right: 55px;'">
                     <input type="checkbox"
@@ -827,6 +827,18 @@ export default {
     },
     new_incremental_fetch() {
       return this.store.suggestions.fetching_feed_incremental;
+    },
+    user_platforms() {
+      var output = [];
+      var self = this;
+      this.quick_filters_meta.platforms.forEach(function(item, index) {
+        if (
+          self.store.user.profile.platforms.indexOf(item.platform_name) != -1
+        ) {
+          output.push(item);
+        }
+      });
+      return output;
     }
   },
   watch: {
