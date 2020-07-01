@@ -1,61 +1,8 @@
 <template>
     <div>
-        <div class="suggestion-content-type-tabs"
-             :style="(is_mobile) ? '' : 'right: calc(50vw - 500px);'">
-            <a @click="switchContentTab">
-                {{(content_type_tab_string == '[movie,tv]') ? 'Movies + TV Series' : ((content_type_tab_string == '[movie]') ? 'Movies' : 'TV Series')}}
-            </a>
-        </div>
-
-        <div class="suggestion-discover-type-tabs"
-             :style="(is_mobile) ? '' : 'width: 1000px;'">
-            <a :class="[ discover_type_tab_string == '[community,friends,flibo]' ? 'is-active' : '']" @click="switchDiscoverTab(['community','friends','flibo'])">Feed</a>
-            <!-- <a :class="[ discover_type_tab_string == '[friends]' ? 'is-active' : '']" @click="switchDiscoverTab(['friends'])">Friends</a> -->
-            <a :class="[ discover_type_tab_string == '[flibo]' ? 'is-active' : '']" @click="switchDiscoverTab(['flibo'])">
-                Suggestions
-
-                <button v-if="(store.notifications.suggestions)"
-                class="suggestion-filter-active"
-                :style="(is_mobile) ? '' : 'right: 195px;margin-top: 2px;'"/>
-            </a>
-            <!-- <a :class="[ discover_type_tab_string == '[filter]' ? 'is-active' : '']" @click="openFilter">
-                Filter
-
-                <button v-if="(
-                  store.discover_filters.never_seen_filters
-                  ||
-                  (filters_applied.tab == 'Connections')
-                  ||
-                  filters_applied.artists.length
-                  ||
-                  filters_applied.genres.length
-                  ||
-                  filters_applied.years.length
-                  ||
-                  filters_applied.platforms.length
-                  ||
-                  (filters_applied.rating != '10')
-                  ||
-                  (filters_applied.runtime != '180')
-                  ||
-                  filters_applied.languages.length
-                  )"
-                class="suggestion-filter-active"
-                style="right: 20%;"/>
-            </a> -->
-        </div>
-
         <div class="suggestions-box"
              v-if="(discover_type_tab_string != '[filter]') ? !store.suggestions.fetching_suggestions : !fetching_filtered"
-             :style="is_mobile ? 'margin-top: 150px;' : 'position: relative;margin-top: 170px;'">
-
-            <!-- <div class="suggestions-note"
-                 @click="$router.push('/search')">
-                <p style="font-weight: normal;text-align: center;">
-                Filter your suggestions
-                <span style="font-weight: bold;">here</span>
-                </p>
-            </div> -->
+             :style="is_mobile ? 'margin-top: 130px;' : 'position: relative;margin-top: 150px;'">
 
             <div v-for="item, index in (discover_type_tab_string != '[filter]') ? store.suggestions.contents : store.discover_filters.filtered_content"
                  v-if="((discover_type_tab_string != '[filter]') ? (store.suggestions.content_type_tab.includes(item.type)
@@ -571,10 +518,68 @@
 
         <div class="discover-page-filters"
              :class="{ 'discover-page-filters--hidden': !showRefreshButton }"
-             :style="is_mobile ? '' : 'top: 85px;width: 1000px;height: 110px;'"
+             :style="is_mobile ? '' : 'top: 50px;width: 1000px;height: 110px;'"
              v-if="!store.suggestions.fetching_suggestions">
 
-            <div class="discover-filter-platforms-container"
+             <div class="home-quick-filters"
+                  :style="is_mobile ? '' : 'height: 40px;'">
+                <div class="home-quick-filters-content-type">
+                  <label v-for="item, index in ['All', 'Movie', 'TV']"
+                        :key="index"
+                        class="content-type-checkbox"
+                        :style="(home_content_type_tab==item) ? 'background-color: #e8f0fe;border-color: #d2e3fc;' : ''"
+                        @click="switchContentTab(item)">
+                    <input type="radio"
+                          v-bind:value="item"
+                          v-model="home_content_type_tab"
+                          class="content-type-checkbox-input"/>
+                    <span class="content-type-checkmark-text">{{ item }}</span>
+                  </label>
+                </div>
+
+                <div class="home-quick-filters-discover-type">
+                  <input type="checkbox"
+                        id="home-quick-filters-discover-type-id"
+                        value='Only Suggestions'
+                        v-model="home_discover_type_tab"
+                        class="content-type-checkbox-input"/>
+                  <label @click="switchDiscoverTab"
+                        for="home-quick-filters-discover-type-id"
+                        class="content-type-checkbox"
+                        :style="(home_discover_type_tab.includes('Only Suggestions')) ? 'background-color: #e8f0fe;border-color: #d2e3fc;' : ''">
+                    <span class="content-type-checkmark-text">Only Suggestions</span>
+                  </label>
+                  <button v-if="(store.notifications.suggestions)"
+                          class="suggestion-filter-active"
+                          :style="(is_mobile) ? '' : 'right: 195px;margin-top: 2px;'"/>
+                </div>
+
+                <div class="home-quick-filters-platforms">
+                  <label v-for="platform in user_platforms"
+                      class="discover-filter-platform-checkbox"
+                      :style="is_mobile ? '' : 'margin-right: 55px;'">
+                      <input type="checkbox"
+                          v-bind:value="platform"
+                          v-model="quick_filters_applied.platforms"
+                          class="discover-filter-checkbox-input"
+                          @click="filterDiscoverPage">
+                      <span class="discover-filter-checkmark-abled-platform"
+                            :style="is_mobile ? '' : 'height: 40px;width: 40px;'"/>
+                      <span class="discover-filter-platform-cropper"
+                            :style="is_mobile ? '' : 'height: 40px;width: 40px;'">
+                          <img v-bind:src="platform.platform_link" class="discover-filter-platform-icon"/>
+                      </span>
+                  </label>
+                </div>
+
+                <div>
+                  <div class="more-filters"
+                  :style="is_mobile ? '' : 'height: 40px;width: 40px;'"
+                  @click="$router.push('/search')"/>
+                 </div>
+              </div>
+
+            <!-- <div class="discover-filter-platforms-container"
                 :style="is_mobile ? ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;' : '') : ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;height: 50px;' : 'height: 50px;')">
                 <label v-for="platform in user_platforms"
                     class="discover-filter-platform-checkbox"
@@ -591,16 +596,12 @@
                         <img v-bind:src="platform.platform_link" class="discover-filter-platform-icon"/>
                     </span>
                 </label>
-            </div>
+            </div> -->
 
             <div class="refresh-feed" v-if="(discover_type_tab_string != '[filter]')"
                 @click="refreshFeed">
                 Refresh
             </div>
-
-            <div class="more-filters"
-                 :style="is_mobile ? '' : 'height: 40px;width: 40px;'"
-                 @click="$router.push('/search')"/>
         </div>
 
         <div class="no-suggestion-message" v-if="(discover_type_tab_string != '[filter]')
@@ -717,7 +718,9 @@ export default {
       trailer_content_id: null,
       where_to_watch: null,
       filtered_platforms: [],
-      store: this.$store.state
+      store: this.$store.state,
+      home_content_type_tab: "All",
+      home_discover_type_tab: []
     };
   },
   created() {
@@ -730,11 +733,13 @@ export default {
       !self.$store.state.suggestions.fetching_suggestions
     ) {
       self.$store.state.suggestions.fetching_suggestions = true;
+      self.home_discover_type_tab = [];
       self.$store.state.suggestions.discover_type_tab = [
         "community",
         "friends",
         "flibo"
       ];
+      self.home_content_type_tab = "All";
       self.$store.state.suggestions.content_type_tab = ["movie", "tv"];
       axios
         .post(self.$store.state.api_host + "flibo_feed", {
@@ -797,6 +802,20 @@ export default {
           }
         });
     } else {
+      if (self.content_type_tab_string == "[movie,tv]") {
+        self.home_content_type_tab = "All";
+      } else if (self.content_type_tab_string == "[movie]") {
+        self.home_content_type_tab = "Movie";
+      } else if (self.content_type_tab_string == "[tv]") {
+        self.home_content_type_tab = "TV";
+      }
+
+      if (self.discover_type_tab_string == "[community,friends,flibo]") {
+        self.home_discover_type_tab = [];
+      } else if (self.discover_type_tab_string == "[flibo]") {
+        self.home_discover_type_tab = ["Only Suggestions"];
+      }
+
       self.filterDiscoverPage();
     }
     if (
@@ -829,16 +848,20 @@ export default {
       return this.store.suggestions.fetching_feed_incremental;
     },
     user_platforms() {
-      var output = [];
-      var self = this;
-      this.quick_filters_meta.platforms.forEach(function(item, index) {
-        if (
-          self.store.user.profile.platforms.indexOf(item.platform_name) != -1
-        ) {
-          output.push(item);
-        }
-      });
-      return output;
+      if (this.store.user.profile.platforms.length) {
+        var output = [];
+        var self = this;
+        this.quick_filters_meta.platforms.forEach(function(item, index) {
+          if (
+            self.store.user.profile.platforms.indexOf(item.platform_name) != -1
+          ) {
+            output.push(item);
+          }
+        });
+        return output;
+      } else {
+        return this.quick_filters_meta.platforms;
+      }
     }
   },
   watch: {
@@ -1382,9 +1405,11 @@ export default {
           });
       } else {
         if (this.filters_applied.tab == "All") {
-          this.switchDiscoverTab(["community", "friends", "flibo"]);
+          this.home_discover_type_tab = [];
+          this.switchDiscoverTab();
         } else if (this.filters_applied.tab == "Suggestions") {
-          this.switchDiscoverTab(["flibo"]);
+          this.home_discover_type_tab = ["Only Suggestions"];
+          this.switchDiscoverTab();
         }
       }
     },
@@ -1640,12 +1665,24 @@ export default {
         this.$store.state.scroll_positions.discover.filter = scroll_position;
       }
     },
-    switchDiscoverTab(tabs) {
+    switchDiscoverTab() {
+      var self = this;
+      setTimeout(self._switchDiscoverTab, 0);
+    },
+    _switchDiscoverTab() {
       if (this.discover_type_tab_string == "[filter]") {
         this.to_filter = false;
       }
       this.updateScroll(window.scrollY);
-      this.$store.state.suggestions.discover_type_tab = tabs;
+      if (this.home_discover_type_tab.includes("Only Suggestions")) {
+        this.$store.state.suggestions.discover_type_tab = ["flibo"];
+      } else {
+        this.$store.state.suggestions.discover_type_tab = [
+          "community",
+          "friends",
+          "flibo"
+        ];
+      }
       if (
         (this.discover_type_tab_string == "[flibo]") &
         this.$store.state.notifications.suggestions
@@ -1665,13 +1702,13 @@ export default {
             : "home_feed"
       });
     },
-    switchContentTab(tabs) {
+    switchContentTab(tab) {
       this.updateScroll(0);
-      if (this.content_type_tab_string == "[movie,tv]") {
+      if (tab == "Movie") {
         this.$store.state.suggestions.content_type_tab = ["movie"];
-      } else if (this.content_type_tab_string == "[movie]") {
+      } else if (tab == "TV") {
         this.$store.state.suggestions.content_type_tab = ["tv"];
-      } else if (this.content_type_tab_string == "[tv]") {
+      } else if (tab == "All") {
         this.$store.state.suggestions.content_type_tab = ["movie", "tv"];
       }
       this.scrollToLastPosition();
@@ -1879,6 +1916,7 @@ export default {
         });
     },
     refreshFeed() {
+      this.home_content_type_tab = "All";
       this.$emit("refresh-feed");
       if (this.discover_type_tab_string == "[flibo]") {
         this.vanishFliboNotification();
@@ -2186,9 +2224,6 @@ export default {
   z-index: 10000;
 }
 .suggestion-filter-active {
-  position: absolute;
-  right: 22%;
-  margin-top: 0px;
   height: 7px;
   width: 7px;
   background-image: url("./../images/red_dot.png");
@@ -2732,7 +2767,7 @@ export default {
 }
 .discover-page-filters {
   position: fixed;
-  top: 80px;
+  top: 50px;
   left: 50%;
   z-index: 1000;
   padding-bottom: 5px;
@@ -3006,9 +3041,7 @@ export default {
   width: 100%;
 }
 .more-filters {
-  position: fixed;
-  top: 20px;
-  right: 10px;
+  margin-right: 16px;
   height: 30px;
   width: 30px;
   border-radius: 5px;
@@ -3193,5 +3226,61 @@ export default {
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
+}
+.home-quick-filters {
+  display: flex;
+  width: 100%;
+  margin-top: 10px;
+  overflow: scroll;
+}
+.home-quick-filters-content-type {
+  display: flex;
+  margin-left: 16px;
+  padding-right: 5px;
+  height: max-content;
+  border-right: 1px solid #dfe1e5;
+}
+.content-type-checkbox {
+  display: inline-block;
+  position: relative;
+  width: max-content;
+  border-radius: 50px;
+  background-color: #ffffff;
+  padding: 5px 15px;
+  margin-right: 5px;
+  border: 1px solid #dfe1e5;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.content-type-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+.content-type-checkmark-text {
+  font-size: 15px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: left;
+  color: #333333;
+}
+.home-quick-filters-discover-type {
+  display: flex;
+  margin-left: 10px;
+  padding-right: 5px;
+  border-right: 1px solid #dfe1e5;
+}
+.home-quick-filters-platforms {
+  display: flex;
+  margin-left: 10px;
 }
 </style>
