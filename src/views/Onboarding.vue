@@ -4,7 +4,7 @@
     class="instructions-container"
     :style="`--window_height:` + window_height + `px;`"
   >
-    <div class="onboarding-logo" />
+    <Logo logoColor="light" height="40" class="onboarding-logo" />
 
     <h1 class="onboarding-username">
       Hi, {{ store.user.name.split(" ")[0] }}.
@@ -86,7 +86,7 @@
     class="onboarding-success-container"
     :style="`--window_height:` + window_height + `px;`"
   >
-    <div class="onboarding-logo" />
+    <Logo logoColor="light" height="40" class="onboarding-logo" />
 
     <div class="onboarding-success-icon" />
 
@@ -115,6 +115,7 @@
 <script>
 import Button from "./../components/atomic/Button";
 import ProgressBar from "./../components/atomic/ProgressBar";
+import Logo from "./../components/atomic/Logo";
 import Swipe from "./../components/molecular/Swipe";
 import axios from "axios";
 
@@ -123,6 +124,7 @@ export default {
   components: {
     Button,
     ProgressBar,
+    Logo,
     Swipe
   },
   data() {
@@ -237,11 +239,7 @@ export default {
 .onboarding-logo {
   grid-row-start: 2;
   grid-column-start: 2;
-  background-image: url("./../images/flibo-logo-white.png");
-  background-size: contain;
-  background-repeat: no-repeat;
-  width: 100%;
-  height: 40px;
+  justify-self: left;
 }
 .onboarding-username {
   grid-row-start: 4;
