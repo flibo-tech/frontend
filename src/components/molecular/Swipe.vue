@@ -63,6 +63,7 @@
         @hideLastcardButton="show_last_card_button = false"
         @showLastcardButton="show_last_card_button = true"
         @potentialRating="checkPotentialRating"
+        @resetLabels="resetLabels"
         @swipeStart="swipeStart"
         @swipeEnd="swipeEnd"
         @destroyCC="destroyCC"
@@ -390,6 +391,12 @@ export default {
         this.isHaventSeen = true;
       }
     },
+    resetLabels() {
+      this.isLiked = false;
+      this.isDisliked = false;
+      this.isLoved = false;
+      this.isHaventSeen = false;
+    },
     swipeStart() {
       this.showRating = true;
     },
@@ -462,7 +469,6 @@ export default {
     swipeApiCounter(activity) {
       this.removingCard = true;
       this.$emit("update-api-counter", activity);
-      this.showRating = false;
     },
     goToPlatform(link, content_id, traffic_origin) {
       var activity = {

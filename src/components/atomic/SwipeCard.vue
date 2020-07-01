@@ -179,6 +179,8 @@ export default {
         } else if (y > interactYThreshold) {
           this.potentialating = "potential-haventSeen";
           this.$emit("potentialRating", this.potentialating);
+        } else {
+          this.$emit("resetLabels");
         }
 
         let rotation = interactMaxRotation * (x / interactXThreshold);
