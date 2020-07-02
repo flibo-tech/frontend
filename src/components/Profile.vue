@@ -16,15 +16,6 @@
 
         <div style="position: relative; width: 95%;margin-left: 2.5%;"
              v-if="(!fetching_profile) | own_profile">
-            <div class="content-type-tabs"
-                 :style="(is_mobile) ? '' : 'right: calc(50vw - 500px);'">
-                <a @click="switchProfileContentType">
-                    {{(content_type == 'movie') ? 'Movies' : 'TV Series'}}
-                </a>
-                <button class="profile-show-switch"
-                        v-if="store.notifications.never_seen_profile_switch"/>
-            </div>
-
             <div :class="(is_mobile) ? 'profile-cover' : 'desktop-profile-cover'">
                 <img v-for="item, index in posters"
                     v-bind:class="'poster-'+(index+1)"
@@ -264,6 +255,28 @@
                     </div>
                 </div>
             </transition>
+
+            <div class="profile-quick-filters-content-type"
+            v-if="(total_watched.movie.total!='some great') || (total_watched.tv.total!='some great')">
+              <label
+                v-for="(item, index) in ['Movie', 'TV']"
+                :key="index"
+                class="content-type-checkbox"
+                :style="
+                  profile_content_type_tab == item
+                    ? 'background-color: #e8f0fe;border-color: #d2e3fc;'
+                    : ''
+                "
+              >
+                <input
+                  type="radio"
+                  v-bind:value="item"
+                  v-model="profile_content_type_tab"
+                  class="content-type-checkbox-input"
+                />
+                <span class="content-type-checkmark-text">{{ item }}</span>
+              </label>
+            </div>
 
             <div class="total-watched-container">
                 <span  style="font-weight: bold;font-size: 15px;">
@@ -943,7 +956,7 @@ export default {
     return {
       is_mobile: window.screen.height > window.screen.width,
       renderComponent: true,
-      content_type: "movie",
+      profile_content_type_tab: "Movie",
       fetching_profile: false,
       user_type: null,
       user_id: null,
@@ -1461,13 +1474,6 @@ export default {
       this.$router.push("/connections");
       this.$emit("update-api-counter", { api: "connections" });
     },
-    switchProfileContentType() {
-      if (this.$store.state.notifications.never_seen_profile_switch) {
-        this.$store.state.notifications.never_seen_profile_switch = false;
-      }
-      this.content_type = this.content_type == "movie" ? "tv" : "movie";
-      window.scrollTo(0, 0);
-    },
     openContent(content_id, title, origin) {
       this.$store.state.content_page.more_by_artist = null;
       this.$store.state.content_page.artist = null;
@@ -1804,6 +1810,9 @@ export default {
     },
     rating_tab_string() {
       return JSON.stringify(this.rating_tab);
+    },
+    content_type() {
+      return this.profile_content_type_tab.toLowerCase();
     },
     country_flag() {
       var country;
@@ -3924,5 +3933,44 @@ h4 {
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
+}
+.profile-quick-filters-content-type {
+  display: flex;
+  height: max-content;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.content-type-checkbox {
+  display: inline-block;
+  position: relative;
+  width: max-content;
+  border-radius: 50px;
+  background-color: #ffffff;
+  padding: 5px 15px;
+  margin-right: 5px;
+  border: 1px solid #dfe1e5;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.content-type-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+.content-type-checkmark-text {
+  font-size: 15px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: left;
+  color: #333333;
 }
 </style>
