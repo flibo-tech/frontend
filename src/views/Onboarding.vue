@@ -95,8 +95,8 @@
       <span style="font-weight: 700; color: #a2d194;"
         >{{ ratingThreshold }} movies and shows</span
       >
-      so far. Now FLIBO has started collecting movies and tv shows that you
-      might like to watch.
+      so far. Now FLIBO has started collecting suggestions for your taste. The
+      more you swipe, the better we suggest.
     </p>
 
     <Button
