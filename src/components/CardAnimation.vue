@@ -62,7 +62,7 @@ export default {
   animation-name: tilt;
   animation-duration: 7s;
   animation-iteration-count: infinite;
-  border-radius: 6px;
+  border-radius: 10px;
   background-size: cover;
 }
 @keyframes tilt {
