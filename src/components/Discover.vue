@@ -2,7 +2,7 @@
     <div>
         <div class="suggestions-box"
              v-if="(discover_type_tab_string != '[filter]') ? !store.suggestions.fetching_suggestions : !fetching_filtered"
-             :style="is_mobile ? 'margin-top: 130px;' : 'position: relative;margin-top: 150px;'">
+             :style="is_mobile ? 'margin-top: 160px;' : 'position: relative;margin-top: 180px;'">
 
             <div v-for="item, index in (discover_type_tab_string != '[filter]') ? store.suggestions.contents : store.discover_filters.filtered_content"
                  v-if="((discover_type_tab_string != '[filter]') ? (store.suggestions.content_type_tab.includes(item.type)
@@ -521,7 +521,7 @@
              :style="is_mobile ? '' : 'top: 50px;width: 1000px;height: 110px;'">
 
             <div class="home-quick-filters"
-                  :style="is_mobile ? '' : 'height: 40px;'">
+                  :style="is_mobile ? '' : 'height: 50px;'">
                 <div class="home-quick-filters-content-type">
                   <label v-for="item, index in ['All', 'Movie', 'TV']"
                         :key="index"
@@ -553,10 +553,11 @@
                           :style="(is_mobile) ? '' : 'right: 195px;margin-top: 2px;'"/>
                 </div>
 
-                <div class="home-quick-filters-platforms">
+                <div class="home-quick-filters-platforms"
+                     :style="is_mobile ? ((get_filtered_platforms.length) ? 'background-color: rgb(232, 240, 254);' : '') : ((get_filtered_platforms.length) ? 'background-color: rgb(232, 240, 254);height: 50px;' : 'height: 50px;')">
                   <label v-for="platform in user_platforms"
                       class="discover-filter-platform-checkbox"
-                      :style="is_mobile ? '' : 'margin-right: 55px;'">
+                      :style="is_mobile ? '' : 'margin-right: 45px;'">
                       <input type="checkbox"
                           v-bind:value="platform"
                           v-model="quick_filters_applied.platforms"
@@ -1982,7 +1983,6 @@ export default {
   white-space: nowrap;
   margin-top: 165px;
   padding-bottom: 3%;
-  padding-top: 30px;
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -2751,8 +2751,7 @@ export default {
   top: 50px;
   left: 50%;
   z-index: 1000;
-  padding-bottom: 5px;
-  height: 100px;
+  height: 105px;
   width: 100%;
   background-color: #ffffff;
   transform: translate3d(-50%, 0%, 0);
@@ -2983,7 +2982,9 @@ export default {
 .discover-filter-platform-checkbox {
   position: relative;
   display: inline-block;
-  margin-right: 45px;
+  margin-right: 39px;
+  margin-left: 5px;
+  height: 34px;
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
@@ -3023,6 +3024,7 @@ export default {
 }
 .more-filters {
   margin-right: 16px;
+  margin-left: 5px;
   height: 34px;
   width: 34px;
   border-radius: 5px;
@@ -3210,6 +3212,7 @@ export default {
 }
 .home-quick-filters {
   display: flex;
+  align-items: center;
   width: 100%;
   margin-top: 10px;
   overflow: scroll;
@@ -3255,6 +3258,7 @@ export default {
   color: #333333;
 }
 .home-quick-filters-discover-type {
+  position: relative;
   display: flex;
   margin-left: 10px;
   padding-right: 5px;
@@ -3263,5 +3267,7 @@ export default {
 .home-quick-filters-platforms {
   display: flex;
   margin-left: 10px;
+  padding: 5px 0px;
+  border-radius: 5px;
 }
 </style>

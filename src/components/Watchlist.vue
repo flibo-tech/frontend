@@ -6,7 +6,7 @@
              v-if="!fetching_watchlist">
 
             <div class="watchlist-quick-filters"
-                :style="is_mobile ? '' : 'height: 40px;'">
+                :style="is_mobile ? '' : 'height: 50px;'">
               <div class="watchlist-quick-filters-content-type">
                 <label v-for="item, index in ['All', 'Movie', 'TV']"
                       :key="index"
@@ -21,10 +21,11 @@
                 </label>
               </div>
 
-              <div class="watchlist-quick-filters-platforms">
+              <div class="watchlist-quick-filters-platforms"
+                  :style="is_mobile ? ((get_filtered_platforms.length) ? 'background-color: rgb(232, 240, 254);' : '') : ((get_filtered_platforms.length) ? 'background-color: rgb(232, 240, 254);height: 50px;' : 'height: 50px;')">
                 <label v-for="platform in watchlist_available_platforms"
                     class="watchlist-filter-platform-checkbox"
-                    :style="is_mobile ? '' : 'margin-right: 65px;'">
+                    :style="is_mobile ? '' : 'margin-right: 45px;'">
                     <input type="checkbox"
                         v-bind:value="platform"
                         v-model="filters_applied.platforms"
@@ -41,7 +42,7 @@
             </div>
 
             <div class="watchlist-filter-genres-container"
-                :style="(is_mobile) ? ((get_filtered_genres.length) ? 'background-color: #e1e7fc;' : '') : ((get_filtered_genres.length) ? 'background-color: #e1e7fc;height: 100px;' : 'height: 100px;')">
+                :style="(is_mobile) ? ((get_filtered_genres.length) ? 'background-color: rgb(232, 240, 254);' : '') : ((get_filtered_genres.length) ? 'background-color: rgb(232, 240, 254);height: 100px;' : 'height: 100px;')">
                 <label v-for="genre in watchlist_available_genres"
                     class="watchlist-filter-genre-checkbox"
                     :style="(is_mobile) ? '' : 'margin-right: 95px;'">
@@ -1687,7 +1688,9 @@ export default {
 .watchlist-filter-platform-checkbox {
   position: relative;
   display: inline-block;
-  margin-right: 50px;
+  margin-right: 39px;
+  margin-left: 5px;
+  height: 34px;
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
@@ -1958,6 +1961,7 @@ export default {
 }
 .watchlist-quick-filters {
   display: flex;
+  align-items: center;
   width: 100%;
   margin-top: 10px;
   overflow: scroll;
@@ -2005,5 +2009,7 @@ export default {
 .watchlist-quick-filters-platforms {
   display: flex;
   margin-left: 10px;
+  padding: 5px 0px;
+  border-radius: 5px;
 }
 </style>
