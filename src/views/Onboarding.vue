@@ -284,7 +284,7 @@ export default {
   background-color: #1b1922;
   display: grid;
   grid-template-columns: 24px auto 8px auto 1fr auto 24px;
-  z-index: 1;
+  z-index: 2;
 }
 .onboarding-rating-back {
   grid-column-start: 2;
@@ -319,6 +319,7 @@ export default {
 .onboarding-rate-swipe {
   grid-row-start: 4;
   grid-column-start: 2;
+  z-index: 1;
 }
 
 .onboarding-success-container {
