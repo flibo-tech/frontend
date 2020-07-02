@@ -14,14 +14,10 @@
       Please rate some movies and tv shows to let us know about your taste.
     </p>
 
-    <lottie-player
+    <CardAnimation
       class="onboarding-swipe-animation"
-      autoplay
-      loop
-      mode="normal"
-      src="https://assets3.lottiefiles.com/packages/lf20_UJNc2t.json"
-    >
-    </lottie-player>
+      :containerHeight="animation_height"
+    />
 
     <Button
       buttonType="primary"
@@ -117,6 +113,7 @@ import Button from "./../components/atomic/Button";
 import ProgressBar from "./../components/atomic/ProgressBar";
 import Logo from "./../components/atomic/Logo";
 import Swipe from "./../components/molecular/Swipe";
+import CardAnimation from "./../components/CardAnimation";
 import axios from "axios";
 
 export default {
@@ -125,7 +122,8 @@ export default {
     Button,
     ProgressBar,
     Logo,
-    Swipe
+    Swipe,
+    CardAnimation
   },
   data() {
     return {
@@ -133,6 +131,10 @@ export default {
       filters_applied: this.$store.state.rate_filters.filters_applied,
       filters_meta: this.$store.state.rate_filters.filters_meta,
       window_height: window.innerHeight,
+      animation_height: Math.min(
+        window.innerHeight - 257 - 20,
+        1.5 * (window.innerWidth - 48)
+      ),
       card_height: Math.min(
         window.innerHeight - 128 - 56,
         1.5 * (window.innerWidth - 56)
@@ -262,6 +264,7 @@ export default {
   grid-row-start: 7;
   grid-column-start: 2;
   min-height: fit-content;
+  margin-top: 10px;
 }
 .onboarding-start-rating {
   grid-row-start: 8;
