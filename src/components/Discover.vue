@@ -520,7 +520,7 @@
              :class="{ 'discover-page-filters--hidden': !showRefreshButton }"
              :style="is_mobile ? '' : 'top: 50px;width: 1000px;height: 110px;'">
 
-             <div class="home-quick-filters"
+            <div class="home-quick-filters"
                   :style="is_mobile ? '' : 'height: 40px;'">
                 <div class="home-quick-filters-content-type">
                   <label v-for="item, index in ['All', 'Movie', 'TV']"
@@ -576,26 +576,8 @@
                   :style="is_mobile ? '' : 'height: 40px;width: 40px;'"
                   @click="$router.push('/search')"/>
                  </div>
-              </div>
+            </div>
 
-            <!-- <div class="discover-filter-platforms-container"
-                :style="is_mobile ? ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;' : '') : ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;height: 50px;' : 'height: 50px;')">
-                <label v-for="platform in user_platforms"
-                    class="discover-filter-platform-checkbox"
-                    :style="is_mobile ? '' : 'margin-right: 55px;'">
-                    <input type="checkbox"
-                        v-bind:value="platform"
-                        v-model="quick_filters_applied.platforms"
-                        class="discover-filter-checkbox-input"
-                        @click="filterDiscoverPage">
-                    <span class="discover-filter-checkmark-abled-platform"
-                          :style="is_mobile ? '' : 'height: 40px;width: 40px;'"/>
-                    <span class="discover-filter-platform-cropper"
-                          :style="is_mobile ? '' : 'height: 40px;width: 40px;'">
-                        <img v-bind:src="platform.platform_link" class="discover-filter-platform-icon"/>
-                    </span>
-                </label>
-            </div> -->
 
             <div class="refresh-feed" v-if="(discover_type_tab_string != '[filter]')"
                 @click="refreshFeed">
@@ -3025,15 +3007,15 @@ export default {
 }
 .discover-filter-checkmark-abled-platform {
   position: absolute;
-  height: 30px;
-  width: 30px;
+  height: 34px;
+  width: 34px;
   z-index: 1;
 }
 .discover-filter-platform-cropper {
   position: absolute;
   overflow: hidden;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   border-radius: 4px;
 }
 .discover-filter-platform-icon {
@@ -3041,8 +3023,8 @@ export default {
 }
 .more-filters {
   margin-right: 16px;
-  height: 30px;
-  width: 30px;
+  height: 34px;
+  width: 34px;
   border-radius: 5px;
   background-image: url("./../images/filter.svg");
   background-color: #ffffff;
