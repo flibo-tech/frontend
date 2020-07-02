@@ -7,7 +7,6 @@ import Vuesax from "vuesax";
 import "vuesax/dist/vuesax.css"; //Vuesax styles
 
 import { store } from "./store/store";
-import "@lottiefiles/lottie-player";
 
 Vue.use(Vuesax);
 Vue.config.productionTip = false;

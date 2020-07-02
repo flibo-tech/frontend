@@ -15,7 +15,6 @@
     "invalidate": "aws cloudfront create-invalidation --distribution-id E3G7736WQBGJO --paths /*"
   },
   "dependencies": {
-    "@lottiefiles/lottie-player": "^0.5.1",
     "axios": "^0.18.0",
     "chart.js": "^2.8.0",
     "device-detector-js": "^2.2.1",
