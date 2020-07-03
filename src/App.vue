@@ -27,8 +27,7 @@
         !this.is_search_page &&
           !this.is_user_search_page &&
           !this.is_onboarding &&
-          !this.is_landing_page &&
-          this.store.suggestions.rate_counter_all
+          !this.is_landing_page
       "
     />
 
@@ -41,11 +40,7 @@
       />
     </transition>
     <MainNavigation
-      v-if="
-        !this.is_onboarding &&
-          !this.is_landing_page &&
-          this.store.suggestions.rate_counter_all
-      "
+      v-if="!this.is_onboarding && !this.is_landing_page"
       @update-api-counter="updateApiCounter"
     />
   </div>
@@ -1042,6 +1037,40 @@ export default {
         })
         .then(function(response) {
           if ([200].includes(response.status)) {
+            axios
+              .post(self.$store.state.api_host + "search_filters", {
+                session_id: self.$store.state.session_id
+              })
+              .then(
+                response => (
+                  (self.$store.state.rate_filters.filters_meta.genres =
+                    response.data.genres),
+                  (self.$store.state.rate_filters.filters_meta.decades =
+                    response.data.decades),
+                  (self.$store.state.rate_filters.filters_meta.awards =
+                    response.data.awards),
+                  (self.$store.state.rate_filters.filters_meta.platforms =
+                    response.data.platforms),
+                  (self.$store.state.rate_filters.filters_meta.languages =
+                    response.data.languages),
+                  (self.$store.state.discover_filters.filters_meta.genres =
+                    response.data.genres),
+                  (self.$store.state.discover_filters.filters_meta.decades =
+                    response.data.decades),
+                  (self.$store.state.discover_filters.filters_meta.awards =
+                    response.data.awards),
+                  (self.$store.state.discover_filters.filters_meta.platforms =
+                    response.data.platforms),
+                  (self.$store.state.discover_filters.filters_meta.languages =
+                    response.data.languages),
+                  (self.$store.state.watchlist_filters.filters_meta.genres =
+                    response.data.genres),
+                  (self.$store.state.watchlist_filters.filters_meta.platforms =
+                    response.data.platforms),
+                  (self.$store.state.feed_filters.filters_meta.platforms =
+                    response.data.platforms)
+                )
+              );
           } else {
             // console.log(response.status);
           }
