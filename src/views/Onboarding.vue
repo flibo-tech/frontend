@@ -42,15 +42,8 @@
         v-on:clicked="open_instructions = true"
       />
 
-      <h2 class="onboarding-rating-counter">
+      <h2 class="onboarding-rating-header">
         Rate
-        <span style="font-weight: normal;"
-          >{{
-            store.suggestions.rate_counter_all > 9
-              ? "" + store.suggestions.rate_counter_all
-              : "0" + store.suggestions.rate_counter_all
-          }}/{{ ratingThreshold }}</span
-        >
       </h2>
 
       <Button
@@ -62,11 +55,21 @@
     </div>
 
     <div class="onboarding-rate-body">
-      <ProgressBar
-        class="onboarding-rate-progress-bar"
-        :value="store.suggestions.rate_counter_all"
-        :maxValue="ratingThreshold"
-      />
+      <div class="onboarding-rate-progress-bar-container">
+        <ProgressBar
+          class="onboarding-rate-progress-bar"
+          :value="store.suggestions.rate_counter_all"
+          :maxValue="ratingThreshold"
+        />
+
+        <h2 class="onboarding-rating-counter">
+          {{
+            store.suggestions.rate_counter_all > 9
+              ? "" + store.suggestions.rate_counter_all
+              : "0" + store.suggestions.rate_counter_all
+          }}<span style="font-weight: normal;">/{{ ratingThreshold }}</span>
+        </h2>
+      </div>
       <Swipe
         class="onboarding-rate-swipe"
         :cardHeight="card_height"
@@ -137,15 +140,15 @@ export default {
         1.5 * (window.innerWidth - 48)
       ),
       card_height: Math.min(
-        window.innerHeight - 128 - 56,
+        window.innerHeight - 136 - 56,
         1.5 * (window.innerWidth - 56)
       ),
       margin_top:
-        104 +
+        112 +
         (window.innerHeight -
-          120 -
+          136 -
           Math.min(
-            window.innerHeight - 120 - 56,
+            window.innerHeight - 136 - 56,
             1.5 * (window.innerWidth - 56)
           )) /
           2,
@@ -291,7 +294,7 @@ export default {
   grid-column-start: 2;
   align-self: center;
 }
-.onboarding-rating-counter {
+.onboarding-rating-header {
   grid-column-start: 4;
   font-family: "Roboto", sans-serif;
   font-size: 20px;
@@ -312,10 +315,26 @@ export default {
   justify-items: center;
   width: 100%;
 }
-.onboarding-rate-progress-bar {
+.onboarding-rate-progress-bar-container {
   grid-row-start: 2;
   grid-column-start: 2;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 10px 60px;
+  align-items: center;
+}
+.onboarding-rate-progress-bar {
+  grid-column-start: 1;
   z-index: 1;
+}
+.onboarding-rating-counter {
+  grid-column-start: 3;
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+  text-align: left;
+  align-self: center;
 }
 .onboarding-rate-swipe {
   grid-row-start: 4;
