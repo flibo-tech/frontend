@@ -6,7 +6,8 @@
              v-if="!fetching_watchlist">
 
             <div class="watchlist-quick-filters"
-                :style="is_mobile ? '' : 'height: 50px;'">
+                :style="is_mobile ? '' : 'height: 50px;'"
+                v-if="store.watchlist.length">
               <div class="watchlist-quick-filters-content-type">
                 <label v-for="item, index in ['All', 'Movie', 'TV']"
                       :key="index"
@@ -581,8 +582,9 @@ export default {
           self.$store.state.watchlist = response.data.watchlist;
           self.filterWatchlist();
           setTimeout((self.showWatchlistFilters = true), 0);
-        } else {
-          // console.log(response.status);
+        } else if ([204].includes(response.status)) {
+          self.$store.state.watchlist = [];
+          self.fetching_watchlist = false;
         }
       })
       .catch(function(error) {
