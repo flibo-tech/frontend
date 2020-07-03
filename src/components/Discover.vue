@@ -2,7 +2,44 @@
     <div>
         <div class="suggestions-box"
              v-if="(discover_type_tab_string != '[filter]') ? !store.suggestions.fetching_suggestions : !fetching_filtered"
-             :style="is_mobile ? 'margin-top: 160px;' : 'position: relative;margin-top: 180px;'">
+             :style="is_mobile ? 'margin-top: 160px;padding-top: 0px;' : 'position: relative;margin-top: 180px;padding-top: 30px;'">
+            
+            <div class="save-platforms-container"
+                 :style="is_mobile ? '' : 'width: 950px;margin-left: 50%;transform: translateX(-50%);'"
+                 v-if="store.user.profile.platforms == null">
+                <p class="save-platforms-text">
+                  Select your subscriptions for more personalized suggestions
+                </p>
+
+                <div class="save-platforms-items">
+                  <label
+                    :class="is_mobile ? 'save-platforms' : 'desktop-save-platforms'"
+                    v-for="(item, index) in user_platforms"
+                  >
+                    <input
+                      type="checkbox"
+                      v-bind:value="item.platform_name"
+                      v-model="temp_platforms"
+                      class="save-platforms-checkbox-input"
+                    />
+                    <span
+                      class="save-platforms-checkbox-abled"
+                      style="border-radius: 5px;"
+                    />
+                    <div class="save-platforms-icon" style="border-radius: 5px;">
+                      <img :src="item.platform_link" class="save-platforms-icon-pp" />
+                    </div>
+                  </label>
+                </div>
+
+                <div class="save-platforms-button">
+                  <Button
+                    buttonType="primary"
+                    text="Save"
+                    v-on:clicked="savePlatforms"
+                  />
+                </div>
+            </div>
 
             <div v-for="item, index in (discover_type_tab_string != '[filter]') ? store.suggestions.contents : store.discover_filters.filtered_content"
                  v-if="((discover_type_tab_string != '[filter]') ? (store.suggestions.content_type_tab.includes(item.type)
@@ -653,11 +690,13 @@
 <script>
 import axios from "axios";
 import DiscoverFilter from "./DiscoverFilter";
+import Button from "./atomic/Button";
 
 export default {
   name: "App",
   components: {
-    DiscoverFilter
+    DiscoverFilter,
+    Button
   },
   props: {
     to_filter: {
@@ -702,7 +741,8 @@ export default {
       filtered_platforms: [],
       store: this.$store.state,
       home_content_type_tab: "All",
-      home_discover_type_tab: []
+      home_discover_type_tab: [],
+      temp_platforms: []
     };
   },
   created() {
@@ -830,7 +870,7 @@ export default {
       return this.store.suggestions.fetching_feed_incremental;
     },
     user_platforms() {
-      if (this.store.user.profile.platforms.length) {
+      if ((this.store.user.profile.platforms || []).length) {
         var output = [];
         var self = this;
         this.quick_filters_meta.platforms.forEach(function(item, index) {
@@ -1969,6 +2009,68 @@ export default {
             // console.log(error.response.status);
           }
         });
+    },
+    savePlatforms() {
+      var self = this;
+      axios
+        .post(self.$store.state.api_host + "update_profile", {
+          session_id: self.$store.state.session_id,
+          platforms: self.temp_platforms
+        })
+        .then(function(response) {
+          if ([200].includes(response.status)) {
+            self.store.user.profile.platforms = self.temp_platforms;
+            axios
+              .post(self.$store.state.api_host + "search_filters", {
+                session_id: self.$store.state.session_id
+              })
+              .then(
+                response => (
+                  (self.$store.state.rate_filters.filters_meta.genres =
+                    response.data.genres),
+                  (self.$store.state.rate_filters.filters_meta.decades =
+                    response.data.decades),
+                  (self.$store.state.rate_filters.filters_meta.awards =
+                    response.data.awards),
+                  (self.$store.state.rate_filters.filters_meta.platforms =
+                    response.data.platforms),
+                  (self.$store.state.rate_filters.filters_meta.languages =
+                    response.data.languages),
+                  (self.$store.state.discover_filters.filters_meta.genres =
+                    response.data.genres),
+                  (self.$store.state.discover_filters.filters_meta.decades =
+                    response.data.decades),
+                  (self.$store.state.discover_filters.filters_meta.awards =
+                    response.data.awards),
+                  (self.$store.state.discover_filters.filters_meta.platforms =
+                    response.data.platforms),
+                  (self.$store.state.discover_filters.filters_meta.languages =
+                    response.data.languages),
+                  (self.$store.state.watchlist_filters.filters_meta.genres =
+                    response.data.genres),
+                  (self.$store.state.watchlist_filters.filters_meta.platforms =
+                    response.data.platforms),
+                  (self.$store.state.feed_filters.filters_meta.platforms =
+                    response.data.platforms)
+                )
+              );
+          } else {
+            // console.log(response.status);
+          }
+        })
+        .catch(function(error) {
+          // console.log(error);
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.$emit("logging-out");
+          } else {
+            // console.log(error.response.status);
+          }
+        });
     }
   }
 };
@@ -2730,7 +2832,7 @@ export default {
   left: 50%;
   width: 85px;
   transform: translate3d(-50%, 0%, 0);
-  top: 20px;
+  top: 15px;
   text-align: center;
   font-size: 14px;
   color: #ffffff;
@@ -3269,5 +3371,117 @@ export default {
   margin-left: 10px;
   padding: 5px 0px;
   border-radius: 5px;
+}
+.save-platforms-container {
+  position: relative;
+  width: calc(100vw - 30px);
+  margin-left: 15px;
+  text-align: left;
+  background-color: #fafafa;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 7px;
+}
+.save-platforms-text {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.31;
+  letter-spacing: normal;
+  text-align: left;
+  color: #333333;
+  white-space: normal;
+}
+.save-platforms {
+  position: relative;
+  margin-left: 5px;
+  margin-right: 10px;
+  border-radius: 7px;
+}
+.desktop-save-platforms {
+  position: relative;
+  display: block;
+  vertical-align: top;
+  text-align: left;
+  margin-bottom: 10px;
+  height: 50px;
+  border-radius: 7px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.save-platforms-icon {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  border-radius: 50%;
+  z-index: 2;
+}
+.save-platforms-icon-pp {
+  display: inline;
+  margin: 0 auto;
+  top: 100%;
+  width: 100%;
+}
+.save-platforms h5 {
+  position: relative;
+  white-space: initial;
+  margin-top: 5px;
+  text-transform: capitalize;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.31;
+  letter-spacing: normal;
+  color: #333333;
+  text-align: center;
+}
+.save-platforms input:checked ~ .save-platforms-checkbox-abled {
+  background-color: rgba(41, 78, 210, 0.75);
+  background-size: 50%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-image: url("./../images/checked_white.svg");
+}
+.desktop-save-platforms input:checked ~ .save-platforms-checkbox-abled {
+  background-color: rgba(41, 78, 210, 0.75);
+  background-size: 50%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-image: url("./../images/checked_white.svg");
+}
+.save-platforms-checkbox-abled {
+  position: absolute;
+  height: 50px;
+  width: 50px;
+  z-index: 3;
+  border-radius: 50%;
+}
+.save-platforms-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.save-platforms-items {
+  display: flex;
+  overflow-x: scroll;
+  margin-top: 20px;
+  padding: 0px 5px 0px 10px;
+}
+.save-platforms-button {
+  width: max-content;
+  margin-top: 20px;
 }
 </style>

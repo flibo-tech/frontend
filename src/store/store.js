@@ -98,7 +98,7 @@ export const store = new Vuex.Store({
           : "friends",
         profile_views: my_store ? my_store.user.profile.profile_views : 0,
         country: my_store ? my_store.user.profile.country : null,
-        platforms: my_store ? my_store.user.profile.platforms : []
+        platforms: my_store ? my_store.user.profile.platforms : null
       }
     },
     guest_id: my_store ? my_store.guest_id : null,
