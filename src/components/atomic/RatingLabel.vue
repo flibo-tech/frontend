@@ -82,13 +82,13 @@ div {
 }
 .liked-swiped {
   border-radius: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.5);
   background-image: url("../../images/thumbs_up_true.svg");
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 56px;
   height: 56px;
-  background-size: 30px;
+  background-size: 33px;
 }
 /* Disliked + Disliked active */
 .disliked {
@@ -103,13 +103,13 @@ div {
 }
 .disliked-swiped {
   border-radius: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.5);
   background-image: url("../../images/thumbs_down_true.svg");
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 56px;
   height: 56px;
-  background-size: 30px;
+  background-size: 33px;
 }
 /* Loved + Loved active*/
 .loved {
@@ -124,13 +124,13 @@ div {
 }
 .loved-swiped {
   border-radius: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.5);
   background-image: url("../../images/love_true.svg");
   background-repeat: no-repeat;
   background-position: 50% 50%;
   width: 56px;
   height: 56px;
-  background-size: 30px;
+  background-size: 33px;
 }
 /* Haven't Seen + Haven't Seen active */
 .haventSeen {
