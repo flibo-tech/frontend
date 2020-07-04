@@ -98,9 +98,8 @@
       <span style="font-weight: 700; color: #a2d194;"
         >{{ ratingThreshold }} movies and shows</span
       >
-      so far. Now FLIBO has started collecting suggestions for your taste.
-      <br />
-      The more you swipe, the better we suggest.
+      so far. Now FLIBO has started collecting suggestions for you. The more you
+      swipe, the better we suggest.
     </p>
 
     <Button
@@ -273,6 +272,7 @@ export default {
 .onboarding-start-rating {
   grid-row-start: 8;
   grid-column-start: 2;
+  z-index: 1;
 }
 
 .onboarding-rate-container {

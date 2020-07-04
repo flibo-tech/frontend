@@ -11,9 +11,7 @@
   >
     <div
       :style="
-        `height:` +
-          containerHeight +
-          `px;width:100vw;position: fixed;left: 0;overflow:hidden;`
+        `height:` + containerHeight + `px;width:100vw;position: fixed;left: 0;`
       "
     >
       <div
