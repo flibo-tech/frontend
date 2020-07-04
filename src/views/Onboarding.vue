@@ -4,7 +4,7 @@
     class="instructions-container"
     :style="`--window_height:` + window_height + `px;`"
   >
-    <Logo logoColor="light" height="40" class="onboarding-logo" />
+    <Logo logoColor="light" :height="40" class="onboarding-logo" />
 
     <h1 class="onboarding-username">
       Hi, {{ store.user.name.split(" ")[0] }}.
@@ -85,7 +85,7 @@
     class="onboarding-success-container"
     :style="`--window_height:` + window_height + `px;`"
   >
-    <Logo logoColor="light" height="40" class="onboarding-logo" />
+    <Logo logoColor="light" :height="40" class="onboarding-logo" />
 
     <div class="onboarding-success-icon" />
 

@@ -1704,10 +1704,10 @@ export default {
       setTimeout(self._switchDiscoverTab, 0);
     },
     _switchDiscoverTab() {
+      this.updateScroll(0);
       if (this.discover_type_tab_string == "[filter]") {
         this.to_filter = false;
       }
-      this.updateScroll(window.scrollY);
       if (this.home_discover_type_tab.includes("Only Suggestions")) {
         this.$store.state.suggestions.discover_type_tab = ["flibo"];
       } else {
@@ -1728,7 +1728,7 @@ export default {
         }
         this.$store.state.notifications.suggestions = false;
       }
-      setTimeout(this.scrollToLastPosition, 0);
+      window.scrollTo(0, 0);
       this.$emit("update-api-counter", {
         api:
           this.discover_type_tab_string == "[flibo]"
@@ -2030,6 +2030,8 @@ export default {
           platforms: any_platforms ? self.temp_platforms : []
         })
         .then(function(response) {
+          self.$emit("refresh-feed");
+          self.vanishFliboNotification();
           if ([200].includes(response.status)) {
             self.store.user.profile.platforms = any_platforms
               ? self.temp_platforms
