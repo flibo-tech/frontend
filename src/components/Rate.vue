@@ -4,6 +4,7 @@
     :marginTop="margin_top"
     :showPlatforms="true"
     :tapOpen="true"
+    :tapOpenInstruction="tapOpenInstruction"
   />
 </template>
 
@@ -32,7 +33,8 @@ export default {
             1.5 * (window.innerWidth - 56)
           )) /
           2,
-      store: this.$store.state
+      store: this.$store.state,
+      tapOpenInstruction: false
     };
   },
   created() {
@@ -48,8 +50,18 @@ export default {
           self.$router.push("/onboarding");
         } else {
           self.$store.state.current_path = "/rate";
+          if (self.store.rate.never_tapped_any_card) {
+            setTimeout(self.showTapOpenInstruction, 5000);
+          }
         }
       });
+  },
+  methods: {
+    showTapOpenInstruction() {
+      if (this.store.rate.never_tapped_any_card) {
+        this.tapOpenInstruction = true;
+      }
+    }
   }
 };
 </script>

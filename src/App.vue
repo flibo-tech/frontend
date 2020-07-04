@@ -515,6 +515,8 @@ export default {
             }
             self.$store.state.content_page.never_tapped_any_artist =
               response.data.never_tapped_any_artist;
+            self.$store.state.rate.never_tapped_any_card =
+              response.data.never_tapped_any_card;
             self.$store.state.suggestions.suggestions_ready_message_seen =
               response.data.suggestions_ready_message_seen;
             if (!self.$route.query.search) {

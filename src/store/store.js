@@ -11,7 +11,7 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_s == "undefined") {
+    if (typeof my_store.unused_key_t == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       localStorage.clear();
@@ -40,7 +40,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_s: my_store ? my_store.unused_key_s : true,
+    unused_key_t: my_store ? my_store.unused_key_t : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -139,7 +139,10 @@ export const store = new Vuex.Store({
         ? my_store.rate.content_type_tab
         : ["movie", "tv"],
       fetching_cards: false,
-      prev_swipes: my_store ? my_store.rate.prev_swipes : []
+      prev_swipes: my_store ? my_store.rate.prev_swipes : [],
+      never_tapped_any_card: my_store
+        ? my_store.rate.never_tapped_any_card
+        : true
     },
     rate_filters: {
       filters_meta: {

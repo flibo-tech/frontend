@@ -10,6 +10,24 @@
     :style="{ transform: transformString }"
     v-bind:id="contentId"
   >
+    <div
+      v-if="tapOpenInstruction"
+      class="card-tap-instruction"
+      :style="
+        `--card-width:` +
+          cardWidth +
+          `px;
+                  --card-height:` +
+          cardHeight +
+          `px;
+                 `
+      "
+    >
+      <p>
+        Tap to see more details about the
+        {{ contentType == "movie" ? "movie" : "show" }}
+      </p>
+    </div>
     <img
       v-if="
         poster !=
@@ -107,6 +125,11 @@ export default {
       type: Boolean,
       default: true,
       required: false
+    },
+    tapOpenInstruction: {
+      type: Boolean,
+      default: false,
+      required: false
     }
   },
 
@@ -144,6 +167,34 @@ export default {
     interact(element).on({
       tap: () => {
         if (this.tapOpen) {
+          if (this.$store.state.rate.never_tapped_any_card) {
+            this.$store.state.rate.never_tapped_any_card = false;
+            var self = this;
+            axios
+              .post(self.$store.state.api_host + "update_profile", {
+                session_id: self.$store.state.session_id,
+                never_tapped_any_card: false
+              })
+              .then(function(response) {
+                if ([200].includes(response.status)) {
+                } else {
+                  // console.log(response.status);
+                }
+              })
+              .catch(function(error) {
+                // console.log(error);
+                if ([401, 419].includes(error.response.status)) {
+                  window.location =
+                    self.$store.state.login_host +
+                    "logout?session_id=" +
+                    self.$store.state.session_id;
+                  self.$store.state.session_id = null;
+                  self.$emit("logging-out");
+                } else {
+                  // console.log(error.response.status);
+                }
+              });
+          }
           this.openContentPage();
         }
       }
@@ -168,17 +219,17 @@ export default {
         }
 
         if (x > interactXThreshold) {
-          this.potentialating = "potential-liked";
-          this.$emit("potentialRating", this.potentialating);
+          this.potentialRating = "potential-liked";
+          this.$emit("potentialRating", this.potentialRating);
         } else if (x < -interactXThreshold) {
-          this.potentialating = "potential-disliked";
-          this.$emit("potentialRating", this.potentialating);
+          this.potentialRating = "potential-disliked";
+          this.$emit("potentialRating", this.potentialRating);
         } else if (y < -interactYThreshold) {
-          this.potentialating = "potential-loved";
-          this.$emit("potentialRating", this.potentialating);
+          this.potentialRating = "potential-loved";
+          this.$emit("potentialRating", this.potentialRating);
         } else if (y > interactYThreshold) {
-          this.potentialating = "potential-haventSeen";
-          this.$emit("potentialRating", this.potentialating);
+          this.potentialRating = "potential-haventSeen";
+          this.$emit("potentialRating", this.potentialRating);
         } else {
           this.$emit("resetLabels");
         }
@@ -477,7 +528,7 @@ export default {
 
     resetCardPosition() {
       this.interactSetPosition({ x: 0, y: 0, rotation: 0 });
-      this.potentialating = "";
+      this.potentialRating = "";
     }
   },
   beforeDestroy() {
@@ -545,6 +596,35 @@ $fs-card-title: 1.125em;
   &.isAnimating {
     transition: transform 0.7s $ease-out-back;
   }
+}
+
+.card-tap-instruction {
+  position: absolute;
+  width: var(--card-width);
+  height: var(--card-height);
+  margin-left: calc(-50% - 3px);
+  border-radius: 10px;
+  background-color: rgba(62, 100, 237, 0.9);
+  background-image: url("./../../images/tap.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 35%;
+  background-position: 50% 60%;
+}
+.card-tap-instruction p {
+  position: absolute;
+  width: 80%;
+  top: 23%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: bold;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
 }
 
 .card img {

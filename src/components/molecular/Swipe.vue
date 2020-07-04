@@ -62,6 +62,7 @@
         :isCurrent="index === index"
         :cardHeight="cardHeight"
         :tapOpen="tapOpen"
+        :tapOpenInstruction="tapOpenInstruction"
         @hideCard="removeCardFromDeck(index)"
         @swipe-api-counter="swipeApiCounter"
         @hideLastcardButton="show_last_card_button = false"
@@ -114,7 +115,12 @@
       leave-active-class="animated rateFadeOut"
     >
       <button
-        v-if="is_mobile && show_last_card_button && this.$store.state.last_card"
+        v-if="
+          is_mobile &&
+            !tapOpenInstruction &&
+            show_last_card_button &&
+            this.$store.state.last_card
+        "
         :style="
           `--last-card-button-top-margin:` +
             (marginTop + 15) +
@@ -150,6 +156,7 @@
         "
         v-if="
           is_mobile &&
+            !tapOpenInstruction &&
             showPlatforms &&
             !removingCard &&
             show_last_card_button &&
@@ -216,6 +223,11 @@ export default {
     tapOpen: {
       type: Boolean,
       default: true,
+      required: false
+    },
+    tapOpenInstruction: {
+      type: Boolean,
+      default: false,
       required: false
     }
   },
