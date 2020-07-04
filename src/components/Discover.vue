@@ -35,7 +35,7 @@
                 <div class="save-platforms-button">
                   <Button
                     buttonType="primary"
-                    :disabled="(temp_platforms.length) ? false : true"
+                    :disabled="(temp_platforms.length) ? false : false"
                     :loading="true"
                     text="Save"
                     v-on:clicked="savePlatforms(true)"
