@@ -151,7 +151,7 @@ export default {
   },
   created() {
     this.temp_country = this.store.user.profile.country;
-    this.temp_platforms = this.store.user.profile.platforms;
+    this.temp_platforms = this.store.user.profile.platforms || [];
   },
   computed: {
     platforms: function() {

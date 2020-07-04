@@ -314,7 +314,7 @@ export default {
   props: {
     parent: {
       type: String,
-      required: true,
+      required: false,
       default: "search_page"
     },
     parent_content_type: {

@@ -1,18 +1,36 @@
 <template>
   <div>
     <div
-      class="suggestion-content-type-tabs"
-      :style="is_mobile ? '' : 'right: calc(50vw - 500px);'"
+      class="search-results-filters"
+      :class="{ 'search-results-filters--hidden': !showRefreshButton }"
+      :style="is_mobile ? '' : 'top: 50px;width: 1000px;height: 110px;'"
     >
-      <a @click="switchContentTab">
-        {{
-          content_type_tab_string == "[movie,tv]"
-            ? "Movies + TV Series"
-            : content_type_tab_string == "[movie]"
-            ? "Movies"
-            : "TV Series"
-        }}
-      </a>
+      <div
+        class="search-results-quick-filters"
+        :style="is_mobile ? '' : 'height: 50px;'"
+      >
+        <div class="search-results-quick-filters-content-type">
+          <label
+            v-for="(item, index) in ['All', 'Movie', 'TV']"
+            :key="index"
+            class="content-type-checkbox"
+            :style="
+              search_content_type_tab == item
+                ? 'background-color: #e8f0fe;border-color: #d2e3fc;'
+                : ''
+            "
+            @click="switchContentTab(item)"
+          >
+            <input
+              type="radio"
+              v-bind:value="item"
+              v-model="search_content_type_tab"
+              class="content-type-checkbox-input"
+            />
+            <span class="content-type-checkmark-text">{{ item }}</span>
+          </label>
+        </div>
+      </div>
     </div>
 
     <div
@@ -897,7 +915,9 @@ export default {
       youtube_trailer_link: null,
       trailer_content_id: null,
       where_to_watch: null,
-      is_string_query: false
+      is_string_query: false,
+      search_content_type_tab: "All",
+      showRefreshButton: true
     };
   },
 
@@ -907,7 +927,17 @@ export default {
       this.store.discover_filters.is_string_query = false;
     }
     this.$store.state.current_path = this.$route.path;
+
     var self = this;
+
+    if (self.content_type_tab_string == "[movie,tv]") {
+      self.search_content_type_tab = "All";
+    } else if (self.content_type_tab_string == "[movie]") {
+      self.search_content_type_tab = "Movie";
+    } else if (self.content_type_tab_string == "[tv]") {
+      self.search_content_type_tab = "TV";
+    }
+
     self.store.discover_filters.fetching_filter_incremental = false;
     setTimeout(self.scrollToLastPosition, 500);
   },
@@ -925,13 +955,13 @@ export default {
     updateScroll(scroll_position) {
       this.$store.state.scroll_positions.discover.filter = scroll_position;
     },
-    switchContentTab(tabs) {
+    switchContentTab(tab) {
       this.updateScroll(0);
-      if (this.content_type_tab_string == "[movie,tv]") {
+      if (tab == "Movie") {
         this.$store.state.discover_filters.content_type_tab = ["movie"];
-      } else if (this.content_type_tab_string == "[movie]") {
+      } else if (tab == "TV") {
         this.$store.state.discover_filters.content_type_tab = ["tv"];
-      } else if (this.content_type_tab_string == "[tv]") {
+      } else if (tab == "All") {
         this.$store.state.discover_filters.content_type_tab = ["movie", "tv"];
       }
       this.scrollToLastPosition();
@@ -1292,6 +1322,22 @@ export default {
               // console.log(error.response.status);
             }
           });
+      }
+
+      const currentScrollPosition =
+        window.pageYOffset || document.documentElement.scrollTop;
+      if (currentScrollPosition < 0) {
+        return;
+      }
+      // Stop executing this function if the difference between
+      // current scroll position and last scroll position is less than some offset
+      if (Math.abs(currentScrollPosition - self.lastScrollPosition) < 0) {
+        return;
+      }
+      self.showRefreshButton = currentScrollPosition < self.lastScrollPosition;
+      self.lastScrollPosition = currentScrollPosition;
+      if ([NaN, 0, 1].includes(scroll_completion)) {
+        setTimeout((self.showRefreshButton = true), 0);
       }
     }
   }
@@ -2046,7 +2092,7 @@ export default {
   white-space: nowrap;
   background-color: #fafafa;
   padding: 5px;
-  margin-top: 15px;
+  margin-top: 50px;
   margin-bottom: 15px;
   border-radius: 7px;
 }
@@ -2209,5 +2255,64 @@ export default {
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
+}
+.search-results-filters {
+  position: fixed;
+  top: 50px;
+  left: 50%;
+  z-index: 1000;
+  height: 55px;
+  width: 100%;
+  background-color: #ffffff;
+  transform: translate3d(-50%, 0%, 0);
+  transition: transform 0.55s ease-out;
+}
+.search-results-filters.search-results-filters--hidden {
+  transform: translate3d(-50%, -300%, 0);
+}
+.search-results-quick-filters {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+  overflow: scroll;
+}
+.search-results-quick-filters-content-type {
+  display: flex;
+  height: max-content;
+}
+.content-type-checkbox {
+  display: inline-block;
+  position: relative;
+  width: max-content;
+  border-radius: 50px;
+  background-color: #ffffff;
+  padding: 5px 15px;
+  margin-right: 5px;
+  border: 1px solid #dfe1e5;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.content-type-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+.content-type-checkmark-text {
+  font-size: 15px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: left;
+  color: #333333;
 }
 </style>

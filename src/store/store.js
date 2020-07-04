@@ -11,7 +11,7 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_q == "undefined") {
+    if (typeof my_store.unused_key_t == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       localStorage.clear();
@@ -40,7 +40,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_q: my_store ? my_store.unused_key_q : true,
+    unused_key_t: my_store ? my_store.unused_key_t : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -55,12 +55,12 @@ export const store = new Vuex.Store({
           : {
               movie: {
                 total: "some great",
-                time: "some good time :)",
+                time: "some good time :)"
               },
               tv: {
                 total: "some great",
-                time: "some good time :)",
-              },
+                time: "some good time :)"
+              }
             },
         contents_rated: my_store ? my_store.user.profile.contents_rated : [],
         genres: my_store
@@ -68,12 +68,12 @@ export const store = new Vuex.Store({
           : {
               movie: {
                 genre: [],
-                contribution: [],
+                contribution: []
               },
               tv: {
                 genre: [],
-                contribution: [],
-              },
+                contribution: []
+              }
             },
         watched_timeline: my_store
           ? my_store.user.profile.watched_timeline
@@ -83,23 +83,23 @@ export const store = new Vuex.Store({
                 liked: [],
                 disliked: [],
                 loved: [],
-                total: [],
+                total: []
               },
               tv: {
                 years: [],
                 liked: [],
                 disliked: [],
                 loved: [],
-                total: [],
-              },
+                total: []
+              }
             },
         profile_status: my_store
           ? my_store.user.profile.profile_status
           : "friends",
         profile_views: my_store ? my_store.user.profile.profile_views : 0,
         country: my_store ? my_store.user.profile.country : null,
-        platforms: my_store ? my_store.user.profile.platforms : [],
-      },
+        platforms: my_store ? my_store.user.profile.platforms : null
+      }
     },
     guest_id: my_store ? my_store.guest_id : null,
     guest_country: my_store ? my_store.guest_country : null,
@@ -127,7 +127,7 @@ export const store = new Vuex.Store({
       never_tapped_any_artist: my_store
         ? my_store.content_page.never_tapped_any_artist
         : true,
-      rerender: my_store ? my_store.content_page.rerender : false,
+      rerender: my_store ? my_store.content_page.rerender : false
     },
     click_coordinate_x: null,
     click_coordinate_y: null,
@@ -140,6 +140,9 @@ export const store = new Vuex.Store({
         : ["movie", "tv"],
       fetching_cards: false,
       prev_swipes: my_store ? my_store.rate.prev_swipes : [],
+      never_tapped_any_card: my_store
+        ? my_store.rate.never_tapped_any_card
+        : true
     },
     rate_filters: {
       filters_meta: {
@@ -150,7 +153,7 @@ export const store = new Vuex.Store({
         platforms: my_store ? my_store.rate_filters.filters_meta.platforms : [],
         ratings: ["All", "9+", "8+", "7+", "6+", "<6"],
         languages: my_store ? my_store.rate_filters.filters_meta.languages : [],
-        tabs: ["All", "Movies", "TV Series"],
+        tabs: ["All", "Movies", "TV Series"]
       },
       filters_temp: {
         artists: my_store
@@ -181,7 +184,7 @@ export const store = new Vuex.Store({
         languages: my_store
           ? my_store.rate_filters.filters_applied.languages
           : {},
-        tab: my_store ? my_store.rate_filters.filters_applied.tab : "All",
+        tab: my_store ? my_store.rate_filters.filters_applied.tab : "All"
       },
       filters_applied: {
         artists: my_store ? my_store.rate_filters.filters_applied.artists : [],
@@ -202,11 +205,11 @@ export const store = new Vuex.Store({
         languages: my_store
           ? my_store.rate_filters.filters_applied.languages
           : {},
-        tab: my_store ? my_store.rate_filters.filters_applied.tab : "All",
+        tab: my_store ? my_store.rate_filters.filters_applied.tab : "All"
       },
       visible_cards: my_store ? my_store.rate_filters.visible_cards : [],
       content_ids: my_store ? my_store.rate_filters.content_ids : [],
-      fetching_cards: false,
+      fetching_cards: false
     },
     suggestions: {
       calc_after: 5,
@@ -233,22 +236,22 @@ export const store = new Vuex.Store({
         ? my_store.suggestions.ready_to_refresh_recommendation
         : false,
       users_suggestions: my_store ? my_store.suggestions.users_suggestions : [],
-      notify: false,
+      notify: false
     },
     feed_filters: {
       filters_meta: {
-        platforms: my_store ? my_store.feed_filters.filters_meta.platforms : [],
+        platforms: my_store ? my_store.feed_filters.filters_meta.platforms : []
       },
       filters_temp: {
         platforms: my_store
           ? my_store.feed_filters.filters_applied.platforms.slice()
-          : [],
+          : []
       },
       filters_applied: {
         platforms: my_store
           ? my_store.feed_filters.filters_applied.platforms
-          : [],
-      },
+          : []
+      }
     },
     discover_filters: {
       filters_meta: {
@@ -263,7 +266,7 @@ export const store = new Vuex.Store({
         languages: my_store
           ? my_store.discover_filters.filters_meta.languages
           : [],
-        tabs: ["All", "Connections", "Suggestions"],
+        tabs: ["All", "Connections", "Suggestions"]
       },
       filters_temp: {
         artists: my_store
@@ -296,7 +299,7 @@ export const store = new Vuex.Store({
         languages: my_store
           ? my_store.discover_filters.filters_applied.languages
           : {},
-        tab: my_store ? my_store.discover_filters.filters_applied.tab : "All",
+        tab: my_store ? my_store.discover_filters.filters_applied.tab : "All"
       },
       filters_applied: {
         artists: my_store
@@ -325,7 +328,7 @@ export const store = new Vuex.Store({
         languages: my_store
           ? my_store.discover_filters.filters_applied.languages
           : {},
-        tab: my_store ? my_store.discover_filters.filters_applied.tab : "All",
+        tab: my_store ? my_store.discover_filters.filters_applied.tab : "All"
       },
       fetching_filtered: false,
       fetching_filter_incremental: false,
@@ -344,7 +347,7 @@ export const store = new Vuex.Store({
         : ["movie", "tv"],
       last_fetch_time: my_store
         ? my_store.discover_filters.last_fetch_time
-        : 1000000000000,
+        : 1000000000000
     },
     watchlist: my_store ? my_store.watchlist : [],
     watchlist_filters: {
@@ -353,7 +356,7 @@ export const store = new Vuex.Store({
         platforms: my_store
           ? my_store.watchlist_filters.filters_meta.platforms
           : [],
-        tabs: ["All", "Movies", "TV Series"],
+        tabs: ["All", "Movies", "TV Series"]
       },
       filters_temp: {
         genres: my_store
@@ -362,7 +365,7 @@ export const store = new Vuex.Store({
         platforms: my_store
           ? my_store.watchlist_filters.filters_applied.platforms.slice()
           : [],
-        tab: my_store ? my_store.watchlist_filters.filters_applied.tab : "All",
+        tab: my_store ? my_store.watchlist_filters.filters_applied.tab : "All"
       },
       filters_applied: {
         genres: my_store
@@ -371,8 +374,11 @@ export const store = new Vuex.Store({
         platforms: my_store
           ? my_store.watchlist_filters.filters_applied.platforms
           : [],
-        tab: my_store ? my_store.watchlist_filters.filters_applied.tab : "All",
+        tab: my_store ? my_store.watchlist_filters.filters_applied.tab : "All"
       },
+      content_type_tab: my_store
+        ? my_store.watchlist_filters.content_type_tab
+        : ["movie", "tv"]
     },
     notifications: {
       suggestions: my_store ? my_store.notifications.suggestions : false,
@@ -380,18 +386,18 @@ export const store = new Vuex.Store({
       requests: my_store ? my_store.notifications.requests : false,
       never_seen_profile_switch: my_store
         ? my_store.notifications.never_seen_profile_switch
-        : true,
+        : true
     },
     friends_page: {
-      friends: my_store ? my_store.friends_page.friends : [],
+      friends: my_store ? my_store.friends_page.friends : []
     },
     scroll_positions: {
       discover: {
         all: my_store ? my_store.scroll_positions.discover.all : 0,
         friends: my_store ? my_store.scroll_positions.discover.friends : 0,
         flibo: my_store ? my_store.scroll_positions.discover.flibo : 0,
-        filter: my_store ? my_store.scroll_positions.discover.filter : 0,
-      },
+        filter: my_store ? my_store.scroll_positions.discover.filter : 0
+      }
     },
     countries: my_store ? my_store.countries : [],
     quotes: [
@@ -416,7 +422,7 @@ export const store = new Vuex.Store({
       "Don't spread rumours or panic.",
       "This too shall pass.",
       "Don't worry, be happy.",
-      "Everything's gonna be alright.",
+      "Everything's gonna be alright."
     ],
     country_mappings: {
       AU: "Australia",
@@ -433,7 +439,7 @@ export const store = new Vuex.Store({
       RU: "Russia",
       ES: "Spain",
       GB: "United Kingdom",
-      US: "United States",
-    },
-  },
+      US: "United States"
+    }
+  }
 });

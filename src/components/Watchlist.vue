@@ -1,38 +1,50 @@
 <template>
     <div>
-        <div class="watchlist-content-type-tabs"
-             :style="(is_mobile) ? '' : 'right: calc(50vw - 500px);'">
-            <a @click="switchWatchlistContentTab((content_type_tab_string == '[movie,tv]') ? ['movie'] : ((content_type_tab_string == '[movie]') ? ['tv'] : ['movie','tv']))">
-                {{(content_type_tab_string == '[movie,tv]') ? 'Movies + TV Series' : ((content_type_tab_string == '[movie]') ? 'Movies' : 'TV Series')}}
-            </a>
-        </div>
-
         <div class="watchlist-filters"
              :style="(is_mobile) ? '' : 'width: 1000px;'"
              :class="{ 'watchlist-filters--hidden': !showWatchlistFilters }"
              v-if="!fetching_watchlist">
-            <div class="watchlist-filter-platforms-container"
-                :style="(is_mobile) ? ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;' : '') : ((get_filtered_platforms.length) ? 'background-color: #e1e7fc;height: 70px;margin-top: 60px;' : 'height: 70px;margin-top: 60px;')">
-                <label v-for="platform in filters_meta.platforms"
+
+            <div class="watchlist-quick-filters"
+                :style="is_mobile ? '' : 'height: 50px;'"
+                v-if="store.watchlist.length">
+              <div class="watchlist-quick-filters-content-type">
+                <label v-for="item, index in ['All', 'Movie', 'TV']"
+                      :key="index"
+                      class="content-type-checkbox"
+                      :style="(watchlist_content_type_tab==item) ? 'background-color: #e8f0fe;border-color: #d2e3fc;' : ''"
+                      @click="switchWatchlistContentTab(item)">
+                  <input type="radio"
+                        v-bind:value="item"
+                        v-model="watchlist_content_type_tab"
+                        class="content-type-checkbox-input"/>
+                  <span class="content-type-checkmark-text">{{ item }}</span>
+                </label>
+              </div>
+
+              <div class="watchlist-quick-filters-platforms"
+                  :style="is_mobile ? ((get_filtered_platforms.length) ? 'background-color: rgb(232, 240, 254);' : '') : ((get_filtered_platforms.length) ? 'background-color: rgb(232, 240, 254);height: 50px;' : 'height: 50px;')">
+                <label v-for="platform in watchlist_available_platforms"
                     class="watchlist-filter-platform-checkbox"
-                    :style="(is_mobile) ? '' : 'margin-right: 65px;'">
+                    :style="is_mobile ? '' : 'margin-right: 45px;'">
                     <input type="checkbox"
                         v-bind:value="platform"
                         v-model="filters_applied.platforms"
                         class="watchlist-filter-checkbox-input"
                         @click="filterWatchlist">
                     <span class="watchlist-filter-checkmark-abled-platform"
-                          :style="(is_mobile) ? '' : 'height: 50px;width: 50px;'"/>
+                          :style="is_mobile ? '' : 'height: 40px;width: 40px;'"/>
                     <span class="watchlist-filter-platform-cropper"
-                          :style="(is_mobile) ? '' : 'height: 50px;width: 50px;'">
+                          :style="is_mobile ? '' : 'height: 40px;width: 40px;'">
                         <img v-bind:src="platform.platform_link" class="watchlist-filter-platform-icon"/>
                     </span>
                 </label>
+              </div>
             </div>
 
             <div class="watchlist-filter-genres-container"
-                :style="(is_mobile) ? ((get_filtered_genres.length) ? 'background-color: #e1e7fc;' : '') : ((get_filtered_genres.length) ? 'background-color: #e1e7fc;height: 100px;' : 'height: 100px;')">
-                <label v-for="genre in filters_meta.genres"
+                :style="(is_mobile) ? ((get_filtered_genres.length) ? 'background-color: rgb(232, 240, 254);' : '') : ((get_filtered_genres.length) ? 'background-color: rgb(232, 240, 254);height: 100px;' : 'height: 100px;')">
+                <label v-for="genre in watchlist_available_genres"
                     class="watchlist-filter-genre-checkbox"
                     :style="(is_mobile) ? '' : 'margin-right: 95px;'">
                     <input type="checkbox"
@@ -56,7 +68,7 @@
              :style="(is_mobile) ? '' : 'position: relative;margin-top: 250px;'"
              v-if="!fetching_watchlist">
             <div v-for="item, index in (content_type_tab_string != '[filter]') ? store.watchlist : filtered_watchlist"
-                 v-if="((content_type_tab_string != '[filter]') ? content_type_tab.includes(item.type) : filter_tab_content_type.includes(item.type))
+                 v-if="((content_type_tab_string != '[filter]') ? store.watchlist_filters.content_type_tab.includes(item.type) : filter_tab_content_type.includes(item.type))
                        &
                        ((get_filtered_platforms.length) ? (item.platform_count>0) : true)
                        &
@@ -444,15 +456,15 @@ export default {
   props: {
     to_filter: {
       type: Boolean,
-      required: true
+      required: false
     }
   },
   data() {
     return {
       is_mobile: window.screen.height > window.screen.width,
-      content_type_tab: ["movie", "tv"],
+      watchlist_content_type_tab: "All",
       filtered_watchlist: [],
-      fetching_watchlist: false,
+      fetching_watchlist: true,
       filters_meta: this.$store.state.watchlist_filters.filters_meta,
       filters_applied: this.$store.state.watchlist_filters.filters_applied,
       show_more_info: false,
@@ -480,7 +492,9 @@ export default {
   },
   computed: {
     content_type_tab_string() {
-      return JSON.stringify(this.content_type_tab).replace(/['"]+/g, "");
+      return JSON.stringify(
+        this.$store.state.watchlist_filters.content_type_tab
+      ).replace(/['"]+/g, "");
     },
     filter_tab_content_type() {
       if (this.$store.state.watchlist_filters.filters_applied.tab == "All") {
@@ -500,6 +514,46 @@ export default {
     },
     get_filtered_genres() {
       return this.filtered_genres;
+    },
+    watchlist_available_platforms() {
+      var watchlist_platforms = [];
+      this.store.watchlist.forEach(function(item, index) {
+        if (Object.keys(item.where_to_watch || {}).includes("stream")) {
+          watchlist_platforms.push(...Object.keys(item.where_to_watch.stream));
+        } else if (Object.keys(item.where_to_watch || {}).includes("rent")) {
+          watchlist_platforms.push(...Object.keys(item.where_to_watch.rent));
+        } else if (Object.keys(item.where_to_watch || {}).includes("buy")) {
+          watchlist_platforms.push(...Object.keys(item.where_to_watch.buy));
+        }
+      });
+
+      var output = [];
+      var self = this;
+      this.filters_meta.platforms.forEach(function(item, index) {
+        if (
+          watchlist_platforms.indexOf(
+            item.platform_name.replace(/[^a-z0-9]+/gi, "_").toLowerCase()
+          ) != -1
+        ) {
+          output.push(item);
+        }
+      });
+      return output;
+    },
+    watchlist_available_genres() {
+      var watchlist_genres = [];
+      this.store.watchlist.forEach(function(item, index) {
+        watchlist_genres.push(...item.genres);
+      });
+
+      var output = [];
+      var self = this;
+      this.filters_meta.genres.forEach(function(item, index) {
+        if (watchlist_genres.indexOf(item.genre_name) != -1) {
+          output.push(item);
+        }
+      });
+      return output;
     }
   },
   mounted() {
@@ -507,8 +561,16 @@ export default {
   },
   created() {
     window.scrollTo(0, 0);
-    this.fetching_watchlist = false;
     this.$store.state.current_path = "/watchlist";
+
+    if (this.content_type_tab_string == "[movie,tv]") {
+      this.watchlist_content_type_tab = "All";
+    } else if (this.content_type_tab_string == "[movie]") {
+      this.watchlist_content_type_tab = "Movie";
+    } else if (this.content_type_tab_string == "[tv]") {
+      this.watchlist_content_type_tab = "TV";
+    }
+
     var self = this;
     axios
       .post(self.$store.state.api_host + "watchlist", {
@@ -520,10 +582,10 @@ export default {
           self.$store.state.watchlist = response.data.watchlist;
           self.filterWatchlist();
           setTimeout((self.showWatchlistFilters = true), 0);
-        } else {
-          // console.log(response.status);
+        } else if ([204].includes(response.status)) {
+          self.$store.state.watchlist = [];
+          self.fetching_watchlist = false;
         }
-        self.fetching_watchlist = false;
       })
       .catch(function(error) {
         // console.log(error);
@@ -610,6 +672,7 @@ export default {
 
       self.$store.state.watchlist = self.$store.state.watchlist.sort(compare);
       window.scrollTo(0, 0);
+      self.fetching_watchlist = false;
     },
     filterWatchlist() {
       var self = this;
@@ -813,14 +876,20 @@ export default {
         });
     },
     openFilter() {
-      this.content_type_tab = ["filter"];
+      this.$store.state.watchlist_filters.content_type_tab = ["filter"];
       this.to_filter = !this.to_filter;
     },
-    switchWatchlistContentTab(tabs) {
+    switchWatchlistContentTab(tab) {
       if (this.content_type_tab_string == "[filter]") {
         this.to_filter = false;
       }
-      this.content_type_tab = tabs;
+      if (tab == "Movie") {
+        this.$store.state.watchlist_filters.content_type_tab = ["movie"];
+      } else if (tab == "TV") {
+        this.$store.state.watchlist_filters.content_type_tab = ["tv"];
+      } else if (tab == "All") {
+        this.$store.state.watchlist_filters.content_type_tab = ["movie", "tv"];
+      }
       window.scrollTo(0, 0);
     },
     showMoreInfo(
@@ -1621,7 +1690,9 @@ export default {
 .watchlist-filter-platform-checkbox {
   position: relative;
   display: inline-block;
-  margin-right: 50px;
+  margin-right: 39px;
+  margin-left: 5px;
+  height: 34px;
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
@@ -1645,15 +1716,15 @@ export default {
 }
 .watchlist-filter-checkmark-abled-platform {
   position: absolute;
-  height: 35px;
-  width: 35px;
+  height: 34px;
+  width: 34px;
   z-index: 1;
 }
 .watchlist-filter-platform-cropper {
   position: absolute;
   overflow: hidden;
-  width: 35px;
-  height: 35px;
+  width: 34px;
+  height: 34px;
   border-radius: 4px;
 }
 .watchlist-filter-platform-icon {
@@ -1666,6 +1737,7 @@ export default {
   height: 85px;
   padding: 10px;
   border-radius: 5px;
+  margin-top: 5px;
 }
 .watchlist-filter-genre-checkbox {
   position: relative;
@@ -1731,6 +1803,7 @@ export default {
 }
 .watchlist-filters {
   position: fixed;
+  top: 50px;
   z-index: 1000;
   padding-bottom: 5px;
   width: 100%;
@@ -1887,5 +1960,58 @@ export default {
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
+}
+.watchlist-quick-filters {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 10px;
+  overflow: scroll;
+}
+.watchlist-quick-filters-content-type {
+  display: flex;
+  margin-left: 16px;
+  padding-right: 5px;
+  height: max-content;
+  border-right: 1px solid #dfe1e5;
+}
+.content-type-checkbox {
+  display: inline-block;
+  position: relative;
+  width: max-content;
+  border-radius: 50px;
+  background-color: #ffffff;
+  padding: 5px 15px;
+  margin-right: 5px;
+  border: 1px solid #dfe1e5;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.content-type-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+.content-type-checkmark-text {
+  font-size: 15px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: left;
+  color: #333333;
+}
+.watchlist-quick-filters-platforms {
+  display: flex;
+  margin-left: 10px;
+  padding: 5px 0px;
+  border-radius: 5px;
 }
 </style>

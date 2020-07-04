@@ -8,8 +8,26 @@
     }"
     class="card"
     :style="{ transform: transformString }"
-    v-bind:id="content_id"
+    v-bind:id="contentId"
   >
+    <div
+      v-if="tapOpenInstruction"
+      class="card-tap-instruction"
+      :style="
+        `--card-width:` +
+          cardWidth +
+          `px;
+                  --card-height:` +
+          cardHeight +
+          `px;
+                 `
+      "
+    >
+      <p>
+        Tap to see more details about the
+        {{ contentType == "movie" ? "movie" : "show" }}
+      </p>
+    </div>
     <img
       v-if="
         poster !=
@@ -17,14 +35,11 @@
       "
       :src="poster"
       :style="
-        `--margin-top:` +
-          ((window_height - card_height) / 2 - 5) +
-          `px;
-                  --card-width:` +
-          card_width +
+        `--card-width:` +
+          cardWidth +
           `px;
                   --card-height:` +
-          card_height +
+          cardHeight +
           `px;
                  `
       "
@@ -36,25 +51,19 @@
       "
       class="no-poster"
       :style="
-        `--margin-top:` +
-          ((window_height - card_height) / 2 - 5) +
-          `px;
-                  --card-width:` +
-          card_width +
+        `--card-width:` +
+          cardWidth +
           `px;
                   --card-height:` +
-          card_height +
+          cardHeight +
           `px;
                  `
       "
     >
       <span
         :style="
-          `--margin-top:` +
-            75 +
-            `px;
-                               --text-width:` +
-            0.8 * (card_width - 20) +
+          `--text-width:` +
+            0.8 * (cardWidth - 20) +
             `px;
                               `
         "
@@ -62,7 +71,6 @@
         {{ title }}
       </span>
     </div>
-    <div v-bind:class="potential_rating"></div>
   </div>
 </template>
 
@@ -70,10 +78,10 @@
 import interact from "interact.js";
 import axios from "axios";
 
-const LIKE_CARD = "cardLiked";
-const DISLIKE_CARD = "cardDisliked";
-const SKIP_CARD = "cardSkipped";
-const LOVE_CARD = "cardLoved";
+const LIKE_CARD = "liked";
+const DISLIKE_CARD = "disliked";
+const SKIP_CARD = "haventSeen";
+const LOVE_CARD = "loved";
 
 export default {
   static: {
@@ -85,7 +93,7 @@ export default {
   },
 
   props: {
-    content_id: {
+    contentId: {
       type: Number,
       required: true
     },
@@ -97,21 +105,31 @@ export default {
       type: String,
       required: true
     },
-    content_type: {
+    contentType: {
       type: String,
       required: true
     },
-    where_to_watch: {
+    whereToWatch: {
       type: Object,
-      required: true
+      required: false
     },
     isCurrent: {
       type: Boolean,
       required: true
     },
-    potential_rating: {
-      type: String,
+    cardHeight: {
+      type: Number,
       required: true
+    },
+    tapOpen: {
+      type: Boolean,
+      default: true,
+      required: false
+    },
+    tapOpenInstruction: {
+      type: Boolean,
+      default: false,
+      required: false
     }
   },
 
@@ -125,12 +143,9 @@ export default {
         y: 0,
         rotation: 0
       },
-      window_height: window.innerHeight,
-      card_height: Math.min(
-        0.7875 * window.innerHeight,
-        1.425 * window.innerWidth
-      ),
-      card_width: Math.min(0.525 * window.innerHeight, 0.95 * window.innerWidth)
+      windowHeight: window.innerHeight,
+      cardWidth: (this.cardHeight * 2) / 3,
+      potentialRating: ""
     };
   },
 
@@ -138,6 +153,7 @@ export default {
     transformString() {
       if (!this.isInteractAnimating || this.isInteractDragged) {
         const { x, y, rotation } = this.interactPosition;
+        this.$emit("swipeStart");
         return `translate3D(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
       }
 
@@ -150,7 +166,37 @@ export default {
 
     interact(element).on({
       tap: () => {
-        this.openContentPage();
+        if (this.tapOpen) {
+          if (this.$store.state.rate.never_tapped_any_card) {
+            this.$store.state.rate.never_tapped_any_card = false;
+            var self = this;
+            axios
+              .post(self.$store.state.api_host + "update_profile", {
+                session_id: self.$store.state.session_id,
+                never_tapped_any_card: false
+              })
+              .then(function(response) {
+                if ([200].includes(response.status)) {
+                } else {
+                  // console.log(response.status);
+                }
+              })
+              .catch(function(error) {
+                // console.log(error);
+                if ([401, 419].includes(error.response.status)) {
+                  window.location =
+                    self.$store.state.login_host +
+                    "logout?session_id=" +
+                    self.$store.state.session_id;
+                  self.$store.state.session_id = null;
+                  self.$emit("logging-out");
+                } else {
+                  // console.log(error.response.status);
+                }
+              });
+          }
+          this.openContentPage();
+        }
       }
     });
 
@@ -173,13 +219,19 @@ export default {
         }
 
         if (x > interactXThreshold) {
-          this.potential_rating = "potential-thumbs-up-true";
+          this.potentialRating = "potential-liked";
+          this.$emit("potentialRating", this.potentialRating);
         } else if (x < -interactXThreshold) {
-          this.potential_rating = "potential-thumbs-down-true";
+          this.potentialRating = "potential-disliked";
+          this.$emit("potentialRating", this.potentialRating);
         } else if (y < -interactYThreshold) {
-          this.potential_rating = "potential-love-true";
+          this.potentialRating = "potential-loved";
+          this.$emit("potentialRating", this.potentialRating);
         } else if (y > interactYThreshold) {
-          this.potential_rating = "potential-havnt-watched";
+          this.potentialRating = "potential-haventSeen";
+          this.$emit("potentialRating", this.potentialRating);
+        } else {
+          this.$emit("resetLabels");
         }
 
         let rotation = interactMaxRotation * (x / interactXThreshold);
@@ -197,6 +249,7 @@ export default {
         this.$emit("showLastcardButton");
         const { x, y } = this.interactPosition;
         const { interactXThreshold, interactYThreshold } = this.$options.static;
+        this.$emit("swipeEnd");
         this.isInteractAnimating = true;
 
         if (x > interactXThreshold) this.playCard(LIKE_CARD);
@@ -217,7 +270,7 @@ export default {
       this.$store.state.content_page.origin = "rate_page";
       this.$router.push(
         "/content/" +
-          this.content_id +
+          this.contentId +
           "/" +
           this.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
@@ -251,17 +304,15 @@ export default {
           axios
             .post(this.$store.state.api_host + "submit_rating", {
               session_id: this.$store.state.session_id,
-              content_ids: [this.content_id],
+              content_ids: [this.contentId],
               rating: 2
             })
             .then(function(response) {
               var index = self.$store.state.suggestions.rate_counter.indexOf(
-                self.content_id
+                self.contentId
               );
               if (index == -1) {
-                self.$store.state.suggestions.rate_counter.push(
-                  self.content_id
-                );
+                self.$store.state.suggestions.rate_counter.push(self.contentId);
                 if (
                   self.$store.state.suggestions.rate_counter.length ==
                   self.$store.state.suggestions.calc_after
@@ -296,7 +347,7 @@ export default {
             });
           var activity = {
             api: "swipe",
-            content_id: this.content_id,
+            content_id: this.contentId,
             rating: 2
           };
           this.$emit("swipe-api-counter", activity);
@@ -312,17 +363,15 @@ export default {
           axios
             .post(this.$store.state.api_host + "submit_rating", {
               session_id: this.$store.state.session_id,
-              content_ids: [this.content_id],
+              content_ids: [this.contentId],
               rating: 1
             })
             .then(function(response) {
               var index = self.$store.state.suggestions.rate_counter.indexOf(
-                self.content_id
+                self.contentId
               );
               if (index == -1) {
-                self.$store.state.suggestions.rate_counter.push(
-                  self.content_id
-                );
+                self.$store.state.suggestions.rate_counter.push(self.contentId);
                 if (
                   self.$store.state.suggestions.rate_counter.length ==
                   self.$store.state.suggestions.calc_after
@@ -357,7 +406,7 @@ export default {
             });
           var activity = {
             api: "swipe",
-            content_id: this.content_id,
+            content_id: this.contentId,
             rating: 1
           };
           this.$emit("swipe-api-counter", activity);
@@ -370,7 +419,7 @@ export default {
           axios
             .post(this.$store.state.api_host + "submit_rating", {
               session_id: this.$store.state.session_id,
-              content_ids: [this.content_id],
+              content_ids: [this.contentId],
               rating: 0
             })
             .then(function(response) {
@@ -390,7 +439,7 @@ export default {
             });
           var activity = {
             api: "swipe",
-            content_id: this.content_id,
+            content_id: this.contentId,
             rating: 0
           };
           this.$emit("swipe-api-counter", activity);
@@ -405,17 +454,15 @@ export default {
           axios
             .post(this.$store.state.api_host + "submit_rating", {
               session_id: this.$store.state.session_id,
-              content_ids: [this.content_id],
+              content_ids: [this.contentId],
               rating: 3
             })
             .then(function(response) {
               var index = self.$store.state.suggestions.rate_counter.indexOf(
-                self.content_id
+                self.contentId
               );
               if (index == -1) {
-                self.$store.state.suggestions.rate_counter.push(
-                  self.content_id
-                );
+                self.$store.state.suggestions.rate_counter.push(self.contentId);
                 if (
                   self.$store.state.suggestions.rate_counter.length ==
                   self.$store.state.suggestions.calc_after
@@ -450,7 +497,7 @@ export default {
             });
           var activity = {
             api: "swipe",
-            content_id: this.content_id,
+            content_id: this.contentId,
             rating: 3
           };
           this.$emit("swipe-api-counter", activity);
@@ -459,11 +506,11 @@ export default {
         // do nothing
       }
       this.$store.state.last_card = {
-        content_id: this.content_id,
+        content_id: this.contentId,
         poster: this.poster,
         title: this.title,
-        type: this.content_type,
-        where_to_watch: this.where_to_watch
+        type: this.contentType,
+        where_to_watch: this.whereToWatch
       };
 
       this.hideCard();
@@ -481,14 +528,17 @@ export default {
 
     resetCardPosition() {
       this.interactSetPosition({ x: 0, y: 0, rotation: 0 });
-      this.potential_rating = "";
+      this.potentialRating = "";
     }
+  },
+  beforeDestroy() {
+    this.$emit("destroyCC");
   }
 };
 </script>
 
 <style lang="scss" scoped>
-@import "../styles/index.scss";
+@import "./../../styles/index.scss";
 
 $cardsTotal: 3;
 $cardsWidth: 300px;
@@ -498,48 +548,6 @@ $defaultTranslation: $cardsPositionOffset * $cardsTotal;
 $defaultScale: 1 - ($cardsScaleOffset * $cardsTotal);
 $fs-card-title: 1.125em;
 
-.potential-thumbs-up-true {
-  position: absolute;
-  height: 55vw;
-  width: 55vw;
-  background-image: url("./../images/thumbs_up_true.svg");
-  background-size: 100% 100%;
-  background-color: none;
-  margin-top: -140%;
-  margin-left: -32.5%;
-}
-.potential-thumbs-down-true {
-  position: absolute;
-  height: 55vw;
-  width: 55vw;
-  background-image: url("./../images/thumbs_down_true.svg");
-  background-size: 100% 100%;
-  background-color: none;
-  margin-top: -140%;
-  margin-left: -32.5%;
-}
-.potential-love-true {
-  position: absolute;
-  height: 55vw;
-  width: 55vw;
-  background-image: url("./../images/love_true.svg");
-  background-size: 100% 100%;
-  background-color: none;
-  margin-top: -140%;
-  margin-left: -32.5%;
-}
-.potential-havnt-watched {
-  position: absolute;
-  height: 30vw;
-  width: 75vw;
-  background-image: url("./../images/havent_watched.svg");
-  background-size: 75vw 30vw;
-  background-position-x: 0vw;
-  background-repeat: no-repeat;
-  margin-top: -140%;
-  margin-left: -38.5vw;
-  border-radius: 12px;
-}
 .card {
   @include card();
   @include absolute(0);
@@ -590,10 +598,38 @@ $fs-card-title: 1.125em;
   }
 }
 
+.card-tap-instruction {
+  position: absolute;
+  width: var(--card-width);
+  height: var(--card-height);
+  margin-left: calc(-50% - 4px);
+  border-radius: 10px;
+  background-color: rgba(62, 100, 237, 0.9);
+  background-image: url("./../../images/tap.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 35%;
+  background-position: 50% 60%;
+}
+.card-tap-instruction p {
+  position: absolute;
+  width: 80%;
+  top: 23%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: bold;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+}
+
 .card img {
   width: var(--card-width);
   height: var(--card-height);
-  margin-top: var(--margin-top);
   margin-left: -102%;
   border-radius: 10px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -602,7 +638,6 @@ $fs-card-title: 1.125em;
 .no-poster {
   width: var(--card-width);
   height: var(--card-height);
-  margin-top: var(--margin-top);
   margin-left: -51%;
   background-color: #f3f2f2;
   border-radius: 10px;
@@ -611,7 +646,6 @@ $fs-card-title: 1.125em;
 .no-poster span {
   position: absolute;
   width: var(--text-width);
-  margin-top: var(--margin-top);
   font-size: 10vw;
   transform: translateX(-50%);
 }

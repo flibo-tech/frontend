@@ -134,7 +134,7 @@ export default {
   props: {
     active: {
       type: Boolean,
-      required: true
+      required: false
     }
   },
   data() {
