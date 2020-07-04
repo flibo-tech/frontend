@@ -35,8 +35,20 @@
                 <div class="save-platforms-button">
                   <Button
                     buttonType="primary"
+                    :disabled="(temp_platforms.length) ? false : true"
+                    :loading="true"
                     text="Save"
-                    v-on:clicked="savePlatforms"
+                    v-on:clicked="savePlatforms(true)"
+                  />
+                </div>
+
+                <div class="save-platforms-button"
+                     style="margin-right: 15px;">
+                  <Button
+                    buttonType="secondary"
+                    :loading="true"
+                    text="Cancel"
+                    v-on:clicked="savePlatforms(false)"
                   />
                 </div>
             </div>
@@ -2010,16 +2022,18 @@ export default {
           }
         });
     },
-    savePlatforms() {
+    savePlatforms(any_platforms) {
       var self = this;
       axios
         .post(self.$store.state.api_host + "update_profile", {
           session_id: self.$store.state.session_id,
-          platforms: self.temp_platforms
+          platforms: any_platforms ? self.temp_platforms : []
         })
         .then(function(response) {
           if ([200].includes(response.status)) {
-            self.store.user.profile.platforms = self.temp_platforms;
+            self.store.user.profile.platforms = any_platforms
+              ? self.temp_platforms
+              : [];
             axios
               .post(self.$store.state.api_host + "search_filters", {
                 session_id: self.$store.state.session_id
@@ -3377,15 +3391,17 @@ export default {
   width: calc(100vw - 30px);
   margin-left: 15px;
   text-align: left;
-  background-color: #fafafa;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 7px;
+  background-color: #fff;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.07);
+  padding: 16px;
+  margin-bottom: 16px;
+  margin-top: 8px;
+  border-radius: 12px;
 }
 .save-platforms-text {
   font-family: "Roboto", sans-serif;
-  font-size: 14px;
-  font-weight: normal;
+  font-size: 16px;
+  font-weight: bold;
   font-style: normal;
   font-stretch: normal;
   line-height: 1.31;
@@ -3483,5 +3499,6 @@ export default {
 .save-platforms-button {
   width: max-content;
   margin-top: 20px;
+  float: right;
 }
 </style>
