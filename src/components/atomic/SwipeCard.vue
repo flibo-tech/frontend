@@ -602,7 +602,7 @@ $fs-card-title: 1.125em;
   position: absolute;
   width: var(--card-width);
   height: var(--card-height);
-  margin-left: calc(-50% - 3px);
+  margin-left: calc(-50% - 4px);
   border-radius: 10px;
   background-color: rgba(62, 100, 237, 0.9);
   background-image: url("./../../images/tap.svg");
