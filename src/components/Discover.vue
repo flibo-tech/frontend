@@ -5,7 +5,7 @@
              :style="is_mobile ? 'margin-top: 160px;padding-top: 0px;' : 'position: relative;margin-top: 180px;padding-top: 30px;'">
             
             <div class="save-platforms-container"
-                 :style="is_mobile ? '' : 'width: 950px;margin-left: 50%;transform: translateX(-50%);'"
+                 :style="is_mobile ? '' : 'width: 950px;'"
                  v-if="store.user.profile.platforms == null">
                 <p class="save-platforms-text">
                   Select your subscriptions for more personalized suggestions
@@ -13,7 +13,7 @@
 
                 <div class="save-platforms-items">
                   <label
-                    :class="is_mobile ? 'save-platforms' : 'desktop-save-platforms'"
+                    class="save-platforms"
                     v-for="(item, index) in user_platforms"
                   >
                     <input
