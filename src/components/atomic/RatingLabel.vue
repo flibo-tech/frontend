@@ -58,7 +58,6 @@ export default {
 <style scoped>
 /* Style for Haven't seen if v-if for div is true */
 div p {
-  color: white;
   text-align: center;
   font-family: "Roboto", sans-serif;
   font-weight: medium;
@@ -82,7 +81,7 @@ div {
 }
 .liked-swiped {
   border-radius: 100%;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.7);
   background-image: url("../../images/thumbs_up_true.svg");
   background-repeat: no-repeat;
   background-position: 50% 50%;
@@ -103,7 +102,7 @@ div {
 }
 .disliked-swiped {
   border-radius: 100%;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.7);
   background-image: url("../../images/thumbs_down_true.svg");
   background-repeat: no-repeat;
   background-position: 50% 50%;
@@ -124,7 +123,7 @@ div {
 }
 .loved-swiped {
   border-radius: 100%;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.7);
   background-image: url("../../images/love_true.svg");
   background-repeat: no-repeat;
   background-position: 50% 50%;
@@ -152,7 +151,9 @@ div {
   justify-content: center;
   align-items: center;
   border-radius: 28px;
-  background-color: rgba(88, 90, 101, 1);
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #212121;
+  font-weight: bold;
   width: 160px;
   height: 56px;
   background-size: 30px 30px;
