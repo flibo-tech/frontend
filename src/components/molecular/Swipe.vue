@@ -45,7 +45,11 @@
     <div
       class="container"
       :style="`--margin-top:` + marginTop + `px;`"
-      v-if="store.rate.visible_cards.length && !store.rate.fetching_cards"
+      v-if="
+        store.rate.visible_cards.length &&
+          !store.rate.fetching_cards &&
+          is_mobile
+      "
     >
       <SwipeCard
         v-for="(card_data, index) in store.rate.visible_cards"
@@ -145,7 +149,8 @@
             `px;`
         "
         v-if="
-          showPlatforms &&
+          is_mobile &&
+            showPlatforms &&
             !removingCard &&
             show_last_card_button &&
             Object.keys(store.rate.visible_cards[0].where_to_watch || {})
@@ -578,7 +583,7 @@ export default {
   background-color: #ffffffce;
   border-radius: 50%;
   background-size: 70% 70%;
-  background-position: center;
+  background-position: 49% 44%;
   background-repeat: no-repeat;
   border: none;
   outline: 0;
@@ -594,7 +599,7 @@ export default {
   background-color: #ffffffce;
   border-radius: 50%;
   background-size: 70% 70%;
-  background-position: center;
+  background-position: 49% 44%;
   background-repeat: no-repeat;
   border: none;
   outline: 0;
