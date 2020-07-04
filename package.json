@@ -11,8 +11,8 @@
     "test": "npm run unit",
     "lint": "eslint --ext .js,.vue src test/unit",
     "build": "node build/build.js",
-    "deploy": "aws s3 sync ./dist s3://flibo-dev && npm run invalidate",
-    "invalidate": "aws cloudfront create-invalidation --distribution-id E3G7736WQBGJO --paths /*"
+    "deploy": "aws s3 sync ./dist s3://flibo && npm run invalidate",
+    "invalidate": "aws cloudfront create-invalidation --distribution-id EGDUUDMGSSLTQ --paths /*"
   },
   "dependencies": {
     "axios": "^0.18.0",
