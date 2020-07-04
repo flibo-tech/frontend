@@ -21,7 +21,7 @@
             appear
             :enter-active-class="
               store.suggestions.rate_counter_all > 25
-                ? 'animated shake'
+                ? 'animated fadeIn'
                 : 'animated fadeIn'
             "
             leave-active-class="animated fadeOut"
