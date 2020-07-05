@@ -76,6 +76,7 @@
         :marginTop="margin_top"
         :showPlatforms="false"
         :tapOpen="false"
+        @update-api-counter="updateApiCounter"
       />
     </div>
   </div>
@@ -225,6 +226,9 @@ export default {
         this.$store.state.suggestions.discover_type_tab = ["flibo"];
       }
       this.$router.push("/discover");
+    },
+    updateApiCounter(activity) {
+      this.$emit("update-api-counter", activity);
     }
   }
 };

@@ -5,6 +5,7 @@
     :showPlatforms="true"
     :tapOpen="true"
     :tapOpenInstruction="tapOpenInstruction"
+    @update-api-counter="updateApiCounter"
   />
 </template>
 
@@ -61,6 +62,9 @@ export default {
       if (this.store.rate.never_tapped_any_card) {
         this.tapOpenInstruction = true;
       }
+    },
+    updateApiCounter(activity) {
+      this.$emit("update-api-counter", activity);
     }
   }
 };
