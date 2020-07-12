@@ -95,7 +95,7 @@
         : 'width: 1000px;margin-left: calc(50vw - 500px);'
     "
   >
-    <router-view />
+    <router-view @update-api-counter="updateApiCounter" />
     <MainNavigation
       v-if="!this.is_policy_page && !this.is_alert_page && !this.is_blog_page"
     />
@@ -840,15 +840,17 @@ export default {
             window.open(activity.url);
           }
           // console.log(error);
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.logging_out = true;
-          } else {
-            // console.log(error.response.status);
+          if (self.$store.state.session_id) {
+            if ([401, 419].includes(error.response.status)) {
+              window.location =
+                self.$store.state.login_host +
+                "logout?session_id=" +
+                self.$store.state.session_id;
+              self.$store.state.session_id = null;
+              self.logging_out = true;
+            } else {
+              // console.log(error.response.status);
+            }
           }
         });
     },
