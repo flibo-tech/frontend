@@ -3,7 +3,7 @@
     <div
       class="search-results-filters"
       :class="{ 'search-results-filters--hidden': !showRefreshButton }"
-      :style="is_mobile ? '' : 'top: 50px;width: 1000px;height: 110px;'"
+      :style="is_mobile ? '' : 'top: 50px;width: 1000px;height: 70px;'"
     >
       <div
         class="search-results-quick-filters"
@@ -38,8 +38,8 @@
       v-if="!store.discover_filters.fetching_filtered"
       :style="
         is_mobile
-          ? 'padding-top: 0;margin-top: 60px;'
-          : 'position: relative;padding-top: 0;margin-top: 60px;'
+          ? 'padding-top: 0;margin-top: 110px;'
+          : 'position: relative;padding-top: 0;margin-top: 125px;'
       "
     >
       <div
@@ -2092,7 +2092,6 @@ export default {
   white-space: nowrap;
   background-color: #fafafa;
   padding: 5px;
-  margin-top: 50px;
   margin-bottom: 15px;
   border-radius: 7px;
 }

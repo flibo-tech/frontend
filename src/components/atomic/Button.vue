@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="[checkType(buttonType), checkIcon(icon)]"
+    :class="[checkType, checkIcon]"
     :disabled="disabled"
     @click="
       $emit('clicked');
@@ -49,31 +49,33 @@ export default {
   },
 
   methods: {
-    checkType(buttonType) {
+    buttonClicked() {
+      if (this.loading) {
+        this.buttonClickedBool = true;
+      }
+    }
+  },
+
+  computed: {
+    checkType() {
       this.buttonText = this.text;
       let buttonClass = "";
-      if (buttonType === "primary") {
+      if (this.buttonType === "primary") {
         buttonClass = "primary";
         this.buttonText = this.text.toUpperCase();
-      } else if (buttonType === "secondary") {
+      } else if (this.buttonType === "secondary") {
         buttonClass = "secondary";
-      } else if (buttonType === "textOnly") {
+      } else if (this.buttonType === "textOnly") {
         buttonClass = "textOnly";
-      } else if (buttonType === "iconOnly") {
+      } else if (this.buttonType === "iconOnly") {
         buttonClass = "iconOnly";
       }
       return buttonClass;
     },
 
-    buttonClicked() {
-      if (this.loading) {
-        this.buttonClickedBool = true;
-      }
-    },
-
-    checkIcon(icon) {
+    checkIcon() {
       let iconClass = "";
-      switch (icon) {
+      switch (this.icon) {
         case "back":
           iconClass = "back";
           return iconClass;

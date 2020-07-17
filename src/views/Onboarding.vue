@@ -4,7 +4,7 @@
     class="instructions-container"
     :style="`--window_height:` + window_height + `px;`"
   >
-    <Logo logoColor="light" height="40" class="onboarding-logo" />
+    <Logo logoColor="light" :height="40" class="onboarding-logo" />
 
     <h1 class="onboarding-username">
       Hi, {{ store.user.name.split(" ")[0] }}.
@@ -76,6 +76,7 @@
         :marginTop="margin_top"
         :showPlatforms="false"
         :tapOpen="false"
+        @update-api-counter="updateApiCounter"
       />
     </div>
   </div>
@@ -85,7 +86,7 @@
     class="onboarding-success-container"
     :style="`--window_height:` + window_height + `px;`"
   >
-    <Logo logoColor="light" height="40" class="onboarding-logo" />
+    <Logo logoColor="light" :height="40" class="onboarding-logo" />
 
     <div class="onboarding-success-icon" />
 
@@ -225,6 +226,9 @@ export default {
         this.$store.state.suggestions.discover_type_tab = ["flibo"];
       }
       this.$router.push("/discover");
+    },
+    updateApiCounter(activity) {
+      this.$emit("update-api-counter", activity);
     }
   }
 };
