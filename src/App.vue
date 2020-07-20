@@ -738,6 +738,7 @@ export default {
       var self = this;
       self.$store.state.suggestions.fetching_suggestions = true;
       self.$store.state.suggestions.content_type_tab = ["movie", "tv"];
+      self.store.suggestions.observer_current_index = 0;
       axios
         .post(self.$store.state.api_host + "flibo_feed", {
           session_id: self.$store.state.session_id,
@@ -746,6 +747,10 @@ export default {
         .then(function(response) {
           if ([200].includes(response.status)) {
             self.$store.state.suggestions.contents = response.data.contents;
+            self.store.suggestions.feed_list = self.store.suggestions.contents.slice(
+              0,
+              25
+            );
             self.$store.state.suggestions.more_contents =
               response.data.more_contents;
             if (if_notifiy == "notify") {
@@ -756,7 +761,7 @@ export default {
             self.$store.state.scroll_positions.discover.friends = 0;
             self.$store.state.scroll_positions.discover.flibo = 0;
             self.$store.state.suggestions.last_fetch_time = Date.now();
-            self.filterDiscoverPage();
+            self.fetchRemaining();
           } else {
             // console.log(response.status);
           }
@@ -1113,6 +1118,40 @@ export default {
         )
         .catch(function(error) {
           // console.log(error);
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.logging_out = true;
+          } else {
+            // console.log(error.response.status);
+          }
+        });
+    },
+    fetchRemaining() {
+      var self = this;
+      self.store.suggestions.fetching_feed_incremental = true;
+
+      axios
+        .post(self.$store.state.api_host + "get_incremental_feed_contents", {
+          session_id: self.$store.state.session_id,
+          more_contents: self.$store.state.suggestions.more_contents.slice(),
+          country: self.$store.state.user.profile.country
+        })
+        .then(function(response) {
+          if ([200].includes(response.status)) {
+            self.$store.state.suggestions.contents.push(
+              ...response.data.contents
+            );
+            self.$store.state.suggestions.more_contents = [];
+            self.store.suggestions.fetching_feed_incremental = false;
+          } else {
+            // console.log(response.status);
+          }
+        })
+        .catch(function(error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +

@@ -236,7 +236,13 @@ export const store = new Vuex.Store({
         ? my_store.suggestions.ready_to_refresh_recommendation
         : false,
       users_suggestions: my_store ? my_store.suggestions.users_suggestions : [],
-      notify: false
+      notify: false,
+      feed_list: my_store ? my_store.suggestions.feed_list : [],
+      observer_current_index: my_store
+        ? my_store.suggestions.observer_current_index
+        : 0,
+      padding_top: my_store ? my_store.suggestions.padding_top : 0,
+      padding_bottom: my_store ? my_store.suggestions.padding_bottom : 0
     },
     feed_filters: {
       filters_meta: {
