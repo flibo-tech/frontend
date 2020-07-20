@@ -138,6 +138,7 @@
         "
         v-if="
           is_mobile &&
+            store.rate.visible_cards.length &&
             !tapOpenInstruction &&
             showPlatforms &&
             !removingCard &&

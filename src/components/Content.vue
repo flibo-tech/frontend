@@ -8,7 +8,7 @@
             type="button">
     </button>
 
-    <div v-if="!loading">
+    <div v-if="(!loading) && (content.data!=null)">
       <div :style="(is_mobile) ? 'position:relative;margin-bottom: 5vw;' : 'position: relative;margin-bottom: 30px;'">
         <img v-bind:src="content.data.cover"
              :class="(is_mobile) ? 'cover-pic' : 'desktop-cover-pic'"
@@ -172,7 +172,7 @@
 
       </div>
 
-      <div class="similar-content-box" v-if="content.similar_content.length">
+      <div class="similar-content-box" v-if="(content.similar_content!=null) && content.similar_content.length">
         <div class="category"
              :style="(is_mobile) ? 'margin-top: 30%;' : 'margin-left: 10px;font-size: 15px;margin-top: 180px;'">
             Similar

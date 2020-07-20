@@ -62,6 +62,7 @@ export default {
     };
   },
   created() {
+    this.$store.state.current_path = "/rate";
     var self = this;
     axios
       .post(self.$store.state.api_host + "counts", {
@@ -73,7 +74,6 @@ export default {
         if (response.data.contents_rated < 25) {
           self.$router.push("/onboarding");
         } else {
-          self.$store.state.current_path = "/rate";
           if (self.store.rate.never_tapped_any_card) {
             setTimeout(self.showTapOpenInstruction, 5000);
           }
