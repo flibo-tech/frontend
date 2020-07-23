@@ -37,6 +37,10 @@
         @logging-out="loggingOut"
         @refresh-feed="updateDiscoverPage(null)"
         @update-api-counter="updateApiCounter"
+        @open-content-page="openContentPage"
+        @submit-rating="submitRating"
+        @add-to-watchlist="addToWatchlist"
+        @open-uesr-profile="goToProfile"
       />
     </transition>
     <MainNavigation
@@ -95,7 +99,11 @@
         : 'width: 1000px;margin-left: calc(50vw - 500px);'
     "
   >
-    <router-view @update-api-counter="updateApiCounter" />
+    <router-view
+      @update-api-counter="updateApiCounter"
+      @open-content-page="openContentPage"
+      @open-uesr-profile="goToProfile"
+    />
     <MainNavigation
       v-if="!this.is_policy_page && !this.is_alert_page && !this.is_blog_page"
     />
@@ -154,7 +162,19 @@ export default {
         postal: null,
         timezone: null
       },
-      is_blog_page: false
+      is_blog_page: false,
+      feed_mappings: {
+        home: {
+          contents: "this.$store.state.suggestions.contents",
+          feed: "this.$store.state.suggestions.feed_list"
+        },
+        search_results: {
+          contents: "this.$store.state.discover_filters.filtered_content"
+        },
+        watchlist: {
+          contents: "this.$store.state.watchlist"
+        }
+      }
     };
   },
 
@@ -167,6 +187,11 @@ export default {
     },
     refresh_recommendation: function() {
       return this.$store.state.suggestions.refresh_recommendation;
+    },
+    discover_type_tab_string() {
+      return JSON.stringify(
+        this.$store.state.suggestions.discover_type_tab
+      ).replace(/['"]+/g, "");
     }
   },
 
@@ -1163,6 +1188,170 @@ export default {
             // console.log(error.response.status);
           }
         });
+    },
+    openContentPage(info) {
+      this.$store.state.content_page.more_by_artist = null;
+      this.$store.state.content_page.artist = null;
+      if (info.origin == "home") {
+        var origin_full =
+          "discover__" +
+          (this.discover_type_tab_string == "[flibo]"
+            ? "suggestions_tab__"
+            : this.discover_type_tab_string == "[filter]"
+            ? "filter_tab__"
+            : "feed_tab__") +
+          info.sub_origin;
+      }
+      this.$store.state.content_page.origin = Object.keys(info || {}).includes(
+        "suffix"
+      )
+        ? info.suffix
+          ? origin_full + "__" + info.suffix
+          : origin_full
+        : origin_full;
+
+      this.$router.push(
+        "/content/" +
+          info.content_id +
+          "/" +
+          info.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
+    },
+    getContentIndex(content_id, list_location) {
+      for (let i = 0; i < eval(list_location).length; i++) {
+        if (eval(list_location)[i].content_id == content_id) {
+          return i;
+        }
+      }
+    },
+    submitRating(info) {
+      var self = this;
+
+      var content_list_location = this.feed_mappings[info.origin].contents;
+      var contents_index = this.getContentIndex(
+        info.content_id,
+        content_list_location
+      );
+
+      var feed_list_location = this.feed_mappings[info.origin].feed;
+      var feed_index = this.getContentIndex(
+        info.content_id,
+        feed_list_location
+      );
+
+      var prev_rating = null;
+      prev_rating = eval(content_list_location)[contents_index].rating;
+
+      eval(content_list_location)[contents_index].rating = info.user_rating;
+      eval(feed_list_location)[feed_index].rating = info.user_rating;
+
+      axios
+        .post(this.$store.state.api_host + "submit_rating", {
+          session_id: this.$store.state.session_id,
+          content_ids: [info.content_id],
+          rating: info.user_rating
+        })
+        .then(function(response) {
+          var index = self.$store.state.suggestions.rate_counter.indexOf(
+            info.content_id
+          );
+          if (index == -1) {
+            self.$store.state.suggestions.rate_counter.push(info.content_id);
+            if (
+              self.$store.state.suggestions.rate_counter.length ==
+              self.$store.state.suggestions.calc_after
+            ) {
+              self.$store.state.suggestions.rate_counter = [];
+              axios
+                .post(
+                  self.$store.state.ai_host + "calculate_contents_to_recommend",
+                  {
+                    session_id: self.$store.state.session_id
+                  }
+                )
+                .then(function(response) {
+                  self.$store.state.notifications.suggestions = true;
+                  self.$store.state.suggestions.ready_to_refresh_recommendation = true;
+                });
+            }
+          }
+        })
+        .catch(function(error) {
+          eval(content_list_location)[contents_index].rating = prev_rating;
+          eval(feed_list_location)[feed_index].rating = prev_rating;
+
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.logging_out = true;
+          } else {
+            // console.log(error.response.status);
+          }
+        });
+    },
+    addToWatchlist(info) {
+      var self = this;
+
+      var content_list_location = this.feed_mappings[info.origin].contents;
+      var contents_index = this.getContentIndex(
+        info.content_id,
+        content_list_location
+      );
+
+      var feed_list_location = this.feed_mappings[info.origin].feed;
+      var feed_index = this.getContentIndex(
+        info.content_id,
+        feed_list_location
+      );
+
+      var prev_state = null;
+      prev_state = eval(content_list_location)[contents_index].watch_later;
+
+      eval(content_list_location)[contents_index].watch_later = info.watch_later
+        ? false
+        : true;
+      eval(feed_list_location)[feed_index].watch_later = info.watch_later
+        ? false
+        : true;
+
+      axios
+        .post(this.$store.state.api_host + "update_watchlist", {
+          session_id: this.$store.state.session_id,
+          content_id: info.content_id,
+          status: info.watch_later ? false : true
+        })
+        .then(function(response) {
+          if (response.status == 200) {
+          } else {
+            // console.log(response.status);
+          }
+        })
+        .catch(function(error) {
+          eval(content_list_location)[contents_index].watch_later = prev_state;
+          eval(feed_list_location)[feed_index].watch_later = prev_state;
+
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.logging_out = true;
+          } else {
+            // console.log(error.response.status);
+          }
+        });
+    },
+    goToProfile(info) {
+      this.$router.push(
+        "/profile/" +
+          info.user_id +
+          "/" +
+          info.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
     }
   }
 };
