@@ -334,7 +334,9 @@ export default {
                       (self.$store.state.watchlist_filters.filters_meta.platforms =
                         response.data.platforms),
                       (self.$store.state.feed_filters.filters_meta.platforms =
-                        response.data.platforms)
+                        response.data.platforms),
+                        (self.$store.state.feed_filters.filters_meta.genres =
+                        response.data.genres)
                     )
                   );
 
@@ -390,7 +392,9 @@ export default {
                 (self.$store.state.watchlist_filters.filters_meta.platforms =
                   response.data.platforms),
                 (self.$store.state.feed_filters.filters_meta.platforms =
-                  response.data.platforms)
+                  response.data.platforms),
+                  (self.$store.state.feed_filters.filters_meta.genres =
+                        response.data.genres)
               )
             );
 
@@ -503,7 +507,9 @@ export default {
                 (self.$store.state.watchlist_filters.filters_meta.platforms =
                   response.data.platforms),
                 (self.$store.state.feed_filters.filters_meta.platforms =
-                  response.data.platforms)
+                  response.data.platforms),
+                  (self.$store.state.feed_filters.filters_meta.genres =
+                        response.data.genres)
               )
             );
         }
@@ -1102,7 +1108,9 @@ export default {
                   (self.$store.state.watchlist_filters.filters_meta.platforms =
                     response.data.platforms),
                   (self.$store.state.feed_filters.filters_meta.platforms =
-                    response.data.platforms)
+                    response.data.platforms),
+                    (self.$store.state.feed_filters.filters_meta.genres =
+                        response.data.genres)
                 )
               );
           } else {

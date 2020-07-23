@@ -3,7 +3,7 @@
         <div class="suggestions-box"
              v-if="(discover_type_tab_string != '[filter]') ? !store.suggestions.fetching_suggestions : !fetching_filtered"
              :style="is_mobile ? 'margin-top: 160px;padding-top: 0px;' : 'position: relative;margin-top: 180px;padding-top: 30px;'">
-            
+
             <div class="save-platforms-container"
                  :style="is_mobile ? '' : 'width: 950px;'"
                  v-if="store.user.profile.platforms == null">
@@ -1851,7 +1851,9 @@ export default {
                   (self.$store.state.watchlist_filters.filters_meta.platforms =
                     response.data.platforms),
                   (self.$store.state.feed_filters.filters_meta.platforms =
-                    response.data.platforms)
+                    response.data.platforms),
+                    (self.$store.state.feed_filters.filters_meta.genres =
+                        response.data.genres)
                 )
               );
           } else {

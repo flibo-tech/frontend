@@ -246,18 +246,36 @@ export const store = new Vuex.Store({
     },
     feed_filters: {
       filters_meta: {
-        platforms: my_store ? my_store.feed_filters.filters_meta.platforms : []
+        platforms: my_store ? my_store.feed_filters.filters_meta.platforms : [],
+        genres: my_store ? my_store.feed_filters.filters_meta.genres : []
       },
       filters_temp: {
         platforms: my_store
-          ? my_store.feed_filters.filters_applied.platforms.slice()
+          ? my_store.feed_filters.filters_applied.home.platforms.slice()
           : []
       },
       filters_applied: {
         platforms: my_store
           ? my_store.feed_filters.filters_applied.platforms
-          : []
-      }
+          : [],
+        home: {
+          platforms: my_store
+            ? my_store.feed_filters.filters_applied.home.platforms
+            : []
+        },
+        watchlist: {
+          platforms: my_store
+            ? my_store.feed_filters.filters_applied.watchlist.platforms
+            : [],
+          genres: my_store
+            ? my_store.feed_filters.filters_applied.watchlist.genres
+            : []
+        }
+      },
+      reset_content_type_filter: false,
+      reset_discover_type_filter: false,
+      reset_platform_filter: false,
+      reset_genre_filter: false
     },
     discover_filters: {
       filters_meta: {
@@ -353,7 +371,10 @@ export const store = new Vuex.Store({
         : ["movie", "tv"],
       last_fetch_time: my_store
         ? my_store.discover_filters.last_fetch_time
-        : 1000000000000
+        : 1000000000000,
+      discover_type_tab: my_store
+        ? my_store.discover_filters.discover_type_tab
+        : ["community", "friends", "flibo"]
     },
     watchlist: my_store ? my_store.watchlist : [],
     watchlist_filters: {
