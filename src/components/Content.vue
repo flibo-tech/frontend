@@ -247,11 +247,11 @@
       </div>
 
       <div class="artists-box"
-          v-if="content.crew.directed_by.length
+          v-if="(content.crew!= null ) && (content.crew.directed_by.length
                 ||
                 content.crew.cast.length
                 ||
-                content.crew.writing_credits.length">
+                content.crew.writing_credits.length)">
         <div class="category"
              :style="(is_mobile) ? '' : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'"
              v-if="content.crew.directed_by.length">
