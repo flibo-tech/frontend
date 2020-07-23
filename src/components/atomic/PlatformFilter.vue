@@ -1,0 +1,192 @@
+<template>
+  <div
+    class="quick-filters-platforms"
+    :style="
+      is_mobile
+        ? quick_filters_applied.platforms.length
+          ? 'background-color: rgb(232, 240, 254);'
+          : ''
+        : quick_filters_applied.platforms.length
+        ? 'background-color: rgb(232, 240, 254);height: 50px;'
+        : 'height: 50px;'
+    "
+  >
+    <label
+      v-for="(platform, index) in quick_platforms"
+      :key="index"
+      class="quick-filter-platform-checkbox"
+      :style="is_mobile ? '' : 'margin-right: 45px;'"
+    >
+      <input
+        type="checkbox"
+        v-bind:value="platform"
+        v-model="quick_filters_applied.platforms"
+        class="quick-filter-checkbox-input"
+        @click="filterParent"
+      />
+      <span
+        class="quick-filter-checkmark-abled-platform"
+        :style="is_mobile ? '' : 'height: 40px;width: 40px;'"
+      />
+      <span
+        class="quick-filter-platform-cropper"
+        :style="is_mobile ? '' : 'height: 40px;width: 40px;'"
+      >
+        <img
+          v-bind:src="platform.platform_link"
+          class="quick-filter-platform-icon"
+        />
+      </span>
+    </label>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "App",
+  props: {
+    parent: {
+      type: String,
+      required: true
+    }
+  },
+  data() {
+    return {
+      is_mobile: window.screen.height > window.screen.width,
+      filtered_platforms: [],
+      quick_filters_meta: this.$store.state.feed_filters.filters_meta,
+      quick_filters_mapping: {
+        home: "this.$store.state.feed_filters.filters_applied.home",
+        watchlist: "this.$store.state.feed_filters.filters_applied.watchlist"
+      },
+      store: this.$store.state
+    };
+  },
+  computed: {
+    quick_platforms() {
+      if (this.parent == "home") {
+        return this.user_platforms;
+      } else if (this.parent == "watchlist") {
+        return this.watchlist_platforms;
+      }
+    },
+    quick_filters_applied() {
+      return eval(this.quick_filters_mapping[this.parent]);
+    },
+    user_platforms() {
+      if ((this.store.user.profile.platforms || []).length) {
+        var output = [];
+        var self = this;
+        this.quick_filters_meta.platforms.forEach(function(item, index) {
+          if (
+            self.store.user.profile.platforms.indexOf(item.platform_name) != -1
+          ) {
+            output.push(item);
+          }
+        });
+        return output;
+      } else {
+        return this.quick_filters_meta.platforms;
+      }
+    },
+    watchlist_platforms() {
+      var watchlist_platforms = [];
+      this.store.watchlist.forEach(function(item, index) {
+        if (Object.keys(item.where_to_watch || {}).includes("stream")) {
+          watchlist_platforms.push(...Object.keys(item.where_to_watch.stream));
+        } else if (Object.keys(item.where_to_watch || {}).includes("rent")) {
+          watchlist_platforms.push(...Object.keys(item.where_to_watch.rent));
+        } else if (Object.keys(item.where_to_watch || {}).includes("buy")) {
+          watchlist_platforms.push(...Object.keys(item.where_to_watch.buy));
+        }
+      });
+
+      var output = [];
+      var self = this;
+      this.quick_filters_meta.platforms.forEach(function(item, index) {
+        if (
+          watchlist_platforms.indexOf(
+            item.platform_name.replace(/[^a-z0-9]+/gi, "_").toLowerCase()
+          ) != -1
+        ) {
+          output.push(item);
+        }
+      });
+      return output;
+    },
+    reset_filter() {
+      return this.$store.state.feed_filters.reset_platform_filter;
+    }
+  },
+  watch: {
+    reset_filter: {
+      handler(reset) {
+        if (reset) {
+          eval(this.quick_filters_mapping[this.parent] + ".platforms = []");
+          this.$store.state.feed_filters.reset_platform_filter = false;
+        }
+      }
+    }
+  },
+  methods: {
+    filterParent() {
+      this.$emit("filter-parent", true);
+    }
+  }
+};
+</script>
+
+<style scoped>
+.quick-filters-platforms {
+  display: flex;
+  padding: 5px;
+  border-radius: 5px;
+  width: fit-content;
+  gap: 10px;
+}
+.quick-filter-platform-checkbox {
+  position: relative;
+  display: inline-block;
+  margin-right: 34px;
+  height: 34px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.quick-filter-platform-checkbox
+  input:checked
+  ~ .quick-filter-checkmark-abled-platform {
+  background-color: rgba(41, 78, 210, 0.75);
+  background-size: 50%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+  background-image: url("./../../images/checked_white.svg");
+}
+.quick-filter-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.quick-filter-checkmark-abled-platform {
+  position: absolute;
+  height: 34px;
+  width: 34px;
+  z-index: 1;
+}
+.quick-filter-platform-cropper {
+  position: absolute;
+  overflow: hidden;
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+}
+.quick-filter-platform-icon {
+  width: 100%;
+}
+::-webkit-scrollbar {
+  display: none;
+}
+</style>
