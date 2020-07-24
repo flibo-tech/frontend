@@ -47,8 +47,8 @@ export default {
   props: {
     parent: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -57,9 +57,10 @@ export default {
       quick_filters_meta: this.$store.state.feed_filters.filters_meta,
       quick_filters_mapping: {
         home: "this.$store.state.feed_filters.filters_applied.home",
-        watchlist: "this.$store.state.feed_filters.filters_applied.watchlist"
+        watchlist: "this.$store.state.feed_filters.filters_applied.watchlist",
       },
-      store: this.$store.state
+      store: this.$store.state,
+      just_created: true,
     };
   },
   computed: {
@@ -74,24 +75,71 @@ export default {
       return eval(this.quick_filters_mapping[this.parent]);
     },
     user_platforms() {
+      var output_prep = [];
+      var self = this;
+      var filters_meta = this.quick_filters_meta.platforms.slice();
+
       if ((this.store.user.profile.platforms || []).length) {
-        var output = [];
-        var self = this;
-        this.quick_filters_meta.platforms.forEach(function(item, index) {
+        filters_meta.forEach(function (item, index) {
           if (
             self.store.user.profile.platforms.indexOf(item.platform_name) != -1
           ) {
-            output.push(item);
+            output_prep.push(item.platform_name);
           }
         });
-        return output;
       } else {
-        return this.quick_filters_meta.platforms;
+        filters_meta.forEach(function (item, index) {
+          output_prep.push(item.platform_name);
+        });
       }
+
+      var output = [];
+
+      var applied_platforms = [];
+      var new_applied_platforms = [];
+      this.quick_filters_applied.platforms.forEach(function (item, index) {
+        if (output_prep.indexOf(item.platform_name) != -1) {
+          new_applied_platforms.push(item);
+          applied_platforms.push(item.platform_name);
+        }
+      });
+      this.quick_filters_applied.platforms = new_applied_platforms.slice();
+
+      filters_meta.forEach(function (item, index) {
+        if (output_prep.indexOf(item.platform_name) != -1) {
+          if (self.just_created) {
+            if (applied_platforms.indexOf(item.platform_name) != -1) {
+              item.score = 1;
+            } else {
+              item.score = 0;
+            }
+          }
+          output.push(item);
+        } else if (self.just_created) {
+          item.score = 0;
+        }
+      });
+
+      if (this.just_created) {
+        this.just_created = false;
+
+        output = output.sort(this.compare);
+        filters_meta = filters_meta.sort(this.compare);
+
+        output.forEach(function (item, index) {
+          delete output[index].score;
+        });
+        filters_meta.forEach(function (item, index) {
+          delete filters_meta[index].score;
+        });
+        this.quick_filters_meta.platforms = filters_meta.slice();
+      }
+
+      return output;
     },
     watchlist_platforms() {
       var watchlist_platforms = [];
-      this.store.watchlist.forEach(function(item, index) {
+      this.store.watchlist.forEach(function (item, index) {
         if (Object.keys(item.where_to_watch || {}).includes("stream")) {
           watchlist_platforms.push(...Object.keys(item.where_to_watch.stream));
         } else if (Object.keys(item.where_to_watch || {}).includes("rent")) {
@@ -101,22 +149,62 @@ export default {
         }
       });
 
-      var output = [];
-      var self = this;
-      this.quick_filters_meta.platforms.forEach(function(item, index) {
+      var applied_platforms = [];
+      var new_applied_platforms = [];
+      this.quick_filters_applied.platforms.forEach(function (item, index) {
         if (
           watchlist_platforms.indexOf(
             item.platform_name.replace(/[^a-z0-9]+/gi, "_").toLowerCase()
           ) != -1
         ) {
-          output.push(item);
+          new_applied_platforms.push(item);
+          applied_platforms.push(item.platform_name);
         }
       });
+      this.quick_filters_applied.platforms = new_applied_platforms.slice();
+
+      var output = [];
+      var self = this;
+      var filters_meta = this.quick_filters_meta.platforms.slice();
+      filters_meta.forEach(function (item, index) {
+        if (
+          watchlist_platforms.indexOf(
+            item.platform_name.replace(/[^a-z0-9]+/gi, "_").toLowerCase()
+          ) != -1
+        ) {
+          if (self.just_created) {
+            if (applied_platforms.indexOf(item.platform_name) != -1) {
+              item.score = 1;
+            } else {
+              item.score = 0;
+            }
+          }
+          output.push(item);
+        } else if (self.just_created) {
+          item.score = 0;
+        }
+      });
+
+      if (this.just_created) {
+        this.just_created = false;
+
+        output = output.sort(this.compare);
+        filters_meta = filters_meta.sort(this.compare);
+
+        output.forEach(function (item, index) {
+          delete output[index].score;
+        });
+        filters_meta.forEach(function (item, index) {
+          delete filters_meta[index].score;
+        });
+        this.quick_filters_meta.platforms = filters_meta.slice();
+      }
+
       return output;
     },
     reset_filter() {
       return this.$store.state.feed_filters.reset_platform_filter;
-    }
+    },
   },
   watch: {
     reset_filter: {
@@ -125,14 +213,23 @@ export default {
           eval(this.quick_filters_mapping[this.parent] + ".platforms = []");
           this.$store.state.feed_filters.reset_platform_filter = false;
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     filterParent() {
       this.$emit("filter-parent", true);
-    }
-  }
+    },
+    compare(a, b) {
+      if (a.score > b.score) {
+        return -1;
+      }
+      if (a.score == b.score) {
+        return 0;
+      }
+      return 1;
+    },
+  },
 };
 </script>
 

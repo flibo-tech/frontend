@@ -1,45 +1,47 @@
 <template>
-  <div
-    class="quick-filter-genres-container"
-    :style="
-      is_mobile
-        ? quick_filters_applied.genres.length
-          ? 'background-color: rgb(232, 240, 254);'
-          : ''
-        : quick_filters_applied.genres.length
-        ? 'background-color: rgb(232, 240, 254);height: 100px;'
-        : 'height: 100px;'
-    "
-  >
-    <label
-      v-for="(genre, index) in quick_genres"
-      :key="index"
-      class="quick-filter-genre-checkbox"
-      :style="is_mobile ? '' : 'margin-right: 95px;'"
+  <div class="quick-filter-genres-container">
+    <div
+      class="quick-filter-genres-secondary-container"
+      :style="
+        is_mobile
+          ? quick_filters_applied.genres.length
+            ? 'background-color: rgb(232, 240, 254);'
+            : ''
+          : quick_filters_applied.genres.length
+          ? 'background-color: rgb(232, 240, 254);height: 100px;'
+          : 'height: 100px;'
+      "
     >
-      <input
-        type="checkbox"
-        v-bind:value="genre"
-        v-model="quick_filters_applied.genres"
-        class="quick-filter-checkbox-input"
-        @click="filterParent"
-      />
-      <span
-        class="quick-filter-checkmark-abled-genre"
-        :style="is_mobile ? '' : 'height: 80px;width: 80px;'"
-      />
-      <span
-        class="quick-filter-genre-cropper"
-        :style="is_mobile ? '' : 'height: 80px;width: 80px;'"
+      <label
+        v-for="(genre, index) in quick_genres"
+        :key="index"
+        class="quick-filter-genre-checkbox"
+        :style="is_mobile ? '' : 'margin-right: 95px;'"
       >
-        <img v-bind:src="genre.genre_link" class="quick-filter-genre-icon" />
-      </span>
-      <span
-        class="quick-filter-checkmark-text-genre"
-        :style="is_mobile ? '' : 'width: 80px;top: 32.5px;'"
-        >{{ genre.genre_name }}</span
-      >
-    </label>
+        <input
+          type="checkbox"
+          v-bind:value="genre"
+          v-model="quick_filters_applied.genres"
+          class="quick-filter-checkbox-input"
+          @click="filterParent"
+        />
+        <span
+          class="quick-filter-checkmark-abled-genre"
+          :style="is_mobile ? '' : 'height: 80px;width: 80px;'"
+        />
+        <span
+          class="quick-filter-genre-cropper"
+          :style="is_mobile ? '' : 'height: 80px;width: 80px;'"
+        >
+          <img v-bind:src="genre.genre_link" class="quick-filter-genre-icon" />
+        </span>
+        <span
+          class="quick-filter-checkmark-text-genre"
+          :style="is_mobile ? '' : 'width: 80px;top: 32.5px;'"
+          >{{ genre.genre_name }}</span
+        >
+      </label>
+    </div>
   </div>
 </template>
 
@@ -49,8 +51,8 @@ export default {
   props: {
     parent: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -58,9 +60,10 @@ export default {
       filtered_genres: [],
       quick_filters_meta: this.$store.state.feed_filters.filters_meta,
       quick_filters_mapping: {
-        watchlist: "this.$store.state.feed_filters.filters_applied.watchlist"
+        watchlist: "this.$store.state.feed_filters.filters_applied.watchlist",
       },
-      store: this.$store.state
+      store: this.$store.state,
+      just_created: true,
     };
   },
   computed: {
@@ -68,23 +71,64 @@ export default {
       return eval(this.quick_filters_mapping[this.parent]);
     },
     quick_genres() {
+      if (this.parent == "watchlist") {
+        return this.watchlist_genres;
+      }
+    },
+    watchlist_genres() {
       var watchlist_genres = [];
-      this.store.watchlist.forEach(function(item, index) {
+      this.store.watchlist.forEach(function (item, index) {
         watchlist_genres.push(...item.genres);
       });
 
-      var output = [];
-      var self = this;
-      this.quick_filters_meta.genres.forEach(function(item, index) {
+      var applied_genre = [];
+      var new_applied_genres = [];
+      this.quick_filters_applied.genres.forEach(function (item, index) {
         if (watchlist_genres.indexOf(item.genre_name) != -1) {
-          output.push(item);
+          new_applied_genres.push(item);
+          applied_genre.push(item.genre_name);
         }
       });
+      this.quick_filters_applied.genres = new_applied_genres.slice();
+
+      var output = [];
+      var self = this;
+      var filters_meta = this.quick_filters_meta.genres.slice();
+      filters_meta.forEach(function (item, index) {
+        if (watchlist_genres.indexOf(item.genre_name) != -1) {
+          if (self.just_created) {
+            if (applied_genre.indexOf(item.genre_name) != -1) {
+              item.score = 1;
+            } else {
+              item.score = 0;
+            }
+          }
+          output.push(item);
+        } else if (self.just_created) {
+          item.score = 0;
+        }
+      });
+
+      if (this.just_created) {
+        this.just_created = false;
+
+        output = output.sort(this.compare);
+        filters_meta = filters_meta.sort(this.compare);
+
+        output.forEach(function (item, index) {
+          delete output[index].score;
+        });
+        filters_meta.forEach(function (item, index) {
+          delete filters_meta[index].score;
+        });
+        this.quick_filters_meta.genres = filters_meta.slice();
+      }
+
       return output;
     },
     reset_filter() {
       return this.$store.state.feed_filters.reset_genre_filter;
-    }
+    },
   },
   watch: {
     reset_filter: {
@@ -93,22 +137,36 @@ export default {
           eval(this.quick_filters_mapping[this.parent] + ".genres = []");
           this.$store.state.feed_filters.reset_genre_filter = false;
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     filterParent() {
       this.$emit("filter-parent", true);
-    }
-  }
+    },
+    compare(a, b) {
+      if (a.score > b.score) {
+        return -1;
+      }
+      if (a.score == b.score) {
+        return 0;
+      }
+      return 1;
+    },
+  },
 };
 </script>
 
 <style scoped>
 .quick-filter-genres-container {
-  display: flex;
-  width: 100%;
+  position: relative;
+  width: calc(100% + 10px);
+  margin-left: -10px;
   overflow-x: scroll;
+}
+.quick-filter-genres-secondary-container {
+  display: flex;
+  width: fit-content;
   height: 85px;
   padding: 10px;
   border-radius: 5px;
