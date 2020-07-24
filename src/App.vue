@@ -1333,6 +1333,7 @@ export default {
         })
         .then(function(response) {
           if (response.status == 200) {
+            self.updateWatchlist();
           } else {
             // console.log(response.status);
           }
