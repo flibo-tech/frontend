@@ -392,20 +392,28 @@ export default {
         });
     },
     submitRating(rating) {
-      var info = {
-        origin: this.parent,
-        content_id: this.contentId,
-        user_rating: rating
-      };
-      this.$emit("submit-rating", info);
+      if (this.$store.state.session_id != null) {
+        var info = {
+          origin: this.parent,
+          content_id: this.contentId,
+          user_rating: rating
+        };
+        this.$emit("submit-rating", info);
+      } else {
+        this.$store.state.prompt_signup = true;
+      }
     },
     addToWatchlist() {
-      var info = {
-        origin: this.parent,
-        content_id: this.contentId,
-        watch_later: this.watchLater
-      };
-      this.$emit("add-to-watchlist", info);
+      if (this.$store.state.session_id != null) {
+        var info = {
+          origin: this.parent,
+          content_id: this.contentId,
+          watch_later: this.watchLater
+        };
+        this.$emit("add-to-watchlist", info);
+      } else {
+        this.$store.state.prompt_signup = true;
+      }
     }
   }
 };

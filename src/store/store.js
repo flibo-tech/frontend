@@ -251,7 +251,7 @@ export const store = new Vuex.Store({
       },
       filters_temp: {
         platforms: my_store
-          ? my_store.feed_filters.filters_applied.home.platforms.slice()
+          ? my_store.feed_filters.filters_temp.platforms.slice()
           : []
       },
       filters_applied: {

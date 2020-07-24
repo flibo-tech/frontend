@@ -123,6 +123,7 @@ export default {
 .quick-filters-discover-type {
   position: relative;
   width: fit-content;
+  height: fit-content;
 }
 .discover-type-checkbox-input {
   position: absolute;

@@ -93,6 +93,7 @@ export default {
   position: relative;
   display: flex;
   width: fit-content;
+  height: fit-content;
   gap: 5px;
 }
 .content-type-checkbox {
