@@ -856,6 +856,18 @@ export default {
           })
           .then(function(response) {
             if (response.status == 200) {
+              axios
+                .post(self.$store.state.api_host + "watchlist", {
+                  session_id: self.$store.state.session_id,
+                  country: self.$store.state.user.profile.country
+                })
+                .then(function(response) {
+                  if ([200].includes(response.status)) {
+                    self.$store.state.watchlist = response.data.watchlist;
+                  } else {
+                    // console.log(response.status);
+                  }
+                });
             } else {
               // console.log(response.status);
             }
