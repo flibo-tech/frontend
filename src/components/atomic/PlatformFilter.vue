@@ -218,7 +218,10 @@ export default {
   },
   methods: {
     filterParent() {
-      this.$emit("filter-parent", true);
+      var self = this;
+      setTimeout(function () {
+        self.$emit("filter-parent");
+      }, 0);
     },
     compare(a, b) {
       if (a.score > b.score) {
@@ -236,15 +239,14 @@ export default {
 <style scoped>
 .quick-filters-platforms {
   display: flex;
-  padding: 5px;
+  padding: 5px 0px 5px 10px;
   border-radius: 5px;
   width: fit-content;
-  gap: 10px;
 }
 .quick-filter-platform-checkbox {
   position: relative;
   display: inline-block;
-  margin-right: 34px;
+  margin-right: 44px;
   height: 34px;
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
