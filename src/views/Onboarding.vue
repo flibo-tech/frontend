@@ -127,7 +127,7 @@ export default {
     ProgressBar,
     Logo,
     Swipe,
-    CardAnimation
+    CardAnimation,
   },
   data() {
     return {
@@ -156,16 +156,16 @@ export default {
       open_instructions: false,
       internal_fetch_check: false,
       start_rating: true,
-      ratingThreshold: 25
+      ratingThreshold: 25,
     };
   },
   created() {
     var self = this;
     axios
       .post(self.$store.state.api_host + "counts", {
-        session_id: self.$store.state.session_id
+        session_id: self.$store.state.session_id,
       })
-      .then(function(response) {
+      .then(function (response) {
         self.$store.state.suggestions.rate_counter_all =
           response.data.contents_rated;
         if (response.data.contents_rated >= self.ratingThreshold) {
@@ -174,21 +174,21 @@ export default {
       });
   },
   computed: {
-    rate_counter: function() {
+    rate_counter: function () {
       return this.store.suggestions.rate_counter_all;
-    }
+    },
   },
   watch: {
     rate_counter: {
       handler(count) {
         var self = this;
         if (count == self.ratingThreshold) {
-          self.timeout = setTimeout(function() {
+          self.timeout = setTimeout(function () {
             self.store.suggestions.rate_counter_all = self.ratingThreshold + 1;
           }, 750);
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     startRating() {
@@ -199,15 +199,15 @@ export default {
       axios
         .post(self.$store.state.api_host + "update_profile", {
           session_id: self.$store.state.session_id,
-          instructions_seen: true
+          instructions_seen: true,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -224,13 +224,14 @@ export default {
     startDiscovering(show_suggestions_only) {
       if (show_suggestions_only) {
         this.$store.state.suggestions.discover_type_tab = ["flibo"];
+        this.$store.state.suggestions.discover_while_onboarding = true;
       }
       this.$router.push("/discover");
     },
     updateApiCounter(activity) {
       this.$emit("update-api-counter", activity);
-    }
-  }
+    },
+  },
 };
 </script>
 
