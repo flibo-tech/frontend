@@ -11,7 +11,7 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_ad == "undefined") {
+    if (typeof my_store.unused_key_af == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       localStorage.clear();
@@ -40,7 +40,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_ad: my_store ? my_store.unused_key_ad : true,
+    unused_key_af: my_store ? my_store.unused_key_af : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -242,7 +242,56 @@ export const store = new Vuex.Store({
         ? my_store.suggestions.observer_current_index
         : 0,
       padding_top: my_store ? my_store.suggestions.padding_top : 0,
-      padding_bottom: my_store ? my_store.suggestions.padding_bottom : 0
+      padding_bottom: my_store ? my_store.suggestions.padding_bottom : 0,
+      refresh_feed: my_store ? my_store.suggestions.refresh_feed : false,
+      discover_while_onboarding: false
+    },
+    feed: {
+      topSentinelPreviousY: 0,
+      topSentinelPreviousRatio: 0,
+      bottomSentinelPreviousY: 0,
+      bottomSentinelPreviousRatio: 0,
+      defaultListSize: 25,
+      listThreshold: 15,
+      update_dom: false,
+      home: {
+        element_heights: my_store ? my_store.feed.home.element_heights : {},
+        padding_top: my_store ? my_store.feed.home.padding_top : 0,
+        padding_bottom: my_store ? my_store.feed.home.padding_bottom : 0,
+        scroll_position: my_store ? my_store.feed.home.scroll_position : 0,
+        observer_current_index: my_store
+          ? my_store.feed.home.observer_current_index
+          : 0
+      },
+      search_results: {
+        element_heights: my_store
+          ? my_store.feed.search_results.element_heights
+          : {},
+        feed_list: my_store ? my_store.feed.search_results.feed_list : [],
+        padding_top: my_store ? my_store.feed.search_results.padding_top : 0,
+        padding_bottom: my_store
+          ? my_store.feed.search_results.padding_bottom
+          : 0,
+        scroll_position: my_store
+          ? my_store.feed.search_results.scroll_position
+          : 0,
+        observer_current_index: my_store
+          ? my_store.feed.search_results.observer_current_index
+          : 0
+      },
+      watchlist: {
+        element_heights: my_store
+          ? my_store.feed.watchlist.element_heights
+          : {},
+        feed_list: my_store ? my_store.feed.watchlist.feed_list : [],
+        fetching: my_store ? my_store.feed.watchlist.fetching : false,
+        padding_top: my_store ? my_store.feed.watchlist.padding_top : 0,
+        padding_bottom: my_store ? my_store.feed.watchlist.padding_bottom : 0,
+        scroll_position: my_store ? my_store.feed.watchlist.scroll_position : 0,
+        observer_current_index: my_store
+          ? my_store.feed.watchlist.observer_current_index
+          : 0
+      }
     },
     feed_filters: {
       filters_meta: {
@@ -275,7 +324,8 @@ export const store = new Vuex.Store({
       reset_content_type_filter: false,
       reset_discover_type_filter: false,
       reset_platform_filter: false,
-      reset_genre_filter: false
+      reset_genre_filter: false,
+      apply_filters_wo_reset: false
     },
     discover_filters: {
       filters_meta: {
@@ -419,6 +469,9 @@ export const store = new Vuex.Store({
       friends: my_store ? my_store.friends_page.friends : []
     },
     scroll_positions: {
+      home: my_store ? my_store.scroll_positions.home : 0,
+      search_results: my_store ? my_store.scroll_positions.search_results : 0,
+      watchlist: my_store ? my_store.scroll_positions.watchlist : 0,
       discover: {
         all: my_store ? my_store.scroll_positions.discover.all : 0,
         friends: my_store ? my_store.scroll_positions.discover.friends : 0,
