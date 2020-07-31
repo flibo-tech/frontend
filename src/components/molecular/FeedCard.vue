@@ -1,6 +1,12 @@
 <template>
-  <div class="feed-card-container">
-    <div v-if="parent != 'watchlist'" class="feed-card-text">
+  <div
+    class="feed-card-container"
+    :style="is_mobile ? '' : 'grid-template-columns: 16px 200px 48px 1fr 16px;'"
+  >
+    <div
+      v-if="parent != 'watchlist' && content.feed_type"
+      class="feed-card-text"
+    >
       <FeedText
         :user_id="content.user_id"
         :user_name="content.user_name"
@@ -16,13 +22,16 @@
 
     <div class="feed-card-poster">
       <FeedPoster
+        :containerWidth="is_mobile ? 0.4 * screenWidth : 200"
         :contentId="content.content_id"
         :title="content.title"
         :image="content.poster"
         :trailerId="content.youtube_trailer_id"
         :whereToWatch="content.where_to_watch"
         :parent="parent"
-        :feedType="content.feed_type"
+        :feedType="
+          typeof content.feed_type != 'undefined' ? content.feed_type : null
+        "
         v-on="$listeners"
       />
     </div>
@@ -40,7 +49,9 @@
         :genres="content.genres"
         :watchLater="content.watch_later"
         :parent="parent"
-        :feedType="content.feed_type"
+        :feedType="
+          typeof content.feed_type != 'undefined' ? content.feed_type : null
+        "
         v-on="$listeners"
       />
     </div>
@@ -57,23 +68,24 @@ export default {
   components: {
     FeedText,
     FeedPoster,
-    FeedInfo
+    FeedInfo,
   },
   props: {
     content: {
       type: Object,
-      required: true
+      required: true,
     },
     parent: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
-      is_mobile: window.screen.height > window.screen.width
+      is_mobile: window.screen.height > window.screen.width,
+      screenWidth: window.innerWidth,
     };
-  }
+  },
 };
 </script>
 
