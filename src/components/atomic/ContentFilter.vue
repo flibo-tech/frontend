@@ -1,24 +1,26 @@
 <template>
   <div class="quick-filters-content-type">
-    <label
-      v-for="(item, index) in ['All', 'Movie', 'TV']"
-      :key="index"
-      class="content-type-checkbox"
-      :style="
-        content_type_tab == item
-          ? 'background-color: #e8f0fe;border-color: #d2e3fc;'
-          : ''
-      "
-      @click="switchContentTab(item)"
-    >
+    <div v-for="(item, index) in ['All', 'Movie', 'TV']" :key="index">
       <input
         type="radio"
+        :id="'quick-filters-content-type-' + index"
         v-bind:value="item"
         v-model="content_type_tab"
-        class="content-type-checkbox-input"
+        class="content-type-filter-checkbox-input"
       />
-      <span class="content-type-checkmark-text">{{ item }}</span>
-    </label>
+      <label
+        class="content-type-filter-checkbox"
+        :for="'quick-filters-content-type-' + index"
+        :style="
+          content_type_tab == item
+            ? 'background-color: #e8f0fe;border-color: #d2e3fc;'
+            : ''
+        "
+        @click="content_type_tab != item ? switchContentTab(item) : ''"
+      >
+        <span class="content-type-checkmark-text">{{ item }}</span>
+      </label>
+    </div>
   </div>
 </template>
 
@@ -28,8 +30,8 @@ export default {
   props: {
     parent: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -37,8 +39,8 @@ export default {
       store_mappings: {
         home: "this.$store.state.suggestions.content_type_tab",
         search_results: "this.$store.state.discover_filters.content_type_tab",
-        watchlist: "this.$store.state.watchlist_filters.content_type_tab"
-      }
+        watchlist: "this.$store.state.watchlist_filters.content_type_tab",
+      },
     };
   },
   computed: {
@@ -50,7 +52,7 @@ export default {
     },
     reset_filter() {
       return this.$store.state.feed_filters.reset_content_type_filter;
-    }
+    },
   },
   watch: {
     reset_filter: {
@@ -60,8 +62,8 @@ export default {
           eval(this.store_mappings[this.parent] + ' = ["movie", "tv"]');
           this.$store.state.feed_filters.reset_content_type_filter = false;
         }
-      }
-    }
+      },
+    },
   },
   created() {
     if (this.content_type_tab_string == "[movie,tv]") {
@@ -74,7 +76,6 @@ export default {
   },
   methods: {
     switchContentTab(tab) {
-      this.$emit("update-scroll", 0);
       if (tab == "Movie") {
         eval(this.store_mappings[this.parent] + ' = ["movie"]');
       } else if (tab == "TV") {
@@ -82,9 +83,9 @@ export default {
       } else if (tab == "All") {
         eval(this.store_mappings[this.parent] + ' = ["movie", "tv"]');
       }
-      this.$emit("filter-parent", true);
-    }
-  }
+      this.$emit("filter-parent");
+    },
+  },
 };
 </script>
 
@@ -94,12 +95,12 @@ export default {
   display: flex;
   width: fit-content;
   height: fit-content;
-  gap: 5px;
 }
-.content-type-checkbox {
+.content-type-filter-checkbox {
   display: inline-block;
   position: relative;
   width: max-content;
+  margin-right: 5px;
   border-radius: 50px;
   background-color: #ffffff;
   padding: 5px 15px;
@@ -113,7 +114,7 @@ export default {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.content-type-checkbox-input {
+.content-type-filter-checkbox-input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
