@@ -590,7 +590,7 @@ export default {
       loading: true,
       prompt_content_share: false,
       store: this.$store.state,
-      share_item: "poster"
+      share_item: "poster",
     };
   },
 
@@ -609,7 +609,7 @@ export default {
     ) {
       axios
         .get("https://ipinfo.io/?token=a354c067e1fef5")
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             var country_code = response.data.country;
             if (
@@ -628,13 +628,13 @@ export default {
               content_id: self.$store.state.content_page.content_id,
               origin: self.$store.state.content_page.origin,
               country: self.store.guest_country,
-              guest_id: self.$store.state.guest_id
+              guest_id: self.$store.state.guest_id,
             })
             .then(
-              response =>
+              (response) =>
                 (self.$store.state.content_page.data = response.data.contents)
             )
-            .catch(function(error) {
+            .catch(function (error) {
               // console.log(error);
             });
 
@@ -642,9 +642,9 @@ export default {
             .post(self.$store.state.api_host + "similar_content", {
               session_id: self.$store.state.session_id,
               content_id: self.$store.state.content_page.content_id,
-              country: self.store.guest_country
+              country: self.store.guest_country,
             })
-            .then(function(response) {
+            .then(function (response) {
               if (response.status == 200) {
                 self.$store.state.content_page.similar_content =
                   response.data.contents;
@@ -652,7 +652,7 @@ export default {
                 self.$store.state.content_page.similar_content = [];
               }
             })
-            .catch(function(error) {
+            .catch(function (error) {
               // console.log(error);
             });
         });
@@ -664,13 +664,13 @@ export default {
           origin: this.$store.state.content_page.origin,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
-          guest_id: self.$store.state.guest_id
+          guest_id: self.$store.state.guest_id,
         })
         .then(
-          response =>
+          (response) =>
             (self.$store.state.content_page.data = response.data.contents)
         )
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
         });
 
@@ -679,9 +679,9 @@ export default {
           session_id: this.$store.state.session_id,
           content_id: this.$store.state.content_page.content_id,
           country:
-            self.$store.state.user.profile.country || self.store.guest_country
+            self.$store.state.user.profile.country || self.store.guest_country,
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.status == 200) {
             self.$store.state.content_page.similar_content =
               response.data.contents;
@@ -689,7 +689,7 @@ export default {
             self.$store.state.content_page.similar_content = [];
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
         });
     }
@@ -697,15 +697,15 @@ export default {
     axios
       .post(this.$store.state.api_host + "cast_n_crew", {
         session_id: this.$store.state.session_id,
-        content_id: this.$store.state.content_page.content_id
+        content_id: this.$store.state.content_page.content_id,
       })
       .then(
-        response => (
+        (response) => (
           (self.$store.state.content_page.crew = response.data.cast_n_crew),
           (self.loading = false)
         )
       )
-      .catch(function(error) {
+      .catch(function (error) {
         // console.log(error);
         self.loading = false;
       });
@@ -731,29 +731,29 @@ export default {
           origin: this.$store.state.content_page.origin,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
-          guest_id: self.$store.state.guest_id
+          guest_id: self.$store.state.guest_id,
         })
         .then(
-          response =>
+          (response) =>
             (self.$store.state.content_page.data = response.data.contents)
         )
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
         });
 
       axios
         .post(this.$store.state.api_host + "cast_n_crew", {
           session_id: this.$store.state.session_id,
-          content_id: this.$store.state.content_page.content_id
+          content_id: this.$store.state.content_page.content_id,
         })
         .then(
-          response => (
+          (response) => (
             (self.$store.state.content_page.crew = response.data.cast_n_crew),
             (self.loading = false),
             (self.$store.state.content_page.rerender = false)
           )
         )
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           self.loading = false;
         });
@@ -762,9 +762,9 @@ export default {
           session_id: this.$store.state.session_id,
           content_id: this.$store.state.content_page.content_id,
           country:
-            self.$store.state.user.profile.country || self.store.guest_country
+            self.$store.state.user.profile.country || self.store.guest_country,
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.status == 200) {
             self.$store.state.content_page.similar_content =
               response.data.contents;
@@ -772,14 +772,14 @@ export default {
             self.$store.state.content_page.similar_content = [];
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
         });
     },
     promptContentAndroidShareIntent() {
       this.$emit("update-api-counter", {
         api: "share_content_" + this.share_item,
-        content_id: this.content.content_id
+        content_id: this.content.content_id,
       });
       Android.shareCollage(
         this.content.data[this.share_item],
@@ -833,7 +833,7 @@ export default {
       var activity = {
         api: "play_trailer",
         content_id: this.content.content_id,
-        trailer_origin: "content_page__" + this.content.origin
+        trailer_origin: "content_page__" + this.content.origin,
       };
       this.$emit("update-api-counter", activity);
     },
@@ -852,27 +852,41 @@ export default {
           .post(this.$store.state.api_host + "update_watchlist", {
             session_id: this.$store.state.session_id,
             content_id: this.$store.state.content_page.content_id,
-            status: prev_state ? false : true
+            status: prev_state ? false : true,
           })
-          .then(function(response) {
+          .then(function (response) {
             if (response.status == 200) {
+              self.$store.state.feed.watchlist.fetching = true;
               axios
                 .post(self.$store.state.api_host + "watchlist", {
                   session_id: self.$store.state.session_id,
-                  country: self.$store.state.user.profile.country
+                  country: self.$store.state.user.profile.country,
                 })
-                .then(function(response) {
+                .then(function (response) {
                   if ([200].includes(response.status)) {
                     self.$store.state.watchlist = response.data.watchlist;
+                    self.$store.state.feed.watchlist.feed_list = self.$store.state.watchlist.slice(
+                      0,
+                      self.$store.state.feed.defaultListSize
+                    );
+                    if (self.$route.path == "/watchlist") {
+                      self.$nextTick(function () {
+                        self.$store.state.feed.update_dom = true;
+                      });
+                    }
                   } else {
                     // console.log(response.status);
                   }
+                  self.$store.state.feed.watchlist.fetching = false;
+                })
+                .catch(function (error) {
+                  self.$store.state.feed.watchlist.fetching = false;
                 });
             } else {
               // console.log(response.status);
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             self.$store.state.content_page.data.watch_later = prev_state;
             if ([401, 419].includes(error.response.status)) {
               window.location =
@@ -894,7 +908,7 @@ export default {
         api: "outbound_traffic",
         content_id: content_id,
         url: link,
-        traffic_origin: "content_page__" + traffic_origin
+        traffic_origin: "content_page__" + traffic_origin,
       };
       this.$emit("update-api-counter", activity);
     },
@@ -907,9 +921,9 @@ export default {
           .post(this.$store.state.api_host + "submit_rating", {
             session_id: this.$store.state.session_id,
             content_ids: [this.content.content_id],
-            rating: user_rating
+            rating: user_rating,
           })
-          .then(function(response) {
+          .then(function (response) {
             var index = self.$store.state.suggestions.rate_counter.indexOf(
               self.content.content_id
             );
@@ -927,17 +941,16 @@ export default {
                     self.$store.state.ai_host +
                       "calculate_contents_to_recommend",
                     {
-                      session_id: self.$store.state.session_id
+                      session_id: self.$store.state.session_id,
                     }
                   )
-                  .then(function(response) {
-                    self.$store.state.suggestions.refresh_recommendation = true;
-                    self.$store.state.suggestions.notify = true;
+                  .then(function (response) {
+                    self.$store.state.notifications.suggestions = true;
                   });
               }
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             self.content.data.rating = prev_rating;
             if ([401, 419].includes(error.response.status)) {
               window.location =
@@ -962,15 +975,15 @@ export default {
         axios
           .post(self.$store.state.api_host + "update_profile", {
             session_id: self.$store.state.session_id,
-            never_tapped_any_artist: false
+            never_tapped_any_artist: false,
           })
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
             } else {
               // console.log(response.status);
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             // console.log(error);
             if ([401, 419].includes(error.response.status)) {
               window.location =
@@ -1001,31 +1014,31 @@ export default {
           country:
             self.$store.state.user.profile.country ||
             self.$store.state.guest_country,
-          guest_id: self.$store.state.guest_id
+          guest_id: self.$store.state.guest_id,
         })
         .then(
-          response => (
+          (response) => (
             (self.$store.state.content_page.more_by_artist =
               response.data.contents),
             (self.fetching_more = false)
           )
         )
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
         });
       if (self.$store.state.session_id) {
         axios
           .post(self.$store.state.api_host + "update_profile", {
             session_id: self.$store.state.session_id,
-            never_tapped_any_artist: false
+            never_tapped_any_artist: false,
           })
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
             } else {
               // console.log(response.status);
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             // console.log(error);
             if ([401, 419].includes(error.response.status)) {
               window.location =
@@ -1051,7 +1064,7 @@ export default {
           title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
       // this.reRender();
-    }
+    },
   },
   computed: {
     check_rerender() {
@@ -1286,7 +1299,7 @@ export default {
               padding-bottom: 10px;
               `
       );
-    }
+    },
   },
   watch: {
     check_rerender: {
@@ -1295,9 +1308,9 @@ export default {
           this.$store.state.content_page.rerender = false;
           this.reRender();
         }
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 
