@@ -1,7 +1,7 @@
 <template>
   <div class="starting-text">
     <div
-      class="summary-profile-cropper"
+      class="info-profile-cropper"
       :style="
         user_id != null
           ? 'cursor: pointer;-webkit-tap-highlight-color: rgba(0,0,0,0);-webkit-tap-highlight-color: transparent;'
@@ -11,13 +11,13 @@
       @click="goToProfile(user_id, user_name)"
     >
       <img
-        class="summary-profile-pp"
+        class="info-profile-pp"
         :src="user_picture"
         onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
       />
     </div>
     <p
-      class="summary-text"
+      class="info-text"
       :style="is_mobile ? '' : 'font-size: 15px;'"
       v-if="feed_type"
     >
@@ -42,7 +42,17 @@
         </span>
         <span
           v-if="user_ids.length > 1"
-          style="font-weight: bold;cursor: pointer;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;-o-user-select: none;user-select: none;-webkit-tap-highlight-color: rgba(0,0,0,0);-webkit-tap-highlight-color: transparent;"
+          style="
+            font-weight: bold;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -o-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            -webkit-tap-highlight-color: transparent;
+          "
           @click="showOther"
         >
           {{ user_ids.length - 1 }}
@@ -156,52 +166,52 @@ export default {
   props: {
     user_id: {
       type: Number,
-      required: false
+      required: false,
     },
     user_name: {
       type: String,
-      required: true
+      required: true,
     },
     user_picture: {
       type: String,
-      required: true
+      required: true,
     },
     item_type: {
       type: String,
-      required: true
+      required: true,
     },
     user_ids: {
       type: Array,
       required: false,
-      default: []
+      default: [],
     },
     other_user_rating: {
       type: Number,
-      required: false
+      required: false,
     },
     type: {
       type: String,
-      required: true
+      required: true,
     },
     feed_type: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
       is_mobile: window.screen.height > window.screen.width,
       show_others: false,
-      other_users: []
+      other_users: [],
     };
   },
   methods: {
     goToProfile(input_user_id, input_user_name) {
       if (input_user_id) {
-        this.$emit("update-scroll", window.scrollY);
+        this.$emit("leave-feed");
         var info = {
           user_id: input_user_id,
-          user_name: input_user_name
+          user_name: input_user_name,
         };
         this.$emit("open-uesr-profile", info);
       }
@@ -214,16 +224,16 @@ export default {
         .post(this.$store.state.api_host + "get_users_info", {
           session_id: this.$store.state.session_id,
           user_ids: this.user_ids,
-          guest_id: self.$store.state.guest_id
+          guest_id: self.$store.state.guest_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.status == 200) {
             self.other_users = response.data.users;
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -235,26 +245,26 @@ export default {
             // console.log(error.response.status);
           }
         });
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.summary-profile-cropper {
+.info-profile-cropper {
   height: 35px;
   width: 35px;
   overflow: hidden;
   border-radius: 50%;
   background-color: #ffffff;
 }
-.summary-profile-pp {
+.info-profile-pp {
   display: inline;
   margin: 0 auto;
   top: 100%;
   width: 100%;
 }
-.summary-text {
+.info-text {
   position: absolute;
   margin-top: -17.5px;
   margin-left: 40px;
