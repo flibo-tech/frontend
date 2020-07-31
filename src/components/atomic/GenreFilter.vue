@@ -142,7 +142,10 @@ export default {
   },
   methods: {
     filterParent() {
-      this.$emit("filter-parent", true);
+      var self = this;
+      setTimeout(function () {
+        self.$emit("filter-parent");
+      }, 0);
     },
     compare(a, b) {
       if (a.score > b.score) {
@@ -168,14 +171,13 @@ export default {
   display: flex;
   width: fit-content;
   height: 85px;
-  padding: 10px;
+  padding: 10px 0px 10px 15px;
   border-radius: 5px;
-  gap: 15px;
 }
 .quick-filter-genre-checkbox {
   position: relative;
   display: inline-block;
-  margin-right: 65px;
+  margin-right: 80px;
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
