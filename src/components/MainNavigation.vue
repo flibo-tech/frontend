@@ -129,13 +129,13 @@ import SearchBar from "./SearchBar";
 export default {
   name: "App",
   components: {
-    SearchBar
+    SearchBar,
   },
   props: {
     active: {
       type: Boolean,
-      required: false
-    }
+      required: false,
+    },
   },
   data() {
     return {
@@ -148,7 +148,7 @@ export default {
       isDiscover: false,
       isWatchlist: false,
       isProfile: false,
-      is_policy_page: false
+      is_policy_page: false,
     };
   },
   created() {
@@ -185,13 +185,13 @@ export default {
     }
   },
   computed: {
-    my_active: function() {
+    my_active: function () {
       return this.active;
     },
-    isSuggNotification: function() {
+    isSuggNotification: function () {
       return this.$store.state.notifications.suggestions;
     },
-    router_path: function() {
+    router_path: function () {
       return this.$route.path;
     },
     discover_type_tab_string() {
@@ -201,11 +201,11 @@ export default {
     },
     toggle_search() {
       return this.$store.state.toggle_search;
-    }
+    },
   },
   watch: {
     router_path: {
-      handler: function(path) {
+      handler: function (path) {
         if (path == "/rate") {
           this.isRate = true;
         } else {
@@ -238,8 +238,8 @@ export default {
         } else {
           this.isSearch = false;
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     goToApp(app_location) {
@@ -254,8 +254,7 @@ export default {
       this.$emit("logging-out");
     },
     GoToRate() {
-      this.updateDiscoverScroll(window.scrollY);
-      this.updateSearchResultScroll(window.scrollY);
+      this.updateFeedScroll();
       this.$router.push("/rate");
       this.isRate = true;
       this.isSearch = false;
@@ -264,7 +263,7 @@ export default {
       this.isProfile = false;
     },
     GoToDiscover() {
-      this.updateSearchResultScroll(window.scrollY);
+      this.updateFeedScroll();
       this.$router.push("/discover");
       this.isRate = false;
       this.isSearch = false;
@@ -274,8 +273,7 @@ export default {
       this.$emit("update-api-counter", { api: "home_button" });
     },
     GoToWatchlist() {
-      this.updateDiscoverScroll(window.scrollY);
-      this.updateSearchResultScroll(window.scrollY);
+      this.updateFeedScroll();
       this.$router.push("/watchlist");
       this.isRate = false;
       this.isSearch = false;
@@ -285,8 +283,7 @@ export default {
       this.$emit("update-api-counter", { api: "watchlist" });
     },
     GoToUserProfile() {
-      this.updateDiscoverScroll(window.scrollY);
-      this.updateSearchResultScroll(window.scrollY);
+      this.updateFeedScroll();
       this.$router.push(
         "/profile/" +
           this.$store.state.user.id +
@@ -301,7 +298,7 @@ export default {
       this.$emit("update-api-counter", { api: "profile" });
     },
     GoToSearch() {
-      this.updateDiscoverScroll(window.scrollY);
+      this.updateFeedScroll();
       this.$router.push("/search");
       this.isRate = false;
       this.isSearch = true;
@@ -323,34 +320,45 @@ export default {
       this.showNavbar = currentScrollPosition < this.lastScrollPosition;
       this.lastScrollPosition = currentScrollPosition;
     },
-    updateSearchResultScroll(scroll_position) {
-      if (this.$route.path == "/search-results") {
-        this.$store.state.scroll_positions.discover.filter = scroll_position;
+    getNumFromStyle: (numStr) => Number(numStr.substring(0, numStr.length - 2)),
+    updateFeedScroll() {
+      var parent = null;
+      if (this.$route.path == "/discover") {
+        parent = "home";
+      } else if (this.$route.path == "/search-results") {
+        parent = "search_results";
+      } else if (this.$route.path == "/watchlist") {
+        parent = "watchlist";
+      }
+      if (parent) {
+        const container = document.querySelector(".feed-cards-container");
+        if (container != null) {
+          eval(
+            "this.$store.state.feed." +
+              parent +
+              ".padding_top = this.getNumFromStyle(container.style.paddingTop)"
+          );
+          eval(
+            "this.$store.state.feed." +
+              parent +
+              ".padding_bottom = this.getNumFromStyle(container.style.paddingBottom)"
+          );
+        }
+
+        eval(
+          "this.$store.state.feed." +
+            parent +
+            ".scroll_position = window.scrollY"
+        );
       }
     },
-    updateDiscoverScroll(scroll_position) {
-      if (this.$route.path == "/discover") {
-        if (this.discover_type_tab_string == "[community,friends,flibo]") {
-          this.$store.state.scroll_positions.discover.all = scroll_position;
-        }
-        if (this.discover_type_tab_string == "[friends]") {
-          this.$store.state.scroll_positions.discover.friends = scroll_position;
-        }
-        if (this.discover_type_tab_string == "[flibo]") {
-          this.$store.state.scroll_positions.discover.flibo = scroll_position;
-        }
-        if (this.discover_type_tab_string == "[filter]") {
-          this.$store.state.scroll_positions.discover.filter = scroll_position;
-        }
-      }
-    }
   },
   mounted() {
     window.addEventListener("scroll", this.onScroll);
   },
   beforeDestroy() {
     window.removeEventListener("scroll", this.onScroll);
-  }
+  },
 };
 </script>
 
