@@ -39,8 +39,8 @@
       :style="is_mobile ? '' : 'width: 900px;left: calc(50vw - 450px);'"
       v-if="
         (is_fetching || search_string != '') &
-          (parent == 'search_page') &
-          (store.session_id != null)
+        (parent == 'search_page') &
+        (store.session_id != null)
       "
     >
       <a
@@ -60,8 +60,8 @@
       :style="store.session_id == null ? 'top: 80px;' : ''"
       v-if="
         (is_fetching || search_string != '') &&
-          search_type_tab == 'contents' &&
-          parent == 'search_page'
+        search_type_tab == 'contents' &&
+        parent == 'search_page'
       "
     >
       <div class="content-items" v-if="content_search_result.length">
@@ -115,7 +115,7 @@
           >
             <button
               v-bind:class="[
-                content.rating == 3 ? 'search-love-true' : 'search-love-false'
+                content.rating == 3 ? 'search-love-true' : 'search-love-false',
               ]"
               @click="
                 submitRating(
@@ -131,7 +131,7 @@
               v-bind:class="[
                 content.rating == 2
                   ? 'search-thumbs-up-true'
-                  : 'search-thumbs-up-false'
+                  : 'search-thumbs-up-false',
               ]"
               @click="
                 submitRating(
@@ -147,7 +147,7 @@
               v-bind:class="[
                 content.rating == 1
                   ? 'search-thumbs-down-true'
-                  : 'search-thumbs-down-false'
+                  : 'search-thumbs-down-false',
               ]"
               @click="
                 submitRating(
@@ -177,7 +177,7 @@
       >
         <div
           class="sk-folding-cube"
-          style="transform: translateY(-200%) rotateZ(45deg)"
+          style="transform: translateY(-200%) rotateZ(45deg);"
         >
           <div class="sk-cube1 sk-cube"></div>
           <div class="sk-cube2 sk-cube"></div>
@@ -198,7 +198,7 @@
       :style="parent == 'connections' ? 'top: 76px;' : ''"
       v-if="
         ((is_fetching || search_string != '') && search_type_tab == 'users') ||
-          parent == 'connections'
+        parent == 'connections'
       "
     >
       <div
@@ -251,7 +251,7 @@
       >
         <div
           class="sk-folding-cube"
-          style="transform: translateY(-200%) rotateZ(45deg)"
+          style="transform: translateY(-200%) rotateZ(45deg);"
         >
           <div class="sk-cube1 sk-cube"></div>
           <div class="sk-cube2 sk-cube"></div>
@@ -270,8 +270,8 @@
     <DiscoverFilter
       v-if="
         (parent == 'search_page') &
-          (search_string == '') &
-          !store.discover_filters.filtered_content.length
+        (search_string == '') &
+        !store.discover_filters.filtered_content.length
       "
       @apply-filter="filterDiscover"
     />
@@ -288,7 +288,7 @@ import { mixin as onClickOutside } from "vue-on-click-outside";
 export default {
   name: "App",
   components: {
-    DiscoverFilter
+    DiscoverFilter,
   },
   mixins: [onClickOutside],
   data() {
@@ -308,23 +308,23 @@ export default {
       store: this.$store.state,
       window_width: window.innerWidth,
       toggle_width: Math.min(window.innerWidth * 0.23, 80),
-      search_type_tab: "contents"
+      search_type_tab: "contents",
     };
   },
   props: {
     parent: {
       type: String,
       required: false,
-      default: "search_page"
+      default: "search_page",
     },
     parent_content_type: {
       type: String,
-      required: false
+      required: false,
     },
     search_query: {
       type: String,
-      required: false
-    }
+      required: false,
+    },
   },
   created() {
     var self = this;
@@ -332,11 +332,24 @@ export default {
       this.$store.state.current_path = this.$route.path;
       this.store.discover_filters.filtered_content = [];
       this.store.discover_filters.more_filtered_content = [];
+      this.$store.state.feed.search_results.feed_list = [];
+
+      var reset_info = {
+        parent: "search_results",
+        filters: true,
+        skip_suggestions_filter: false,
+        scroll: true,
+        paddings: true,
+        observer_current_index: true,
+        element_heights: true,
+      };
+      this.$emit("reset-feed-page", reset_info);
+
       if (this.search_query) {
         this.$router.push("/search");
       }
     } else if (this.parent == "connections") {
-      self.timeout = setTimeout(function() {
+      self.timeout = setTimeout(function () {
         document.getElementById(self.parent + "_search_string").value = "";
         document.getElementById(self.parent + "_search_string").focus();
       }, 0);
@@ -362,6 +375,18 @@ export default {
         this.filters_applied.tab = "All";
         this.store.discover_filters.filtered_content = [];
         this.store.discover_filters.more_filtered_content = [];
+        this.$store.state.feed.search_results.feed_list = [];
+
+        var reset_info = {
+          parent: "search_results",
+          filters: true,
+          skip_suggestions_filter: false,
+          scroll: true,
+          paddings: true,
+          observer_current_index: true,
+          element_heights: true,
+        };
+        this.$emit("reset-feed-page", reset_info);
       } else {
         this.store.discover_filters.is_string_query = true;
         this.$router.push("/search-results");
@@ -374,17 +399,28 @@ export default {
             country:
               self.$store.state.user.profile.country ||
               self.$store.state.guest_country,
-            guest_id: self.$store.state.guest_id
+            guest_id: self.$store.state.guest_id,
           })
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
               if (self.$route.path == "/search-results") {
                 self.$store.state.discover_filters.filtered_content =
                   response.data.contents;
+                self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
+                  0,
+                  self.$store.state.feed.defaultListSize
+                );
+                if (self.$route.path == "/search-results") {
+                  self.$store.state.feed.update_dom = true;
+                }
+
                 self.$store.state.discover_filters.more_filtered_content =
                   response.data.more_contents;
                 self.$store.state.scroll_positions.discover.filter = 0;
                 self.$store.state.discover_filters.last_fetch_time = Date.now();
+                if (response.data.more_contents.length) {
+                  self.fetchRemainingResults();
+                }
               }
             } else if ([204].includes(response.status)) {
               if (self.$route.path == "/search-results") {
@@ -397,7 +433,7 @@ export default {
             }
             self.$store.state.discover_filters.fetching_filtered = false;
           })
-          .catch(function(error) {
+          .catch(function (error) {
             if ([401, 419].includes(error.response.status)) {
               window.location =
                 self.$store.state.login_host +
@@ -432,7 +468,7 @@ export default {
       self.search_string = document.getElementById(
         self.parent + "_search_string"
       ).value;
-      self.timeout = setTimeout(function() {
+      self.timeout = setTimeout(function () {
         if (self.search_string) {
           self.content_search_result = [];
           self.user_search_result = [];
@@ -445,9 +481,9 @@ export default {
               string: self.search_string,
               search_type:
                 self.parent == "profile" ? self.parent_content_type : "content",
-              guest_id: self.$store.state.guest_id
+              guest_id: self.$store.state.guest_id,
             })
-            .then(function(response) {
+            .then(function (response) {
               if (response.status == 200) {
                 self.content_search_result = response.data.result.contents;
                 self.content_search_ids =
@@ -463,7 +499,7 @@ export default {
                 // console.log(response.status);
               }
             })
-            .catch(function(error) {
+            .catch(function (error) {
               // console.log(error);
               if ([401, 419].includes(error.response.status)) {
                 window.location =
@@ -484,9 +520,9 @@ export default {
             axios
               .post(self.$store.state.api_host + "search_friend", {
                 session_id: self.$store.state.session_id,
-                name_string: self.search_string
+                name_string: self.search_string,
               })
-              .then(function(response) {
+              .then(function (response) {
                 if (response.status == 200) {
                   self.user_search_result = response.data.users;
                   self.user_ids = response.data.user_ids;
@@ -501,7 +537,7 @@ export default {
                   // console.log(response.status);
                 }
               })
-              .catch(function(error) {
+              .catch(function (error) {
                 // console.log(error);
                 if ([401, 419].includes(error.response.status)) {
                   window.location =
@@ -551,9 +587,9 @@ export default {
       axios
         .post(self.$store.state.api_host + "get_searched_contents", {
           session_id: self.$store.state.session_id,
-          content_search_ids: self.content_search_ids.slice(0, 10)
+          content_search_ids: self.content_search_ids.slice(0, 10),
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.content_search_result.push(...response.data.contents);
             self.content_search_ids.splice(0, 10);
@@ -561,7 +597,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -579,9 +615,9 @@ export default {
       axios
         .post(self.$store.state.api_host + "get_searched_friends", {
           session_id: self.$store.state.session_id,
-          user_ids: self.user_ids.slice(0, 10)
+          user_ids: self.user_ids.slice(0, 10),
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.user_search_result.push(...response.data.users);
             self.user_ids.splice(0, 10);
@@ -589,7 +625,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -610,9 +646,9 @@ export default {
           .post(this.$store.state.api_host + "submit_rating", {
             session_id: this.$store.state.session_id,
             content_ids: [content_id],
-            rating: user_rating
+            rating: user_rating,
           })
-          .then(function(response) {
+          .then(function (response) {
             var index = self.$store.state.suggestions.rate_counter.indexOf(
               content_id
             );
@@ -628,17 +664,16 @@ export default {
                     self.$store.state.ai_host +
                       "calculate_contents_to_recommend",
                     {
-                      session_id: self.$store.state.session_id
+                      session_id: self.$store.state.session_id,
                     }
                   )
-                  .then(function(response) {
+                  .then(function (response) {
                     self.$store.state.notifications.suggestions = true;
-                    self.$store.state.suggestions.ready_to_refresh_recommendation = true;
                   });
               }
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             self.content_search_result[index].rating = prev_rating;
 
             if ([401, 419].includes(error.response.status)) {
@@ -756,17 +791,25 @@ export default {
             country:
               self.$store.state.user.profile.country ||
               self.$store.state.guest_country,
-            guest_id: self.$store.state.guest_id
+            guest_id: self.$store.state.guest_id,
           })
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
               if (self.$route.path == "/search-results") {
                 self.$store.state.discover_filters.filtered_content =
                   response.data.contents;
+                self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
+                  0,
+                  self.$store.state.feed.defaultListSize
+                );
+                if (self.$route.path == "/search-results") {
+                  self.$store.state.feed.update_dom = true;
+                }
                 self.$store.state.discover_filters.more_filtered_content =
                   response.data.more_contents;
                 self.$store.state.scroll_positions.discover.filter = 0;
                 self.$store.state.discover_filters.last_fetch_time = Date.now();
+                self.fetchRemainingResults();
               }
             } else if ([204].includes(response.status)) {
               if (self.$route.path == "/search-results") {
@@ -779,7 +822,7 @@ export default {
             }
             self.$store.state.discover_filters.fetching_filtered = false;
           })
-          .catch(function(error) {
+          .catch(function (error) {
             if ([401, 419].includes(error.response.status)) {
               window.location =
                 self.$store.state.login_host +
@@ -795,8 +838,51 @@ export default {
       } else {
         // do nothing
       }
-    }
-  }
+    },
+    fetchRemainingResults() {
+      this.store.discover_filters.fetching_filter_incremental = true;
+      var self = this;
+      axios
+        .post(self.$store.state.api_host + "get_incremental_feed_contents", {
+          session_id: self.$store.state.session_id,
+          more_contents:
+            self.$store.state.discover_filters.more_filtered_content,
+          country:
+            self.$store.state.user.profile.country || self.store.guest_country,
+        })
+        .then(function (response) {
+          if ([200].includes(response.status)) {
+            if (self.$route.path == "/search-results") {
+              self.$store.state.discover_filters.filtered_content.push(
+                ...response.data.contents
+              );
+              self.$store.state.discover_filters.more_filtered_content = [];
+            }
+            self.store.discover_filters.fetching_filter_incremental = false;
+
+            if (self.$route.path == "/search-results") {
+              self.$store.state.feed_filters.apply_filters_wo_reset = true;
+            }
+          } else {
+            self.store.discover_filters.fetching_filter_incremental = false;
+            // console.log(response.status);
+          }
+        })
+        .catch(function (error) {
+          self.store.discover_filters.fetching_filter_incremental = false;
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.$emit("logging-out");
+          } else {
+            // console.log(error.response.status);
+          }
+        });
+    },
+  },
 };
 </script>
 
