@@ -22,14 +22,14 @@
 
       <button
         v-bind:class="[
-          rating == 2 ? 'feed-thumbs-up-true' : 'feed-thumbs-up-false'
+          rating == 2 ? 'feed-thumbs-up-true' : 'feed-thumbs-up-false',
         ]"
         @click="submitRating(rating == 2 ? 0 : 2)"
       ></button>
 
       <button
         v-bind:class="[
-          rating == 1 ? 'feed-thumbs-down-true' : 'feed-thumbs-down-false'
+          rating == 1 ? 'feed-thumbs-down-true' : 'feed-thumbs-down-false',
         ]"
         @click="submitRating(rating == 1 ? 0 : 1)"
       ></button>
@@ -39,7 +39,7 @@
       {{ watchLater ? "ADDED" : "ADD TO WATCHLIST" }}
       <button
         v-bind:class="[
-          watchLater ? 'feed-watchlist-true' : 'feed-watchlist-false'
+          watchLater ? 'feed-watchlist-true' : 'feed-watchlist-false',
         ]"
       />
     </div>
@@ -71,7 +71,16 @@
         >
           <div class="more-info-name">
             <span
-              style="cursor: pointer;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;-o-user-select: none;user-select: none;-webkit-tap-highlight-color: rgba(0,0,0,0);-webkit-tap-highlight-color: transparent;"
+              style="
+                cursor: pointer;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                -o-user-select: none;
+                user-select: none;
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                -webkit-tap-highlight-color: transparent;
+              "
               @click="openContent(null, null, null)"
             >
               {{ title }}
@@ -170,8 +179,8 @@
                     <img
                       v-bind:src="
                         'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                          stream_index +
-                          '.jpg'
+                        stream_index +
+                        '.jpg'
                       "
                       class="more-info-similar-platform-icon"
                     />
@@ -207,52 +216,52 @@ export default {
   props: {
     contentId: {
       type: Number,
-      required: true
+      required: true,
     },
     title: {
       type: String,
-      required: true
+      required: true,
     },
     contentType: {
       type: String,
-      required: true
+      required: true,
     },
     releaseYear: {
       type: Number,
-      required: true
+      required: true,
     },
     endYear: {
       type: Number,
-      required: false
+      required: false,
     },
     imdbScore: {
       type: Number,
-      required: true
+      required: true,
     },
     tomatoMeter: {
       type: Number,
-      required: false
+      required: false,
     },
     rating: {
       type: Number,
-      required: true
+      required: true,
     },
     genres: {
       type: Array,
-      required: true
+      required: true,
     },
     watchLater: {
       type: Boolean,
-      required: true
+      required: true,
     },
     parent: {
       type: String,
-      required: true
+      required: true,
     },
     feedType: {
       type: String,
-      required: true
-    }
+      required: false,
+    },
   },
   data() {
     return {
@@ -262,7 +271,7 @@ export default {
       show_more_info: false,
       summary: null,
       crew: [],
-      similar: []
+      similar: [],
     };
   },
   methods: {
@@ -289,24 +298,27 @@ export default {
       }
     },
     goToPlatform(link, content_id, traffic_origin) {
-      this.$emit("update-scroll", window.scrollY);
+      this.$emit("leave-feed");
       var activity = {
         api: "outbound_traffic",
         content_id: content_id,
         url: link,
-        traffic_origin: this.parent + "__" + traffic_origin
+        traffic_origin:
+          (this.parent == "search_results" ? "search_filter" : this.parent) +
+          "__" +
+          traffic_origin,
       };
       this.$emit("update-api-counter", activity);
     },
     openContent(input_content_id, input_title, suffix) {
-      this.$emit("update-scroll", window.scrollY);
+      this.$emit("leave-feed");
 
       var info = {
         origin: this.parent,
         sub_origin: this.feedType,
         suffix: suffix,
         content_id: input_content_id || this.contentId,
-        title: input_title || this.title
+        title: input_title || this.title,
       };
       this.$emit("open-content-page", info);
     },
@@ -318,16 +330,16 @@ export default {
         .post(this.$store.state.api_host + "content_summary_more_info", {
           session_id: this.$store.state.session_id,
           content_id: this.contentId,
-          guest_id: self.$store.state.guest_id
+          guest_id: self.$store.state.guest_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.status == 200) {
             self.summary = response.data.summary;
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -343,16 +355,16 @@ export default {
       axios
         .post(this.$store.state.api_host + "content_crew_more_info", {
           session_id: this.$store.state.session_id,
-          content_id: this.contentId
+          content_id: this.contentId,
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.status == 200) {
             self.crew = response.data.crew;
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -369,16 +381,16 @@ export default {
         .post(this.$store.state.api_host + "similar_content", {
           session_id: this.$store.state.session_id,
           content_id: this.contentId,
-          country: self.$store.state.user.profile.country
+          country: self.$store.state.user.profile.country,
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.status == 200) {
             self.similar = response.data.contents;
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -396,7 +408,7 @@ export default {
         var info = {
           origin: this.parent,
           content_id: this.contentId,
-          user_rating: rating
+          user_rating: rating,
         };
         this.$emit("submit-rating", info);
       } else {
@@ -408,14 +420,14 @@ export default {
         var info = {
           origin: this.parent,
           content_id: this.contentId,
-          watch_later: this.watchLater
+          watch_later: this.watchLater,
         };
         this.$emit("add-to-watchlist", info);
       } else {
         this.$store.state.prompt_signup = true;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -427,6 +439,7 @@ export default {
   justify-items: left;
   width: fit-content;
   max-width: 100%;
+  white-space: initial;
 }
 .feed-title {
   grid-row-start: 1;
@@ -697,6 +710,7 @@ export default {
   letter-spacing: normal;
   text-align: left;
   color: #333333;
+  white-space: initial;
 }
 .more-info-ratings {
   width: 100%;
