@@ -950,7 +950,7 @@ export default {
   components: {
     SearchBar,
     GenresPie,
-    WatchedTimeline
+    WatchedTimeline,
   },
   data() {
     return {
@@ -977,18 +977,18 @@ export default {
       total_watched: {
         movie: {
           total: "some great",
-          time: "some good time :)"
+          time: "some good time :)",
         },
         tv: {
           total: "some great",
-          time: "some good time :)"
-        }
+          time: "some good time :)",
+        },
       },
       seeking_recommendations: false,
       store: this.$store.state,
       favorite_artists: {
         movie: {},
-        tv: {}
+        tv: {},
       },
       more_by_artist: [],
       artist: null,
@@ -998,12 +998,12 @@ export default {
       genres: {
         movie: {
           genre: [],
-          contribution: []
+          contribution: [],
         },
         tv: {
           genre: [],
-          contribution: []
-        }
+          contribution: [],
+        },
       },
       watched_timeline: {
         movie: {
@@ -1011,15 +1011,15 @@ export default {
           liked: [],
           disliked: [],
           loved: [],
-          total: []
+          total: [],
         },
         tv: {
           years: [],
           liked: [],
           disliked: [],
           loved: [],
-          total: []
-        }
+          total: [],
+        },
       },
       remove_friend_banner: false,
       cancel_request_banner: false,
@@ -1028,7 +1028,7 @@ export default {
       prompt: false,
       fetching_content_by_artist: false,
       openProfileMore: false,
-      collage: null
+      collage: null,
     };
   },
   created() {
@@ -1062,7 +1062,7 @@ export default {
     ) {
       axios
         .get("https://ipinfo.io/?token=a354c067e1fef5")
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             var country_code = response.data.country;
             if (
@@ -1081,9 +1081,9 @@ export default {
               user_id: parseInt(userid),
               user_name: username,
               country: self.store.guest_country,
-              guest_id: self.$store.state.guest_id
+              guest_id: self.$store.state.guest_id,
             })
-            .then(function(response) {
+            .then(function (response) {
               if ([200].includes(response.status)) {
                 self.user_type = response.data.user_type;
                 self.user_id = response.data.user_id;
@@ -1126,7 +1126,7 @@ export default {
               }
               self.fetching_profile = false;
             })
-            .catch(function(error) {
+            .catch(function (error) {
               self.fetching_profile = false;
               // console.log(error);
               if ([401, 419].includes(error.response.status)) {
@@ -1149,9 +1149,9 @@ export default {
           user_name: username,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
-          guest_id: self.$store.state.guest_id
+          guest_id: self.$store.state.guest_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.user_type = response.data.user_type;
             self.user_id = response.data.user_id;
@@ -1194,7 +1194,7 @@ export default {
           }
           self.fetching_profile = false;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.fetching_profile = false;
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
@@ -1214,16 +1214,16 @@ export default {
       .post(self.$store.state.api_host + "favorite_artists", {
         session_id: self.$store.state.session_id,
         user_id: parseInt(userid),
-        user_name: username
+        user_name: username,
       })
-      .then(function(response) {
+      .then(function (response) {
         if ([200].includes(response.status)) {
           self.favorite_artists = response.data.favorite_artists;
         } else {
           // console.log(response.status);
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         // console.log(error);
         if ([401, 419].includes(error.response.status)) {
           window.location =
@@ -1244,7 +1244,9 @@ export default {
         content_id: content_id,
         url: link,
         traffic_origin:
-          (this.own_profile ? "self_" : "other_") + "profile__" + traffic_origin
+          (this.own_profile ? "self_" : "other_") +
+          "profile__" +
+          traffic_origin,
       };
       this.$emit("update-api-counter", activity);
     },
@@ -1267,16 +1269,16 @@ export default {
       var self = this;
       axios
         .post(self.$store.state.api_host + "collage", {
-          session_id: self.$store.state.session_id
+          session_id: self.$store.state.session_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.collage = response.data.collage;
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1348,9 +1350,9 @@ export default {
           user_name: username,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
-          guest_id: self.$store.state.guest_id
+          guest_id: self.$store.state.guest_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.user_type = response.data.user_type;
             self.user_id = response.data.user_id;
@@ -1393,7 +1395,7 @@ export default {
           }
           self.fetching_profile = false;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.fetching_profile = false;
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
@@ -1412,16 +1414,16 @@ export default {
         .post(self.$store.state.api_host + "favorite_artists", {
           session_id: self.$store.state.session_id,
           user_id: parseInt(userid),
-          user_name: username
+          user_name: username,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.favorite_artists = response.data.favorite_artists;
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1502,15 +1504,15 @@ export default {
           movies_these_days: movies,
           tv_series_these_days: tv_series,
           seeking_recommendations: self.seeking_recommendations,
-          profile_status: self.profile_status
+          profile_status: self.profile_status,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1572,15 +1574,15 @@ export default {
           country:
             self.$store.state.user.profile.country ||
             self.$store.state.guest_country,
-          guest_id: self.$store.state.guest_id
+          guest_id: self.$store.state.guest_id,
         })
         .then(
-          response => (
+          (response) => (
             (self.more_by_artist = response.data.contents),
             (self.fetching_content_by_artist = false)
           )
         )
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -1605,9 +1607,9 @@ export default {
         .post(this.$store.state.api_host + "submit_rating", {
           session_id: this.$store.state.session_id,
           content_ids: [content_id],
-          rating: user_rating
+          rating: user_rating,
         })
-        .then(function(response) {
+        .then(function (response) {
           var index = self.$store.state.suggestions.rate_counter.indexOf(
             content_id
           );
@@ -1622,17 +1624,16 @@ export default {
                 .post(
                   self.$store.state.ai_host + "calculate_contents_to_recommend",
                   {
-                    session_id: self.$store.state.session_id
+                    session_id: self.$store.state.session_id,
                   }
                 )
-                .then(function(response) {
-                  self.$store.state.suggestions.refresh_recommendation = true;
-                  self.$store.state.suggestions.notify = true;
+                .then(function (response) {
+                  self.$store.state.notifications.suggestions = true;
                 });
             }
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.contents_rated[content_index].rating = prev_rating;
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1653,7 +1654,7 @@ export default {
     },
     hideBanner() {
       var self = this;
-      setTimeout(function() {
+      setTimeout(function () {
         self.remove_friend_banner = false;
         self.cancel_request_banner = false;
         self.reset_ratings_banner = false;
@@ -1666,9 +1667,9 @@ export default {
       axios
         .post(self.$store.state.api_host + "unfriend", {
           session_id: self.$store.state.session_id,
-          friend_id: self.user_id
+          friend_id: self.user_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.remove_friend_banner = false;
             self.cancel_request_banner = false;
@@ -1679,7 +1680,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.user_type = current_status;
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
@@ -1701,16 +1702,16 @@ export default {
         axios
           .post(self.$store.state.api_host + "send_request", {
             session_id: self.$store.state.session_id,
-            friend_id: self.user_id
+            friend_id: self.user_id,
           })
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
               self.remove_friend_banner = false;
             } else {
               // console.log(response.status);
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             self.user_type = "other";
             // console.log(error);
             if ([401, 419].includes(error.response.status)) {
@@ -1733,9 +1734,9 @@ export default {
       axios
         .post(self.$store.state.api_host + "approve_request", {
           session_id: self.$store.state.session_id,
-          friend_id: self.user_id
+          friend_id: self.user_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.remove_friend_banner = false;
             self.user_type = "friend";
@@ -1744,7 +1745,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1767,18 +1768,18 @@ export default {
       var self = this;
       axios
         .post(self.$store.state.api_host + "reset_ratings", {
-          session_id: self.$store.state.session_id
+          session_id: self.$store.state.session_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           self.reset_ratings_banner = false;
           if ([200].includes(response.status)) {
             self.contents_rated = [];
             axios
               .post(self.$store.state.api_host + "update_profile", {
                 session_id: self.$store.state.session_id,
-                suggestions_ready_message_seen: false
+                suggestions_ready_message_seen: false,
               })
-              .then(function(response) {
+              .then(function (response) {
                 if ([200].includes(response.status)) {
                   self.renderComponent = true;
                   self.reRender();
@@ -1788,7 +1789,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.reset_ratings_banner = false;
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
@@ -1802,10 +1803,10 @@ export default {
             // console.log(error.response.status);
           }
         });
-    }
+    },
   },
   computed: {
-    router_path: function() {
+    router_path: function () {
       return this.$route.path;
     },
     rating_tab_string() {
@@ -2086,11 +2087,11 @@ export default {
                 background-size: contain;
                 `
       );
-    }
+    },
   },
   watch: {
     router_path: {
-      handler: function(path) {
+      handler: function (path) {
         if (
           this.$store.state.current_path.startsWith("/profile/") &&
           path.startsWith("/profile/")
@@ -2101,9 +2102,9 @@ export default {
             this.reRender();
           });
         }
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 
