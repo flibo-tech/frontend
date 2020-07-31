@@ -13,7 +13,9 @@
           class="suggestion-filter"
           :style="
             parent == 'home'
-              ? 'border-right: 1px solid #dfe1e5; padding-right: 8px;'
+              ? store.notifications.suggestions
+                ? 'border-right: 1px solid #dfe1e5; padding-right: 15px;'
+                : 'border-right: 1px solid #dfe1e5; padding-right: 8px;'
               : ''
           "
           :parent="parent"
@@ -32,7 +34,7 @@
           <div
             class="more-filters-icon"
             :style="is_mobile ? '' : 'height: 40px;width: 40px;'"
-            @click="$router.push('/search')"
+            @click="moreFilters"
           />
         </div>
       </div>
@@ -59,19 +61,26 @@ export default {
     ContentFilter,
     SuggestionFilter,
     PlatformFilter,
-    GenreFilter
+    GenreFilter,
   },
   props: {
     parent: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
-      is_mobile: window.screen.height > window.screen.width
+      is_mobile: window.screen.height > window.screen.width,
+      store: this.$store.state,
     };
-  }
+  },
+  methods: {
+    moreFilters() {
+      this.$emit("leave-feed");
+      this.$router.push("/search");
+    },
+  },
 };
 </script>
 
@@ -91,7 +100,7 @@ export default {
   grid-row-start: 1;
   grid-column-start: 1;
   border-right: 1px solid #dfe1e5;
-  padding-right: 8px;
+  padding-right: 3px;
 }
 .suggestion-filter {
   grid-row-start: 1;
