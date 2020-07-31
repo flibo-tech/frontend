@@ -25,9 +25,9 @@
     <TopBar
       v-if="
         !this.is_search_page &&
-          !this.is_user_search_page &&
-          !this.is_onboarding &&
-          !this.is_landing_page
+        !this.is_user_search_page &&
+        !this.is_onboarding &&
+        !this.is_landing_page
       "
     />
 
@@ -35,12 +35,13 @@
       <router-view
         @update-friends="updateFriendsPage"
         @logging-out="loggingOut"
-        @refresh-feed="updateDiscoverPage(null)"
+        @refresh-feed="refreshDiscoverPage"
         @update-api-counter="updateApiCounter"
         @open-content-page="openContentPage"
         @submit-rating="submitRating"
         @add-to-watchlist="addToWatchlist"
         @open-uesr-profile="goToProfile"
+        @reset-feed-page="resetFeedPage"
       />
     </transition>
     <MainNavigation
@@ -66,15 +67,15 @@
   <LandingPage
     v-else-if="
       !this.$store.state.session_id &&
-        !this.logging_out &&
-        !this.is_signup_page &&
-        !this.is_content_page &&
-        !this.is_search_page &&
-        !this.is_search_results_page &&
-        !this.is_profile_page &&
-        !this.is_policy_page &&
-        !this.is_alert_page &&
-        !this.is_blog_page
+      !this.logging_out &&
+      !this.is_signup_page &&
+      !this.is_content_page &&
+      !this.is_search_page &&
+      !this.is_search_results_page &&
+      !this.is_profile_page &&
+      !this.is_policy_page &&
+      !this.is_alert_page &&
+      !this.is_blog_page
     "
     :is_mobile="is_mobile"
   />
@@ -103,6 +104,7 @@
       @update-api-counter="updateApiCounter"
       @open-content-page="openContentPage"
       @open-uesr-profile="goToProfile"
+      @reset-feed-page="resetFeedPage"
     />
     <MainNavigation
       v-if="!this.is_policy_page && !this.is_alert_page && !this.is_blog_page"
@@ -110,9 +112,9 @@
     <TopBar
       v-if="
         !this.is_search_page &&
-          !this.is_policy_page &&
-          !this.is_alert_page &&
-          !this.is_blog_page
+        !this.is_policy_page &&
+        !this.is_alert_page &&
+        !this.is_blog_page
       "
     />
     <SignUpPrompt />
@@ -135,7 +137,7 @@ export default {
     TopBar,
     MainNavigation,
     LandingPage,
-    SignUpPrompt
+    SignUpPrompt,
   },
   data() {
     return {
@@ -160,39 +162,53 @@ export default {
         location: null,
         network_org: null,
         postal: null,
-        timezone: null
+        timezone: null,
       },
       is_blog_page: false,
       feed_mappings: {
         home: {
           contents: "this.$store.state.suggestions.contents",
-          feed: "this.$store.state.suggestions.feed_list"
+          feed: "this.$store.state.suggestions.feed_list",
+          content_filter: "this.$store.state.suggestions.content_type_tab",
+          discover_filters: "this.$store.state.suggestions.discover_type_tab",
+          platform_filters:
+            "this.$store.state.feed_filters.filters_applied.home.platforms",
+          genre_filters: null,
         },
         search_results: {
-          contents: "this.$store.state.discover_filters.filtered_content"
+          contents: "this.$store.state.discover_filters.filtered_content",
+          feed: "this.$store.state.feed.search_results.feed_list",
+          content_filter: "this.$store.state.discover_filters.content_type_tab",
+          discover_filters:
+            "this.$store.state.discover_filters.discover_type_tab",
+          platform_filters: null,
+          genre_filters: null,
         },
         watchlist: {
-          contents: "this.$store.state.watchlist"
-        }
-      }
+          contents: "this.$store.state.watchlist",
+          feed: "this.$store.state.feed.watchlist.feed_list",
+          content_filter:
+            "this.$store.state.watchlist_filters.content_type_tab",
+          discover_filters: null,
+          platform_filters:
+            "this.$store.state.feed_filters.filters_applied.watchlist.platforms",
+          genre_filters:
+            "this.$store.state.feed_filters.filters_applied.watchlist.genres",
+        },
+      },
     };
   },
 
   computed: {
-    my_store: function() {
+    my_store: function () {
       return this.$store.state;
     },
-    router_path: function() {
+    router_path: function () {
       return this.$route.path;
     },
-    refresh_recommendation: function() {
-      return this.$store.state.suggestions.refresh_recommendation;
+    refreshFeed() {
+      return this.$store.state.suggestions.refresh_feed;
     },
-    discover_type_tab_string() {
-      return JSON.stringify(
-        this.$store.state.suggestions.discover_type_tab
-      ).replace(/['"]+/g, "");
-    }
   },
 
   watch: {
@@ -200,21 +216,10 @@ export default {
       handler(val) {
         localStorage.setItem("my_store", JSON.stringify(this.my_store));
       },
-      deep: true
-    },
-    refresh_recommendation: {
-      handler: function(if_refresh) {
-        if (if_refresh) {
-          this.updateDiscoverPage(
-            this.$store.state.suggestions.notify ? "notify" : null
-          );
-          this.$store.state.suggestions.refresh_recommendation = false;
-          this.$store.state.suggestions.notify = false;
-        }
-      }
+      deep: true,
     },
     router_path: {
-      handler: function(path) {
+      handler: function (path) {
         this.is_signup_page = path.startsWith("/signup");
         this.is_content_page = path.startsWith("/content/");
         this.is_profile_page = path.startsWith("/profile/");
@@ -233,8 +238,30 @@ export default {
         ) {
           this.$store.state.content_page.rerender = true;
         }
-      }
-    }
+      },
+    },
+    refreshFeed: {
+      handler: function (refresh) {
+        if (refresh) {
+          var self = this;
+
+          var reset_info = {
+            parent: "home",
+            filters: true,
+            skip_suggestions_filter: false,
+            scroll: true,
+            paddings: true,
+            observer_current_index: true,
+            element_heights: true,
+          };
+          self.resetFeedPage(reset_info);
+
+          self.refreshDiscoverPage();
+
+          self.$store.state.suggestions.refresh_feed = false;
+        }
+      },
+    },
   },
 
   created() {
@@ -278,7 +305,7 @@ export default {
         if (this.$store.state.guest_country == null) {
           axios
             .get("https://ipinfo.io/?token=a354c067e1fef5")
-            .then(function(response) {
+            .then(function (response) {
               if ([200].includes(response.status)) {
                 self.ip_info.ip = response.data.ip;
                 self.ip_info.city = response.data.city;
@@ -305,10 +332,10 @@ export default {
                 axios
                   .post(self.$store.state.api_host + "search_filters", {
                     session_id: null,
-                    country: self.$store.state.guest_country
+                    country: self.$store.state.guest_country,
                   })
                   .then(
-                    response => (
+                    (response) => (
                       (self.$store.state.rate_filters.filters_meta.genres =
                         response.data.genres),
                       (self.$store.state.rate_filters.filters_meta.decades =
@@ -335,7 +362,7 @@ export default {
                         response.data.platforms),
                       (self.$store.state.feed_filters.filters_meta.platforms =
                         response.data.platforms),
-                        (self.$store.state.feed_filters.filters_meta.genres =
+                      (self.$store.state.feed_filters.filters_meta.genres =
                         response.data.genres)
                     )
                   );
@@ -344,10 +371,10 @@ export default {
                   .post(
                     self.$store.state.api_host + "get_favorite_artists_search",
                     {
-                      session_id: null
+                      session_id: null,
                     }
                   )
-                  .then(function(response) {
+                  .then(function (response) {
                     if ([200].includes(response.status)) {
                       self.$store.state.discover_filters.filters_meta.artists =
                         response.data.favorite_artists;
@@ -363,10 +390,10 @@ export default {
           axios
             .post(this.$store.state.api_host + "search_filters", {
               session_id: null,
-              country: this.$store.state.guest_country
+              country: this.$store.state.guest_country,
             })
             .then(
-              response => (
+              (response) => (
                 (self.$store.state.rate_filters.filters_meta.genres =
                   response.data.genres),
                 (self.$store.state.rate_filters.filters_meta.decades =
@@ -393,16 +420,16 @@ export default {
                   response.data.platforms),
                 (self.$store.state.feed_filters.filters_meta.platforms =
                   response.data.platforms),
-                  (self.$store.state.feed_filters.filters_meta.genres =
-                        response.data.genres)
+                (self.$store.state.feed_filters.filters_meta.genres =
+                  response.data.genres)
               )
             );
 
           axios
             .post(self.$store.state.api_host + "get_favorite_artists_search", {
-              session_id: null
+              session_id: null,
             })
-            .then(function(response) {
+            .then(function (response) {
               if ([200].includes(response.status)) {
                 self.$store.state.discover_filters.filters_meta.artists =
                   response.data.favorite_artists;
@@ -429,19 +456,45 @@ export default {
         window.location = this.$store.state.login_host;
       } else {
         var self = this;
+
+        if (this.$store.state.user.id != null && !this.$route.query.search) {
+          var reset_info = {
+            parent: "to_be_assigned",
+            filters: true,
+            skip_suggestions_filter: false,
+            scroll: true,
+            paddings: true,
+            observer_current_index: true,
+            element_heights: true,
+          };
+
+          var feed_parents = ["home", "search_results", "watchlist"];
+          feed_parents.forEach(function (item, index) {
+            reset_info.parent = item;
+            self.resetFeedPage(reset_info);
+          });
+
+          this.refreshDiscoverPage();
+          this.updateWatchlist(true);
+
+          this.$store.state.discover_filters.filtered_content = [];
+          this.$store.state.discover_filters.more_filtered_content = [];
+          this.$store.state.feed.search_results.feed_list = [];
+        }
+
         axios
           .post(this.$store.state.api_host + "get_name_picture", {
-            session_id: this.$store.state.session_id
+            session_id: this.$store.state.session_id,
           })
           .then(
-            response => (
+            (response) => (
               (self.$store.state.user.id = response.data.id),
               (self.$store.state.user.name = response.data.name),
               (self.$store.state.user.picture = response.data.picture),
               (self.$store.state.user.authorized = response.data.authorized)
             )
           )
-          .catch(function(error) {
+          .catch(function (error) {
             if ([401, 419].includes(error.response.status)) {
               window.location =
                 self.$store.state.login_host +
@@ -471,17 +524,18 @@ export default {
         axios
           .get(self.$store.state.api_host + "get_countries_platforms")
           .then(
-            response => (self.$store.state.countries = response.data.countries)
+            (response) =>
+              (self.$store.state.countries = response.data.countries)
           );
 
         if (this.$store.state.rate_filters.filters_meta.genres.length == 0) {
           var self = this;
           axios
             .post(self.$store.state.api_host + "search_filters", {
-              session_id: self.$store.state.session_id
+              session_id: self.$store.state.session_id,
             })
             .then(
-              response => (
+              (response) => (
                 (self.$store.state.rate_filters.filters_meta.genres =
                   response.data.genres),
                 (self.$store.state.rate_filters.filters_meta.decades =
@@ -508,23 +562,41 @@ export default {
                   response.data.platforms),
                 (self.$store.state.feed_filters.filters_meta.platforms =
                   response.data.platforms),
-                  (self.$store.state.feed_filters.filters_meta.genres =
-                        response.data.genres)
+                (self.$store.state.feed_filters.filters_meta.genres =
+                  response.data.genres)
               )
             );
         }
 
         axios
           .post(self.$store.state.api_host + "counts", {
-            session_id: self.$store.state.session_id
+            session_id: self.$store.state.session_id,
           })
-          .then(function(response) {
+          .then(function (response) {
             self.$store.state.suggestions.rate_counter_all =
               response.data.contents_rated;
             if (response.data.contents_rated < 25) {
               self.$router.push("/onboarding");
             }
+
             self.$store.state.user.profile.country = response.data.country;
+
+            if (response.data.contents_rated != 0) {
+              if (
+                self.$store.state.suggestions.contents.length == 0 &&
+                !self.$store.state.suggestions.fetching_suggestions
+              ) {
+                self.refreshDiscoverPage();
+              }
+
+              if (
+                self.$store.state.watchlist.length == 0 &&
+                !self.$store.state.feed.watchlist.fetching
+              ) {
+                self.updateWatchlist(true);
+              }
+            }
+
             if (
               self.$store.state.rate.visible_cards.length == 0 &&
               !self.store.rate.fetching_cards &&
@@ -557,9 +629,9 @@ export default {
 
         axios
           .post(self.$store.state.api_host + "get_favorite_artists_search", {
-            session_id: self.$store.state.session_id
+            session_id: self.$store.state.session_id,
           })
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
               self.$store.state.discover_filters.filters_meta.artists =
                 response.data.favorite_artists;
@@ -569,15 +641,14 @@ export default {
           });
 
         if (!this.$route.query.search) {
-          self.timeout = setTimeout(function() {
-            self.updateWatchlist();
+          self.timeout = setTimeout(function () {
             self.updateProfile();
             self.updateFriendsPage();
           }, 5000);
         }
 
-        self.timeout = setInterval(function() {
-          self.updateWatchlist();
+        self.timeout = setInterval(function () {
+          self.updateWatchlist(false);
           self.updateProfile();
           self.updateFriendsPage();
         }, 2 * 60 * 1000);
@@ -587,22 +658,35 @@ export default {
     }
   },
   methods: {
-    updateWatchlist() {
-      if (this.router_path != "/watchlist") {
+    updateWatchlist(on_load) {
+      if (this.router_path != "/watchlist" || on_load) {
         var self = this;
+        self.$store.state.feed.watchlist.fetching = true;
         axios
           .post(self.$store.state.api_host + "watchlist", {
             session_id: self.$store.state.session_id,
-            country: self.$store.state.user.profile.country
+            country: self.$store.state.user.profile.country,
           })
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
               self.$store.state.watchlist = response.data.watchlist;
+              self.$store.state.feed.watchlist.feed_list = self.$store.state.watchlist.slice(
+                0,
+                self.$store.state.feed.defaultListSize
+              );
+
+              if (self.$route.path == "/watchlist") {
+                self.$nextTick(function () {
+                  self.$store.state.feed.update_dom = true;
+                });
+              }
             } else {
               // console.log(response.status);
             }
+            self.$store.state.feed.watchlist.fetching = false;
           })
-          .catch(function(error) {
+          .catch(function (error) {
+            self.$store.state.feed.watchlist.fetching = false;
             // console.log(error);
             if ([401, 419].includes(error.response.status)) {
               window.location =
@@ -630,9 +714,9 @@ export default {
             user_id: self.$store.state.user.id,
             user_name: self.$store.state.user.name
               .replace(/[^a-z0-9]+/gi, "-")
-              .toLowerCase()
+              .toLowerCase(),
           })
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
               self.$store.state.user.profile.posters =
                 response.data.profile_cover.posters;
@@ -653,7 +737,7 @@ export default {
               // console.log(response.status);
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             // console.log(error);
             if ([401, 419].includes(error.response.status)) {
               window.location =
@@ -700,9 +784,9 @@ export default {
       var requests_notification = false;
       axios
         .post(this.$store.state.api_host + "get_friends", {
-          session_id: this.$store.state.session_id
+          session_id: this.$store.state.session_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             new_friends = response.data.people;
 
@@ -743,7 +827,7 @@ export default {
             self.$store.state.friends_page.friends = [];
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -759,46 +843,38 @@ export default {
     loggingOut() {
       this.logging_out = true;
     },
-    updateDiscoverPage(if_notifiy) {
-      if (this.$route.path == "/discover") {
-        window.scrollTo(0, 0);
-      } else {
-        this.$store.state.scroll_positions.discover.all = 0;
-        this.$store.state.scroll_positions.discover.flibo = 0;
-      }
+    refreshDiscoverPage() {
       var self = this;
       self.$store.state.suggestions.fetching_suggestions = true;
-      self.$store.state.suggestions.content_type_tab = ["movie", "tv"];
-      self.store.suggestions.observer_current_index = 0;
+      self.$store.state.notifications.suggestions = false;
+
       axios
         .post(self.$store.state.api_host + "flibo_feed", {
           session_id: self.$store.state.session_id,
-          country: self.$store.state.user.profile.country
+          country: self.$store.state.user.profile.country,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.$store.state.suggestions.contents = response.data.contents;
             self.store.suggestions.feed_list = self.store.suggestions.contents.slice(
               0,
-              25
+              self.$store.state.feed.defaultListSize
             );
             self.$store.state.suggestions.more_contents =
               response.data.more_contents;
-            if (if_notifiy == "notify") {
-              self.$store.state.notifications.suggestions = true;
-            }
-            self.$store.state.suggestions.ready_to_refresh_recommendation = false;
-            self.$store.state.scroll_positions.discover.all = 0;
-            self.$store.state.scroll_positions.discover.friends = 0;
-            self.$store.state.scroll_positions.discover.flibo = 0;
-            self.$store.state.suggestions.last_fetch_time = Date.now();
             self.fetchRemaining();
+
+            if (self.$route.path == "/discover") {
+              self.$nextTick(function () {
+                self.$store.state.feed.update_dom = true;
+              });
+            }
           } else {
             // console.log(response.status);
           }
           self.$store.state.suggestions.fetching_suggestions = false;
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -815,9 +891,9 @@ export default {
 
       axios
         .post(self.$store.state.api_host + "users_to_befriend", {
-          session_id: self.$store.state.session_id
+          session_id: self.$store.state.session_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.$store.state.suggestions.users_suggestions =
               response.data.users;
@@ -825,7 +901,7 @@ export default {
             self.$store.state.suggestions.users_suggestions = [];
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -860,9 +936,9 @@ export default {
             : null,
           trailer_origin: Object.keys(activity).includes("trailer_origin")
             ? activity.trailer_origin
-            : null
+            : null,
         })
-        .then(function(response) {
+        .then(function (response) {
           if (Object.keys(activity).includes("url")) {
             window.open(activity.url);
           }
@@ -871,7 +947,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if (Object.keys(activity).includes("url")) {
             window.open(activity.url);
           }
@@ -890,69 +966,13 @@ export default {
           }
         });
     },
-    _filterDiscoverPage() {
-      var self = this;
-      var filtered_platforms = [];
-
-      var feed_contents = self.$store.state.suggestions.contents;
-      var filters_applied = self.$store.state.discover_filters.filters_applied;
-
-      var platform;
-      for (platform in filters_applied.platforms) {
-        filtered_platforms.push(
-          filters_applied.platforms[platform].platform_name
-            .replace(/\s+/g, "_")
-            .toLowerCase()
-        );
-      }
-
-      var feed_item;
-      for (feed_item in feed_contents) {
-        var platform_count = 0;
-        for (platform in filtered_platforms) {
-          if (
-            JSON.stringify(feed_contents[feed_item].where_to_watch).includes(
-              filtered_platforms[platform]
-            )
-          ) {
-            platform_count++;
-          }
-        }
-        feed_contents[feed_item].platform_count = platform_count;
-        feed_contents[feed_item].genre_count = 0;
-      }
-
-      function compare(a, b) {
-        if (
-          a.genre_count + ("0" + a.platform_count).slice(-2) >
-          b.genre_count + ("0" + b.platform_count).slice(-2)
-        ) {
-          return -1;
-        }
-        if (
-          a.genre_count + ("0" + a.platform_count).slice(-2) ==
-          b.genre_count + ("0" + b.platform_count).slice(-2)
-        ) {
-          return 0;
-        }
-        return 1;
-      }
-
-      self.$store.state.suggestions.contents = self.$store.state.suggestions.contents.sort(
-        compare
-      );
-    },
-    filterDiscoverPage() {
-      var self = this;
-      setTimeout(self._filterDiscoverPage, 0);
-    },
     updateDeviceInfo() {
       var self = this;
 
       if (this.ip_info.country == null) {
         axios
           .get("https://ipinfo.io/?token=a354c067e1fef5")
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
               self.ip_info.ip = response.data.ip;
               self.ip_info.city = response.data.city;
@@ -1024,7 +1044,7 @@ export default {
               bot: device.bot,
 
               screen_width: window.outerWidth,
-              screen_height: window.outerHeight
+              screen_height: window.outerHeight,
             });
           });
       } else {
@@ -1064,7 +1084,7 @@ export default {
           bot: device.bot,
 
           screen_width: window.outerWidth,
-          screen_height: window.outerHeight
+          screen_height: window.outerHeight,
         });
       }
     },
@@ -1073,16 +1093,16 @@ export default {
       axios
         .post(self.$store.state.api_host + "update_profile", {
           session_id: self.$store.state.session_id,
-          country: self.$store.state.user.profile.country
+          country: self.$store.state.user.profile.country,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             axios
               .post(self.$store.state.api_host + "search_filters", {
-                session_id: self.$store.state.session_id
+                session_id: self.$store.state.session_id,
               })
               .then(
-                response => (
+                (response) => (
                   (self.$store.state.rate_filters.filters_meta.genres =
                     response.data.genres),
                   (self.$store.state.rate_filters.filters_meta.decades =
@@ -1109,15 +1129,15 @@ export default {
                     response.data.platforms),
                   (self.$store.state.feed_filters.filters_meta.platforms =
                     response.data.platforms),
-                    (self.$store.state.feed_filters.filters_meta.genres =
-                        response.data.genres)
+                  (self.$store.state.feed_filters.filters_meta.genres =
+                    response.data.genres)
                 )
               );
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1140,16 +1160,16 @@ export default {
           content_ids: null,
           rest_of_queue: null,
           visible_cards: null,
-          country: self.$store.state.user.profile.country
+          country: self.$store.state.user.profile.country,
         })
         .then(
-          response => (
+          (response) => (
             (self.$store.state.rate.visible_cards = response.data.contents),
             (self.$store.state.rate.content_ids = response.data.content_ids),
             (self.store.rate.fetching_cards = false)
           )
         )
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1171,20 +1191,23 @@ export default {
         .post(self.$store.state.api_host + "get_incremental_feed_contents", {
           session_id: self.$store.state.session_id,
           more_contents: self.$store.state.suggestions.more_contents.slice(),
-          country: self.$store.state.user.profile.country
+          country: self.$store.state.user.profile.country,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.$store.state.suggestions.contents.push(
               ...response.data.contents
             );
+            if (self.$route.path == "/discover") {
+              self.$store.state.feed_filters.apply_filters_wo_reset = true;
+            }
             self.$store.state.suggestions.more_contents = [];
             self.store.suggestions.fetching_feed_incremental = false;
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -1200,15 +1223,42 @@ export default {
     openContentPage(info) {
       this.$store.state.content_page.more_by_artist = null;
       this.$store.state.content_page.artist = null;
+
+      var origin_full = info.origin;
       if (info.origin == "home") {
-        var origin_full =
+        var discover_type_tab_string = JSON.stringify(
+          this.$store.state.suggestions.discover_type_tab
+        ).replace(/['"]+/g, "");
+        origin_full =
           "discover__" +
-          (this.discover_type_tab_string == "[flibo]"
+          (discover_type_tab_string == "[flibo]"
             ? "suggestions_tab__"
-            : this.discover_type_tab_string == "[filter]"
+            : discover_type_tab_string == "[filter]"
             ? "filter_tab__"
             : "feed_tab__") +
           info.sub_origin;
+      } else if (info.origin == "search_results") {
+        var discover_type_tab_string = JSON.stringify(
+          this.$store.state.discover_filters.discover_type_tab
+        ).replace(/['"]+/g, "");
+        if (info.sub_origin) {
+          origin_full =
+            "search_filter__" +
+            (discover_type_tab_string == "[flibo]"
+              ? "suggestions_tab__"
+              : discover_type_tab_string == "[filter]"
+              ? "filter_tab__"
+              : "feed_tab__") +
+            info.sub_origin;
+        } else {
+          origin_full =
+            "search_filter__" +
+            (discover_type_tab_string == "[flibo]"
+              ? "suggestions_tab"
+              : discover_type_tab_string == "[filter]"
+              ? "filter_tab"
+              : "feed_tab");
+        }
       }
       this.$store.state.content_page.origin = Object.keys(info || {}).includes(
         "suffix"
@@ -1257,9 +1307,9 @@ export default {
         .post(this.$store.state.api_host + "submit_rating", {
           session_id: this.$store.state.session_id,
           content_ids: [info.content_id],
-          rating: info.user_rating
+          rating: info.user_rating,
         })
-        .then(function(response) {
+        .then(function (response) {
           var index = self.$store.state.suggestions.rate_counter.indexOf(
             info.content_id
           );
@@ -1274,17 +1324,16 @@ export default {
                 .post(
                   self.$store.state.ai_host + "calculate_contents_to_recommend",
                   {
-                    session_id: self.$store.state.session_id
+                    session_id: self.$store.state.session_id,
                   }
                 )
-                .then(function(response) {
+                .then(function (response) {
                   self.$store.state.notifications.suggestions = true;
-                  self.$store.state.suggestions.ready_to_refresh_recommendation = true;
                 });
             }
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           eval(content_list_location)[contents_index].rating = prev_rating;
           eval(feed_list_location)[feed_index].rating = prev_rating;
 
@@ -1329,16 +1378,16 @@ export default {
         .post(this.$store.state.api_host + "update_watchlist", {
           session_id: this.$store.state.session_id,
           content_id: info.content_id,
-          status: info.watch_later ? false : true
+          status: info.watch_later ? false : true,
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.status == 200) {
-            self.updateWatchlist();
+            self.updateWatchlist(false);
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           eval(content_list_location)[contents_index].watch_later = prev_state;
           eval(feed_list_location)[feed_index].watch_later = prev_state;
 
@@ -1361,8 +1410,64 @@ export default {
           "/" +
           info.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
-    }
-  }
+    },
+    resetFeedPage(info) {
+      if (info.filters) {
+        if (this.feed_mappings[info.parent].content_filter != null) {
+          eval(
+            this.feed_mappings[info.parent].content_filter +
+              ' = ["movie", "tv"]'
+          );
+        }
+
+        if (
+          this.feed_mappings[info.parent].discover_filters != null &&
+          !info.skip_suggestions_filter
+        ) {
+          eval(
+            this.feed_mappings[info.parent].discover_filters +
+              ' = ["community", "friends", "flibo"]'
+          );
+        } else if (
+          this.feed_mappings[info.parent].discover_filters != null &&
+          info.skip_suggestions_filter
+        ) {
+          eval(
+            this.feed_mappings[info.parent].discover_filters + ' = ["flibo"]'
+          );
+        }
+
+        if (this.feed_mappings[info.parent].platform_filters != null) {
+          eval(this.feed_mappings[info.parent].platform_filters + " = []");
+        }
+
+        if (this.feed_mappings[info.parent].genre_filters != null) {
+          eval(this.feed_mappings[info.parent].genre_filters + " = []");
+        }
+      }
+
+      if (info.scroll) {
+        eval("this.$store.state.feed." + info.parent + ".scroll_position = 0");
+      }
+
+      if (info.paddings) {
+        eval("this.$store.state.feed." + info.parent + ".padding_top = 0");
+        eval("this.$store.state.feed." + info.parent + ".padding_bottom = 0");
+      }
+
+      if (info.observer_current_index) {
+        eval(
+          "this.$store.state.feed." +
+            info.parent +
+            ".observer_current_index = 0"
+        );
+      }
+
+      if (info.element_heights) {
+        eval("this.$store.state.feed." + info.parent + ".element_heights = {}");
+      }
+    },
+  },
 };
 </script>
 
