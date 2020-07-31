@@ -19,6 +19,7 @@
     >
       <span class="discover-type-checkmark-text">Only Suggestions</span>
     </label>
+
     <button
       v-if="parent == 'home' && store.notifications.suggestions"
       class="suggestion-filter-active"
@@ -33,17 +34,18 @@ export default {
   props: {
     parent: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
+      is_mobile: window.screen.height > window.screen.width,
       discover_type_tab: [],
       store: this.$store.state,
       store_mappings: {
         home: "this.$store.state.suggestions.discover_type_tab",
-        search_results: "this.$store.state.discover_filters.discover_type_tab"
-      }
+        search_results: "this.$store.state.discover_filters.discover_type_tab",
+      },
     };
   },
   computed: {
@@ -55,7 +57,7 @@ export default {
     },
     reset_filter() {
       return this.$store.state.feed_filters.reset_discover_type_filter;
-    }
+    },
   },
   watch: {
     reset_filter: {
@@ -68,8 +70,8 @@ export default {
           );
           this.$store.state.feed_filters.reset_discover_type_filter = false;
         }
-      }
-    }
+      },
+    },
   },
   created() {
     if (this.discover_type_tab_string == "[community,friends,flibo]") {
@@ -84,8 +86,6 @@ export default {
       setTimeout(self._switchDiscoverTab, 0);
     },
     _switchDiscoverTab() {
-      this.$emit("update-scroll", 0);
-
       if (this.discover_type_tab.includes("Only Suggestions")) {
         eval(this.store_mappings[this.parent] + ' = ["flibo"]');
       } else {
@@ -94,28 +94,24 @@ export default {
             ' = ["community", "friends", "flibo"]'
         );
       }
-      if (
-        this.discover_type_tab_string == "[flibo]" &&
-        this.$store.state.notifications.suggestions &&
-        this.parent == "home"
-      ) {
-        if (this.$store.state.suggestions.ready_to_refresh_recommendation) {
-          this.$store.state.suggestions.refresh_recommendation = true;
-        } else {
-          this.$emit("update-scroll", 0);
-        }
-        this.$store.state.notifications.suggestions = false;
-      }
 
       this.$emit("update-api-counter", {
         api:
           this.discover_type_tab_string == "[flibo]"
             ? this.parent + "_suggestions"
-            : this.parent + "_feed"
+            : this.parent + "_feed",
       });
-      this.$emit("filter-parent", true);
-    }
-  }
+
+      if (
+        this.$store.state.notifications.suggestions &&
+        this.parent == "home"
+      ) {
+        this.$emit("refresh-suggestions");
+      } else {
+        this.$emit("filter-parent");
+      }
+    },
+  },
 };
 </script>
 
@@ -158,6 +154,8 @@ export default {
   color: #333333;
 }
 .suggestion-filter-active {
+  position: absolute;
+  margin-left: 2px;
   height: 7px;
   width: 7px;
   background-image: url("./../../images/red_dot.png");
