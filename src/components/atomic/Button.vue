@@ -20,31 +20,31 @@ export default {
   props: {
     text: {
       type: String,
-      default: null
+      default: null,
     },
     icon: {
       type: String,
-      default: null
+      default: null,
     },
     buttonType: {
       type: String,
       required: true,
-      default: "primary"
+      default: "primary",
     },
     loading: {
       type: Boolean,
-      default: false
+      default: false,
     },
     disabled: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data() {
     return {
       buttonClickedBool: false,
-      buttonText: ""
+      buttonText: "",
     };
   },
 
@@ -53,7 +53,7 @@ export default {
       if (this.loading) {
         this.buttonClickedBool = true;
       }
-    }
+    },
   },
 
   computed: {
@@ -82,8 +82,8 @@ export default {
         default:
           iconClass = "";
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -106,10 +106,17 @@ button {
   font-size: 14px;
   min-width: 100px;
   background-color: $primary-color;
-  cursor: pointer;
   transition-property: background-color;
   transition-timing-function: ease-out;
   transition-duration: 0.12s;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 .primary:active {
   background-color: #3c20b8;
@@ -131,6 +138,13 @@ button {
   background-color: #fff;
   color: $secondary-color;
   cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 .secondary:disabled {
   cursor: auto;
@@ -148,6 +162,14 @@ button {
   transition-property: color;
   transition-timing-function: ease-out;
   transition-duration: 0.5s;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 .textOnly:active {
   color: white;
@@ -162,6 +184,14 @@ button {
   width: 16px;
   height: 16px;
   cursor: pointer;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 .iconOnly:disabled {
   cursor: auto;
