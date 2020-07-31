@@ -1,12 +1,24 @@
 <template>
-  <div class="feed-poster-container">
-    <img :src="image" class="poster" alt="poster" @click="openContent" />
+  <div
+    class="feed-poster-container"
+    :style="
+      'width: ' + containerWidth + 'px; height: ' + 1.5 * containerWidth + 'px;'
+    "
+  >
+    <img
+      :src="image"
+      class="poster"
+      :style="'height: ' + 1.5 * containerWidth + 'px;'"
+      alt="poster"
+      @click="openContent"
+    />
 
     <img
       src="https://flibo-images.s3-us-west-2.amazonaws.com/other/play-white-icon.svg"
       alt="play-trailer"
       class="play-trailer"
       @click="playTrailer"
+      v-if="trailerId || showPlatforms"
     />
 
     <div class="where-to-watch-container" v-if="showPlatforms">
@@ -23,8 +35,8 @@
             <img
               v-bind:src="
                 'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                  index +
-                  '.jpg'
+                index +
+                '.jpg'
               "
               class="poster-platform-icon"
             />
@@ -97,8 +109,8 @@
                 <img
                   v-bind:src="
                     'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                      index +
-                      '.jpg'
+                    index +
+                    '.jpg'
                   "
                   class="youtube-player-platform-icon"
                 />
@@ -115,51 +127,44 @@
 export default {
   name: "App",
   props: {
+    containerWidth: {
+      type: Number,
+      required: true,
+    },
     contentId: {
       type: Number,
-      required: true
+      required: true,
     },
     title: {
       type: String,
-      required: true
+      required: true,
     },
     image: {
       type: String,
-      required: true
+      required: true,
     },
     trailerId: {
       type: String,
-      required: false
+      required: false,
     },
     whereToWatch: {
       type: Object,
-      required: false
+      required: false,
     },
     parent: {
       type: String,
-      required: true
+      required: true,
     },
     feedType: {
       type: String,
-      required: true
-    }
+      required: false,
+    },
   },
   data() {
     return {
       is_mobile: window.screen.height > window.screen.width,
-      play_trailer: false
+      play_trailer: false,
     };
-  },
-  mounted() {
-    setTimeout(function() {
-      var poster_element = document.querySelector(
-        ".feed-poster-container .poster"
-      );
-      if (poster_element) {
-        poster_element.style.maxHeight =
-          1.5 * poster_element.getBoundingClientRect().width + "px";
-      }
-    }, 2000);
   },
   computed: {
     showPlatforms() {
@@ -183,42 +188,50 @@ export default {
       } else {
         return [];
       }
-    }
+    },
   },
   methods: {
     goToPlatform(link, traffic_origin) {
-      this.$emit("update-scroll", window.scrollY);
+      this.$emit("leave-feed");
       var activity = {
         api: "outbound_traffic",
         content_id: this.contentId,
         url: link,
-        traffic_origin: this.parent + "__" + traffic_origin
+        traffic_origin:
+          (this.parent == "search_results" ? "search_filter" : this.parent) +
+          "__" +
+          traffic_origin,
       };
       this.$emit("update-api-counter", activity);
     },
     playTrailer() {
-      this.$emit("update-scroll", window.scrollY);
       this.play_trailer = true;
 
       var activity = {
         api: "play_trailer",
         content_id: this.contentId,
-        trailer_origin: this.parent + "__" + this.feedType
+        trailer_origin: this.feedType
+          ? (this.parent == "search_results" ? "search_filter" : this.parent) +
+            "__" +
+            this.feedType
+          : this.parent == "search_results"
+          ? "search_filter"
+          : this.parent,
       };
       this.$emit("update-api-counter", activity);
     },
     openContent() {
-      this.$emit("update-scroll", window.scrollY);
+      this.$emit("leave-feed");
 
       var info = {
         origin: this.parent,
         sub_origin: this.feedType,
         content_id: this.contentId,
-        title: this.title
+        title: this.title,
       };
       this.$emit("open-content-page", info);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -235,6 +248,7 @@ export default {
   grid-column-start: 1;
   width: 100%;
   border-radius: 8px;
+  background-color: #f8f8f8;
 }
 .play-trailer {
   grid-row-start: 2;
@@ -406,6 +420,7 @@ export default {
   border-radius: 7px;
   padding: 10px;
   max-width: 95vw;
+  text-align: center;
 }
 ::-webkit-scrollbar {
   display: none;
