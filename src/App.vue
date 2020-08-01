@@ -1202,12 +1202,13 @@ export default {
               self.$store.state.feed_filters.apply_filters_wo_reset = true;
             }
             self.$store.state.suggestions.more_contents = [];
-            self.store.suggestions.fetching_feed_incremental = false;
           } else {
             // console.log(response.status);
           }
+          self.store.suggestions.fetching_feed_incremental = false;
         })
         .catch(function (error) {
+          self.store.suggestions.fetching_feed_incremental = false;
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
