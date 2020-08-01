@@ -622,21 +622,6 @@ export default {
   padding: 1%;
   margin-bottom: 4%;
 }
-.invite-not-generated-icon {
-  height: 10vw;
-  width: 10vw;
-  background-image: url("./../images/invite_not_generated.png");
-  background-color: #f8f7f7;
-  background-size: 100% 100%;
-}
-.invite-generated-icon {
-  height: 10vw;
-  width: 10vw;
-  margin-top: 6%;
-  background-image: url("./../images/invite_generated.png");
-  background-color: #f8f7f7;
-  background-size: 100% 100%;
-}
 .generate-invite {
   position: absolute;
   margin-left: 18%;
@@ -671,19 +656,6 @@ export default {
   background-color: #aedbf5;
   padding: 1%;
   border-radius: 5px;
-}
-.whatsapp {
-  position: absolute;
-  height: 30px;
-  width: 30px;
-  margin-top: -2.5px;
-  right: 4px;
-  background-image: url("./../images/whatsapp.png");
-  background-color: #f8f7f7;
-  background-size: 100% 100%;
-  overflow: hidden;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
 }
 .send-email-box {
   font-size: 13px;

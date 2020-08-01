@@ -126,18 +126,6 @@ export default {
   color: #333333;
   top: 8px;
 }
-.up-down {
-  position: absolute;
-  display: inline-block;
-  margin-top: 1.5%;
-  height: calc(15px + 3vw);
-  width: calc(15px + 3vw);
-  background-image: url("./../images/up_down.png");
-  background-size: 100% 100%;
-  background-color: #ffffff;
-  border: none;
-  outline: 0px;
-}
 .go-back-button {
   position: fixed;
   left: 2%;

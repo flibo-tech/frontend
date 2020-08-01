@@ -4,20 +4,19 @@ import Router from "vue-router";
 import App from "@/App";
 import Content from "@/components/Content.vue";
 import Rate from "@/components/Rate.vue";
-import Discover from "@/components/Discover.vue";
-import Watchlist from "@/components/Watchlist.vue";
 import Profile from "@/components/Profile.vue";
 import Friends from "@/components/Friends.vue";
 import AboutUs from "@/components/AboutUs.vue";
 import SignUp from "@/components/SignUp.vue";
 import SearchBar from "@/components/SearchBar.vue";
-import SearchResults from "@/components/SearchResults.vue";
 import Settings from "@/components/Settings.vue";
 import SearchUsers from "@/components/SearchUsers.vue";
 import PrivacyPolicy from "@/components/PrivacyPolicy.vue";
 import Alert from "@/components/Alert.vue";
-import Blog from "@/components/Blog.vue";
 import Onboarding from "@/views/Onboarding.vue";
+import Home from "@/views/Home.vue";
+import SearchResults from "@/views/SearchResults.vue";
+import Watchlist from "@/views/Watchlist.vue";
 
 Vue.use(Router);
 
@@ -42,7 +41,7 @@ export default new Router({
     {
       path: "/discover",
       name: "Discover",
-      component: Discover
+      component: Home
     },
     {
       path: "/watchlist",
@@ -99,11 +98,6 @@ export default new Router({
       path: "/alert",
       name: "Alert",
       component: Alert
-    },
-    {
-      path: "/blog/:content_name_piece",
-      name: "Blog",
-      component: Blog
     },
     {
       path: "/onboarding",

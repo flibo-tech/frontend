@@ -4,7 +4,7 @@
     ref="interactElement"
     :class="{
       isAnimating: isInteractAnimating,
-      isCurrent: isCurrent
+      isCurrent: isCurrent,
     }"
     class="card"
     :style="{ transform: transformString }"
@@ -15,11 +15,11 @@
       class="card-tap-instruction"
       :style="
         `--card-width:` +
-          cardWidth +
-          `px;
+        cardWidth +
+        `px;
                   --card-height:` +
-          cardHeight +
-          `px;
+        cardHeight +
+        `px;
                  `
       "
     >
@@ -31,40 +31,40 @@
     <img
       v-if="
         poster !=
-          'https://flibo-images.s3-us-west-2.amazonaws.com/posters/no-poster.png'
+        'https://flibo-images.s3-us-west-2.amazonaws.com/posters/no-poster.png'
       "
       :src="poster"
       :style="
         `--card-width:` +
-          cardWidth +
-          `px;
+        cardWidth +
+        `px;
                   --card-height:` +
-          cardHeight +
-          `px;
+        cardHeight +
+        `px;
                  `
       "
     />
     <div
       v-if="
         poster ==
-          'https://flibo-images.s3-us-west-2.amazonaws.com/posters/no-poster.png'
+        'https://flibo-images.s3-us-west-2.amazonaws.com/posters/no-poster.png'
       "
       class="no-poster"
       :style="
         `--card-width:` +
-          cardWidth +
-          `px;
+        cardWidth +
+        `px;
                   --card-height:` +
-          cardHeight +
-          `px;
+        cardHeight +
+        `px;
                  `
       "
     >
       <span
         :style="
           `--text-width:` +
-            0.8 * (cardWidth - 20) +
-            `px;
+          0.8 * (cardWidth - 20) +
+          `px;
                               `
         "
       >
@@ -89,48 +89,48 @@ export default {
     interactOutOfSightXCoordinate: 500,
     interactOutOfSightYCoordinate: 600,
     interactYThreshold: 50,
-    interactXThreshold: 50
+    interactXThreshold: 50,
   },
 
   props: {
     contentId: {
       type: Number,
-      required: true
+      required: true,
     },
     title: {
       type: String,
-      required: true
+      required: true,
     },
     poster: {
       type: String,
-      required: true
+      required: true,
     },
     contentType: {
       type: String,
-      required: true
+      required: true,
     },
     whereToWatch: {
       type: Object,
-      required: false
+      required: false,
     },
     isCurrent: {
       type: Boolean,
-      required: true
+      required: true,
     },
     cardHeight: {
       type: Number,
-      required: true
+      required: true,
     },
     tapOpen: {
       type: Boolean,
       default: true,
-      required: false
+      required: false,
     },
     tapOpenInstruction: {
       type: Boolean,
       default: false,
-      required: false
-    }
+      required: false,
+    },
   },
 
   data() {
@@ -141,11 +141,11 @@ export default {
       interactPosition: {
         x: 0,
         y: 0,
-        rotation: 0
+        rotation: 0,
       },
       windowHeight: window.innerHeight,
       cardWidth: (this.cardHeight * 2) / 3,
-      potentialRating: ""
+      potentialRating: "",
     };
   },
 
@@ -158,7 +158,7 @@ export default {
       }
 
       return null;
-    }
+    },
   },
 
   mounted() {
@@ -173,15 +173,15 @@ export default {
             axios
               .post(self.$store.state.api_host + "update_profile", {
                 session_id: self.$store.state.session_id,
-                never_tapped_any_card: false
+                never_tapped_any_card: false,
               })
-              .then(function(response) {
+              .then(function (response) {
                 if ([200].includes(response.status)) {
                 } else {
                   // console.log(response.status);
                 }
               })
-              .catch(function(error) {
+              .catch(function (error) {
                 // console.log(error);
                 if ([401, 419].includes(error.response.status)) {
                   window.location =
@@ -197,7 +197,7 @@ export default {
           }
           this.openContentPage();
         }
-      }
+      },
     });
 
     interact(element).draggable({
@@ -205,11 +205,11 @@ export default {
         this.isInteractAnimating = false;
       },
 
-      onmove: event => {
+      onmove: (event) => {
         const {
           interactMaxRotation,
           interactXThreshold,
-          interactYThreshold
+          interactYThreshold,
         } = this.$options.static;
         let x = this.interactPosition.x + event.dx;
         let y = this.interactPosition.y + event.dy;
@@ -257,7 +257,7 @@ export default {
         else if (y > interactYThreshold) this.playCard(SKIP_CARD);
         else if (y < -interactYThreshold) this.playCard(LOVE_CARD);
         else this.resetCardPosition();
-      }
+      },
     });
   },
 
@@ -286,7 +286,7 @@ export default {
       const {
         interactOutOfSightXCoordinate,
         interactOutOfSightYCoordinate,
-        interactMaxRotation
+        interactMaxRotation,
       } = this.$options.static;
 
       this.interactUnsetElement();
@@ -296,7 +296,7 @@ export default {
         case LIKE_CARD:
           this.interactSetPosition({
             x: interactOutOfSightXCoordinate,
-            rotation: interactMaxRotation
+            rotation: interactMaxRotation,
           });
           this.$emit(LIKE_CARD);
           self.$store.state.suggestions.rate_counter_all =
@@ -305,9 +305,9 @@ export default {
             .post(this.$store.state.api_host + "submit_rating", {
               session_id: this.$store.state.session_id,
               content_ids: [this.contentId],
-              rating: 2
+              rating: 2,
             })
-            .then(function(response) {
+            .then(function (response) {
               var index = self.$store.state.suggestions.rate_counter.indexOf(
                 self.contentId
               );
@@ -323,17 +323,20 @@ export default {
                       self.$store.state.ai_host +
                         "calculate_contents_to_recommend",
                       {
-                        session_id: self.$store.state.session_id
+                        session_id: self.$store.state.session_id,
                       }
                     )
-                    .then(function(response) {
-                      self.$store.state.suggestions.refresh_recommendation = true;
-                      self.$store.state.suggestions.notify = true;
+                    .then(function (response) {
+                      if (self.$route.path == "/onboarding") {
+                        self.$store.state.suggestions.refresh_feed = true;
+                      } else {
+                        self.$store.state.notifications.suggestions = true;
+                      }
                     });
                 }
               }
             })
-            .catch(function(error) {
+            .catch(function (error) {
               if ([401, 419].includes(error.response.status)) {
                 window.location =
                   self.$store.state.login_host +
@@ -348,14 +351,14 @@ export default {
           var activity = {
             api: "swipe",
             content_id: this.contentId,
-            rating: 2
+            rating: 2,
           };
           this.$emit("swipe-api-counter", activity);
           break;
         case DISLIKE_CARD:
           this.interactSetPosition({
             x: -interactOutOfSightXCoordinate,
-            rotation: -interactMaxRotation
+            rotation: -interactMaxRotation,
           });
           this.$emit(DISLIKE_CARD);
           self.$store.state.suggestions.rate_counter_all =
@@ -364,9 +367,9 @@ export default {
             .post(this.$store.state.api_host + "submit_rating", {
               session_id: this.$store.state.session_id,
               content_ids: [this.contentId],
-              rating: 1
+              rating: 1,
             })
-            .then(function(response) {
+            .then(function (response) {
               var index = self.$store.state.suggestions.rate_counter.indexOf(
                 self.contentId
               );
@@ -382,17 +385,20 @@ export default {
                       self.$store.state.ai_host +
                         "calculate_contents_to_recommend",
                       {
-                        session_id: self.$store.state.session_id
+                        session_id: self.$store.state.session_id,
                       }
                     )
-                    .then(function(response) {
-                      self.$store.state.suggestions.refresh_recommendation = true;
-                      self.$store.state.suggestions.notify = true;
+                    .then(function (response) {
+                      if (self.$route.path == "/onboarding") {
+                        self.$store.state.suggestions.refresh_feed = true;
+                      } else {
+                        self.$store.state.notifications.suggestions = true;
+                      }
                     });
                 }
               }
             })
-            .catch(function(error) {
+            .catch(function (error) {
               if ([401, 419].includes(error.response.status)) {
                 window.location =
                   self.$store.state.login_host +
@@ -407,25 +413,25 @@ export default {
           var activity = {
             api: "swipe",
             content_id: this.contentId,
-            rating: 1
+            rating: 1,
           };
           this.$emit("swipe-api-counter", activity);
           break;
         case SKIP_CARD:
           this.interactSetPosition({
-            y: interactOutOfSightYCoordinate
+            y: interactOutOfSightYCoordinate,
           });
           this.$emit(SKIP_CARD);
           axios
             .post(this.$store.state.api_host + "submit_rating", {
               session_id: this.$store.state.session_id,
               content_ids: [this.contentId],
-              rating: 0
+              rating: 0,
             })
-            .then(function(response) {
+            .then(function (response) {
               // console.log(response);
             })
-            .catch(function(error) {
+            .catch(function (error) {
               if ([401, 419].includes(error.response.status)) {
                 window.location =
                   self.$store.state.login_host +
@@ -440,13 +446,13 @@ export default {
           var activity = {
             api: "swipe",
             content_id: this.contentId,
-            rating: 0
+            rating: 0,
           };
           this.$emit("swipe-api-counter", activity);
           break;
         case LOVE_CARD:
           this.interactSetPosition({
-            y: -interactOutOfSightYCoordinate
+            y: -interactOutOfSightYCoordinate,
           });
           this.$emit(LOVE_CARD);
           self.$store.state.suggestions.rate_counter_all =
@@ -455,9 +461,9 @@ export default {
             .post(this.$store.state.api_host + "submit_rating", {
               session_id: this.$store.state.session_id,
               content_ids: [this.contentId],
-              rating: 3
+              rating: 3,
             })
-            .then(function(response) {
+            .then(function (response) {
               var index = self.$store.state.suggestions.rate_counter.indexOf(
                 self.contentId
               );
@@ -473,17 +479,20 @@ export default {
                       self.$store.state.ai_host +
                         "calculate_contents_to_recommend",
                       {
-                        session_id: self.$store.state.session_id
+                        session_id: self.$store.state.session_id,
                       }
                     )
-                    .then(function(response) {
-                      self.$store.state.suggestions.refresh_recommendation = true;
-                      self.$store.state.suggestions.notify = true;
+                    .then(function (response) {
+                      if (self.$route.path == "/onboarding") {
+                        self.$store.state.suggestions.refresh_feed = true;
+                      } else {
+                        self.$store.state.notifications.suggestions = true;
+                      }
                     });
                 }
               }
             })
-            .catch(function(error) {
+            .catch(function (error) {
               if ([401, 419].includes(error.response.status)) {
                 window.location =
                   self.$store.state.login_host +
@@ -498,7 +507,7 @@ export default {
           var activity = {
             api: "swipe",
             content_id: this.contentId,
-            rating: 3
+            rating: 3,
           };
           this.$emit("swipe-api-counter", activity);
           break;
@@ -510,7 +519,7 @@ export default {
         poster: this.poster,
         title: this.title,
         type: this.contentType,
-        where_to_watch: this.whereToWatch
+        where_to_watch: this.whereToWatch,
       };
 
       this.hideCard();
@@ -529,11 +538,11 @@ export default {
     resetCardPosition() {
       this.interactSetPosition({ x: 0, y: 0, rotation: 0 });
       this.potentialRating = "";
-    }
+    },
   },
   beforeDestroy() {
     this.$emit("destroyCC");
-  }
+  },
 };
 </script>
 
