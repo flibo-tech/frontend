@@ -31,19 +31,18 @@
       "
     />
 
-    <transition enter-active-class="animated fadeIn">
-      <router-view
-        @update-friends="updateFriendsPage"
-        @logging-out="loggingOut"
-        @refresh-feed="refreshDiscoverPage"
-        @update-api-counter="updateApiCounter"
-        @open-content-page="openContentPage"
-        @submit-rating="submitRating"
-        @add-to-watchlist="addToWatchlist"
-        @open-uesr-profile="goToProfile"
-        @reset-feed-page="resetFeedPage"
-      />
-    </transition>
+    <router-view
+      @update-friends="updateFriendsPage"
+      @logging-out="loggingOut"
+      @refresh-feed="refreshDiscoverPage"
+      @update-api-counter="updateApiCounter"
+      @open-content-page="openContentPage"
+      @submit-rating="submitRating"
+      @add-to-watchlist="addToWatchlist"
+      @open-uesr-profile="goToProfile"
+      @reset-feed-page="resetFeedPage"
+    />
+
     <MainNavigation
       v-if="!this.is_onboarding && !this.is_landing_page"
       @update-api-counter="updateApiCounter"
@@ -1499,11 +1498,5 @@ export default {
   font-family: "Open Sans", sans-serif;
   text-align: center;
   margin-top: 40vh;
-}
-.fadeIn {
-  animation: fadeIn 0.05s;
-}
-.fadeOut {
-  animation: fadeOut 0.01s;
 }
 </style>

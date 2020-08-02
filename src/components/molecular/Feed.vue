@@ -283,7 +283,7 @@ export default {
             self.updating_dom = false;
             self.updateElementHeights();
           }
-        }, 100);
+        }, 0);
       });
     }
   },
@@ -501,12 +501,11 @@ export default {
       var self = this;
 
       self.$nextTick(function () {
-        self.hide_feed = false;
-
         window.scrollTo(
           0,
           eval("self.$store.state.feed." + self.parent + ".scroll_position")
         );
+        self.hide_feed = false;
 
         self.initIntersectionObserver();
       });
