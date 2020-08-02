@@ -852,21 +852,18 @@ export default {
         })
         .then(function (response) {
           if ([200].includes(response.status)) {
-            if (self.$route.path == "/search-results") {
-              self.$store.state.discover_filters.filtered_content.push(
-                ...response.data.contents
-              );
-              self.$store.state.discover_filters.more_filtered_content = [];
-            }
-            self.store.discover_filters.fetching_filter_incremental = false;
+            self.$store.state.discover_filters.filtered_content.push(
+              ...response.data.contents
+            );
+            self.$store.state.discover_filters.more_filtered_content = [];
 
             if (self.$route.path == "/search-results") {
               self.$store.state.feed_filters.apply_filters_wo_reset = true;
             }
           } else {
-            self.store.discover_filters.fetching_filter_incremental = false;
             // console.log(response.status);
           }
+          self.store.discover_filters.fetching_filter_incremental = false;
         })
         .catch(function (error) {
           self.store.discover_filters.fetching_filter_incremental = false;
