@@ -275,13 +275,32 @@ export default {
           ) {
             self.updating_dom = true;
 
-            if (self.parent == "watchlist") {
+            if (
+              self.parent == "watchlist" ||
+              eval(
+                "self.store.feed." + self.parent + ".apply_filters_on_create"
+              )
+            ) {
               self.applyFilters();
-            }
-            self.updatePadding();
 
-            self.updating_dom = false;
-            self.updateElementHeights();
+              setTimeout(function () {
+                eval(
+                  "self.store.feed." +
+                    self.parent +
+                    ".apply_filters_on_create = false"
+                );
+
+                self.updatePadding();
+
+                self.updating_dom = false;
+                self.updateElementHeights();
+              }, 0);
+            } else {
+              self.updatePadding();
+
+              self.updating_dom = false;
+              self.updateElementHeights();
+            }
           }
         }, 0);
       });

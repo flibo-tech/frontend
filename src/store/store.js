@@ -11,7 +11,7 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_ah == "undefined") {
+    if (typeof my_store.unused_key_ai == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       localStorage.clear();
@@ -40,7 +40,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_ah: my_store ? my_store.unused_key_ah : true,
+    unused_key_ai: my_store ? my_store.unused_key_ai : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -255,6 +255,7 @@ export const store = new Vuex.Store({
       listThreshold: 15,
       update_dom: false,
       home: {
+        apply_filters_on_create: false,
         element_heights: my_store ? my_store.feed.home.element_heights : {},
         padding_top: my_store ? my_store.feed.home.padding_top : 0,
         padding_bottom: my_store ? my_store.feed.home.padding_bottom : 0,
@@ -264,6 +265,7 @@ export const store = new Vuex.Store({
           : 0
       },
       search_results: {
+        apply_filters_on_create: false,
         element_heights: my_store
           ? my_store.feed.search_results.element_heights
           : {},
@@ -280,6 +282,7 @@ export const store = new Vuex.Store({
           : 0
       },
       watchlist: {
+        apply_filters_on_create: false,
         element_heights: my_store
           ? my_store.feed.watchlist.element_heights
           : {},

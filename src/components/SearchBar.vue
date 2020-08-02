@@ -859,6 +859,10 @@ export default {
 
             if (self.$route.path == "/search-results") {
               self.$store.state.feed_filters.apply_filters_wo_reset = true;
+            } else if (
+              self.$store.state.feed.search_results.feed_list.length < 25
+            ) {
+              self.store.feed.search_results.apply_filters_on_create = true;
             }
           } else {
             // console.log(response.status);
