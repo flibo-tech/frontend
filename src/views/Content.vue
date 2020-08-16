@@ -1,579 +1,932 @@
 <template>
   <div id="content" class="content-box">
+    <button
+      class="content-search-icon"
+      v-if="store.session_id == null"
+      :style="is_mobile ? '' : 'right: calc(50vw - 500px);'"
+      @click="$router.push('/search')"
+      type="button"
+    ></button>
 
-    <button class="content-search-icon"
-            v-if="store.session_id == null"
-            :style="(is_mobile) ? '' : 'right: calc(50vw - 500px);'"
-            @click="$router.push('/search');"
-            type="button">
-    </button>
+    <div v-if="!loading && content.data != null">
+      <!-- otherDivOffset & trailerIconSize props on below element depend on cover-trailer & content-below-cover elements -->
+      <ContentCoverLandscape
+        v-if="showCover"
+        :imageUrl="content.data.cover"
+        otherDivId="content-below-cover-container"
+        :otherDivOffset="40"
+        :trailerIconSize="80"
+        trailerDivId="cover-trailer"
+        :shareDiv="store.is_webview ? true : false"
+        shareDivId="content-share-icon"
+      />
 
-    <div v-if="(!loading) && (content.data!=null)">
-      <div :style="(is_mobile) ? 'position:relative;margin-bottom: 5vw;' : 'position: relative;margin-bottom: 30px;'">
-        <img v-bind:src="content.data.cover"
-             :class="(is_mobile) ? 'cover-pic' : 'desktop-cover-pic'"
-             @click="content.data.youtube_trailer_id ? playTrailer() : ''">
+      <ContentCoverPortrait
+        v-else
+        :imageUrl="content.data.poster"
+        otherDivId="content-below-cover-container"
+        :otherDivOffset="40"
+        :trailerIconSize="80"
+        trailerDivId="cover-trailer"
+        :shareDiv="store.is_webview ? true : false"
+        shareDivId="content-share-icon"
+      />
 
-        <img v-if="content.data.youtube_trailer_id
-                   ||
-                   (Object.keys(content.data.where_to_watch || {}).includes('stream'))
-                   ||
-                   (Object.keys(content.data.where_to_watch || {}).includes('rent'))
-                   ||
-                   (Object.keys(content.data.where_to_watch || {}).includes('buy'))"
-              @click="playTrailer"
-              src="https://flibo-images.s3-us-west-2.amazonaws.com/other/play-white-icon.svg"
-              :class="(is_mobile) ? 'playBtn' : 'desktop-playBtn'">
+      <div id="content-below-cover-container">
+        <div
+          class="content-share-icon"
+          id="content-share-icon"
+          v-if="store.is_webview"
+          @click="prompt_content_share = true"
+        />
 
-        <div class="content-share-icon"
-             v-if="store.is_webview"
-             @click="prompt_content_share=true"/>
+        <!-- Size of element below should go as prop input for cover pic-->
+        <Trailer
+          class="cover-trailer"
+          id="cover-trailer"
+          style="height: 80px; margin-left: calc(50vw - 40px);"
+          :size="80"
+          parent="content_page"
+          :contentId="content.content_id"
+          :trailerId="content.data.youtube_trailer_id"
+          :whereToWatch="content.data.where_to_watch"
+          v-on="$listeners"
+        />
 
-        <div :class="(is_mobile) ? 'image-cropper' : 'desktop-image-cropper'">
-          <img v-bind:src="content.data.poster" class="profile-pic">
-        </div>
-      </div>
-
-      <div class="title">
-        <span style="position:relative;font-weight: bold;margin-right: 10px;">
-          {{content.data.title}}
-          <span style="font-size:11.5px;font-weight: normal;" v-if="content.data.type=='tv'">
-            ({{content.data.release_year}}-{{(content.data.end_year) ? content.data.end_year : 'Present'}})
-          </span>
-
-          <span style="font-size:11.5px;font-weight: normal;" v-if="content.data.type=='movie'">
-              ({{content.data.release_year}})
-          </span>
-        </span>
-
-        <div class="watchlist-continer"
-            @click="addToWatchlist">
-            {{(content.data.watch_later) ? 'ADDED' : 'ADD&nbsp;TO&nbsp;WATCHLIST'}}
-            <button v-bind:class="[ content.data.watch_later ? 'watchlist-true' : 'watchlist-false' ]"/>
-        </div>
-
-        <div class="user-rating-container">
-          <button v-bind:class="[ (content.data.rating == 3) ? 'love-true' : 'love-false' ]"
-                  :style="(is_mobile) ? '' : 'height: 50px;width: 50px;margin-left: 200px;'"
-            @click="submitRating((content.data.rating == 3) ? 0 : 3)">
-          </button>
-
-          <button v-bind:class="[ (content.data.rating == 2) ? 'thumbs-up-true' : 'thumbs-up-false' ]"
-                  :style="(is_mobile) ? '' : 'height: 50px;width: 50px;margin-left: 200px;'"
-            @click="submitRating((content.data.rating == 2) ? 0 : 2)">
-          </button>
-
-          <button v-bind:class="[ (content.data.rating == 1) ? 'thumbs-down-true' : 'thumbs-down-false' ]"
-                  :style="(is_mobile) ? '' : 'height: 50px;width: 50px;margin-left: 200px;'"
-            @click="submitRating((content.data.rating == 1) ? 0 : 1)">
-          </button>
-        </div>
-
-        <p class="summary-text"
-           :style="(is_mobile) ? '' : 'font-size: 15px;'"
-           v-if="content.data.summary_text">
-          {{content.data.summary_text}}
-        </p>
-
-        <div class="info-container">
-          <div class="ratings"
-               :style="(is_mobile) ? '' : 'font-size: 15px;'">
-            <div class="rating-container" v-if="content.data.imdb_score">
-              IMDB
-              <span style="font-weight: bold;">
-                {{content.data.imdb_score}}
+        <!-- Margin top (absolute) on element below should go as prop input for cover pic-->
+        <div class="content-below-cover">
+          <div class="title">
+            <span
+              style="position: relative; font-weight: bold; margin-right: 10px;"
+            >
+              {{ content.data.title }}
+              <span
+                style="font-size: 11.5px; font-weight: normal;"
+                v-if="content.data.type == 'tv'"
+              >
+                ({{ content.data.release_year }}-{{
+                  content.data.end_year ? content.data.end_year : "Present"
+                }})
               </span>
-            </div>
 
-            <div class="rating-container" v-if="content.data.tomato_meter">
-              TOMATOMETER
-              <span style="font-weight: bold;">
-                {{content.data.tomato_meter}}
+              <span
+                style="font-size: 11.5px; font-weight: normal;"
+                v-if="content.data.type == 'movie'"
+              >
+                ({{ content.data.release_year }})
               </span>
-            </div>
-          </div>
-
-          <div class="genres"
-               :style="(is_mobile) ? '' : 'font-size: 15px;margin-top: 4px;'">
-            <span class="genre" v-for="genre in content.data.genres">
-              {{genre}}
             </span>
-          </div>
 
-          <div class="seasons"
-               :style="(is_mobile) ? '' : 'font-size: 15px;margin-top: 6px;'"
-               v-if="content.data.type=='tv'">
-               <span v-if="content.data.seasons">
-                 {{content.data.seasons}} {{(content.data.seasons>1) ? 'Seasons | ' : 'Season | '}}
-               </span>
-               <span v-if="content.data.episodes">
-                 {{content.data.episodes}} {{(content.data.episodes>1) ? 'Episodes | ' : 'Episode | '}}
-               </span>
-               <span v-if="content.data.runtime">
-                 {{content.data.runtime}} {{(content.data.episodes) ? 'Each' : 'Each Episode'}}
-               </span>
-          </div>
-
-          <div class="seasons"
-               :style="(is_mobile) ? '' : 'font-size: 15px;margin-top: 6px;'"
-               v-if="content.data.type=='movie'">
-              {{content.data.runtime}}
-          </div>
-
-          <div class="platforms"
-               :style="(is_mobile) ? '' : 'margin-top: 10px;'"
-               v-if="Object.keys(content.data.where_to_watch || {}).includes('stream')">
-              <div class="platforms-container"
-                  v-for="item, index in content.data.where_to_watch.stream">
-                  <div @click="goToPlatform(item, content.content_id, 'on_page')"
-                      class="platform-cropper"
-                      :style="(is_mobile) ? '' : 'width: 50px;height: 50px;border-radius: 10px;'">
-                      <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+index+'.jpg'"
-                          class="platform-icon"/>
-                  </div>
-              </div>
-          </div>
-
-          <div class="platforms"
-               :style="(is_mobile) ? '' : 'margin-top: 10px;'"
-               v-if="(!Object.keys(content.data.where_to_watch || {}).includes('stream'))
-                      &&
-                      (Object.keys(content.data.where_to_watch || {}).includes('rent'))">
-              <div class="platforms-container"
-                  v-for="item, index in content.data.where_to_watch.rent">
-                  <div @click="goToPlatform(item, content.content_id, 'on_page')"
-                      class="platform-cropper"
-                      :style="(is_mobile) ? '' : 'width: 50px;height: 50px;border-radius: 10px;'">
-                      <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+index+'.jpg'"
-                          class="platform-icon"/>
-                  </div>
-              </div>
-          </div>
-
-          <div class="platforms"
-               :style="(is_mobile) ? '' : 'margin-top: 10px;'"
-               v-if="(!Object.keys(content.data.where_to_watch || {}).includes('stream'))
-                      &&
-                      (!Object.keys(content.data.where_to_watch || {}).includes('rent'))
-                      &&
-                      (Object.keys(content.data.where_to_watch || {}).includes('buy'))"
-                      >
-              <div class="platforms-container"
-                  v-for="item, index in content.data.where_to_watch.buy">
-                  <div @click="goToPlatform(item, content.content_id, 'on_page')"
-                      class="platform-cropper"
-                      :style="(is_mobile) ? '' : 'width: 50px;height: 50px;border-radius: 10px;'">
-                      <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+index+'.jpg'"
-                          class="platform-icon"/>
-                  </div>
-              </div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="similar-content-box" v-if="(content.similar_content!=null) && content.similar_content.length">
-        <div class="category"
-             :style="(is_mobile) ? 'margin-top: 30%;' : 'margin-left: 10px;font-size: 15px;margin-top: 180px;'">
-            Similar
-        </div>
-        <div class="similar-content">
-          <div v-for="item in content.similar_content" class="content-container">
-              <img v-bind:src="item.poster"
-                   @click="openContent(item.content_id, item.title, 'content_page_similar')"
-                   class="content-poster"
-                   style="width: 125px;height: 187.5px;">
-
-              <div class="content-similar-platforms"
-                  style="width: 125px;"
-                  v-if="(Object.keys(item.where_to_watch || {}).includes('stream'))">
-                  <div class="content-similar-platforms-container"
-                      v-for="stream_item, stream_index in item.where_to_watch.stream">
-                      <div @click="goToPlatform(stream_item, item.content_id, 'similar_content_poster')"
-                          class="content-similar-platform-cropper"
-                          :style="(is_mobile) ? '' : 'width: 23px;height: 23px;'">
-                          <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                              class="content-similar-platform-icon"/>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="content-similar-platforms"
-                  style="width: 125px;"
-                  v-if="(!Object.keys(item.where_to_watch || {}).includes('stream'))
-                          &&
-                          (Object.keys(item.where_to_watch || {}).includes('rent'))">
-                  <div class="content-similar-platforms-container"
-                      v-for="stream_item, stream_index in item.where_to_watch.rent">
-                      <div @click="goToPlatform(stream_item, item.content_id, 'similar_content_poster')"
-                          class="content-similar-platform-cropper"
-                          :style="(is_mobile) ? '' : 'width: 23px;height: 23px;'">
-                          <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                              class="content-similar-platform-icon"/>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="content-similar-platforms"
-                  style="width: 125px;"
-                  v-if="(!Object.keys(item.where_to_watch || {}).includes('stream'))
-                          &&
-                          (!Object.keys(item.where_to_watch || {}).includes('rent'))
-                          &&
-                          (Object.keys(item.where_to_watch || {}).includes('buy'))"
-                          >
-                  <div class="content-similar-platforms-container"
-                      v-for="stream_item, stream_index in item.where_to_watch.buy">
-                      <div @click="goToPlatform(stream_item, item.content_id, 'similar_content_poster')"
-                          class="content-similar-platform-cropper"
-                          :style="(is_mobile) ? '' : 'width: 23px;height: 23px;'">
-                          <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                              class="content-similar-platform-icon"/>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="content-name"
-                   @click="openContent(item.content_id, item.title, 'content_page_similar')"
-                  style="width: 125px;">
-                {{item.title}}
-              </div>
-          </div>
-          <div v-if="!content.similar_content"
-                style="margin-top: 8%; margin-left: 3%;font-size: 4vw;">
-            Oops...Could not find any similar content.
-          </div>
-        </div>
-      </div>
-
-      <div class="artists-box"
-          v-if="(content.crew!= null ) && (content.crew.directed_by.length
-                ||
-                content.crew.cast.length
-                ||
-                content.crew.writing_credits.length)">
-        <div class="category"
-             :style="(is_mobile) ? '' : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'"
-             v-if="content.crew.directed_by.length">
-            Direction
-        </div>
-        <div class="artists"  v-if="content.crew.directed_by.length">
-          <div v-for="artist in content.crew.directed_by" class="artists-container"
-          @click="moreContent(artist.person_id, artist.person, 'directed_by')">
-            <div class="artist-cropper"
-                 :style="(is_mobile) ? '' : 'width: 75px;height: 95px;'">
-              <img v-bind:src="artist.profile_photo" class="artist-pic">
+            <div class="watchlist-continer" @click="addToWatchlist">
+              {{
+                content.data.watch_later
+                  ? "ADDED"
+                  : "ADD&nbsp;TO&nbsp;WATCHLIST"
+              }}
+              <button
+                v-bind:class="[
+                  content.data.watch_later
+                    ? 'watchlist-true'
+                    : 'watchlist-false',
+                ]"
+              />
             </div>
-            <div class="artist-name"
-                 :style="(is_mobile) ? '' : 'width: 75px;font-size: 12px;'">
-              {{artist.person}}
+
+            <div class="user-rating-container">
+              <button
+                v-bind:class="[
+                  content.data.rating == 3 ? 'love-true' : 'love-false',
+                ]"
+                :style="
+                  is_mobile
+                    ? ''
+                    : 'height: 50px;width: 50px;margin-left: 200px;'
+                "
+                @click="submitRating(content.data.rating == 3 ? 0 : 3)"
+              ></button>
+
+              <button
+                v-bind:class="[
+                  content.data.rating == 2
+                    ? 'thumbs-up-true'
+                    : 'thumbs-up-false',
+                ]"
+                :style="
+                  is_mobile
+                    ? ''
+                    : 'height: 50px;width: 50px;margin-left: 200px;'
+                "
+                @click="submitRating(content.data.rating == 2 ? 0 : 2)"
+              ></button>
+
+              <button
+                v-bind:class="[
+                  content.data.rating == 1
+                    ? 'thumbs-down-true'
+                    : 'thumbs-down-false',
+                ]"
+                :style="
+                  is_mobile
+                    ? ''
+                    : 'height: 50px;width: 50px;margin-left: 200px;'
+                "
+                @click="submitRating(content.data.rating == 1 ? 0 : 1)"
+              ></button>
+            </div>
+
+            <p
+              class="summary-text"
+              :style="is_mobile ? '' : 'font-size: 15px;'"
+              v-if="content.data.summary_text"
+            >
+              {{ content.data.summary_text }}
+            </p>
+
+            <div class="info-container">
+              <div class="ratings" :style="is_mobile ? '' : 'font-size: 15px;'">
+                <div class="rating-container" v-if="content.data.imdb_score">
+                  IMDB
+                  <span style="font-weight: bold;">
+                    {{ content.data.imdb_score }}
+                  </span>
+                </div>
+
+                <div class="rating-container" v-if="content.data.tomato_meter">
+                  TOMATOMETER
+                  <span style="font-weight: bold;">
+                    {{ content.data.tomato_meter }}
+                  </span>
+                </div>
+              </div>
+
+              <div
+                class="genres"
+                :style="is_mobile ? '' : 'font-size: 15px;margin-top: 4px;'"
+              >
+                <span
+                  class="genre"
+                  v-for="(genre, index) in content.data.genres"
+                  :key="index"
+                >
+                  {{ genre }}
+                </span>
+              </div>
+
+              <div
+                class="seasons"
+                :style="is_mobile ? '' : 'font-size: 15px;margin-top: 6px;'"
+                v-if="content.data.type == 'tv'"
+              >
+                <span v-if="content.data.seasons">
+                  {{ content.data.seasons }}
+                  {{ content.data.seasons > 1 ? "Seasons | " : "Season | " }}
+                </span>
+                <span v-if="content.data.episodes">
+                  {{ content.data.episodes }}
+                  {{ content.data.episodes > 1 ? "Episodes | " : "Episode | " }}
+                </span>
+                <span v-if="content.data.runtime">
+                  {{ content.data.runtime }}
+                  {{ content.data.episodes ? "Each" : "Each Episode" }}
+                </span>
+              </div>
+
+              <div
+                class="seasons"
+                :style="is_mobile ? '' : 'font-size: 15px;margin-top: 6px;'"
+                v-if="content.data.type == 'movie'"
+              >
+                {{ content.data.runtime }}
+              </div>
+
+              <div
+                class="platforms"
+                :style="is_mobile ? '' : 'margin-top: 10px;'"
+                v-if="
+                  Object.keys(content.data.where_to_watch || {}).includes(
+                    'stream'
+                  )
+                "
+              >
+                <div
+                  class="platforms-container"
+                  v-for="(item, index) in content.data.where_to_watch.stream"
+                  :key="index"
+                >
+                  <div
+                    @click="goToPlatform(item, content.content_id, 'on_page')"
+                    class="platform-cropper"
+                    :style="
+                      is_mobile
+                        ? ''
+                        : 'width: 50px;height: 50px;border-radius: 10px;'
+                    "
+                  >
+                    <img
+                      v-bind:src="
+                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                        index +
+                        '.jpg'
+                      "
+                      class="platform-icon"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="platforms"
+                :style="is_mobile ? '' : 'margin-top: 10px;'"
+                v-if="
+                  !Object.keys(content.data.where_to_watch || {}).includes(
+                    'stream'
+                  ) &&
+                  Object.keys(content.data.where_to_watch || {}).includes(
+                    'rent'
+                  )
+                "
+              >
+                <div
+                  class="platforms-container"
+                  v-for="(item, index) in content.data.where_to_watch.rent"
+                  :key="index"
+                >
+                  <div
+                    @click="goToPlatform(item, content.content_id, 'on_page')"
+                    class="platform-cropper"
+                    :style="
+                      is_mobile
+                        ? ''
+                        : 'width: 50px;height: 50px;border-radius: 10px;'
+                    "
+                  >
+                    <img
+                      v-bind:src="
+                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                        index +
+                        '.jpg'
+                      "
+                      class="platform-icon"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="platforms"
+                :style="is_mobile ? '' : 'margin-top: 10px;'"
+                v-if="
+                  !Object.keys(content.data.where_to_watch || {}).includes(
+                    'stream'
+                  ) &&
+                  !Object.keys(content.data.where_to_watch || {}).includes(
+                    'rent'
+                  ) &&
+                  Object.keys(content.data.where_to_watch || {}).includes('buy')
+                "
+              >
+                <div
+                  class="platforms-container"
+                  v-for="(item, index) in content.data.where_to_watch.buy"
+                  :key="index"
+                >
+                  <div
+                    @click="goToPlatform(item, content.content_id, 'on_page')"
+                    class="platform-cropper"
+                    :style="
+                      is_mobile
+                        ? ''
+                        : 'width: 50px;height: 50px;border-radius: 10px;'
+                    "
+                  >
+                    <img
+                      v-bind:src="
+                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                        index +
+                        '.jpg'
+                      "
+                      class="platform-icon"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="category"
-             :style="(is_mobile) ? '' : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'"
-             v-if="content.crew.cast.length">
-          Cast
-        </div>
-        <div class="artists" v-if="content.crew.cast.length">
-          <div v-for="artist in content.crew.cast" class="artists-container"
-          @click="moreContent(artist.person_id, artist.person, 'cast')">
-            <div class="artist-cropper"
-                 :style="(is_mobile) ? '' : 'width: 75px;height: 95px;'">
-              <img v-bind:src="artist.profile_photo" class="artist-pic">
+          <div
+            class="similar-content-box"
+            v-if="
+              content.similar_content != null && content.similar_content.length
+            "
+          >
+            <div
+              class="category"
+              :style="
+                is_mobile
+                  ? 'margin-top: 30%;'
+                  : 'margin-left: 10px;font-size: 15px;margin-top: 180px;'
+              "
+            >
+              Similar
             </div>
-            <div class="artist-name"
-                 :style="(is_mobile) ? '' : 'width: 75px;font-size: 12px;'">
-              {{artist.person}}
+            <div class="similar-content">
+              <div
+                v-for="(item, index) in content.similar_content"
+                :key="index"
+                class="content-container"
+              >
+                <img
+                  v-bind:src="item.poster"
+                  @click="
+                    openContent(
+                      item.content_id,
+                      item.title,
+                      'content_page_similar'
+                    )
+                  "
+                  class="content-poster"
+                  style="width: 125px; height: 187.5px;"
+                />
+
+                <div
+                  class="content-similar-platforms"
+                  style="width: 125px;"
+                  v-if="(Object.keys(item.where_to_watch || {}).includes('stream'))"
+                >
+                  <div
+                    class="content-similar-platforms-container"
+                    v-for="(stream_item, stream_index) in item.where_to_watch
+                      .stream"
+                    :key="stream_index"
+                  >
+                    <div
+                      @click="
+                        goToPlatform(
+                          stream_item,
+                          item.content_id,
+                          'similar_content_poster'
+                        )
+                      "
+                      class="content-similar-platform-cropper"
+                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
+                    >
+                      <img
+                        v-bind:src="
+                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                          stream_index +
+                          '.jpg'
+                        "
+                        class="content-similar-platform-icon"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="content-similar-platforms"
+                  style="width: 125px;"
+                  v-if="
+                    !Object.keys(item.where_to_watch || {}).includes(
+                      'stream'
+                    ) && Object.keys(item.where_to_watch || {}).includes('rent')
+                  "
+                >
+                  <div
+                    class="content-similar-platforms-container"
+                    v-for="(stream_item, stream_index) in item.where_to_watch
+                      .rent"
+                    :key="stream_index"
+                  >
+                    <div
+                      @click="
+                        goToPlatform(
+                          stream_item,
+                          item.content_id,
+                          'similar_content_poster'
+                        )
+                      "
+                      class="content-similar-platform-cropper"
+                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
+                    >
+                      <img
+                        v-bind:src="
+                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                          stream_index +
+                          '.jpg'
+                        "
+                        class="content-similar-platform-icon"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="content-similar-platforms"
+                  style="width: 125px;"
+                  v-if="
+                    !Object.keys(item.where_to_watch || {}).includes(
+                      'stream'
+                    ) &&
+                    !Object.keys(item.where_to_watch || {}).includes('rent') &&
+                    Object.keys(item.where_to_watch || {}).includes('buy')
+                  "
+                >
+                  <div
+                    class="content-similar-platforms-container"
+                    v-for="(stream_item, stream_index) in item.where_to_watch
+                      .buy"
+                    :key="stream_index"
+                  >
+                    <div
+                      @click="
+                        goToPlatform(
+                          stream_item,
+                          item.content_id,
+                          'similar_content_poster'
+                        )
+                      "
+                      class="content-similar-platform-cropper"
+                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
+                    >
+                      <img
+                        v-bind:src="
+                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                          stream_index +
+                          '.jpg'
+                        "
+                        class="content-similar-platform-icon"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="content-name"
+                  @click="
+                    openContent(
+                      item.content_id,
+                      item.title,
+                      'content_page_similar'
+                    )
+                  "
+                  style="width: 125px;"
+                >
+                  {{ item.title }}
+                </div>
+              </div>
+              <div
+                v-if="!content.similar_content"
+                style="margin-top: 8%; margin-left: 3%; font-size: 4vw;"
+              >
+                Oops...Could not find any similar content.
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="category"
-             :style="(is_mobile) ? '' : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'"
-             v-if="content.crew.writing_credits.length">
-            Writing
-        </div>
-        <div class="artists" v-if="content.crew.writing_credits.length">
-          <div v-for="artist in content.crew.writing_credits" class="artists-container"
-          @click="moreContent(artist.person_id, artist.person, 'writing_credits')">
-            <div class="artist-cropper"
-                 :style="(is_mobile) ? '' : 'width: 75px;height: 95px;'">
-              <img v-bind:src="artist.profile_photo" class="artist-pic">
+          <div
+            class="artists-box"
+            v-if="
+              content.crew != null &&
+              (content.crew.directed_by.length ||
+                content.crew.cast.length ||
+                content.crew.writing_credits.length)
+            "
+          >
+            <div
+              class="category"
+              :style="
+                is_mobile
+                  ? ''
+                  : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
+              "
+              v-if="content.crew.directed_by.length"
+            >
+              Direction
             </div>
-            <div class="artist-name"
-                 :style="(is_mobile) ? '' : 'width: 75px;font-size: 12px;'">
-              {{artist.person}}
+            <div class="artists" v-if="content.crew.directed_by.length">
+              <div
+                v-for="(artist, index) in content.crew.directed_by"
+                :key="index"
+                class="artists-container"
+                @click="
+                  moreContent(artist.person_id, artist.person, 'directed_by')
+                "
+              >
+                <div
+                  class="artist-cropper"
+                  :style="is_mobile ? '' : 'width: 75px;height: 95px;'"
+                >
+                  <img v-bind:src="artist.profile_photo" class="artist-pic" />
+                </div>
+                <div
+                  class="artist-name"
+                  :style="is_mobile ? '' : 'width: 75px;font-size: 12px;'"
+                >
+                  {{ artist.person }}
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="category"
+              :style="
+                is_mobile
+                  ? ''
+                  : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
+              "
+              v-if="content.crew.cast.length"
+            >
+              Cast
+            </div>
+            <div class="artists" v-if="content.crew.cast.length">
+              <div
+                v-for="(artist, index) in content.crew.cast"
+                :key="index"
+                class="artists-container"
+                @click="moreContent(artist.person_id, artist.person, 'cast')"
+              >
+                <div
+                  class="artist-cropper"
+                  :style="is_mobile ? '' : 'width: 75px;height: 95px;'"
+                >
+                  <img v-bind:src="artist.profile_photo" class="artist-pic" />
+                </div>
+                <div
+                  class="artist-name"
+                  :style="is_mobile ? '' : 'width: 75px;font-size: 12px;'"
+                >
+                  {{ artist.person }}
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="category"
+              :style="
+                is_mobile
+                  ? ''
+                  : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
+              "
+              v-if="content.crew.writing_credits.length"
+            >
+              Writing
+            </div>
+            <div class="artists" v-if="content.crew.writing_credits.length">
+              <div
+                v-for="(artist, index) in content.crew.writing_credits"
+                :key="index"
+                class="artists-container"
+                @click="
+                  moreContent(
+                    artist.person_id,
+                    artist.person,
+                    'writing_credits'
+                  )
+                "
+              >
+                <div
+                  class="artist-cropper"
+                  :style="is_mobile ? '' : 'width: 75px;height: 95px;'"
+                >
+                  <img v-bind:src="artist.profile_photo" class="artist-pic" />
+                </div>
+                <div
+                  class="artist-name"
+                  :style="is_mobile ? '' : 'width: 75px;font-size: 12px;'"
+                >
+                  {{ artist.person }}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-      </div>
+          <div
+            class="more-contents-container"
+            v-if="content.more_by_artist.length | fetching_more"
+          >
+            <div
+              :style="
+                is_mobile ? more_header_negative : desktop_more_header_negative
+              "
+              v-on-click-outside="close"
+              v-if="fetching_more"
+            >
+              Fetching more content by {{ content.artist.split(" ")[0] }}...
+            </div>
 
-      <div class="more-contents-container" v-if="content.more_by_artist.length | fetching_more">
-        <div :style="(is_mobile) ? more_header_negative : desktop_more_header_negative"
-             v-on-click-outside="close"
-              v-if="fetching_more">
-          Fetching more content by {{content.artist.split(' ')[0]}}...
-        </div>
+            <div
+              :style="
+                is_mobile ? more_header_positive : desktop_more_header_positive
+              "
+              v-if="(content.more_by_artist.length > 1)"
+            >
+              &#160;&#160;More by {{ content.artist.split(" ")[0] }}...
+            </div>
+            <div
+              :style="
+                is_mobile
+                  ? close_more_header_positive
+                  : desktop_close_more_header_positive
+              "
+              v-if="(content.more_by_artist.length > 1)"
+              @click="close"
+            />
 
-        <div :style="(is_mobile) ? more_header_positive : desktop_more_header_positive" v-if="(content.more_by_artist.length > 1)">
-          &#160&#160More by {{content.artist.split(' ')[0]}}...
-        </div>
-        <div :style="(is_mobile) ? close_more_header_positive : desktop_close_more_header_positive" v-if="(content.more_by_artist.length > 1)"
-             @click="close"/>
+            <div
+              :style="
+                is_mobile ? more_header_negative : desktop_more_header_negative
+              "
+              v-if="content.more_by_artist.length == 1"
+              v-on-click-outside="close"
+            >
+              Oops...could not find any more content by
+              {{ content.artist.split(" ")[0] }}.
+            </div>
+            <div
+              :style="
+                is_mobile
+                  ? close_more_header_negative
+                  : desktop_close_more_header_negative
+              "
+              v-if="content.more_by_artist.length == 1 || fetching_more"
+              @click="close"
+            />
 
-        <div :style="(is_mobile) ? more_header_negative : desktop_more_header_negative"
-             v-if="content.more_by_artist.length == 1"
-             v-on-click-outside="close">
-          Oops...could not find any more content by {{content.artist.split(' ')[0]}}.
-        </div>
-        <div :style="(is_mobile) ? close_more_header_negative : desktop_close_more_header_negative" v-if="(content.more_by_artist.length == 1) || fetching_more"
-             @click="close"/>
+            <div
+              :style="is_mobile ? more_contents : desktop_more_contents"
+              v-if="(content.more_by_artist.length > 1)"
+              v-on-click-outside="close"
+            >
+              <div
+                v-for="(item, index) in content.more_by_artist"
+                :key="index"
+                class="content-container"
+                :style="
+                  is_mobile ? '' : 'padding-right: 15px;margin-top: 15px;'
+                "
+                v-if="item.content_id != content.content_id"
+              >
+                <img
+                  v-bind:src="item.poster"
+                  @click="
+                    openContent(
+                      item.content_id,
+                      item.title,
+                      'content_page__more_by_artist'
+                    )
+                  "
+                  class="content-poster"
+                  style="width: 125px; height: 187.5px;"
+                />
 
-        <div :style="(is_mobile) ? more_contents : desktop_more_contents"
-             v-if="(content.more_by_artist.length > 1)"
-             v-on-click-outside="close">
-          <div v-for="item in content.more_by_artist"
-               class="content-container"
-               :style="(is_mobile) ? '' : 'padding-right: 15px;margin-top: 15px;'"
-               v-if="item.content_id != content.content_id">
-              <img v-bind:src="item.poster"
-                   @click="openContent(item.content_id, item.title, 'content_page__more_by_artist')"
-                   class="content-poster"
-                   style="width: 125px;height: 187.5px;">
-
-              <div class="content-similar-platforms"
+                <div
+                  class="content-similar-platforms"
                   style="width: 125px;"
-                  v-if="(Object.keys(item.where_to_watch || {}).includes('stream'))">
-                  <div class="content-similar-platforms-container"
-                      v-for="stream_item, stream_index in item.where_to_watch.stream">
-                      <div @click="goToPlatform(stream_item, item.content_id, 'more_by_artist')"
-                          class="content-similar-platform-cropper"
-                          :style="(is_mobile) ? '' : 'width: 23px;height: 23px;'">
-                          <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                              class="content-similar-platform-icon"/>
-                      </div>
+                  v-if="(Object.keys(item.where_to_watch || {}).includes('stream'))"
+                >
+                  <div
+                    class="content-similar-platforms-container"
+                    v-for="(stream_item, stream_index) in item.where_to_watch
+                      .stream"
+                    :key="stream_index"
+                  >
+                    <div
+                      @click="
+                        goToPlatform(
+                          stream_item,
+                          item.content_id,
+                          'more_by_artist'
+                        )
+                      "
+                      class="content-similar-platform-cropper"
+                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
+                    >
+                      <img
+                        v-bind:src="
+                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                          stream_index +
+                          '.jpg'
+                        "
+                        class="content-similar-platform-icon"
+                      />
+                    </div>
                   </div>
-              </div>
+                </div>
 
-              <div class="content-similar-platforms"
+                <div
+                  class="content-similar-platforms"
                   style="width: 125px;"
-                  v-if="(!Object.keys(item.where_to_watch || {}).includes('stream'))
-                          &&
-                          (Object.keys(item.where_to_watch || {}).includes('rent'))">
-                  <div class="content-similar-platforms-container"
-                      v-for="stream_item, stream_index in item.where_to_watch.rent">
-                      <div @click="goToPlatform(stream_item, item.content_id, 'more_by_artist')"
-                          class="content-similar-platform-cropper"
-                          :style="(is_mobile) ? '' : 'width: 23px;height: 23px;'">
-                          <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                              class="content-similar-platform-icon"/>
-                      </div>
+                  v-if="
+                    !Object.keys(item.where_to_watch || {}).includes(
+                      'stream'
+                    ) && Object.keys(item.where_to_watch || {}).includes('rent')
+                  "
+                >
+                  <div
+                    class="content-similar-platforms-container"
+                    v-for="(stream_item, stream_index) in item.where_to_watch
+                      .rent"
+                    :key="stream_index"
+                  >
+                    <div
+                      @click="
+                        goToPlatform(
+                          stream_item,
+                          item.content_id,
+                          'more_by_artist'
+                        )
+                      "
+                      class="content-similar-platform-cropper"
+                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
+                    >
+                      <img
+                        v-bind:src="
+                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                          stream_index +
+                          '.jpg'
+                        "
+                        class="content-similar-platform-icon"
+                      />
+                    </div>
                   </div>
-              </div>
+                </div>
 
-              <div class="content-similar-platforms"
+                <div
+                  class="content-similar-platforms"
                   style="width: 125px;"
-                  v-if="(!Object.keys(item.where_to_watch || {}).includes('stream'))
-                          &&
-                          (!Object.keys(item.where_to_watch || {}).includes('rent'))
-                          &&
-                          (Object.keys(item.where_to_watch || {}).includes('buy'))"
-                          >
-                  <div class="content-similar-platforms-container"
-                      v-for="stream_item, stream_index in item.where_to_watch.buy">
-                      <div @click="goToPlatform(stream_item, item.content_id, 'more_by_artist')"
-                          class="content-similar-platform-cropper"
-                          :style="(is_mobile) ? '' : 'width: 23px;height: 23px;'">
-                          <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                              class="content-similar-platform-icon"/>
-                      </div>
+                  v-if="
+                    !Object.keys(item.where_to_watch || {}).includes(
+                      'stream'
+                    ) &&
+                    !Object.keys(item.where_to_watch || {}).includes('rent') &&
+                    Object.keys(item.where_to_watch || {}).includes('buy')
+                  "
+                >
+                  <div
+                    class="content-similar-platforms-container"
+                    v-for="(stream_item, stream_index) in item.where_to_watch
+                      .buy"
+                    :key="stream_index"
+                  >
+                    <div
+                      @click="
+                        goToPlatform(
+                          stream_item,
+                          item.content_id,
+                          'more_by_artist'
+                        )
+                      "
+                      class="content-similar-platform-cropper"
+                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
+                    >
+                      <img
+                        v-bind:src="
+                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                          stream_index +
+                          '.jpg'
+                        "
+                        class="content-similar-platform-icon"
+                      />
+                    </div>
                   </div>
-              </div>
+                </div>
 
-              <div class="content-name"
-                   @click="openContent(item.content_id, item.title, 'content_page__more_by_artist')"
-                  style="width: 125px;">
-                {{item.title}}
+                <div
+                  class="content-name"
+                  @click="
+                    openContent(
+                      item.content_id,
+                      item.title,
+                      'content_page__more_by_artist'
+                    )
+                  "
+                  style="width: 125px;"
+                >
+                  {{ item.title }}
+                </div>
               </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <transition appear
-        enter-active-class="animated fadeIn"
-        leave-active-class="animated fadeOut">
-        <div>
-            <div class="black-background"
-                  v-if="play_trailer"
-                  @click="play_trailer=!play_trailer"/>
+    <transition
+      appear
+      enter-active-class="animated fadeIn"
+      leave-active-class="animated fadeOut"
+    >
+      <div>
+        <div
+          class="black-background"
+          :style="
+            is_mobile
+              ? 'height: calc(100vh - 370px - 3.5%);'
+              : 'height: calc(100vh - 490px);'
+          "
+          v-if="show_tap_instructions"
+        />
 
-            <div class="youtube-player-header"
-                 :style="(is_mobile) ? '' : 'top: 75px;left: calc(50vw - 500px);'"
-                  v-if="play_trailer & (youtube_trailer_link != null)">
-                Trailer
-            </div>
+        <div
+          :class="
+            is_mobile
+              ? 'close-tap-instruction'
+              : 'desktop-close-tap-instruction'
+          "
+          v-if="show_tap_instructions"
+          @click="closeTapInstruction"
+        />
 
-            <div v-if="play_trailer & (youtube_trailer_link != null)"
-                  :class="(is_mobile) ? 'youtube-player-loader' : 'desktop-youtube-player-loader'"/>
-
-            <iframe class="youtube-player"
-                    :style="(is_mobile) ? '' : 'width: 1000px;left: calc(50vw - 500px);top: 100px;height: 500px;'"
-                    v-if="play_trailer & (youtube_trailer_link != null)"
-                    type="text/html"
-                    :src="youtube_trailer_link"
-                    frameborder="0"
-                    allowfullscreen/>
-
-            <div class="youtube-player-streaming-box"
-                 :style="(youtube_trailer_link != null) ? ((is_mobile) ? '' : 'top: 650px;') : 'top: 40vh;'"
-                  v-if="play_trailer
-                        &
-                        (((Object.keys(where_to_watch || {}).includes('stream'))
-                            |
-                        (Object.keys(where_to_watch || {}).includes('rent'))
-                            |
-                        (Object.keys(where_to_watch || {}).includes('buy'))))">
-                <div class="tap-to-watch-text"
-                    v-if="(((Object.keys(where_to_watch || {}).includes('stream'))
-                            |
-                        (Object.keys(where_to_watch || {}).includes('rent'))
-                            |
-                        (Object.keys(where_to_watch || {}).includes('buy'))))">
-                    {{is_mobile ? 'Tap to watch on' : 'Click to watch on'}}
-                </div>
-
-                <div class="youtube-player-platforms"
-                    v-if="(Object.keys(where_to_watch || {}).includes('stream'))">
-                    <div class="youtube-player-platforms-container"
-                        v-for="item, index in where_to_watch.stream">
-                        <div @click="goToPlatform(item, content.content_id, 'trailer_popup')"
-                            class="youtube-player-platform-cropper">
-                            <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+index+'.jpg'"
-                                class="youtube-player-platform-icon"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="youtube-player-platforms"
-                    v-if="(!Object.keys(where_to_watch || {}).includes('stream'))
-                            &&
-                        (Object.keys(where_to_watch || {}).includes('rent'))">
-                    <div class="youtube-player-platforms-container"
-                        v-for="item, index in where_to_watch.rent">
-                        <div @click="goToPlatform(item, content.content_id, 'trailer_popup')"
-                            class="youtube-player-platform-cropper">
-                            <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+index+'.jpg'"
-                                class="youtube-player-platform-icon"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="youtube-player-platforms"
-                    v-if="(!Object.keys(where_to_watch || {}).includes('stream'))
-                            &&
-                        (!Object.keys(where_to_watch || {}).includes('rent'))
-                            &&
-                        (Object.keys(where_to_watch || {}).includes('buy'))">
-                    <div class="youtube-player-platforms-container"
-                        v-for="item, index in where_to_watch.buy">
-                        <div @click="goToPlatform(item, content.content_id, 'trailer_popup')"
-                            class="youtube-player-platform-cropper">
-                            <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+index+'.jpg'"
-                                class="youtube-player-platform-icon"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div
+          class="artist-tap-instructions"
+          style="
+            top: calc(50vh - 193px - 3.5%);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 25px;
+          "
+          v-if="show_tap_instructions"
+        >
+          {{ is_mobile ? "Tap on any artist" : "Click on any artist" }}
         </div>
+      </div>
     </transition>
 
-    <transition appear
-        enter-active-class="animated fadeIn"
-        leave-active-class="animated fadeOut">
-        <div>
-            <div class="black-background"
-                 :style="(is_mobile) ? 'height: calc(100vh - 370px - 3.5%);' : 'height: calc(100vh - 490px);'"
-                  v-if="show_tap_instructions"/>
-
-            <div :class="is_mobile ? 'close-tap-instruction' : 'desktop-close-tap-instruction'"
-                 v-if="show_tap_instructions"
-                 @click="closeTapInstruction"/>
-
-            <div class="youtube-player-header"
-                 style="top: calc(50vh - 193px - 3.5%);
-                        left: 50%;
-                        transform: translateX(-50%);
-                        font-size: 25px;"
-                  v-if="show_tap_instructions">
-                {{is_mobile ? 'Tap on any artist' : 'Click on any artist'}}
-            </div>
-        </div>
-    </transition>
-
-    <div v-if="loading"
-         class="content-page-fetching">
+    <div v-if="loading" class="content-page-fetching">
       <div class="sk-folding-cube">
-                <div class="sk-cube1 sk-cube"></div>
-                <div class="sk-cube2 sk-cube"></div>
-                <div class="sk-cube4 sk-cube"></div>
-                <div class="sk-cube3 sk-cube"></div>
+        <div class="sk-cube1 sk-cube"></div>
+        <div class="sk-cube2 sk-cube"></div>
+        <div class="sk-cube4 sk-cube"></div>
+        <div class="sk-cube3 sk-cube"></div>
       </div>
-      <br>
+      <br />
       <div class="quote-font">
-          {{store.quotes[Math.floor(Math.random() * 22)]}}
+        {{ store.quotes[Math.floor(Math.random() * 22)] }}
       </div>
     </div>
 
-    <transition appear
-        enter-active-class="animated fadeIn"
-        leave-active-class="animated fadeOut">
-        <div>
-            <div v-if="prompt_content_share"
-                class="black-background"
-                @click="prompt_content_share=false"/>
+    <transition
+      appear
+      enter-active-class="animated fadeIn"
+      leave-active-class="animated fadeOut"
+    >
+      <div>
+        <div
+          v-if="prompt_content_share"
+          class="black-background"
+          @click="prompt_content_share = false"
+        />
 
-            <div class="prompted-content-box"
-                v-if="prompt_content_share">
+        <div class="prompted-content-box" v-if="prompt_content_share">
+          <img
+            :src="content.data[share_item]"
+            style="max-width: 80vw; max-height: 45vh;"
+          />
 
-                <img :src="content.data[share_item]"
-                      style="max-width: 80vw;max-height: 45vh;">
+          <label
+            v-for="(tab, index) in ['poster', 'cover']"
+            :key="index"
+            class="content-share-tab-checkbox"
+          >
+            <input
+              type="radio"
+              v-bind:value="tab"
+              v-model="share_item"
+              class="content-share-tab-checkbox-input"
+            />
+            <span class="content-share-tab-checkmark-abled" />
+            <span class="content-share-tab-checkmark-text">{{ tab }}</span>
+          </label>
 
-                <label v-for="tab in ['poster', 'cover']"
-                    class="content-share-tab-checkbox">
-                    <input type="radio"
-                        v-bind:value="tab"
-                        v-model="share_item"
-                        class="content-share-tab-checkbox-input">
-                    <span class="content-share-tab-checkmark-abled"/>
-                    <span class="content-share-tab-checkmark-text">{{tab}}</span>
-                </label>
-
-                <div class="prompted-content-buttons">
-                    <input type="button"
-                            class="prompted-content-android-share-button"
-                            @click="promptContentAndroidShareIntent"
-                            value="Share">
-                </div>
-            </div>
+          <div class="prompted-content-buttons">
+            <input
+              type="button"
+              class="prompted-content-android-share-button"
+              @click="promptContentAndroidShareIntent"
+              value="Share"
+            />
+          </div>
         </div>
-
+      </div>
     </transition>
-
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import { mixin as onClickOutside } from "vue-on-click-outside";
+import ContentCoverLandscape from "./../components/atomic/ContentCoverLandscape";
+import ContentCoverPortrait from "./../components/atomic/ContentCoverPortrait";
+import Trailer from "./../components/atomic/Trailer";
 
 export default {
   name: "App",
   mixins: [onClickOutside],
+  components: {
+    ContentCoverLandscape,
+    ContentCoverPortrait,
+    Trailer,
+  },
 
   data() {
     return {
@@ -583,8 +936,6 @@ export default {
       get_content_by_artist: false,
       window_width: window.innerWidth,
       fetching_more: false,
-      play_trailer: false,
-      youtube_trailer_link: null,
       where_to_watch: null,
       show_tap_instructions: false,
       loading: true,
@@ -817,25 +1168,6 @@ export default {
         .content_page.watchlist_message_check
         ? false
         : true;
-    },
-    playTrailer() {
-      if (this.$store.state.content_page.data.youtube_trailer_id) {
-        this.youtube_trailer_link =
-          "https://www.youtube.com/embed/" +
-          this.$store.state.content_page.data.youtube_trailer_id +
-          "?autoplay=1";
-      } else {
-        this.youtube_trailer_link = null;
-      }
-      this.where_to_watch = this.$store.state.content_page.data.where_to_watch;
-      this.play_trailer = true;
-
-      var activity = {
-        api: "play_trailer",
-        content_id: this.content.content_id,
-        trailer_origin: "content_page__" + this.content.origin,
-      };
-      this.$emit("update-api-counter", activity);
     },
     addToWatchlist() {
       if (this.$store.state.session_id != null) {
@@ -1300,6 +1632,25 @@ export default {
               `
       );
     },
+    showCover() {
+      if (this.content.data.cover) {
+        if (
+          this.content.data.cover.includes("flibo-images") &&
+          this.content.data.poster.includes("flibo-images")
+        ) {
+          return true;
+        } else if (
+          this.content.data.cover.includes("flibo-images") &&
+          !this.content.data.poster.includes("flibo-images")
+        ) {
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        return false;
+      }
+    },
   },
   watch: {
     check_rerender: {
@@ -1321,8 +1672,8 @@ export default {
   text-align: center;
 }
 .content-box {
-  width: 95%;
-  margin-left: 2.5%;
+  width: 100%;
+  margin-left: 0%;
   font-weight: 400;
   line-height: 1.5;
   font-stretch: normal;
@@ -1330,74 +1681,15 @@ export default {
   letter-spacing: normal;
   color: #333333;
 }
-.image-cropper {
+.content-below-cover {
+  margin-top: -40px;
+  border-radius: 24px;
+  background-color: #fff;
+  padding: 24px 24px 0px 24px;
+}
+.cover-trailer {
   position: absolute;
-  width: 25vw;
-  height: 25vw;
-  margin-left: 3vw;
-  margin-top: -21vw;
-  overflow: hidden;
-  border-radius: 50%;
-  border: 2px solid #f3f3f3;
-  z-index: 2;
-}
-.desktop-image-cropper {
-  position: absolute;
-  width: 281px;
-  height: 281px;
-  margin-top: -286px;
-  overflow: hidden;
-  border-radius: 50%;
-  border: 2px solid #f3f3f3;
-  z-index: 2;
-}
-.profile-pic {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.cover-pic {
-  display: inline;
-  position: relative;
-  width: 100%;
-  height: 53.39vw;
-  margin-top: calc(50px + 2.5%);
-  background-color: #f5f4f4;
-  border-radius: 10px;
-  z-index: 1;
-}
-.desktop-cover-pic {
-  display: inline;
-  position: relative;
-  width: 500px;
-  height: 281px;
-  margin-top: 75px;
-  background-color: #f5f4f4;
-  border-radius: 10px;
-  z-index: 1;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.playBtn {
-  position: absolute;
-  width: 15%;
-  height: auto;
-  left: 42.5%;
-  margin-top: 35.6%;
-  z-index: 3;
-}
-.desktop-playBtn {
-  position: absolute;
-  width: 50px;
-  height: auto;
-  left: 437.5px;
-  margin-top: 190.5px;
-  z-index: 3;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
+  z-index: 100000;
 }
 .title {
   position: relative;
@@ -1967,41 +2259,6 @@ export default {
   left: 0%;
   z-index: 100000;
 }
-.youtube-player {
-  position: fixed;
-  width: 100vw;
-  height: 56.25vw;
-  top: calc(50vh - 28.125vw - 20vh);
-  left: 0;
-  z-index: 100001;
-}
-.youtube-player-platforms {
-  display: inline-flex;
-  overflow: scroll;
-  max-width: 100%;
-}
-.youtube-player-platform-cropper {
-  width: 50px;
-  height: 50px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 20%;
-}
-.youtube-player-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
-}
-.youtube-player-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin: 20px 10px 0px 10px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
 .tap-to-watch-text {
   white-space: nowrap;
   font-size: 20px;
@@ -2013,18 +2270,7 @@ export default {
   text-align: center;
   color: #333333;
 }
-.youtube-player-streaming-box {
-  position: fixed;
-  top: calc(60vh + 28.125vw - 25vh);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100001;
-  background-color: #ffffff;
-  border-radius: 7px;
-  padding: 10px;
-  max-width: 95vw;
-}
-.youtube-player-header {
+.artist-tap-instructions {
   position: fixed;
   top: calc(50vh - 28.125vw - 20vh - 25px);
   left: 10px;
@@ -2039,43 +2285,10 @@ export default {
   text-align: center;
   color: #ffffff;
 }
-.youtube-player-loader {
-  border: 10px solid #f3f3f3;
-  border-top: 10px solid #3498db;
-  border-radius: 50%;
-  width: 14vw;
-  height: 14vw;
-  animation: spin 2s linear infinite;
-  position: fixed;
-  top: calc(50vh - 20vh - 7vw);
-  left: calc(50% - 7vw);
-  z-index: 100000;
-}
-.desktop-youtube-player-loader {
-  border: 10px solid #f3f3f3;
-  border-top: 10px solid #3498db;
-  border-radius: 50%;
-  width: 75px;
-  height: 75px;
-  animation: spin 2s linear infinite;
-  position: fixed;
-  top: 312.5px;
-  left: calc(50vw - 37.5px);
-  z-index: 100000;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 .content-share-icon {
-  position: absolute;
-  margin-left: 89%;
-  margin-top: -13%;
+  position: fixed;
+  right: 20px;
+  top: 70px;
   width: 8vw;
   height: 8vw;
   background-image: url("./../images/share-icon.svg");
