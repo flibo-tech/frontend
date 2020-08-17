@@ -188,10 +188,10 @@ export default {
   -webkit-tap-highlight-color: transparent;
 }
 .fadeIn {
-  animation: fadeIn 0.3s;
+  animation: fadeIn 0.15s;
 }
 .fadeOut {
-  animation: fadeOut 0.6s;
+  animation: fadeOut 0.15s;
 }
 .trailer-black-background {
   position: fixed;

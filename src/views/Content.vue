@@ -18,7 +18,7 @@
         :trailerIconSize="80"
         :trailerDiv="showTrailorIcon"
         trailerDivId="cover-trailer"
-        :shareDiv="store.is_webview ? true : false"
+        :shareDiv="store.is_webview == 'true' ? true : false"
         shareDivId="content-share-icon"
       />
 
@@ -30,7 +30,7 @@
         :trailerIconSize="80"
         :trailerDiv="showTrailorIcon"
         trailerDivId="cover-trailer"
-        :shareDiv="store.is_webview ? true : false"
+        :shareDiv="store.is_webview == 'true' ? true : false"
         shareDivId="content-share-icon"
       />
 
@@ -38,7 +38,7 @@
         <div
           class="content-share-icon"
           id="content-share-icon"
-          v-if="store.is_webview"
+          v-if="store.is_webview == 'true'"
           @click="prompt_content_share = true"
         />
 
@@ -2263,10 +2263,10 @@ export default {
   width: 95%;
 }
 .fadeIn {
-  animation: fadeIn 0.3s;
+  animation: fadeIn 0.15s;
 }
 .fadeOut {
-  animation: fadeOut 0.6s;
+  animation: fadeOut 0.15s;
 }
 .black-background {
   position: fixed;
