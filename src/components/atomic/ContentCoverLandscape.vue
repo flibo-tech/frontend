@@ -174,7 +174,7 @@ export default {
                 this.trailerIconSize / 2
               ) + "px";
 
-            if (textPaddingTop < this.imageInitialHeight) {
+            if (textPaddingTop - 50 < this.imageInitialHeight) {
               document.getElementById(this.otherDivId).style.paddingTop =
                 imageHeight + 100 + 50 + scroll + "px";
 
@@ -208,6 +208,8 @@ export default {
   margin-top: 50px;
   overflow: hidden;
   z-index: -1;
+  min-width: 100vw;
+  background-color: #f8f8f8;
 }
 .landscape-content-image {
   position: relative;

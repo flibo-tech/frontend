@@ -203,7 +203,7 @@ export default {
                 this.trailerIconSize / 2
               ) + "px";
 
-            if (textPaddingTop < this.imageInitialHeight) {
+            if (textPaddingTop - 50 < this.imageInitialHeight) {
               document.getElementById(this.otherDivId).style.paddingTop =
                 imageHeight + 100 + 50 + scroll + "px";
 
@@ -234,7 +234,7 @@ export default {
 .portrait-image-container {
   width: 100%;
   height: 100%;
-  background-color: #f5f4f4;
+  background-color: #f8f8f8;
   left: 50%;
   transform: translateX(-50%);
   margin-top: 50px;
