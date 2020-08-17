@@ -1066,6 +1066,7 @@ export default {
   },
   methods: {
     reRender() {
+      window.scrollBy(0, 1);
       var self = this;
       self.loading = true;
       this.$store.state.current_path = this.$route.path;

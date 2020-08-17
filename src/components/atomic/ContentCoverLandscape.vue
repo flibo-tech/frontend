@@ -76,6 +76,10 @@ export default {
       ) + "px";
 
     window.addEventListener("scroll", this.onScroll);
+
+    setTimeout(function () {
+      window.scrollBy(0, 1);
+    }, 500);
   },
 
   destroyed() {
