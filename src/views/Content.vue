@@ -16,6 +16,7 @@
         otherDivId="content-below-cover-container"
         :otherDivOffset="40"
         :trailerIconSize="80"
+        :trailerDiv="showTrailorIcon"
         trailerDivId="cover-trailer"
         :shareDiv="store.is_webview ? true : false"
         shareDivId="content-share-icon"
@@ -27,6 +28,7 @@
         otherDivId="content-below-cover-container"
         :otherDivOffset="40"
         :trailerIconSize="80"
+        :trailerDiv="showTrailorIcon"
         trailerDivId="cover-trailer"
         :shareDiv="store.is_webview ? true : false"
         shareDivId="content-share-icon"
@@ -42,6 +44,7 @@
 
         <!-- Size of element below should go as prop input for cover pic-->
         <Trailer
+          v-if="showTrailorIcon"
           class="cover-trailer"
           id="cover-trailer"
           style="height: 80px; margin-left: calc(50vw - 40px);"
@@ -1648,6 +1651,21 @@ export default {
         } else {
           return true;
         }
+      } else {
+        return false;
+      }
+    },
+    showTrailorIcon() {
+      if (
+        Object.keys(this.content.data.where_to_watch || {}).includes(
+          "stream"
+        ) ||
+        Object.keys(this.content.data.where_to_watch || {}).includes("rent") ||
+        Object.keys(this.content.data.where_to_watch || {}).includes("buy")
+      ) {
+        return true;
+      } else if (this.content.data.youtube_trailer_id) {
+        return true;
       } else {
         return false;
       }

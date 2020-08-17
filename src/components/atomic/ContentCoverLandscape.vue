@@ -31,6 +31,10 @@ export default {
       type: String,
       required: true,
     },
+    trailerDiv: {
+      type: Boolean,
+      required: true,
+    },
     trailerDivId: {
       type: String,
       required: true,
@@ -68,12 +72,14 @@ export default {
     document.getElementById(this.otherDivId).style.paddingTop =
       this.imageInitialHeight + 50 + "px";
 
-    document.getElementById(this.trailerDivId).style.marginTop =
-      -(
-        (this.imageInitialHeight - this.otherDivOffset) / 2 +
-        this.otherDivOffset +
-        this.trailerIconSize / 2
-      ) + "px";
+    if (this.trailerDiv) {
+      document.getElementById(this.trailerDivId).style.marginTop =
+        -(
+          (this.imageInitialHeight - this.otherDivOffset) / 2 +
+          this.otherDivOffset +
+          this.trailerIconSize / 2
+        ) + "px";
+    }
 
     window.addEventListener("scroll", this.onContentPageScroll);
 
@@ -106,14 +112,16 @@ export default {
                 (imageHeight / imageWidth) * screenWidth
               ) + "px";
 
-            document.getElementById(this.trailerDivId).style.marginTop =
-              -(
-                (this.$refs.movieImage.style.height.replace("px", "") -
-                  this.otherDivOffset) /
-                  2 +
-                this.otherDivOffset +
-                this.trailerIconSize / 2
-              ) + "px";
+            if (this.trailerDiv) {
+              document.getElementById(this.trailerDivId).style.marginTop =
+                -(
+                  (this.$refs.movieImage.style.height.replace("px", "") -
+                    this.otherDivOffset) /
+                    2 +
+                  this.otherDivOffset +
+                  this.trailerIconSize / 2
+                ) + "px";
+            }
 
             this.updateScrollDirection();
           } else {
@@ -127,13 +135,15 @@ export default {
             this.$refs.movieImage.style.height =
               (imageHeight / imageWidth) * screenWidth + "px";
 
-            document.getElementById(this.trailerDivId).style.marginTop =
-              -(
-                (this.$refs.movieImage.style.height.replace("px", "") -
-                  this.otherDivOffset) /
-                  2 +
-                this.trailerIconSize / 2
-              ) + "px";
+            if (this.trailerDiv) {
+              document.getElementById(this.trailerDivId).style.marginTop =
+                -(
+                  (this.$refs.movieImage.style.height.replace("px", "") -
+                    this.otherDivOffset) /
+                    2 +
+                  this.trailerIconSize / 2
+                ) + "px";
+            }
 
             this.updateScrollDirection();
             window.scrollTo(0, 0);
@@ -147,14 +157,16 @@ export default {
             document.getElementById(this.otherDivId).style.paddingTop =
               imageHeight + 100 + 50 + "px";
 
-            document.getElementById(this.trailerDivId).style.marginTop =
-              -(
-                (this.$refs.movieImage.style.height.replace("px", "") -
-                  this.otherDivOffset) /
-                  2 +
-                this.otherDivOffset +
-                this.trailerIconSize / 2
-              ) + "px";
+            if (this.trailerDiv) {
+              document.getElementById(this.trailerDivId).style.marginTop =
+                -(
+                  (this.$refs.movieImage.style.height.replace("px", "") -
+                    this.otherDivOffset) /
+                    2 +
+                  this.otherDivOffset +
+                  this.trailerIconSize / 2
+                ) + "px";
+            }
 
             this.$refs.movieImageContainer.style.position = "fixed";
             if (this.shareDiv) {
@@ -169,14 +181,16 @@ export default {
           if (imageHeight < this.imageInitialHeight) {
             this.$refs.movieImage.style.height = imageHeight + scroll + "px";
 
-            document.getElementById(this.trailerDivId).style.marginTop =
-              -(
-                (this.$refs.movieImage.style.height.replace("px", "") -
-                  this.otherDivOffset) /
-                  2 +
-                this.otherDivOffset +
-                this.trailerIconSize / 2
-              ) + "px";
+            if (this.trailerDiv) {
+              document.getElementById(this.trailerDivId).style.marginTop =
+                -(
+                  (this.$refs.movieImage.style.height.replace("px", "") -
+                    this.otherDivOffset) /
+                    2 +
+                  this.otherDivOffset +
+                  this.trailerIconSize / 2
+                ) + "px";
+            }
 
             if (textPaddingTop - 50 < this.imageInitialHeight) {
               document.getElementById(this.otherDivId).style.paddingTop =
