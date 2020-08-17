@@ -97,15 +97,19 @@ export default {
         this.trailerIconSize / 2
       ) + "px";
 
-    window.addEventListener("scroll", this.onScroll);
+    window.addEventListener("scroll", this.onContentPageScroll);
+
+    setTimeout(function () {
+      window.scrollBy(0, 1);
+    }, 1000);
   },
 
   destroyed() {
-    window.removeEventListener("scroll", this.onScroll);
+    window.removeEventListener("scroll", this.onContentPageScroll);
   },
 
   methods: {
-    onScroll() {
+    onContentPageScroll() {
       let scroll_position = window.scrollY;
       let scroll = Math.abs(scroll_position - this.previousScroll);
       let imageHeight = this.$refs.movieImageContainer.getBoundingClientRect()
