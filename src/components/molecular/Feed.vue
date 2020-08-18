@@ -10,7 +10,6 @@
         :parent="parent"
         @filter-parent="applyQuickFilters"
         @refresh-suggestions="refreshFeed(true)"
-        @leave-feed="beforeLeaving"
         v-on="$listeners"
       />
 
@@ -81,12 +80,7 @@
           v-on="$listeners"
         />
 
-        <FeedCard
-          :content="item"
-          :parent="parent"
-          @leave-feed="beforeLeaving"
-          v-on="$listeners"
-        />
+        <FeedCard :content="item" :parent="parent" v-on="$listeners" />
 
         <UserSuggestions
           style="margin-top: 24px;"
@@ -96,7 +90,6 @@
             currentIndex <= 6 &&
             index == 6 - currentIndex
           "
-          @leave-feed="beforeLeaving"
           v-on="$listeners"
         />
 
@@ -244,6 +237,12 @@ export default {
       listThreshold: this.$store.state.feed.listThreshold,
       first_obervation: true,
       updating_dom: false,
+      scroll: {
+        updating: false,
+        paddingTop: 0,
+        paddingBottom: 0,
+        scrollPosition: 0,
+      },
     };
   },
   created() {
@@ -291,10 +290,7 @@ export default {
     window.addEventListener("scroll", this.watchScroll);
   },
   beforeDestroy() {
-    if (this.observer) {
-      this.observer.disconnect();
-    }
-    window.removeEventListener("scroll", this.watchScroll);
+    this.beforeLeaving();
     document.removeEventListener(
       "visibilitychange",
       this.resetIntersectionObserver
@@ -656,6 +652,10 @@ export default {
       this.observer.disconnect();
       this.observer = null;
 
+      this.scroll.paddingTop = 0;
+      this.scroll.paddingBottom = 0;
+      this.scroll.scrollPosition = 0;
+
       var reset_info = {
         parent: this.parent,
         filters: true,
@@ -697,6 +697,23 @@ export default {
       if ([NaN, 0, 1].includes(scroll_completion)) {
         setTimeout((self.showRefreshButton = true), 0);
       }
+
+      if (!this.scroll.updating) {
+        this.scroll.updating = true;
+
+        const container = document.querySelector(this.mainContainer);
+        if (container != null) {
+          this.scroll.paddingTop = this.getNumFromStyle(
+            container.style.paddingTop
+          );
+          this.scroll.paddingBottom = this.getNumFromStyle(
+            container.style.paddingBottom
+          );
+          this.scroll.scrollPosition = window.scrollY;
+        }
+
+        this.scroll.updating = false;
+      }
     },
     beforeLeaving() {
       if (this.observer) {
@@ -704,22 +721,20 @@ export default {
         this.observer = null;
       }
 
-      const container = document.querySelector(this.mainContainer);
       eval(
         "this.$store.state.feed." +
           this.parent +
-          ".padding_top = this.getNumFromStyle(container.style.paddingTop)"
+          ".padding_top = this.scroll.paddingTop"
       );
       eval(
         "this.$store.state.feed." +
           this.parent +
-          ".padding_bottom = this.getNumFromStyle(container.style.paddingBottom)"
+          ".padding_bottom = this.scroll.paddingBottom"
       );
-
       eval(
         "this.$store.state.feed." +
           this.parent +
-          ".scroll_position = window.scrollY"
+          ".scroll_position = this.scroll.scrollPosition"
       );
 
       window.removeEventListener("scroll", this.watchScroll);
