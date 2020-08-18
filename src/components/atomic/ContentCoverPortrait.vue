@@ -104,10 +104,7 @@ export default {
     }
 
     window.addEventListener("scroll", this.onContentPageScroll);
-
-    setTimeout(function () {
-      window.scrollBy(0, 1);
-    }, 1000);
+    window.scrollBy(0, 1);
   },
 
   destroyed() {

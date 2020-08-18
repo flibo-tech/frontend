@@ -63,6 +63,7 @@ export default {
       imageInitialHeight: 0,
       previousScroll: 0,
       isScrollingUp: false,
+      store: this.$store.state,
     };
   },
 
@@ -82,10 +83,7 @@ export default {
     }
 
     window.addEventListener("scroll", this.onContentPageScroll);
-
-    setTimeout(function () {
-      window.scrollBy(0, 1);
-    }, 1000);
+    window.scrollBy(0, 1);
   },
 
   destroyed() {
@@ -105,12 +103,21 @@ export default {
 
       if (!this.isScrollingUp) {
         if (this.$refs.movieImageContainer.style.position == "fixed") {
-          if (screenWidth < imageWidth) {
+          if (
+            Math.floor(Math.abs(imageWidth - screen.width)) > 2
+              ? screenWidth < imageWidth
+              : true
+          ) {
             this.$refs.movieImage.style.height =
-              Math.max(
-                imageHeight - scroll,
-                (imageHeight / imageWidth) * screenWidth
-              ) + "px";
+              (Math.floor(Math.abs(imageWidth - screen.width)) > 2
+                ? Math.max(
+                    imageHeight - scroll,
+                    (imageHeight / imageWidth) * screenWidth
+                  )
+                : Math.min(
+                    imageHeight - scroll,
+                    (imageHeight / imageWidth) * screenWidth
+                  )) + "px";
 
             if (this.trailerDiv) {
               document.getElementById(this.trailerDivId).style.marginTop =
@@ -235,5 +242,7 @@ export default {
   height: 80vh;
   left: 50%;
   transform: translateX(-50%);
+  min-width: 100vw;
+  background-color: #f8f8f8;
 }
 </style>
