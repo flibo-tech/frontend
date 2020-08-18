@@ -1069,7 +1069,6 @@ export default {
   },
   methods: {
     reRender() {
-      window.scrollBy(0, 1);
       var self = this;
       self.loading = true;
       this.$store.state.current_path = this.$route.path;
@@ -1708,7 +1707,7 @@ export default {
 }
 .cover-trailer {
   position: absolute;
-  z-index: 100000;
+  z-index: 1000;
 }
 .title {
   position: relative;
