@@ -254,7 +254,6 @@ export const store = new Vuex.Store({
       defaultListSize: 25,
       listThreshold: 15,
       update_dom: false,
-      leaving: true,
       home: {
         element_heights: my_store ? my_store.feed.home.element_heights : {},
         padding_top: my_store ? my_store.feed.home.padding_top : 0,
