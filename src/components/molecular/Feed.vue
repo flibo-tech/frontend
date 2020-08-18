@@ -232,7 +232,7 @@ export default {
         },
       },
       observer: null,
-      mainContainer: ".feed-cards-container",
+      mainContainerSuffix: "feed-cards-container",
       containerTile: "feed-card-tile",
       stopCheck: false,
       topSentinelPreviousY: this.$store.state.feed.topSentinelPreviousY,
@@ -289,12 +289,23 @@ export default {
   },
   mounted() {
     window.addEventListener("scroll", this.watchScroll);
+    this.store.feed.leaving = true;
   },
   beforeDestroy() {
-    if (this.observer) {
-      this.observer.disconnect();
+    if (this.store.feed.leaving) {
+      console.log(1);
+      const el = this.$el;
+      el.style.visibility = "hidden";
+      document.body.appendChild(el);
+      this.beforeLeaving();
+      document.body.removeChild(el);
+    } else {
+      if (this.observer) {
+        this.observer.disconnect();
+      }
+      window.removeEventListener("scroll", this.watchScroll);
     }
-    window.removeEventListener("scroll", this.watchScroll);
+
     document.removeEventListener(
       "visibilitychange",
       this.resetIntersectionObserver
@@ -403,6 +414,9 @@ export default {
         }
       }
       return output_list;
+    },
+    mainContainer() {
+      return "." + this.parent + "-" + this.mainContainerSuffix;
     },
   },
   watch: {
@@ -699,30 +713,36 @@ export default {
       }
     },
     beforeLeaving() {
-      if (this.observer) {
-        this.observer.disconnect();
-        this.observer = null;
+      if (this.store.feed.leaving) {
+        console.log(2);
+        this.store.feed.leaving = false;
+        if (this.observer) {
+          this.observer.disconnect();
+          this.observer = null;
+        }
+
+        const container = document.querySelector(this.mainContainer);
+        eval(
+          "this.$store.state.feed." +
+            this.parent +
+            ".padding_top = this.getNumFromStyle(container.style.paddingTop)"
+        );
+        eval(
+          "this.$store.state.feed." +
+            this.parent +
+            ".padding_bottom = this.getNumFromStyle(container.style.paddingBottom)"
+        );
+
+        eval(
+          "this.$store.state.feed." +
+            this.parent +
+            ".scroll_position = window.scrollY"
+        );
+
+        window.removeEventListener("scroll", this.watchScroll);
+
+        // this.store.feed.leaving = true;
       }
-
-      const container = document.querySelector(this.mainContainer);
-      eval(
-        "this.$store.state.feed." +
-          this.parent +
-          ".padding_top = this.getNumFromStyle(container.style.paddingTop)"
-      );
-      eval(
-        "this.$store.state.feed." +
-          this.parent +
-          ".padding_bottom = this.getNumFromStyle(container.style.paddingBottom)"
-      );
-
-      eval(
-        "this.$store.state.feed." +
-          this.parent +
-          ".scroll_position = window.scrollY"
-      );
-
-      window.removeEventListener("scroll", this.watchScroll);
     },
 
     // Functions for infinite scroll

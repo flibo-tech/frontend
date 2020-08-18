@@ -331,25 +331,30 @@ export default {
         parent = "watchlist";
       }
       if (parent) {
-        const container = document.querySelector(".feed-cards-container");
-        if (container != null) {
+        if (this.store.feed.leaving) {
+          console.log(3, parent);
+          this.store.feed.leaving = false;
+
+          const container = document.querySelector(".feed-cards-container");
+          if (container != null) {
+            eval(
+              "this.$store.state.feed." +
+                parent +
+                ".padding_top = this.getNumFromStyle(container.style.paddingTop)"
+            );
+            eval(
+              "this.$store.state.feed." +
+                parent +
+                ".padding_bottom = this.getNumFromStyle(container.style.paddingBottom)"
+            );
+          }
+
           eval(
             "this.$store.state.feed." +
               parent +
-              ".padding_top = this.getNumFromStyle(container.style.paddingTop)"
-          );
-          eval(
-            "this.$store.state.feed." +
-              parent +
-              ".padding_bottom = this.getNumFromStyle(container.style.paddingBottom)"
+              ".scroll_position = window.scrollY"
           );
         }
-
-        eval(
-          "this.$store.state.feed." +
-            parent +
-            ".scroll_position = window.scrollY"
-        );
       }
     },
   },
