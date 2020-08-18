@@ -718,6 +718,17 @@ export default {
         self.filters_applied.runtime != "180" ||
         self.filters_applied.languages.length
       ) {
+        var reset_info = {
+          parent: "search_results",
+          filters: true,
+          skip_suggestions_filter: false,
+          scroll: true,
+          paddings: true,
+          observer_current_index: true,
+          element_heights: true,
+        };
+        this.$emit("reset-feed-page", reset_info);
+
         this.$store.state.discover_filters.content_type_tab = ["movie", "tv"];
         this.$store.state.scroll_positions.discover.filter = 0;
         this.$router.push("/search-results");
