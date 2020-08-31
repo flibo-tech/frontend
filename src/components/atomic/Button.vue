@@ -1,15 +1,18 @@
 <template>
   <button
-    :class="[checkType, checkIcon]"
-    :disabled="disabled"
+    :class="checkType"
     @click="
       $emit('clicked');
       buttonClicked();
     "
+    :disabled="disabled"
   >
-    <p v-if="!icon && buttonType != 'iconOnly' && !buttonClickedBool">
-      {{ buttonText }}
-    </p>
+    <p v-if="buttonType != 'iconOnly' && !buttonClickedBool">{{ text }}</p>
+    <img
+      v-if="buttonType === 'iconOnly' && !buttonClickedBool"
+      :src="imageURL"
+      :style="{ width: size + 'px' }"
+    />
     <div v-if="buttonClickedBool && loading" class="loader"></div>
   </button>
 </template>
@@ -17,6 +20,7 @@
 <script>
 export default {
   name: "Button",
+
   props: {
     text: {
       type: String,
@@ -39,30 +43,28 @@ export default {
       type: Boolean,
       default: false,
     },
+    state: {
+      type: Boolean,
+      default: false,
+    },
+    size: {
+      type: Number,
+      required: false,
+      default: 18,
+    },
   },
 
   data() {
     return {
       buttonClickedBool: false,
-      buttonText: "",
     };
-  },
-
-  methods: {
-    buttonClicked() {
-      if (this.loading) {
-        this.buttonClickedBool = true;
-      }
-    },
   },
 
   computed: {
     checkType() {
-      this.buttonText = this.text;
       let buttonClass = "";
       if (this.buttonType === "primary") {
         buttonClass = "primary";
-        this.buttonText = this.text.toUpperCase();
       } else if (this.buttonType === "secondary") {
         buttonClass = "secondary";
       } else if (this.buttonType === "textOnly") {
@@ -73,14 +75,18 @@ export default {
       return buttonClass;
     },
 
-    checkIcon() {
-      let iconClass = "";
-      switch (this.icon) {
-        case "back":
-          iconClass = "back";
-          return iconClass;
-        default:
-          iconClass = "";
+    imageURL() {
+      if (this.state) {
+        return require("../../assets/icons/" + this.icon + "_true" + ".svg");
+      }
+      return require("../../assets/icons/" + this.icon + ".svg");
+    },
+  },
+
+  methods: {
+    buttonClicked() {
+      if (this.loading) {
+        this.buttonClickedBool = true;
       }
     },
   },
@@ -122,8 +128,12 @@ button {
   background-color: #3c20b8;
 }
 .primary:disabled {
-  cursor: auto;
-  background-color: grey;
+  cursor: inherit;
+  background-color: rgb(220, 220, 220);
+  color: rgb(178, 178, 178);
+}
+.primary p {
+  text-transform: uppercase;
 }
 
 .secondary {
@@ -155,6 +165,7 @@ button {
 
 .textOnly {
   border: none;
+  border-radius: $border-radius;
   background-color: Transparent;
   font-size: 13px;
   color: $textOnly-color;
@@ -162,7 +173,6 @@ button {
   transition-property: color;
   transition-timing-function: ease-out;
   transition-duration: 0.5s;
-  cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -171,19 +181,14 @@ button {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.textOnly:active {
-  color: white;
-}
 .textOnly:disabled {
-  cursor: auto;
-  color: grey;
+  cursor: inherit;
+  color: rgb(54, 54, 54);
 }
 
 .iconOnly {
+  background-color: transparent;
   border: none;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -196,13 +201,8 @@ button {
 .iconOnly:disabled {
   cursor: auto;
 }
-
-.back {
-  background-position: center;
-  background-size: 16px;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  background-image: url("../../assets/icons/back.svg");
+.iconOnly img {
+  display: block;
 }
 
 button:focus {
