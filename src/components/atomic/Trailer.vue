@@ -146,6 +146,13 @@ export default {
       }
     },
   },
+  watch: {
+    play_trailer: {
+      handler(val) {
+        this.$emit("trailer-toggled", val);
+      },
+    },
+  },
   methods: {
     goToPlatform(link, traffic_origin) {
       this.$emit("leave-feed");

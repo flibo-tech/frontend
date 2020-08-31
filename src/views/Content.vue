@@ -47,12 +47,14 @@
           v-if="showTrailorIcon"
           class="cover-trailer"
           id="cover-trailer"
+          ref="coverTrailer"
           style="height: 80px; margin-left: calc(50vw - 40px);"
           :size="80"
           parent="content_page"
           :contentId="content.content_id"
           :trailerId="content.data.youtube_trailer_id"
           :whereToWatch="content.data.where_to_watch"
+          @trailer-toggled="updateZIndex"
           v-on="$listeners"
         />
 
@@ -1399,6 +1401,10 @@ export default {
           title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
       // this.reRender();
+    },
+    updateZIndex(trailerPlaying) {
+      const element = this.$refs.coverTrailer.$el;
+      element.style.zIndex = trailerPlaying ? "100000" : "1000";
     },
   },
   computed: {
