@@ -43,7 +43,7 @@
             store.user.id ? store.user.profile.platforms || [''] : ['']
           "
           :showName="true"
-          parent="content_page"
+          :parent="parent"
           posterLocation="more_by_artist"
           v-on="$listeners"
         />
@@ -96,6 +96,10 @@ export default {
       required: false,
       default: -1,
     },
+    parent: {
+      type: String,
+      required: true,
+    },
   },
   components: { Person, Poster, Button },
   data() {
@@ -110,6 +114,9 @@ export default {
     quickView() {
       var self = this;
       this.quickViewEnabled = !this.quickViewEnabled;
+      if (self.parent == "content_page") {
+        this.$emit("close-tap-instructions");
+      }
 
       axios
         .post(this.$store.state.api_host + "more_by_artist", {
@@ -131,7 +138,12 @@ export default {
           console.log(error);
         });
 
-      if (self.$store.state.session_id) {
+      if (
+        self.$store.state.session_id &&
+        self.$store.state.content_page.never_tapped_any_artist &&
+        self.parent == "content_page"
+      ) {
+        self.$store.state.content_page.never_tapped_any_artist = false;
         axios
           .post(self.$store.state.api_host + "update_profile", {
             session_id: self.$store.state.session_id,

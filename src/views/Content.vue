@@ -395,6 +395,8 @@
                 :width="55"
                 :height="70"
                 :skipContentId="content.content_id"
+                parent="content_page"
+                @close-tap-instructions="show_tap_instructions = false"
                 v-on="$listeners"
               />
             </div>
@@ -422,6 +424,8 @@
                 :width="55"
                 :height="70"
                 :skipContentId="content.content_id"
+                parent="content_page"
+                @close-tap-instructions="show_tap_instructions = false"
                 v-on="$listeners"
               />
             </div>
@@ -449,6 +453,8 @@
                 :width="55"
                 :height="70"
                 :skipContentId="content.content_id"
+                parent="content_page"
+                @close-tap-instructions="show_tap_instructions = false"
                 v-on="$listeners"
               />
             </div>
@@ -980,61 +986,6 @@ export default {
           });
       }
     },
-    moreContent(artist_id, artist_name, credit_category) {
-      this.show_tap_instructions = false;
-      this.$store.state.content_page.never_tapped_any_artist = false;
-      this.fetching_more = true;
-      this.$store.state.content_page.artist = artist_name;
-      this.$store.state.click_coordinate_x = event.clientX;
-      this.$store.state.click_coordinate_y = event.clientY;
-      var self = this;
-      axios
-        .post(this.$store.state.api_host + "more_by_artist", {
-          session_id: this.$store.state.session_id,
-          artist_id: artist_id,
-          credit_category: credit_category,
-          country:
-            self.$store.state.user.profile.country ||
-            self.$store.state.guest_country,
-          guest_id: self.$store.state.guest_id,
-        })
-        .then(
-          (response) => (
-            (self.$store.state.content_page.more_by_artist =
-              response.data.contents),
-            (self.fetching_more = false)
-          )
-        )
-        .catch(function (error) {
-          // console.log(error);
-        });
-      if (self.$store.state.session_id) {
-        axios
-          .post(self.$store.state.api_host + "update_profile", {
-            session_id: self.$store.state.session_id,
-            never_tapped_any_artist: false,
-          })
-          .then(function (response) {
-            if ([200].includes(response.status)) {
-            } else {
-              // console.log(response.status);
-            }
-          })
-          .catch(function (error) {
-            // console.log(error);
-            if ([401, 419].includes(error.response.status)) {
-              window.location =
-                self.$store.state.login_host +
-                "logout?session_id=" +
-                self.$store.state.session_id;
-              self.$store.state.session_id = null;
-              self.$emit("logging-out");
-            } else {
-              // console.log(error.response.status);
-            }
-          });
-      }
-    },
     openContent(content_id, title, origin) {
       this.$store.state.content_page.more_by_artist = [];
       this.$store.state.content_page.artist = null;
@@ -1055,236 +1006,6 @@ export default {
   computed: {
     check_rerender() {
       return this.$store.state.content_page.rerender;
-    },
-    more_header_positive() {
-      return (
-        `
-              position: fixed;
-              width: 90%;
-              height: 50px;
-              white-space: nowrap;
-              margin-left: 6%;
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 263, 58)
-        ) +
-        `px;
-              background-color: #ffffff;
-              border-radius: 10px;
-              text-align: left;
-              padding: 1%;
-              `
-      );
-    },
-    close_more_header_positive() {
-      return (
-        `
-              position: fixed;
-              width: 20px;
-              height: 20px;
-              left: calc(50vw + 45% - 25px);
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 259, 62)
-        ) +
-        `px;
-              background-image: url('` +
-        require(`./../images/close.png`) +
-        `');
-              background-size: 100%;
-              background-repeat: no-repeat;
-              background-position: center;
-              border: 0;
-              padding: 0;
-              cursor: pointer;
-              -webkit-tap-highlight-color: rgba(0,0,0,0);
-	            -webkit-tap-highlight-color: transparent;
-              `
-      );
-    },
-    desktop_more_header_positive() {
-      return (
-        `
-              position: fixed;
-              white-space: nowrap;
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 273, 58)
-        ) +
-        `px;
-              background-color: rgb(255, 255, 255);
-              border-radius: 10px;
-              text-align: left;
-              padding: 10px;
-              width: 750px;
-              height: 50px;
-              left: 50%;
-              transform: translateX(-375px);
-              `
-      );
-    },
-    desktop_close_more_header_positive() {
-      return (
-        `
-              position: fixed;
-              width: 25px;
-              height: 25px;
-              left: calc(50vw + 375px - 35px);
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 263, 68)
-        ) +
-        `px;
-              background-image: url('` +
-        require(`./../images/close.png`) +
-        `');
-              background-size: 100%;
-              background-repeat: no-repeat;
-              background-position: center;
-              border: 0;
-              padding: 0;
-              cursor: pointer;
-              -webkit-tap-highlight-color: rgba(0,0,0,0);
-	            -webkit-tap-highlight-color: transparent;
-              `
-      );
-    },
-    more_header_negative() {
-      return (
-        `
-              position: fixed;
-              width: 90%;
-              white-space: nowrap;
-              margin-left: 6%;
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 70, 59)
-        ) +
-        `px;
-              background-color: #ffffff;
-              border-radius: 10px;
-              text-align: left;
-              padding: 3px;
-              `
-      );
-    },
-    close_more_header_negative() {
-      return (
-        `
-              position: fixed;
-              width: 30px;
-              height: 30px;
-              left: calc(50vw + 45% - 25px);
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 70, 59)
-        ) +
-        `px;
-              background-image: url('` +
-        require(`./../images/close.png`) +
-        `');
-              background-size: 66%;
-              background-repeat: no-repeat;
-              background-position: center;
-              border: 0;
-              padding: 0;
-              cursor: pointer;
-              -webkit-tap-highlight-color: rgba(0,0,0,0);
-	            -webkit-tap-highlight-color: transparent;
-              background-color: #ffffff;
-              border-radius: 50%;
-              `
-      );
-    },
-    desktop_more_header_negative() {
-      return (
-        `
-              position: fixed;
-              white-space: nowrap;
-              width: 750px;
-              left: 50%;
-              transform: translateX(-375px);
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 70, 59)
-        ) +
-        `px;
-              background-color: #ffffff;
-              border-radius: 10px;
-              text-align: left;
-              padding: 10px;
-              `
-      );
-    },
-    desktop_close_more_header_negative() {
-      return (
-        `
-              position: fixed;
-              width: 25px;
-              height: 25px;
-              left: calc(50vw + 375px - 35px);
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 60, 69)
-        ) +
-        `px;
-              background-image: url('` +
-        require(`./../images/close.png`) +
-        `');
-              background-size: 100%;
-              background-repeat: no-repeat;
-              background-position: center;
-              border: 0;
-              padding: 0;
-              cursor: pointer;
-              -webkit-tap-highlight-color: rgba(0,0,0,0);
-	            -webkit-tap-highlight-color: transparent;
-              background-color: #ffffff;
-              border-radius: 50%;
-              `
-      );
-    },
-    more_contents() {
-      return (
-        `
-              position: fixed;
-              display: inline-flex;
-              overflow-x: scroll;
-              width: 90%;
-              white-space: nowrap;
-              margin-left: -44%;
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 238, 83)
-        ) +
-        `px;
-              background-color: #ffffff;
-              border-radius: 20px;
-              padding-left: 3%;
-              `
-      );
-    },
-    desktop_more_contents() {
-      return (
-        `
-              position: fixed;
-              display: inline-flex;
-              overflow-x: scroll;
-              width: 750px;
-              white-space: nowrap;
-              left: 50%;
-              transform: translateX(-50%);
-              top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 238, 83)
-        ) +
-        `px;
-              background-color: rgb(255, 255, 255);
-              border-radius: 10px;
-              padding-left: 15px;
-              padding-bottom: 10px;
-              `
-      );
     },
     showCover() {
       if (this.content.data.cover) {
