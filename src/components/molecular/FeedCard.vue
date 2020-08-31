@@ -28,7 +28,9 @@
         :image="content.poster"
         :trailerId="content.youtube_trailer_id"
         :whereToWatch="content.where_to_watch"
-        :userPlatforms="store.user.id ? store.user.profile.platforms : ['']"
+        :userPlatforms="
+          store.user.id ? store.user.profile.platforms || [''] : ['']
+        "
         :showName="false"
         :parent="parent"
         :feedType="

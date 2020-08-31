@@ -346,7 +346,7 @@
                 :showTrailer="false"
                 :whereToWatch="item.where_to_watch"
                 :userPlatforms="
-                  store.user.id ? store.user.profile.platforms : ['']
+                  store.user.id ? store.user.profile.platforms || [''] : ['']
                 "
                 :showName="true"
                 parent="content_page"
@@ -384,27 +384,19 @@
               Direction
             </div>
             <div class="artists" v-if="content.crew.directed_by.length">
-              <div
+              <Artist
                 v-for="(artist, index) in content.crew.directed_by"
                 :key="index"
                 class="artists-container"
-                @click="
-                  moreContent(artist.person_id, artist.person, 'directed_by')
-                "
-              >
-                <div
-                  class="artist-cropper"
-                  :style="is_mobile ? '' : 'width: 75px;height: 95px;'"
-                >
-                  <img v-bind:src="artist.profile_photo" class="artist-pic" />
-                </div>
-                <div
-                  class="artist-name"
-                  :style="is_mobile ? '' : 'width: 75px;font-size: 12px;'"
-                >
-                  {{ artist.person }}
-                </div>
-              </div>
+                :artistId="artist.person_id"
+                :name="artist.person"
+                :image="artist.profile_photo"
+                credit_category="directed_by"
+                :width="55"
+                :height="70"
+                :skipContentId="content.content_id"
+                v-on="$listeners"
+              />
             </div>
 
             <div
@@ -419,25 +411,19 @@
               Cast
             </div>
             <div class="artists" v-if="content.crew.cast.length">
-              <div
+              <Artist
                 v-for="(artist, index) in content.crew.cast"
                 :key="index"
                 class="artists-container"
-                @click="moreContent(artist.person_id, artist.person, 'cast')"
-              >
-                <div
-                  class="artist-cropper"
-                  :style="is_mobile ? '' : 'width: 75px;height: 95px;'"
-                >
-                  <img v-bind:src="artist.profile_photo" class="artist-pic" />
-                </div>
-                <div
-                  class="artist-name"
-                  :style="is_mobile ? '' : 'width: 75px;font-size: 12px;'"
-                >
-                  {{ artist.person }}
-                </div>
-              </div>
+                :artistId="artist.person_id"
+                :name="artist.person"
+                :image="artist.profile_photo"
+                credit_category="cast"
+                :width="55"
+                :height="70"
+                :skipContentId="content.content_id"
+                v-on="$listeners"
+              />
             </div>
 
             <div
@@ -452,239 +438,19 @@
               Writing
             </div>
             <div class="artists" v-if="content.crew.writing_credits.length">
-              <div
+              <Artist
                 v-for="(artist, index) in content.crew.writing_credits"
                 :key="index"
                 class="artists-container"
-                @click="
-                  moreContent(
-                    artist.person_id,
-                    artist.person,
-                    'writing_credits'
-                  )
-                "
-              >
-                <div
-                  class="artist-cropper"
-                  :style="is_mobile ? '' : 'width: 75px;height: 95px;'"
-                >
-                  <img v-bind:src="artist.profile_photo" class="artist-pic" />
-                </div>
-                <div
-                  class="artist-name"
-                  :style="is_mobile ? '' : 'width: 75px;font-size: 12px;'"
-                >
-                  {{ artist.person }}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="more-contents-container"
-            v-if="content.more_by_artist.length | fetching_more"
-          >
-            <div
-              :style="
-                is_mobile ? more_header_negative : desktop_more_header_negative
-              "
-              v-on-click-outside="close"
-              v-if="fetching_more"
-            >
-              Fetching more content by {{ content.artist.split(" ")[0] }}...
-            </div>
-
-            <div
-              :style="
-                is_mobile ? more_header_positive : desktop_more_header_positive
-              "
-              v-if="(content.more_by_artist.length > 1)"
-            >
-              &#160;&#160;More by {{ content.artist.split(" ")[0] }}...
-            </div>
-            <div
-              :style="
-                is_mobile
-                  ? close_more_header_positive
-                  : desktop_close_more_header_positive
-              "
-              v-if="(content.more_by_artist.length > 1)"
-              @click="close"
-            />
-
-            <div
-              :style="
-                is_mobile ? more_header_negative : desktop_more_header_negative
-              "
-              v-if="content.more_by_artist.length == 1"
-              v-on-click-outside="close"
-            >
-              Oops...could not find any more content by
-              {{ content.artist.split(" ")[0] }}.
-            </div>
-            <div
-              :style="
-                is_mobile
-                  ? close_more_header_negative
-                  : desktop_close_more_header_negative
-              "
-              v-if="content.more_by_artist.length == 1 || fetching_more"
-              @click="close"
-            />
-
-            <div
-              :style="is_mobile ? more_contents : desktop_more_contents"
-              v-if="(content.more_by_artist.length > 1)"
-              v-on-click-outside="close"
-            >
-              <div
-                v-for="(item, index) in content.more_by_artist"
-                :key="index"
-                class="content-container"
-                :style="
-                  is_mobile ? '' : 'padding-right: 15px;margin-top: 15px;'
-                "
-                v-if="item.content_id != content.content_id"
-              >
-                <img
-                  v-bind:src="item.poster"
-                  @click="
-                    openContent(
-                      item.content_id,
-                      item.title,
-                      'content_page__more_by_artist'
-                    )
-                  "
-                  class="content-poster"
-                  style="width: 125px; height: 187.5px;"
-                />
-
-                <div
-                  class="content-similar-platforms"
-                  style="width: 125px;"
-                  v-if="(Object.keys(item.where_to_watch || {}).includes('stream'))"
-                >
-                  <div
-                    class="content-similar-platforms-container"
-                    v-for="(stream_item, stream_index) in item.where_to_watch
-                      .stream"
-                    :key="stream_index"
-                  >
-                    <div
-                      @click="
-                        goToPlatform(
-                          stream_item,
-                          item.content_id,
-                          'more_by_artist'
-                        )
-                      "
-                      class="content-similar-platform-cropper"
-                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
-                    >
-                      <img
-                        v-bind:src="
-                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                          stream_index +
-                          '.jpg'
-                        "
-                        class="content-similar-platform-icon"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  class="content-similar-platforms"
-                  style="width: 125px;"
-                  v-if="
-                    !Object.keys(item.where_to_watch || {}).includes(
-                      'stream'
-                    ) && Object.keys(item.where_to_watch || {}).includes('rent')
-                  "
-                >
-                  <div
-                    class="content-similar-platforms-container"
-                    v-for="(stream_item, stream_index) in item.where_to_watch
-                      .rent"
-                    :key="stream_index"
-                  >
-                    <div
-                      @click="
-                        goToPlatform(
-                          stream_item,
-                          item.content_id,
-                          'more_by_artist'
-                        )
-                      "
-                      class="content-similar-platform-cropper"
-                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
-                    >
-                      <img
-                        v-bind:src="
-                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                          stream_index +
-                          '.jpg'
-                        "
-                        class="content-similar-platform-icon"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  class="content-similar-platforms"
-                  style="width: 125px;"
-                  v-if="
-                    !Object.keys(item.where_to_watch || {}).includes(
-                      'stream'
-                    ) &&
-                    !Object.keys(item.where_to_watch || {}).includes('rent') &&
-                    Object.keys(item.where_to_watch || {}).includes('buy')
-                  "
-                >
-                  <div
-                    class="content-similar-platforms-container"
-                    v-for="(stream_item, stream_index) in item.where_to_watch
-                      .buy"
-                    :key="stream_index"
-                  >
-                    <div
-                      @click="
-                        goToPlatform(
-                          stream_item,
-                          item.content_id,
-                          'more_by_artist'
-                        )
-                      "
-                      class="content-similar-platform-cropper"
-                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
-                    >
-                      <img
-                        v-bind:src="
-                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                          stream_index +
-                          '.jpg'
-                        "
-                        class="content-similar-platform-icon"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  class="content-name"
-                  @click="
-                    openContent(
-                      item.content_id,
-                      item.title,
-                      'content_page__more_by_artist'
-                    )
-                  "
-                  style="width: 125px;"
-                >
-                  {{ item.title }}
-                </div>
-              </div>
+                :artistId="artist.person_id"
+                :name="artist.person"
+                :image="artist.profile_photo"
+                credit_category="writing_credits"
+                :width="55"
+                :height="70"
+                :skipContentId="content.content_id"
+                v-on="$listeners"
+              />
             </div>
           </div>
         </div>
@@ -799,6 +565,7 @@ import ContentCoverLandscape from "./../components/atomic/ContentCoverLandscape"
 import ContentCoverPortrait from "./../components/atomic/ContentCoverPortrait";
 import Trailer from "./../components/atomic/Trailer";
 import Poster from "./../components/molecular/Poster";
+import Artist from "./../components/molecular/Artist";
 
 export default {
   name: "App",
@@ -808,6 +575,7 @@ export default {
     ContentCoverPortrait,
     Trailer,
     Poster,
+    Artist,
   },
 
   data() {
@@ -1808,84 +1576,14 @@ export default {
   margin-top: 1px;
   font-size: 14px;
 }
-.tabs-container {
-  position: absolute;
-  margin-top: 8%;
-  width: 95%;
-}
-.tabs {
-  overflow: hidden;
-  margin-bottom: -2px;
-  width: 100%;
-  margin-top: 10%;
-}
-.tabs a {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  padding: 6px 12px;
-  transition: background-color 0.2s;
-  background-color: #f1f1f1;
-  border-radius: 5px 3px 0 0;
-  font-weight: bold;
-  font-size: 14px;
-  width: 33%;
-}
-.tabs a.is-active {
-  background-color: rgb(174, 219, 245);
-  border-bottom: 2px solid rgb(68, 126, 235);
-  cursor: default;
-}
-.tabcontent {
-  padding: 1%;
-}
 .artists {
   display: inline-flex;
   overflow-x: scroll;
   width: 94%;
   white-space: nowrap;
   padding: 10px;
-  margin-left: 3%;
-}
-.artist-cropper {
-  display: inline-block;
-  width: 55px;
-  height: 70px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.artist-pic {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.artist-name {
-  margin-top: 3px;
-  position: relative;
-  width: 55px;
-  white-space: normal;
-  font-size: 10px;
-  font-weight: bold;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333333;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
+  margin-left: 20px;
+  margin-top: 5px;
 }
 .artists-container {
   display: inline-block;
@@ -1917,13 +1615,13 @@ export default {
   margin-top: 6px;
 }
 .platform-cropper {
-  width: 10vw;
-  height: 10vw;
+  width: 50px;
+  height: 50px;
   // margin: 0 auto;
   margin-left: 0%;
   position: relative;
   overflow: hidden;
-  border-radius: 20%;
+  border-radius: 50%;
 }
 .platform-icon {
   display: inline-block;
@@ -1943,157 +1641,16 @@ export default {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.pages {
-  display: block;
-  position: absolute;
-  margin-left: 6%;
-  /* margin-top: 50%; */
-  margin-bottom: 5%;
-}
-.website {
-  position: relative;
-  display: block;
-  width: 40vw;
-  height: 30px;
-  /* margin-left: -235%; */
-  margin-top: 5%;
-  margin-bottom: 5%;
-  background-color: #646668;
-  background-size: 100% 100%;
-  padding: -1% 35%;
-  border: none;
-  border-radius: 25px;
-  outline: 0;
-  color: #fff;
-  font-weight: bold;
-}
-.facebook {
-  position: relative;
-  display: block;
-  width: 40vw;
-  height: 30px;
-  // margin-left: -235%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  background-color: #3b5998;
-  background-size: 100% 100%;
-  padding: -1% 35%;
-  border: none;
-  border-radius: 25px;
-  outline: 0;
-  color: #fff;
-  font-weight: bold;
-}
-.instagram {
-  position: relative;
-  display: block;
-  width: 40vw;
-  height: 30px;
-  // margin-left: -235%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  background: #f09433;
-  background: -moz-linear-gradient(
-    45deg,
-    #f09433 0%,
-    #e6683c 25%,
-    #dc2743 50%,
-    #cc2366 75%,
-    #bc1888 100%
-  );
-  background: -webkit-linear-gradient(
-    45deg,
-    #f09433 0%,
-    #e6683c 25%,
-    #dc2743 50%,
-    #cc2366 75%,
-    #bc1888 100%
-  );
-  background: linear-gradient(
-    45deg,
-    #f09433 0%,
-    #e6683c 25%,
-    #dc2743 50%,
-    #cc2366 75%,
-    #bc1888 100%
-  );
-  background-size: 100% 100%;
-  padding: -1% 35%;
-  border: none;
-  border-radius: 25px;
-  outline: 0;
-  color: #fff;
-  font-weight: bold;
-}
-.twitter {
-  position: relative;
-  display: block;
-  width: 40vw;
-  height: 30px;
-  // margin-left: -235%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  background-color: #00acee;
-  background-size: 100% 100%;
-  padding: -1% 35%;
-  border: none;
-  border-radius: 25px;
-  outline: 0;
-  color: #fff;
-  font-weight: bold;
-}
-.more-contents-container {
-  position: fixed;
-  z-index: 100000;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 120%;
-  background-color: rgba(0, 0, 0, 0.75);
-  display: table;
-  transition: opacity 0.3s ease;
-}
 .content-container {
   margin-right: 20px;
-}
-.content-poster {
-  position: relative;
-  display: inline;
-  margin: 0 auto;
-  width: 100px;
-  height: 150px;
-  border-radius: 7px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.content-name {
-  margin-top: 3px;
-  position: relative;
-  width: 100px;
-  white-space: normal;
-  font-size: 12px;
-  font-weight: bold;
-  font-stretch: normal;
-  font-style: normal;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333333;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 .similar-content {
   display: inline-flex;
   overflow-x: scroll;
   width: 94%;
   white-space: nowrap;
-  margin-left: 5%;
+  padding-left: 10px;
+  margin-left: 20px;
 }
 .artists-box {
   position: relative;
@@ -2460,40 +2017,5 @@ export default {
   background-repeat: no-repeat;
   background-position: center;
   z-index: 100000;
-}
-.content-similar-platforms {
-  text-align: center;
-  position: absolute;
-  overflow-x: scroll;
-  white-space: nowrap;
-  margin-top: -37px;
-  margin-left: 0px;
-  width: 100px;
-  padding: 5px 0px 1px 0px;
-  border-radius: 0 0 7px 7px;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-.content-similar-platform-cropper {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.content-similar-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
-}
-.content-similar-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin-left: 8px;
-  margin-right: 8px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 </style>

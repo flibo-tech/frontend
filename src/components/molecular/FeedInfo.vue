@@ -149,7 +149,7 @@
               :showTrailer="false"
               :whereToWatch="content.where_to_watch"
               :userPlatforms="
-                store.user.id ? store.user.profile.platforms : ['']
+                store.user.id ? store.user.profile.platforms || [''] : ['']
               "
               :showName="true"
               :parent="parent"
