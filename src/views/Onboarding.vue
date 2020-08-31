@@ -38,6 +38,7 @@
       <Button
         buttonType="iconOnly"
         icon="back"
+        :size="16"
         class="onboarding-rating-back"
         v-on:clicked="open_instructions = true"
       />
