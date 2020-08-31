@@ -335,150 +335,25 @@
               Similar
             </div>
             <div class="similar-content">
-              <div
+              <Poster
                 v-for="(item, index) in content.similar_content"
                 :key="index"
                 class="content-container"
-              >
-                <img
-                  v-bind:src="item.poster"
-                  @click="
-                    openContent(
-                      item.content_id,
-                      item.title,
-                      'content_page_similar'
-                    )
-                  "
-                  class="content-poster"
-                  style="width: 125px; height: 187.5px;"
-                />
+                :containerWidth="125"
+                :contentId="item.content_id"
+                :title="item.title"
+                :image="item.poster"
+                :showTrailer="false"
+                :whereToWatch="item.where_to_watch"
+                :userPlatforms="
+                  store.user.id ? store.user.profile.platforms : ['']
+                "
+                :showName="true"
+                parent="content_page"
+                posterLocation="similar_content"
+                v-on="$listeners"
+              />
 
-                <div
-                  class="content-similar-platforms"
-                  style="width: 125px;"
-                  v-if="(Object.keys(item.where_to_watch || {}).includes('stream'))"
-                >
-                  <div
-                    class="content-similar-platforms-container"
-                    v-for="(stream_item, stream_index) in item.where_to_watch
-                      .stream"
-                    :key="stream_index"
-                  >
-                    <div
-                      @click="
-                        goToPlatform(
-                          stream_item,
-                          item.content_id,
-                          'similar_content_poster'
-                        )
-                      "
-                      class="content-similar-platform-cropper"
-                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
-                    >
-                      <img
-                        v-bind:src="
-                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                          stream_index +
-                          '.jpg'
-                        "
-                        class="content-similar-platform-icon"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  class="content-similar-platforms"
-                  style="width: 125px;"
-                  v-if="
-                    !Object.keys(item.where_to_watch || {}).includes(
-                      'stream'
-                    ) && Object.keys(item.where_to_watch || {}).includes('rent')
-                  "
-                >
-                  <div
-                    class="content-similar-platforms-container"
-                    v-for="(stream_item, stream_index) in item.where_to_watch
-                      .rent"
-                    :key="stream_index"
-                  >
-                    <div
-                      @click="
-                        goToPlatform(
-                          stream_item,
-                          item.content_id,
-                          'similar_content_poster'
-                        )
-                      "
-                      class="content-similar-platform-cropper"
-                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
-                    >
-                      <img
-                        v-bind:src="
-                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                          stream_index +
-                          '.jpg'
-                        "
-                        class="content-similar-platform-icon"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  class="content-similar-platforms"
-                  style="width: 125px;"
-                  v-if="
-                    !Object.keys(item.where_to_watch || {}).includes(
-                      'stream'
-                    ) &&
-                    !Object.keys(item.where_to_watch || {}).includes('rent') &&
-                    Object.keys(item.where_to_watch || {}).includes('buy')
-                  "
-                >
-                  <div
-                    class="content-similar-platforms-container"
-                    v-for="(stream_item, stream_index) in item.where_to_watch
-                      .buy"
-                    :key="stream_index"
-                  >
-                    <div
-                      @click="
-                        goToPlatform(
-                          stream_item,
-                          item.content_id,
-                          'similar_content_poster'
-                        )
-                      "
-                      class="content-similar-platform-cropper"
-                      :style="is_mobile ? '' : 'width: 23px;height: 23px;'"
-                    >
-                      <img
-                        v-bind:src="
-                          'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                          stream_index +
-                          '.jpg'
-                        "
-                        class="content-similar-platform-icon"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  class="content-name"
-                  @click="
-                    openContent(
-                      item.content_id,
-                      item.title,
-                      'content_page_similar'
-                    )
-                  "
-                  style="width: 125px;"
-                >
-                  {{ item.title }}
-                </div>
-              </div>
               <div
                 v-if="!content.similar_content"
                 style="margin-top: 8%; margin-left: 3%; font-size: 4vw;"
@@ -923,6 +798,7 @@ import { mixin as onClickOutside } from "vue-on-click-outside";
 import ContentCoverLandscape from "./../components/atomic/ContentCoverLandscape";
 import ContentCoverPortrait from "./../components/atomic/ContentCoverPortrait";
 import Trailer from "./../components/atomic/Trailer";
+import Poster from "./../components/molecular/Poster";
 
 export default {
   name: "App",
@@ -931,6 +807,7 @@ export default {
     ContentCoverLandscape,
     ContentCoverPortrait,
     Trailer,
+    Poster,
   },
 
   data() {
@@ -2177,12 +2054,7 @@ export default {
   transition: opacity 0.3s ease;
 }
 .content-container {
-  position: relative;
-  display: inline-block;
-  padding-right: 20px;
-  margin-top: 5px;
-  vertical-align: top;
-  text-align: center;
+  margin-right: 20px;
 }
 .content-poster {
   position: relative;
