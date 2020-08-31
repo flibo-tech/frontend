@@ -57,7 +57,9 @@
       class="plus-sign"
       @click="plusClicked = !plusClicked"
     >
-      <p>+{{ noOfPlatforms - 1 }}</p>
+      <p :style="containerWidth < 150 ? 'font-size: 16px;' : ''">
+        +{{ noOfPlatforms - 1 }}
+      </p>
     </div>
   </div>
 </template>

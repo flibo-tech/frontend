@@ -64,7 +64,7 @@
 <script>
 import FeedText from "./../atomic/FeedText";
 import Poster from "./Poster";
-import FeedInfo from "./../atomic/FeedInfo";
+import FeedInfo from "./FeedInfo";
 
 export default {
   name: "App",

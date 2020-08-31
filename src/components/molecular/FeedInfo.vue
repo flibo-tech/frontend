@@ -138,69 +138,25 @@
           </h3>
 
           <div class="more-info-similar-content" v-if="similar.length">
-            <div
-              v-for="(item, index) in similar"
+            <Poster
+              v-for="(content, index) in similar"
               :key="index"
               class="more-info-content-container"
-            >
-              <img
-                v-bind:src="item.poster"
-                @click="
-                  openContent(
-                    item.content_id,
-                    (input_title = item.title),
-                    (suffix = 'similar')
-                  )
-                "
-                class="more-info-content-poster"
-              />
-
-              <div
-                class="more-info-similar-platforms"
-                v-if="showPlatforms(item.where_to_watch)"
-              >
-                <div
-                  class="more-info-similar-platforms-container"
-                  v-for="(stream_item, stream_index) in whereToWatchOptions(
-                    item.where_to_watch
-                  )"
-                  :key="stream_index"
-                >
-                  <div
-                    @click="
-                      goToPlatform(
-                        stream_item,
-                        item.content_id,
-                        'similar_content_poster'
-                      )
-                    "
-                    class="more-info-similar-platform-cropper"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="more-info-similar-platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="more-info-content-name"
-                @click="
-                  openContent(
-                    (input_content_id = item.content_id),
-                    (input_title = item.title),
-                    (suffix = 'similar')
-                  )
-                "
-              >
-                {{ item.title }}
-              </div>
-            </div>
+              :containerWidth="125"
+              :contentId="content.content_id"
+              :title="content.title"
+              :image="content.poster"
+              :showTrailer="false"
+              :whereToWatch="content.where_to_watch"
+              :userPlatforms="
+                store.user.id ? store.user.profile.platforms : ['']
+              "
+              :showName="true"
+              :parent="parent"
+              :feedType="feedType"
+              posterLocation="similar"
+              v-on="$listeners"
+            />
           </div>
         </div>
       </div>
@@ -210,9 +166,13 @@
 
 <script>
 import axios from "axios";
+import Poster from "./Poster";
 
 export default {
   name: "App",
+  components: {
+    Poster,
+  },
   props: {
     contentId: {
       type: Number,
@@ -272,6 +232,7 @@ export default {
       summary: null,
       crew: [],
       similar: [],
+      store: this.$store.state,
     };
   },
   methods: {
@@ -785,74 +746,6 @@ export default {
   margin-right: 15px;
   vertical-align: top;
   text-align: center;
-}
-.more-info-content-poster {
-  position: relative;
-  display: inline;
-  margin: 0 auto;
-  width: 100px;
-  height: 150px;
-  border-radius: 7px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.more-info-content-name {
-  margin-top: 3px;
-  position: relative;
-  width: 100px;
-  white-space: normal;
-  font-size: 12px;
-  font-weight: bold;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333333;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.more-info-similar-platforms {
-  text-align: center;
-  position: absolute;
-  overflow-x: scroll;
-  white-space: nowrap;
-  margin-top: -34px;
-  margin-left: 0px;
-  width: 100px;
-  padding: 5px;
-  border-radius: 0 0 7px 7px;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-.more-info-similar-platform-cropper {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.more-info-similar-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
-}
-.more-info-similar-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin-left: 8px;
-  margin-right: 8px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 .more-info-container h3 {
   font-size: 16px;

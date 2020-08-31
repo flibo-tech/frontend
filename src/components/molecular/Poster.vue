@@ -14,7 +14,7 @@
         />
 
         <Trailer
-          v-if="trailerId || showPlatforms"
+          v-if="showTrailer"
           class="trailer"
           style="margin-top: -35px;"
           ref="trailer"
@@ -44,7 +44,7 @@
           v-on="$listeners"
         />
       </div>
-      <div v-if="showName" class="title">
+      <div v-if="showName" class="title" @click="openContent">
         {{ title }}
       </div>
     </div>
@@ -85,6 +85,11 @@ export default {
     whereToWatch: {
       type: Object,
       required: false,
+    },
+    showTrailer: {
+      type: Boolean,
+      required: false,
+      default: true,
     },
     parent: {
       type: String,
@@ -127,17 +132,6 @@ export default {
         return {};
       }
     },
-    showPlatforms() {
-      if (
-        Object.keys(this.whereToWatch || {}).includes("stream") ||
-        Object.keys(this.whereToWatch || {}).includes("rent") ||
-        Object.keys(this.whereToWatch || {}).includes("buy")
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    },
   },
   methods: {
     openContent() {
@@ -146,6 +140,7 @@ export default {
         origin: this.parent,
         sub_origin: this.feedType,
         content_id: this.contentId,
+        suffix: this.posterLocation,
         title: this.title,
       };
       this.$emit("open-content-page", info);
@@ -163,8 +158,23 @@ export default {
   grid-row-start: 3;
   margin-top: 10px;
   text-align: center;
-  font-family: "Roboto";
-  white-space: initial;
+  white-space: normal;
+  font-size: 12px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: normal;
+  text-align: center;
+  color: #333333;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .trailer {
