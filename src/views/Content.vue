@@ -350,7 +350,7 @@
                 "
                 :showName="true"
                 parent="content_page"
-                posterLocation="similar_content"
+                posterLocation="similar"
                 v-on="$listeners"
               />
 
