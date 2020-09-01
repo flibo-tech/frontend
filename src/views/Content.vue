@@ -61,82 +61,48 @@
         <!-- Margin top (absolute) on element below should go as prop input for cover pic-->
         <div class="content-below-cover">
           <div class="title">
-            <span
-              style="position: relative; font-weight: bold; margin-right: 10px;"
-            >
+            <p style="position: relative; font-weight: bold; font-size: 24px;">
               {{ content.data.title }}
-              <span
-                style="font-size: 11.5px; font-weight: normal;"
-                v-if="content.data.type == 'tv'"
-              >
-                ({{ content.data.release_year }}-{{
-                  content.data.end_year ? content.data.end_year : "Present"
-                }})
-              </span>
+            </p>
 
-              <span
-                style="font-size: 11.5px; font-weight: normal;"
-                v-if="content.data.type == 'movie'"
-              >
-                ({{ content.data.release_year }})
-              </span>
-            </span>
-
-            <div class="watchlist-continer" @click="addToWatchlist">
-              {{
-                content.data.watch_later
-                  ? "ADDED"
-                  : "ADD&nbsp;TO&nbsp;WATCHLIST"
+            <p
+              style="color: #676767; font-size: 14px; font-weight: normal;"
+              v-if="content.data.type == 'tv'"
+            >
+              {{ content.data.release_year }}-{{
+                content.data.end_year ? content.data.end_year : "Present"
               }}
-              <button
-                v-bind:class="[
-                  content.data.watch_later
-                    ? 'watchlist-true'
-                    : 'watchlist-false',
-                ]"
+            </p>
+
+            <p
+              style="color: #676767; font-size: 14px; font-weight: normal;"
+              v-if="content.data.type == 'movie'"
+            >
+              {{ content.data.release_year }}
+            </p>
+
+            <div class="user-rating-watchlist-container">
+              <UserRating
+                class="user-rating-container"
+                :rating="content.data.rating"
+                :iconSize="25"
+                @update-rating="submitRating"
               />
-            </div>
 
-            <div class="user-rating-container">
-              <button
-                v-bind:class="[
-                  content.data.rating == 3 ? 'love-true' : 'love-false',
-                ]"
-                :style="
-                  is_mobile
-                    ? ''
-                    : 'height: 50px;width: 50px;margin-left: 200px;'
-                "
-                @click="submitRating(content.data.rating == 3 ? 0 : 3)"
-              ></button>
-
-              <button
-                v-bind:class="[
-                  content.data.rating == 2
-                    ? 'thumbs-up-true'
-                    : 'thumbs-up-false',
-                ]"
-                :style="
-                  is_mobile
-                    ? ''
-                    : 'height: 50px;width: 50px;margin-left: 200px;'
-                "
-                @click="submitRating(content.data.rating == 2 ? 0 : 2)"
-              ></button>
-
-              <button
-                v-bind:class="[
-                  content.data.rating == 1
-                    ? 'thumbs-down-true'
-                    : 'thumbs-down-false',
-                ]"
-                :style="
-                  is_mobile
-                    ? ''
-                    : 'height: 50px;width: 50px;margin-left: 200px;'
-                "
-                @click="submitRating(content.data.rating == 1 ? 0 : 1)"
-              ></button>
+              <div class="watchlist-continer" @click="addToWatchlist">
+                {{
+                  content.data.watch_later
+                    ? "ADDED"
+                    : "ADD&nbsp;TO&nbsp;WATCHLIST"
+                }}
+                <button
+                  v-bind:class="[
+                    content.data.watch_later
+                      ? 'watchlist-true'
+                      : 'watchlist-false',
+                  ]"
+                />
+              </div>
             </div>
 
             <p
@@ -148,171 +114,89 @@
             </p>
 
             <div class="info-container">
-              <div class="ratings" :style="is_mobile ? '' : 'font-size: 15px;'">
-                <div class="rating-container" v-if="content.data.imdb_score">
-                  IMDB
-                  <span style="font-weight: bold;">
-                    {{ content.data.imdb_score }}
-                  </span>
-                </div>
+              <ContentMetaBlock
+                class="info-item"
+                v-if="content.data.imdb_score"
+                :text="'IMDB ' + content.data.imdb_score"
+              />
 
-                <div class="rating-container" v-if="content.data.tomato_meter">
-                  TOMATOMETER
-                  <span style="font-weight: bold;">
-                    {{ content.data.tomato_meter }}
-                  </span>
-                </div>
-              </div>
+              <ContentMetaBlock
+                class="info-item"
+                v-if="content.data.tomato_meter"
+                :text="'TOMATOMETER ' + content.data.tomato_meter"
+              />
 
-              <div
-                class="genres"
-                :style="is_mobile ? '' : 'font-size: 15px;margin-top: 4px;'"
-              >
-                <span
-                  class="genre"
-                  v-for="(genre, index) in content.data.genres"
-                  :key="index"
-                >
-                  {{ genre }}
-                </span>
-              </div>
+              <ContentMetaBlock
+                class="info-item"
+                v-for="(genre, index) in content.data.genres"
+                :key="index"
+                :text="genre"
+              />
 
-              <div
-                class="seasons"
-                :style="is_mobile ? '' : 'font-size: 15px;margin-top: 6px;'"
-                v-if="content.data.type == 'tv'"
-              >
-                <span v-if="content.data.seasons">
-                  {{ content.data.seasons }}
-                  {{ content.data.seasons > 1 ? "Seasons | " : "Season | " }}
-                </span>
-                <span v-if="content.data.episodes">
-                  {{ content.data.episodes }}
-                  {{ content.data.episodes > 1 ? "Episodes | " : "Episode | " }}
-                </span>
-                <span v-if="content.data.runtime">
-                  {{ content.data.runtime }}
-                  {{ content.data.episodes ? "Each" : "Each Episode" }}
-                </span>
-              </div>
+              <ContentMetaBlock
+                class="info-item"
+                v-if="content.data.type == 'tv' && content.data.seasons"
+                :text="
+                  content.data.seasons +
+                  ' ' +
+                  (content.data.seasons > 1 ? 'Seasons' : 'Season')
+                "
+              />
 
-              <div
-                class="seasons"
-                :style="is_mobile ? '' : 'font-size: 15px;margin-top: 6px;'"
+              <ContentMetaBlock
+                class="info-item"
+                v-if="content.data.type == 'tv' && content.data.episodes"
+                :text="
+                  content.data.episodes +
+                  ' ' +
+                  (content.data.episodes > 1 ? 'Episodes' : 'Episode')
+                "
+              />
+
+              <ContentMetaBlock
+                class="info-item"
+                v-if="content.data.type == 'tv' && content.data.runtime"
+                :text="
+                  content.data.runtime +
+                  ' ' +
+                  (content.data.episodes ? 'Each' : 'Each Episode')
+                "
+              />
+
+              <ContentMetaBlock
+                class="info-item"
                 v-if="content.data.type == 'movie'"
-              >
-                {{ content.data.runtime }}
-              </div>
+                :text="content.data.runtime"
+              />
+            </div>
 
+            <div
+              class="platforms"
+              :style="is_mobile ? '' : 'margin-top: 10px;'"
+              v-if="Object.keys(whereToWatchOptions).length"
+            >
               <div
-                class="platforms"
-                :style="is_mobile ? '' : 'margin-top: 10px;'"
-                v-if="
-                  Object.keys(content.data.where_to_watch || {}).includes(
-                    'stream'
-                  )
-                "
+                class="platforms-container"
+                v-for="(item, index) in whereToWatchOptions"
+                :key="index"
               >
                 <div
-                  class="platforms-container"
-                  v-for="(item, index) in content.data.where_to_watch.stream"
-                  :key="index"
+                  @click="goToPlatform(item, content.content_id, 'on_page')"
+                  class="platform-cropper"
+                  :style="
+                    is_mobile
+                      ? ''
+                      : 'width: 50px;height: 50px;border-radius: 10px;'
+                  "
                 >
-                  <div
-                    @click="goToPlatform(item, content.content_id, 'on_page')"
-                    class="platform-cropper"
-                    :style="
-                      is_mobile
-                        ? ''
-                        : 'width: 50px;height: 50px;border-radius: 10px;'
+                  <img
+                    v-bind:src="
+                      'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                      index +
+                      '.jpg'
                     "
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        index +
-                        '.jpg'
-                      "
-                      class="platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="platforms"
-                :style="is_mobile ? '' : 'margin-top: 10px;'"
-                v-if="
-                  !Object.keys(content.data.where_to_watch || {}).includes(
-                    'stream'
-                  ) &&
-                  Object.keys(content.data.where_to_watch || {}).includes(
-                    'rent'
-                  )
-                "
-              >
-                <div
-                  class="platforms-container"
-                  v-for="(item, index) in content.data.where_to_watch.rent"
-                  :key="index"
-                >
-                  <div
-                    @click="goToPlatform(item, content.content_id, 'on_page')"
-                    class="platform-cropper"
-                    :style="
-                      is_mobile
-                        ? ''
-                        : 'width: 50px;height: 50px;border-radius: 10px;'
-                    "
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        index +
-                        '.jpg'
-                      "
-                      class="platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="platforms"
-                :style="is_mobile ? '' : 'margin-top: 10px;'"
-                v-if="
-                  !Object.keys(content.data.where_to_watch || {}).includes(
-                    'stream'
-                  ) &&
-                  !Object.keys(content.data.where_to_watch || {}).includes(
-                    'rent'
-                  ) &&
-                  Object.keys(content.data.where_to_watch || {}).includes('buy')
-                "
-              >
-                <div
-                  class="platforms-container"
-                  v-for="(item, index) in content.data.where_to_watch.buy"
-                  :key="index"
-                >
-                  <div
-                    @click="goToPlatform(item, content.content_id, 'on_page')"
-                    class="platform-cropper"
-                    :style="
-                      is_mobile
-                        ? ''
-                        : 'width: 50px;height: 50px;border-radius: 10px;'
-                    "
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        index +
-                        '.jpg'
-                      "
-                      class="platform-icon"
-                    />
-                  </div>
+                    class="platform-icon"
+                  />
                 </div>
               </div>
             </div>
@@ -570,8 +454,10 @@ import { mixin as onClickOutside } from "vue-on-click-outside";
 import ContentCoverLandscape from "./../components/atomic/ContentCoverLandscape";
 import ContentCoverPortrait from "./../components/atomic/ContentCoverPortrait";
 import Trailer from "./../components/atomic/Trailer";
+import ContentMetaBlock from "./../components/atomic/ContentMetaBlock";
 import Poster from "./../components/molecular/Poster";
 import Artist from "./../components/molecular/Artist";
+import UserRating from "./../components/molecular/UserRating";
 
 export default {
   name: "App",
@@ -580,8 +466,10 @@ export default {
     ContentCoverLandscape,
     ContentCoverPortrait,
     Trailer,
+    ContentMetaBlock,
     Poster,
     Artist,
+    UserRating,
   },
 
   data() {
@@ -1041,6 +929,23 @@ export default {
         return false;
       }
     },
+    whereToWatchOptions() {
+      if (
+        Object.keys(this.content.data.where_to_watch || {}).includes("stream")
+      ) {
+        return this.content.data.where_to_watch.stream;
+      } else if (
+        Object.keys(this.content.data.where_to_watch || {}).includes("rent")
+      ) {
+        return this.content.data.where_to_watch.rent;
+      } else if (
+        Object.keys(this.content.data.where_to_watch || {}).includes("buy")
+      ) {
+        return this.content.data.where_to_watch.buy;
+      } else {
+        return {};
+      }
+    },
   },
   watch: {
     check_rerender: {
@@ -1055,7 +960,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "./../styles/mixins.scss";
 
 #app {
@@ -1087,11 +992,10 @@ export default {
   text-align: left;
 }
 .watchlist-true {
-  position: absolute;
-  height: 13px;
-  width: 13px;
+  position: relative;
+  height: 11px;
+  width: 11px;
   margin-left: 4px;
-  margin-top: 8px;
   background-image: url("./../images/checked.svg");
   background-color: #ffffff;
   background-size: 100% 100%;
@@ -1103,11 +1007,10 @@ export default {
   -webkit-tap-highlight-color: transparent;
 }
 .watchlist-false {
-  position: absolute;
-  height: 13px;
-  width: 13px;
+  position: relative;
+  height: 11px;
+  width: 11px;
   margin-left: 4px;
-  margin-top: 8px;
   background-image: url("./../images/plus.svg");
   background-color: #ffffff;
   background-size: 100% 100%;
@@ -1131,7 +1034,7 @@ export default {
 }
 .user-rating-container {
   position: relative;
-  margin-top: 20px;
+  width: 115px;
 }
 .thumbs-up-true {
   position: relative;
@@ -1230,16 +1133,24 @@ export default {
 .summary-text {
   position: relative;
   margin-left: 0%;
-  margin-top: 15px;
+  margin-top: 20px;
   font-size: 14px;
   text-align: left;
-  border-top: 1px solid #f3f3f3;
-  padding-top: 15px;
+}
+.summary-text:first-letter {
+  font-size: 32px;
+  font-weight: bold;
+  line-height: 1;
 }
 .info-container {
   position: relative;
-  margin-top: 15px;
-  border-top: 1px solid #f3f3f3;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.info-item {
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 .ratings {
   width: 100%;
@@ -1331,9 +1242,9 @@ export default {
 .platforms {
   display: inline-flex;
   overflow-x: scroll;
-  width: 94%;
+  width: 100%;
   white-space: nowrap;
-  margin-top: 6px;
+  margin-top: 10px;
 }
 .platform-cropper {
   width: 50px;
@@ -1375,23 +1286,19 @@ export default {
 }
 .artists-box {
   position: relative;
-  margin-top: 13px;
-  padding-top: 15px;
-  border-top: 1px solid #f3f3f3;
+  margin-top: 20px;
   margin-bottom: 20px;
 }
 .similar-content-box {
   position: relative;
-  margin-top: 13px;
-  padding-top: 15px;
-  border-top: 1px solid #f3f3f3;
+  margin-top: 20px;
 }
 .watchlist-continer {
   position: relative;
-  display: initial;
   white-space: nowrap;
-  padding: 5px 21px 5px 5px;
-  font-size: 12px;
+  display: flex;
+  padding: 5px;
+  font-size: 11px;
   font-weight: bold;
   font-stretch: normal;
   font-style: normal;
@@ -1738,5 +1645,13 @@ export default {
   background-repeat: no-repeat;
   background-position: center;
   z-index: 100000;
+}
+
+.user-rating-watchlist-container {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
 }
 </style>

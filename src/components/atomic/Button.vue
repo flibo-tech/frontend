@@ -77,9 +77,9 @@ export default {
 
     imageURL() {
       if (this.state) {
-        return require("../../assets/icons/" + this.icon + "_true" + ".svg");
+        return require("./../../assets/icons/" + this.icon + "_true" + ".svg");
       }
-      return require("../../assets/icons/" + this.icon + ".svg");
+      return require("./../../assets/icons/" + this.icon + ".svg");
     },
   },
 
