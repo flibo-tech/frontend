@@ -4,9 +4,17 @@
       class="image-container"
       :style="{ width: width + 'px', height: height + 'px' }"
     >
-      <img :src="image" />
+      <img :src="image" :style="scale ? 'transform: scale(1.5);' : ''" />
     </div>
-    <p :style="{ top: 8 + spacing + 'px', width: width + 'px' }">{{ name }}</p>
+    <p
+      :style="{
+        top: 8 + spacing + 'px',
+        width: width + 'px',
+        'font-size': (is_mobile ? 10 : 12) + 'px',
+      }"
+    >
+      {{ name }}
+    </p>
   </div>
 </template>
 
@@ -40,6 +48,17 @@ export default {
       type: String,
       default: "bottom",
     },
+    scale: {
+      type: Boolean,
+      default: false,
+      require: false,
+    },
+  },
+
+  data() {
+    return {
+      is_mobile: window.screen.height > window.screen.width,
+    };
   },
 
   computed: {
@@ -86,13 +105,13 @@ img {
 p {
   position: relative;
   white-space: normal;
-  font-size: 10px;
-  font-weight: bold;
+  font-weight: 700;
   font-stretch: normal;
   font-style: normal;
   line-height: 1.17;
   letter-spacing: normal;
   text-align: center;
+  text-transform: capitalize;
   color: #222222;
   cursor: pointer;
   -webkit-user-select: none;

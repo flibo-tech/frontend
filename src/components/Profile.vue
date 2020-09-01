@@ -501,28 +501,29 @@
           >
             <div
               v-for="(item, index) in contents_rated"
+              :key="index"
               v-if="item.type == content_type && [3].includes(item.rating)"
               class="ratings-item-container"
             >
-              <img
-                v-bind:src="item.poster"
-                :style="
-                  own_profile != true
-                    ? 'border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;'
-                    : ''
-                "
+              <Poster
                 :class="
                   is_mobile
                     ? 'ratings-item-poster'
                     : 'desktop-ratings-item-poster'
                 "
-                @click="
-                  openContent(
-                    item.content_id,
-                    item.title,
-                    'profile_' + (own_profile ? 'self_' : 'other_') + 'ratings'
-                  )
+                :containerWidth="is_mobile ? 106 : 150"
+                :contentId="item.content_id"
+                :title="item.title"
+                :image="item.poster"
+                :showTrailer="false"
+                :whereToWatch="own_profile ? {} : item.where_to_watch"
+                :userPlatforms="
+                  store.user.id ? store.user.profile.platforms || [''] : ['']
                 "
+                :showName="false"
+                :parent="'profile_' + (own_profile ? 'self' : 'other')"
+                posterLocation="ratings"
+                v-on="$listeners"
               />
 
               <div
@@ -578,116 +579,6 @@
                     )
                   "
                 ></button>
-              </div>
-
-              <div
-                class="profile-platforms"
-                :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-                v-if="
-                  own_profile != true &&
-                  Object.keys(item.where_to_watch || {}).includes('stream')
-                "
-              >
-                <div
-                  class="profile-platforms-container"
-                  v-for="(stream_item, stream_index) in item.where_to_watch
-                    .stream"
-                >
-                  <div
-                    @click="
-                      goToProfilePlatform(
-                        stream_item,
-                        item.content_id,
-                        'ratings'
-                      )
-                    "
-                    class="profile-platform-cropper"
-                    :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="profile-platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="profile-platforms"
-                :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-                v-if="
-                  own_profile != true &&
-                  !Object.keys(item.where_to_watch || {}).includes('stream') &&
-                  Object.keys(item.where_to_watch || {}).includes('rent')
-                "
-              >
-                <div
-                  class="profile-platforms-container"
-                  v-for="(stream_item, stream_index) in item.where_to_watch
-                    .rent"
-                >
-                  <div
-                    @click="
-                      goToProfilePlatform(
-                        stream_item,
-                        item.content_id,
-                        'ratings'
-                      )
-                    "
-                    class="profile-platform-cropper"
-                    :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="profile-platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="profile-platforms"
-                :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-                v-if="
-                  own_profile != true &&
-                  !Object.keys(item.where_to_watch || {}).includes('stream') &&
-                  !Object.keys(item.where_to_watch || {}).includes('rent') &&
-                  Object.keys(item.where_to_watch || {}).includes('buy')
-                "
-              >
-                <div
-                  class="profile-platforms-container"
-                  v-for="(stream_item, stream_index) in item.where_to_watch.buy"
-                >
-                  <div
-                    @click="
-                      goToProfilePlatform(
-                        stream_item,
-                        item.content_id,
-                        'ratings'
-                      )
-                    "
-                    class="profile-platform-cropper"
-                    :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="profile-platform-icon"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -711,27 +602,28 @@
             <div
               class="ratings-item-container"
               v-for="(item, index) in contents_rated"
+              :key="index"
               v-if="item.type == content_type && [2].includes(item.rating)"
             >
-              <img
-                v-bind:src="item.poster"
-                :style="
-                  own_profile != true
-                    ? 'border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;'
-                    : ''
-                "
+              <Poster
                 :class="
                   is_mobile
                     ? 'ratings-item-poster'
                     : 'desktop-ratings-item-poster'
                 "
-                @click="
-                  openContent(
-                    item.content_id,
-                    item.title,
-                    'profile_' + (own_profile ? 'self_' : 'other_') + 'ratings'
-                  )
+                :containerWidth="is_mobile ? 106 : 150"
+                :contentId="item.content_id"
+                :title="item.title"
+                :image="item.poster"
+                :showTrailer="false"
+                :whereToWatch="own_profile ? {} : item.where_to_watch"
+                :userPlatforms="
+                  store.user.id ? store.user.profile.platforms || [''] : ['']
                 "
+                :showName="false"
+                :parent="'profile_' + (own_profile ? 'self' : 'other')"
+                posterLocation="ratings"
+                v-on="$listeners"
               />
 
               <div
@@ -787,116 +679,6 @@
                     )
                   "
                 ></button>
-              </div>
-
-              <div
-                class="profile-platforms"
-                :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-                v-if="
-                  own_profile != true &&
-                  Object.keys(item.where_to_watch || {}).includes('stream')
-                "
-              >
-                <div
-                  class="profile-platforms-container"
-                  v-for="(stream_item, stream_index) in item.where_to_watch
-                    .stream"
-                >
-                  <div
-                    @click="
-                      goToProfilePlatform(
-                        stream_item,
-                        item.content_id,
-                        'ratings'
-                      )
-                    "
-                    class="profile-platform-cropper"
-                    :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="profile-platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="profile-platforms"
-                :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-                v-if="
-                  own_profile != true &&
-                  !Object.keys(item.where_to_watch || {}).includes('stream') &&
-                  Object.keys(item.where_to_watch || {}).includes('rent')
-                "
-              >
-                <div
-                  class="profile-platforms-container"
-                  v-for="(stream_item, stream_index) in item.where_to_watch
-                    .rent"
-                >
-                  <div
-                    @click="
-                      goToProfilePlatform(
-                        stream_item,
-                        item.content_id,
-                        'ratings'
-                      )
-                    "
-                    class="profile-platform-cropper"
-                    :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="profile-platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="profile-platforms"
-                :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-                v-if="
-                  own_profile != true &&
-                  !Object.keys(item.where_to_watch || {}).includes('stream') &&
-                  !Object.keys(item.where_to_watch || {}).includes('rent') &&
-                  Object.keys(item.where_to_watch || {}).includes('buy')
-                "
-              >
-                <div
-                  class="profile-platforms-container"
-                  v-for="(stream_item, stream_index) in item.where_to_watch.buy"
-                >
-                  <div
-                    @click="
-                      goToProfilePlatform(
-                        stream_item,
-                        item.content_id,
-                        'ratings'
-                      )
-                    "
-                    class="profile-platform-cropper"
-                    :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="profile-platform-icon"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -919,28 +701,29 @@
           >
             <div
               v-for="(item, index) in contents_rated"
+              :key="index"
               v-if="item.type == content_type && [1].includes(item.rating)"
               class="ratings-item-container"
             >
-              <img
-                v-bind:src="item.poster"
-                :style="
-                  own_profile != true
-                    ? 'border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;'
-                    : ''
-                "
+              <Poster
                 :class="
                   is_mobile
                     ? 'ratings-item-poster'
                     : 'desktop-ratings-item-poster'
                 "
-                @click="
-                  openContent(
-                    item.content_id,
-                    item.title,
-                    'profile_' + (own_profile ? 'self_' : 'other_') + 'ratings'
-                  )
+                :containerWidth="is_mobile ? 106 : 150"
+                :contentId="item.content_id"
+                :title="item.title"
+                :image="item.poster"
+                :showTrailer="false"
+                :whereToWatch="own_profile ? {} : item.where_to_watch"
+                :userPlatforms="
+                  store.user.id ? store.user.profile.platforms || [''] : ['']
                 "
+                :showName="false"
+                :parent="'profile_' + (own_profile ? 'self' : 'other')"
+                posterLocation="ratings"
+                v-on="$listeners"
               />
 
               <div
@@ -996,116 +779,6 @@
                     )
                   "
                 ></button>
-              </div>
-
-              <div
-                class="profile-platforms"
-                :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-                v-if="
-                  own_profile != true &&
-                  Object.keys(item.where_to_watch || {}).includes('stream')
-                "
-              >
-                <div
-                  class="profile-platforms-container"
-                  v-for="(stream_item, stream_index) in item.where_to_watch
-                    .stream"
-                >
-                  <div
-                    @click="
-                      goToProfilePlatform(
-                        stream_item,
-                        item.content_id,
-                        'ratings'
-                      )
-                    "
-                    class="profile-platform-cropper"
-                    :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="profile-platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="profile-platforms"
-                :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-                v-if="
-                  own_profile != true &&
-                  !Object.keys(item.where_to_watch || {}).includes('stream') &&
-                  Object.keys(item.where_to_watch || {}).includes('rent')
-                "
-              >
-                <div
-                  class="profile-platforms-container"
-                  v-for="(stream_item, stream_index) in item.where_to_watch
-                    .rent"
-                >
-                  <div
-                    @click="
-                      goToProfilePlatform(
-                        stream_item,
-                        item.content_id,
-                        'ratings'
-                      )
-                    "
-                    class="profile-platform-cropper"
-                    :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="profile-platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="profile-platforms"
-                :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-                v-if="
-                  own_profile != true &&
-                  !Object.keys(item.where_to_watch || {}).includes('stream') &&
-                  !Object.keys(item.where_to_watch || {}).includes('rent') &&
-                  Object.keys(item.where_to_watch || {}).includes('buy')
-                "
-              >
-                <div
-                  class="profile-platforms-container"
-                  v-for="(stream_item, stream_index) in item.where_to_watch.buy"
-                >
-                  <div
-                    @click="
-                      goToProfilePlatform(
-                        stream_item,
-                        item.content_id,
-                        'ratings'
-                      )
-                    "
-                    class="profile-platform-cropper"
-                    :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="profile-platform-icon"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -1235,138 +908,30 @@
         >
           <div
             v-for="(item, index) in watchlist"
+            :key="index"
             v-if="item.type == content_type"
             class="ratings-item-container"
           >
-            <img
-              v-bind:src="item.poster"
-              :style="
-                own_profile != true
-                  ? 'border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;'
-                  : ''
-              "
+            <Poster
               :class="
                 is_mobile
                   ? 'ratings-item-poster'
                   : 'desktop-ratings-item-poster'
               "
-              @click="
-                openContent(
-                  item.content_id,
-                  item.title,
-                  'profile_' + (own_profile ? 'self_' : 'other_') + 'watchlist'
-                )
+              :containerWidth="is_mobile ? 106 : 150"
+              :contentId="item.content_id"
+              :title="item.title"
+              :image="item.poster"
+              :showTrailer="false"
+              :whereToWatch="own_profile ? {} : item.where_to_watch"
+              :userPlatforms="
+                store.user.id ? store.user.profile.platforms || [''] : ['']
               "
+              :showName="false"
+              :parent="'profile_' + (own_profile ? 'self' : 'other')"
+              posterLocation="ratings"
+              v-on="$listeners"
             />
-
-            <div
-              class="profile-platforms"
-              :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-              v-if="
-                own_profile != true &&
-                Object.keys(item.where_to_watch || {}).includes('stream')
-              "
-            >
-              <div
-                class="profile-platforms-container"
-                v-for="(stream_item, stream_index) in item.where_to_watch
-                  .stream"
-              >
-                <div
-                  @click="
-                    goToProfilePlatform(
-                      stream_item,
-                      item.content_id,
-                      'watchlist'
-                    )
-                  "
-                  class="profile-platform-cropper"
-                  :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                >
-                  <img
-                    v-bind:src="
-                      'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                      stream_index +
-                      '.jpg'
-                    "
-                    class="profile-platform-icon"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="profile-platforms"
-              :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-              v-if="
-                own_profile != true &&
-                !Object.keys(item.where_to_watch || {}).includes('stream') &&
-                Object.keys(item.where_to_watch || {}).includes('rent')
-              "
-            >
-              <div
-                class="profile-platforms-container"
-                v-for="(stream_item, stream_index) in item.where_to_watch.rent"
-              >
-                <div
-                  @click="
-                    goToProfilePlatform(
-                      stream_item,
-                      item.content_id,
-                      'watchlist'
-                    )
-                  "
-                  class="profile-platform-cropper"
-                  :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                >
-                  <img
-                    v-bind:src="
-                      'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                      stream_index +
-                      '.jpg'
-                    "
-                    class="profile-platform-icon"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="profile-platforms"
-              :style="is_mobile ? '' : 'width: 150px;margin-top: -42px;'"
-              v-if="
-                own_profile != true &&
-                !Object.keys(item.where_to_watch || {}).includes('stream') &&
-                !Object.keys(item.where_to_watch || {}).includes('rent') &&
-                Object.keys(item.where_to_watch || {}).includes('buy')
-              "
-            >
-              <div
-                class="profile-platforms-container"
-                v-for="(stream_item, stream_index) in item.where_to_watch.buy"
-              >
-                <div
-                  @click="
-                    goToProfilePlatform(
-                      stream_item,
-                      item.content_id,
-                      'watchlist'
-                    )
-                  "
-                  class="profile-platform-cropper"
-                  :style="is_mobile ? '' : 'width: 28px;height: 28px;'"
-                >
-                  <img
-                    v-bind:src="
-                      'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                      stream_index +
-                      '.jpg'
-                    "
-                    class="profile-platform-icon"
-                  />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -1388,26 +953,19 @@
         :style="is_mobile ? '' : 'margin-bottom: 0px;'"
         v-if="friends.length"
       >
-        <div v-for="(item, index) in friends" class="profile-friend-container">
-          <div
-            class="profile-friend-pp-cropper"
-            :style="is_mobile ? '' : 'width: 90px;height: 90px;'"
-            @click="clickUser(item.id, item.name)"
-          >
-            <img
-              v-bind:src="item.picture"
-              onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
-              class="profile-friend-pp"
-            />
-          </div>
-
-          <h5
-            class="profile-friend-name"
-            :style="is_mobile ? '' : 'width: 90px;'"
-            @click="clickUser(item.id, item.name)"
-          >
-            {{ item.name.toLowerCase() }}
-          </h5>
+        <div
+          v-for="(item, index) in friends"
+          :key="index"
+          class="profile-friend-container"
+          @click="clickUser(item.id, item.name)"
+        >
+          <Person
+            :image="item.picture"
+            :name="item.name"
+            :width="is_mobile ? 55 : 75"
+            :height="is_mobile ? 70 : 95"
+            :scale="true"
+          />
         </div>
       </div>
 
@@ -1453,8 +1011,8 @@
             :name="artist.name"
             :image="artist.picture"
             credit_category="directed_by"
-            :width="55"
-            :height="70"
+            :width="is_mobile ? 55 : 75"
+            :height="is_mobile ? 70 : 95"
             :parent="(own_profile ? 'self' : 'other') + '_profile'"
             v-on="$listeners"
           />
@@ -1477,8 +1035,8 @@
             :name="artist.name"
             :image="artist.picture"
             credit_category="cast"
-            :width="55"
-            :height="70"
+            :width="is_mobile ? 55 : 75"
+            :height="is_mobile ? 70 : 95"
             :parent="(own_profile ? 'self' : 'other') + '_profile'"
             v-on="$listeners"
           />
@@ -1505,8 +1063,8 @@
             :name="artist.name"
             :image="artist.picture"
             credit_category="writing_credits"
-            :width="55"
-            :height="70"
+            :width="is_mobile ? 55 : 75"
+            :height="is_mobile ? 70 : 95"
             :parent="(own_profile ? 'self' : 'other') + '_profile'"
             v-on="$listeners"
           />
@@ -1552,6 +1110,8 @@ import SearchBar from "./SearchBar";
 import GenresPie from "./GenresPie";
 import WatchedTimeline from "./WatchedTimeline";
 import Artist from "./molecular/Artist";
+import Poster from "./molecular/Poster";
+import Person from "./atomic/Person";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -1562,6 +1122,8 @@ export default {
     GenresPie,
     WatchedTimeline,
     Artist,
+    Poster,
+    Person,
   },
   data() {
     return {
@@ -2755,167 +2317,11 @@ h4 {
   border: none;
   outline: 0px;
 }
-.content-type-tabs {
-  right: 15px;
-  margin-top: 10px;
-  background-color: #ffffff;
-  position: fixed;
-  overflow: hidden;
-  padding: 0px 10px;
-  z-index: 10001;
-  text-align: center;
-  display: grid;
-  grid-column-gap: 10px;
-}
-.content-type-tabs a {
-  position: relative;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  border-radius: 5px 3px 0 0;
-  padding: 6px 0px;
-  font-size: 15px;
-  text-transform: uppercase;
-  display: inline-grid;
-  grid-row-start: 1;
-  grid-row-end: 3;
-  font-weight: bold;
-  -webkit-user-select: none; /* Chrome/Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE10+ */
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.content-type-tabs a.is-active {
-  font-weight: bold;
-}
-.content-type-tabs a.is-active:after {
-  content: "";
-  position: absolute;
-  left: calc(50% - 7.5px);
-  bottom: 0px;
-  width: 15px;
-  height: 3px;
-  background-color: #333333;
-  border-radius: 3px;
-}
-.watching-these-days {
-  display: inline-flex;
-  margin-top: 5%;
-  color: #333333;
-  font-size: 12.5px;
-  text-align: left;
-  width: 100%;
-  background-color: #f9f9f9;
-  border-radius: 7px;
-  padding: 7px;
-}
-.watching-these-days-card-container {
-  position: relative;
-  margin-top: 7%;
-  margin-right: 3%;
-}
-.watching-these-days-card {
-  width: 21vw;
-  height: 31.5vw;
-  border-radius: 7px;
-}
-.watching-these-days-no-card {
-  width: 21vw;
-  height: 31.5vw;
-  background-image: url("./../images/plus.svg");
-  background-size: 35% 35%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #f5f4f4;
-  border-radius: 7px;
-}
-.remove-card {
-  position: absolute;
-  right: -5px;
-  top: -5px;
-  height: 4vw;
-  width: 4vw;
-  background-image: url("./../images/close.png");
-  background-color: #706f6fb2;
-  background-size: 100% 100%;
-  border: none;
-  outline: 0;
-  border-radius: 10px;
-}
 .fadeIn {
   animation: fadeIn 0.3s;
 }
 .fadeOut {
   animation: fadeOut 0.6s;
-}
-.add-content-search .search-box {
-  position: fixed;
-  width: 65%;
-  left: 18%;
-  margin-top: 49%;
-  z-index: 100001;
-}
-.add-content-search .search-btn-clear-text {
-  position: fixed;
-  display: block;
-  right: 19%;
-  margin-top: 49%;
-  height: 18px;
-  width: 18px;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  background-image: url("./../images/close.png");
-  background-size: 100% 100%;
-  animation: 0.3s fadeIn;
-  z-index: 100001;
-}
-.add-content-search .filter-contents {
-  overflow-y: scroll;
-  width: 60%;
-  white-space: nowrap;
-  left: 20.5%;
-  margin-top: 50%;
-  background-color: white;
-  z-index: 100000;
-  position: fixed;
-  height: 35%;
-}
-.add-content-search .filter-contents .content-items {
-  overflow-y: scroll;
-  height: 100%;
-  margin-top: 0%;
-}
-.add-content-search .no-content-box {
-  margin-top: 0%;
-  height: 100%;
-  overflow-y: scroll;
-  background: #fdfdfd;
-}
-.add-content-search .no-content-found {
-  position: relative;
-  top: 50%;
-  font-size: 15px;
-  text-align: center;
-  transform: translateY(-50%);
-}
-.add-content-search .searching-content-box {
-  margin-top: 0%;
-  height: 100%;
-  overflow-y: scroll;
-  background: #fdfdfd;
-}
-.add-content-search .searching-content {
-  position: relative;
-  top: 50%;
-  font-size: 15px;
-  text-align: center;
-  transform: translateY(-50%);
 }
 .black-background {
   position: fixed;
@@ -2990,7 +2396,7 @@ h4 {
   font-weight: normal;
   font-size: 3.5vw;
   margin-left: 1%;
-  margin-top: calc(21% + 10px);
+  margin-top: calc(21% + 5px);
   width: 20%;
   color: #0e0d0d;
   text-transform: uppercase;
@@ -3018,7 +2424,7 @@ h4 {
   width: 94%;
   white-space: nowrap;
   padding: 10px;
-  margin-left: 20px;
+  margin-left: calc(20px + 1%);
   margin-top: 10px;
 }
 .fav-artists::-webkit-scrollbar {
@@ -3026,56 +2432,6 @@ h4 {
 }
 ::-webkit-scrollbar {
   display: none;
-}
-.fav-artist-cropper {
-  display: inline-block;
-  width: 55px;
-  height: 70px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.desktop-fav-artist-cropper {
-  display: inline-block;
-  width: 75px;
-  height: 95px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.fav-artist-pic {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.fav-artist-name {
-  margin-top: 7px;
-  position: relative;
-  font-size: 10px;
-  width: 55px;
-  white-space: normal;
-  font-weight: 700;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333;
-}
-.desktop-fav-artist-name {
-  margin-top: 7px;
-  position: relative;
-  font-size: 12px;
-  width: 75px;
-  white-space: normal;
-  font-weight: 700;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333;
 }
 .fav-catg-artists-container {
   display: inline-block;
@@ -3137,7 +2493,6 @@ h4 {
 }
 .profile-user-rating-container {
   position: relative;
-  margin-top: -4%;
   text-align: left;
 }
 .desktop-profile-user-rating-container {
@@ -3240,165 +2595,6 @@ h4 {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.rating-tabs {
-  overflow: hidden;
-  margin-left: 25%;
-  margin-bottom: 2%;
-  margin-top: 2%;
-  width: 50%;
-}
-.rating-tabs a.all-ratings {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  background-color: #ffffff;
-  height: 7.5vw;
-  width: 7.5vw;
-  margin-left: 5%;
-  margin-top: 1.5%;
-  border: none;
-  outline: 0;
-  padding: 5%;
-  font-weight: bold;
-  font-size: 4vw;
-}
-.rating-tabs a.all-ratings-are-active {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  height: 9vw;
-  width: 9vw;
-  margin-left: 5%;
-  margin-top: 1.5%;
-  background-color: #c4bdbdc0;
-  border: none;
-  outline: 0;
-  border-radius: 5px;
-  padding: 4%;
-  font-weight: bold;
-  font-size: 4vw;
-}
-.rating-tabs a.like {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  background-color: #ffffff;
-  height: 7.5vw;
-  width: 7.5vw;
-  margin-left: 6%;
-  margin-top: 1.5%;
-  background-image: url("./../images/thumbs_up_true.svg");
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-}
-.rating-tabs a.like-is-active {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  height: 9vw;
-  width: 9vw;
-  margin-left: 6%;
-  margin-top: 1%;
-  background-image: url("./../images/thumbs_up_true.svg");
-  background-color: #c4bdbdc0;
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-  border-radius: 5px;
-}
-.rating-tabs a.dislike {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  background-color: #ffffff;
-  height: 7.5vw;
-  width: 7.5vw;
-  margin-left: 6%;
-  margin-top: 3.5%;
-  background-image: url("./../images/thumbs_down_true.svg");
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-}
-.rating-tabs a.dislike-is-active {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  height: 9vw;
-  width: 9vw;
-  margin-left: 6%;
-  margin-top: 1.5%;
-  background-image: url("./../images/thumbs_down_true.svg");
-  background-color: #c4bdbdc0;
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-  border-radius: 5px;
-}
-.rating-tabs a.love {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  background-color: #ffffff;
-  height: 7.5vw;
-  width: 7.5vw;
-  margin-left: 6%;
-  margin-top: 2%;
-  background-image: url("./../images/love_true.svg");
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-}
-.rating-tabs a.love-is-active {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  height: 9vw;
-  width: 9vw;
-  margin-left: 6%;
-  margin-top: 1%;
-  background-image: url("./../images/love_true.svg");
-  background-color: #c4bdbdc0;
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-  border-radius: 5px;
-}
 .genres-container {
   margin-top: 15px;
   color: #333333;
@@ -3453,11 +2649,6 @@ h4 {
   width: 50%;
   border-radius: 7px;
   padding: 7px;
-}
-.stats-fun-container {
-  height: 78vh;
-  overflow: scroll;
-  margin-bottom: 2%;
 }
 .banner {
   position: absolute;
@@ -3545,40 +2736,6 @@ h4 {
   margin-right: 15px;
   position: relative;
   display: inline-block;
-}
-.profile-friend-pp-cropper {
-  width: 65px;
-  height: 65px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-  z-index: 2;
-  background-color: #ffffff;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-friend-pp {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.profile-friend-name {
-  margin: 0 auto;
-  position: relative;
-  font-size: 13px;
-  width: 65px;
-  margin-top: 3px;
-  white-space: normal;
-  font-weight: bold;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  color: #333333;
-  overflow: hidden;
-  text-transform: capitalize;
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -3597,11 +2754,6 @@ h4 {
   text-align: left;
   overflow-x: scroll;
   display: flex;
-}
-.no-ratings-container {
-  height: 32vh;
-  overflow: scroll;
-  margin-bottom: 2%;
 }
 .reset-ratings {
   position: absolute;
@@ -4082,81 +3234,6 @@ h4 {
   letter-spacing: normal;
   color: #adaaaa;
   font-family: "Poiret One", cursive;
-}
-.profile-platforms {
-  text-align: center;
-  position: absolute;
-  overflow-x: scroll;
-  white-space: nowrap;
-  margin-top: -33px;
-  margin-left: 0px;
-  width: 106px;
-  padding: 5px 0px;
-  border-radius: 0 0 7px 7px;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-.profile-platform-cropper {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.profile-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
-}
-.profile-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin-left: 8px;
-  margin-right: 8px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-by-artist-platforms {
-  text-align: center;
-  position: absolute;
-  overflow-x: scroll;
-  white-space: nowrap;
-  margin-top: -34px;
-  margin-left: 0px;
-  width: 100px;
-  padding: 5px;
-  border-radius: 0 0 7px 7px;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-.profile-by-artist-platform-cropper {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.profile-by-artist-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
-}
-.profile-by-artist-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin-left: 8px;
-  margin-right: 8px;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 .collage-download-button {
   position: absolute;
