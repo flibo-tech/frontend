@@ -117,13 +117,13 @@
               <ContentMetaBlock
                 class="info-item"
                 v-if="content.data.imdb_score"
-                :text="'IMDB ' + content.data.imdb_score"
+                :text="'IMDb ' + content.data.imdb_score"
               />
 
               <ContentMetaBlock
                 class="info-item"
                 v-if="content.data.tomato_meter"
-                :text="'TOMATOMETER ' + content.data.tomato_meter"
+                :text="'Tomatometer ' + content.data.tomato_meter"
               />
 
               <ContentMetaBlock
@@ -243,6 +243,54 @@
                 style="margin-top: 8%; margin-left: 3%; font-size: 4vw;"
               >
                 Oops...Could not find any similar content.
+              </div>
+            </div>
+          </div>
+
+          <div class="friends-box" v-if="friends_ratings.length">
+            <div
+              class="category"
+              :style="
+                is_mobile
+                  ? 'margin-top: 19%;'
+                  : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
+              "
+            >
+              Friends
+            </div>
+            <div class="artists" style="padding: 0px 10px; margin-top: 0;">
+              <div
+                v-for="(friend, index) in friends_ratings"
+                :key="index"
+                class="artists-container"
+                @click="clickUser(friend.user_id, friend.name)"
+              >
+                <!-- margins in class friend-rating-icon are dependent on followin Person component's size -->
+                <Button
+                  class="friend-rating-icon"
+                  style="background-color: #fff;"
+                  :icon="
+                    friend.rating == 3
+                      ? 'love'
+                      : friend.rating == 2
+                      ? 'thumbs_up'
+                      : 'thumbs_down'
+                  "
+                  buttonType="iconOnly"
+                  :size="20"
+                  :state="true"
+                  :disabled="true"
+                />
+
+                <Person
+                  :name="friend.name"
+                  :image="friend.picture"
+                  :width="55"
+                  :height="70"
+                  :spacing="14"
+                  :scale="true"
+                  v-on="$listeners"
+                />
               </div>
             </div>
           </div>
@@ -455,6 +503,8 @@ import ContentCoverLandscape from "./../components/atomic/ContentCoverLandscape"
 import ContentCoverPortrait from "./../components/atomic/ContentCoverPortrait";
 import Trailer from "./../components/atomic/Trailer";
 import ContentMetaBlock from "./../components/atomic/ContentMetaBlock";
+import Person from "./../components/atomic/Person";
+import Button from "./../components/atomic/Button";
 import Poster from "./../components/molecular/Poster";
 import Artist from "./../components/molecular/Artist";
 import UserRating from "./../components/molecular/UserRating";
@@ -467,9 +517,11 @@ export default {
     ContentCoverPortrait,
     Trailer,
     ContentMetaBlock,
+    Person,
     Poster,
     Artist,
     UserRating,
+    Button,
   },
 
   data() {
@@ -486,6 +538,7 @@ export default {
       prompt_content_share: false,
       store: this.$store.state,
       share_item: "poster",
+      friends_ratings: [],
     };
   },
 
@@ -604,6 +657,22 @@ export default {
         // console.log(error);
         self.loading = false;
       });
+
+    axios
+      .post(this.$store.state.api_host + "friends_content_ratings", {
+        session_id: this.$store.state.session_id,
+        content_id: this.$store.state.content_page.content_id,
+      })
+      .then(function (response) {
+        if (response.status == 200) {
+          self.friends_ratings = response.data.friends_ratings;
+        } else {
+          // console.log(response.status);
+        }
+      })
+      .catch(function (error) {
+        // console.log(error);
+      });
   },
   mounted() {
     window.addEventListener("scroll", this.promptTapOnArtist);
@@ -619,6 +688,7 @@ export default {
       this.$store.state.content_page.data = null;
       this.$store.state.content_page.crew = null;
       this.$store.state.content_page.more_by_artist = [];
+      this.friends_ratings = [];
       axios
         .post(this.$store.state.api_host + "content_page", {
           session_id: this.$store.state.session_id,
@@ -665,6 +735,21 @@ export default {
               response.data.contents;
           } else if (response.status == 204) {
             self.$store.state.content_page.similar_content = [];
+          }
+        })
+        .catch(function (error) {
+          // console.log(error);
+        });
+      axios
+        .post(this.$store.state.api_host + "friends_content_ratings", {
+          session_id: this.$store.state.session_id,
+          content_id: this.$store.state.content_page.content_id,
+        })
+        .then(function (response) {
+          if (response.status == 200) {
+            self.friends_ratings = response.data.friends_ratings;
+          } else {
+            // console.log(response.status);
           }
         })
         .catch(function (error) {
@@ -889,6 +974,11 @@ export default {
     updateZIndex(trailerPlaying) {
       const element = this.$refs.coverTrailer.$el;
       element.style.zIndex = trailerPlaying ? "100000" : "1000";
+    },
+    clickUser(id, name) {
+      this.$router.push(
+        "/profile/" + id + "/" + name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
     },
   },
   computed: {
@@ -1222,6 +1312,14 @@ export default {
   margin-right: 20px;
   vertical-align: top;
   text-align: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 .category {
   position: absolute;
@@ -1286,7 +1384,7 @@ export default {
 }
 .artists-box {
   position: relative;
-  margin-top: 20px;
+  margin-top: 10px;
   margin-bottom: 20px;
 }
 .similar-content-box {
@@ -1652,6 +1750,23 @@ export default {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-top: 10px;
+  margin-top: 20px;
+}
+.friends-box {
+  position: relative;
+  margin-top: 20px;
+  background-color: #eeeeee;
+  width: 100vw;
+  margin-left: -24px;
+  padding: 16px 24px;
+}
+.friend-rating-icon {
+  position: absolute;
+  margin-top: 70px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  background-color: #fff;
+  padding: 7px;
+  border-radius: 50%;
 }
 </style>

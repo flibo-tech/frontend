@@ -8,7 +8,7 @@
     </div>
     <p
       :style="{
-        top: 8 + spacing + 'px',
+        'margin-top': 8 + spacing + 'px',
         width: width + 'px',
         'font-size': (is_mobile ? 10 : 12) + 'px',
       }"
