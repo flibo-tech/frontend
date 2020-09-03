@@ -527,6 +527,7 @@
               />
 
               <UserRating
+                v-if="own_profile"
                 :class="
                   is_mobile
                     ? 'profile-user-rating-container'
@@ -587,6 +588,7 @@
               />
 
               <UserRating
+                v-if="own_profile"
                 :class="
                   is_mobile
                     ? 'profile-user-rating-container'
@@ -647,6 +649,7 @@
               />
 
               <UserRating
+                v-if="own_profile"
                 :class="
                   is_mobile
                     ? 'profile-user-rating-container'
