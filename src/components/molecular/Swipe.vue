@@ -111,9 +111,7 @@
           cardHeight / 3 +
           `px + 15px))`
         "
-        v-bind:class="[
-          this.$store.state.last_card ? 'last-card-true' : '',
-        ]"
+        v-bind:class="[this.$store.state.last_card ? 'last-card-true' : '']"
         @click="showLastCard"
       />
     </transition>
@@ -123,19 +121,7 @@
       enter-active-class="animated fadeIn"
       leave-active-class="animated rateFadeOut"
     >
-      <div
-        class="rate-item-platforms"
-        :style="
-          `--platforms-top-margin:` +
-          (marginTop + cardHeight) +
-          `px;
-                      --platforms-left-margin:translateX(calc(-` +
-          cardHeight / 3 +
-          `px + 1px)) translateY(-100%);
-                      --card-width:` +
-          cardHeight * (2 / 3) +
-          `px;`
-        "
+      <PlatformBar
         v-if="
           is_mobile &&
           store.rate.visible_cards.length &&
@@ -146,33 +132,18 @@
           Object.keys(store.rate.visible_cards[0].where_to_watch || {})
             .length != 0
         "
-      >
-        <div
-          class="rate-item-platforms-container"
-          v-for="(link, index) in store.rate.visible_cards[0].where_to_watch"
-          :key="index"
-        >
-          <div
-            @click="
-              goToPlatform(
-                link,
-                store.rate.visible_cards[0].content_id,
-                'swipe_poster'
-              )
-            "
-            class="rate-item-platform-cropper"
-          >
-            <img
-              v-bind:src="
-                'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                index +
-                '.jpg'
-              "
-              class="rate-item-platform-icon"
-            />
-          </div>
-        </div>
-      </div>
+        class="rate-item-platforms"
+        :style="`--platforms-top-margin:` + (marginTop + cardHeight) + `px;`"
+        :contentId="store.rate.visible_cards[0].content_id"
+        :userPlatforms="
+          store.user.id ? store.user.profile.platforms || [''] : ['']
+        "
+        :contentPlatforms="store.rate.visible_cards[0].where_to_watch"
+        :containerWidth="0.5 * cardHeight * (2 / 3)"
+        parent="swipe_poster"
+        posterLocation="rate"
+        v-on="$listeners"
+      />
     </transition>
   </div>
 </template>
@@ -180,6 +151,7 @@
 <script>
 import SwipeCard from "./../atomic/SwipeCard";
 import RatingLabel from "./../atomic/RatingLabel";
+import PlatformBar from "./../atomic/PlatformBar";
 import axios from "axios";
 
 export default {
@@ -187,6 +159,7 @@ export default {
   components: {
     SwipeCard,
     RatingLabel,
+    PlatformBar,
   },
   props: {
     cardHeight: {
@@ -779,33 +752,6 @@ export default {
   overflow-x: scroll;
   top: var(--platforms-top-margin);
   left: 50%;
-  transform: var(--platforms-left-margin);
-  width: var(--card-width);
-  padding: 5px 0px;
-  border-radius: 0 0 10px 10px;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-.rate-item-platform-cropper {
-  width: 35px;
-  height: 35px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.rate-item-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
-}
-.rate-item-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin-left: 5px;
-  margin-right: 5px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
+  transform: translateX(-50%) translateY(-50%);
 }
 </style>
