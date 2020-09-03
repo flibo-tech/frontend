@@ -41,63 +41,59 @@
     <div v-if="tab_name === 'Friends'" class="friends-box">
       <div
         v-for="(item, index) in store.friends_page.friends"
+        :key="index"
         v-if="
           [
             'friend',
             'unfriend?',
             'friends_other',
             'friends_request_sent',
-            'friends_cancel_request?'
+            'friends_cancel_request?',
           ].includes(item.friend_type)
         "
         class="friend-container"
       >
+        <Person
+          style="justify-content: flex-start;"
+          @clicked="clickUser(item.friend_id, item.name)"
+          :name="item.name"
+          :image="item.picture"
+          :width="55"
+          :height="70"
+          position="right"
+          :fontSize="15"
+          :scale="true"
+        />
+
         <div
-          class="friend-pp-cropper"
-          @click="clickUser(item.friend_id, item.name)"
-        >
-          <img
-            v-bind:src="item.picture"
-            onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
-            class="friend-pp"
-          />
-        </div>
-
-        <div class="friend-name-box">
-          <h5 class="friend-name" @click="clickUser(item.friend_id, item.name)">
-            {{ item.name }}
-          </h5>
-
-          <span
-            class="friends-friendship-status"
-            @click="
-              item.friend_type == 'friend'
-                ? promptUnfriend('friends', index, item.name, item.picture)
-                : ['friends_request_sent'].includes(item.friend_type)
-                ? unfriend('friends', index, 'request_sent')
-                : ['friends_other'].includes(item.friend_type)
-                ? sendRequest('friends', index)
-                : ''
-            "
-            :style="
-              ['friends_other'].includes(item.friend_type)
-                ? `color: #ffffff;
+          class="friends-friendship-status"
+          @click="
+            item.friend_type == 'friend'
+              ? promptUnfriend('friends', index, item.name, item.picture)
+              : ['friends_request_sent'].includes(item.friend_type)
+              ? unfriend('friends', index, 'request_sent')
+              : ['friends_other'].includes(item.friend_type)
+              ? sendRequest('friends', index)
+              : ''
+          "
+          :style="
+            ['friends_other'].includes(item.friend_type)
+              ? `color: #ffffff;
                                                                                     background-color: #3366BB;
                                                                                     padding: 5px;
                                                                                     border: none;`
-                : ''
-            "
-          >
-            {{
-              item.friend_type == "friend"
-                ? "Connection"
-                : ["friends_request_sent"].includes(item.friend_type)
-                ? "Requested"
-                : ["friends_other"].includes(item.friend_type)
-                ? "Connect"
-                : ""
-            }}
-          </span>
+              : ''
+          "
+        >
+          {{
+            item.friend_type == "friend"
+              ? "Connection"
+              : ["friends_request_sent"].includes(item.friend_type)
+              ? "Requested"
+              : ["friends_other"].includes(item.friend_type)
+              ? "Connect"
+              : ""
+          }}
         </div>
       </div>
     </div>
@@ -106,88 +102,81 @@
       <div class="friends-box">
         <div
           v-for="(item, index) in store.friends_page.friends"
+          :key="index"
           v-if="
             [
               'unapproved',
               'requests_other',
               'requests_request_sent',
-              'requests_cancel_request?'
+              'requests_cancel_request?',
             ].includes(item.friend_type)
           "
           class="friend-container"
         >
-          <div
-            class="friend-pp-cropper"
-            @click="clickUser(item.friend_id, item.name)"
-          >
-            <img
-              v-bind:src="item.picture"
-              onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
-              class="friend-pp"
-            />
-          </div>
+          <Person
+            style="justify-content: flex-start;"
+            @clicked="clickUser(item.friend_id, item.name)"
+            :name="item.name"
+            :image="item.picture"
+            :width="55"
+            :height="70"
+            position="right"
+            :fontSize="15"
+            :scale="true"
+          />
 
-          <div class="friend-name-box">
-            <h5
-              class="friend-name"
-              @click="clickUser(item.friend_id, item.name)"
+          <div class="approval-buttons">
+            <span
+              class="friends-approve-request"
+              @click="approveRequest(index)"
+              v-if="['unapproved'].includes(item.friend_type)"
             >
-              {{ item.name }}
-            </h5>
-
-            <div class="approval-buttons">
-              <span
-                class="friends-approve-request"
-                @click="approveRequest(index)"
-                v-if="['unapproved'].includes(item.friend_type)"
-              >
-                Approve
-              </span>
-
-              <span
-                class="friends-reject-request"
-                v-if="['unapproved'].includes(item.friend_type)"
-                @click="unfriend('requests', index)"
-              >
-                Reject
-              </span>
-            </div>
+              Approve
+            </span>
 
             <span
-              class="friends-friendship-status"
-              v-if="
-                ['requests_other', 'requests_request_sent'].includes(
-                  item.friend_type
-                )
-              "
-              @click="
-                item.friend_type == 'friend'
-                  ? promptUnfriend('requests', index, item.name, item.picture)
-                  : ['requests_request_sent'].includes(item.friend_type)
-                  ? unfriend('requests', index, 'request_sent')
-                  : ['requests_other'].includes(item.friend_type)
-                  ? sendRequest('requests', index)
-                  : ''
-              "
-              :style="
-                ['requests_other'].includes(item.friend_type)
-                  ? `color: #ffffff;
+              class="friends-reject-request"
+              v-if="['unapproved'].includes(item.friend_type)"
+              @click="unfriend('requests', index)"
+            >
+              Reject
+            </span>
+          </div>
+
+          <div
+            class="friends-friendship-status"
+            v-if="
+              ['requests_other', 'requests_request_sent'].includes(
+                item.friend_type
+              )
+            "
+            @click="
+              item.friend_type == 'friend'
+                ? promptUnfriend('requests', index, item.name, item.picture)
+                : ['requests_request_sent'].includes(item.friend_type)
+                ? unfriend('requests', index, 'request_sent')
+                : ['requests_other'].includes(item.friend_type)
+                ? sendRequest('requests', index)
+                : ''
+            "
+            :style="
+              ['requests_other'].includes(item.friend_type)
+                ? `color: #ffffff;
                                                                                         background-color: #3366BB;
                                                                                         padding: 5px;
                                                                                         border: none;`
-                  : ''
-              "
-            >
-              {{
-                item.friend_type == "friend"
-                  ? "Connection"
-                  : ["requests_request_sent"].includes(item.friend_type)
-                  ? "Requested"
-                  : ["requests_other"].includes(item.friend_type)
-                  ? "Connect"
-                  : ""
-              }}
-            </span>
+                : ''
+            "
+          >
+            {{
+              item.friend_type == "friend"
+                ? "Connection"
+                : ["requests_request_sent"].includes(item.friend_type)
+                ? "Requested"
+                : ["requests_other"].includes(item.friend_type)
+                ? "Connect"
+                : ""
+            }}
           </div>
         </div>
       </div>
@@ -251,10 +240,14 @@
 
 <script>
 import axios from "axios";
+import Person from "./atomic/Person";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
   name: "App",
+  components: {
+    Person,
+  },
   mixins: [onClickOutside],
   data() {
     return {
@@ -266,9 +259,9 @@ export default {
         tab: null,
         index: null,
         user_name: null,
-        user_picture: null
+        user_picture: null,
       },
-      store: this.$store.state
+      store: this.$store.state,
     };
   },
   created() {
@@ -290,15 +283,15 @@ export default {
       axios
         .post(self.$store.state.api_host + "unfriend", {
           session_id: self.$store.state.session_id,
-          friend_id: self.store.friends_page.friends[index].friend_id
+          friend_id: self.store.friends_page.friends[index].friend_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if (current_status == "request_sent") {
             self.store.friends_page.friends[index].friend_type =
               tab + "_request_sent";
@@ -320,7 +313,7 @@ export default {
     },
     hideBanner(tab, catg, index) {
       var self = this;
-      setTimeout(function() {
+      setTimeout(function () {
         if (tab == "friends") {
           if (
             catg == "unfriend" &&
@@ -350,16 +343,16 @@ export default {
       axios
         .post(self.$store.state.api_host + "approve_request", {
           session_id: self.$store.state.session_id,
-          friend_id: self.store.friends_page.friends[index].friend_id
+          friend_id: self.store.friends_page.friends[index].friend_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.store.friends_page.friends[index].friend_type = "friend";
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -380,15 +373,15 @@ export default {
       axios
         .post(self.$store.state.api_host + "send_request", {
           session_id: self.$store.state.session_id,
-          friend_id: self.store.friends_page.friends[index].friend_id
+          friend_id: self.store.friends_page.friends[index].friend_id,
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           self.store.friends_page.friends[index].friend_type = tab + "_other";
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
@@ -422,8 +415,8 @@ export default {
       if (tab == "Requests") {
         setTimeout(self.vanishRequestsNotification, 1500);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -483,67 +476,17 @@ export default {
   width: 98%;
 }
 .friend-container {
+  display: flex;
+  overflow-x: scroll;
+  justify-content: space-between;
+  align-items: center;
   vertical-align: top;
   text-align: left;
   padding: 1%;
   height: 80px;
 }
-.friend-pp-cropper {
-  position: relative;
-  width: 70px;
-  height: 70px;
-  overflow: hidden;
-  border-radius: 50%;
-  z-index: 2;
-}
-.friend-pp {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.friend-name-box {
-  position: relative;
-  margin-top: -44px;
-  margin-left: 80px;
-  white-space: nowrap;
-}
-.friend-name {
-  white-space: normal;
-  font-size: 15px;
-  font-weight: bold;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  color: #333333;
-  text-transform: capitalize;
-  overflow: hidden;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.friends-banner {
-  position: absolute;
-  margin-left: 1%;
-  margin-top: 1%;
-  font-size: 12px;
-  background-color: #fdb5b5;
-  padding: 1%;
-  border-radius: 5px;
-}
 .friends-friendship-status {
   position: relative;
-  float: right;
-  margin-top: -20px;
   text-align: center;
   font-size: 14px;
   color: #333333;
@@ -568,8 +511,8 @@ export default {
 }
 .friends-approve-request {
   position: relative;
+  margin-right: 16px;
   float: left;
-  margin-top: -22px;
   text-align: center;
   font-size: 14px;
   color: #ffffff;
@@ -588,7 +531,6 @@ export default {
 .friends-reject-request {
   position: relative;
   float: right;
-  margin-top: -22px;
   text-align: center;
   font-size: 14px;
   color: #333333;
@@ -604,116 +546,6 @@ export default {
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
-}
-.invites-box {
-  position: relative;
-  display: inline-block;
-  margin-top: 55px;
-  overflow: scroll;
-  margin-bottom: 2%;
-  width: 98%;
-}
-.invite-container {
-  position: relative;
-  vertical-align: middle;
-  text-align: left;
-  background-color: #f8f7f7;
-  border-radius: 7px;
-  padding: 1%;
-  margin-bottom: 4%;
-}
-.generate-invite {
-  position: absolute;
-  margin-left: 18%;
-  margin-top: -9%;
-  font-size: 17px;
-  background-color: #aedbf5;
-  padding: 1%;
-  border-radius: 5px;
-}
-.invitation-url-box {
-  position: absolute;
-  width: 80vw;
-  height: 25px;
-  margin-left: 13%;
-  margin-top: -16%;
-}
-.invitation-url {
-  width: calc(99% - 79px);
-  font-size: 12px;
-  background-color: #e8f1f7;
-  border-radius: 5px;
-  overflow: scroll;
-  padding: 1%;
-  border: none;
-  outline: 0;
-}
-.copy-invitation-url {
-  position: absolute;
-  right: 38px;
-  margin-top: 2px;
-  font-size: 14px;
-  background-color: #aedbf5;
-  padding: 1%;
-  border-radius: 5px;
-}
-.send-email-box {
-  font-size: 13px;
-  margin-left: 13%;
-  margin-top: -5%;
-  width: 79vw;
-}
-.email-invite-input {
-  width: calc(100% - 82px);
-  margin-left: 0%;
-  font-size: 12px;
-  background-color: #e8f1f7;
-  border-radius: 5px;
-  overflow: scroll;
-  padding: 1%;
-  border: none;
-  outline: 0;
-}
-.email-invite {
-  position: absolute;
-  right: 4px;
-  margin-top: 1px;
-  font-size: 14px;
-  background-color: #aedbf5;
-  padding: 1%;
-  border-radius: 5px;
-}
-.invited-friend-container {
-  vertical-align: top;
-  text-align: left;
-  background-color: #f8f7f7;
-  border-radius: 7px;
-  width: 85%;
-  margin-left: 14%;
-  margin-top: -6%;
-}
-.invited-friend-pp-cropper {
-  width: 10vw;
-  height: 10vw;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-  z-index: 2;
-  background-color: #ffffff;
-}
-.invited-friend-name {
-  margin-left: 13%;
-  margin-top: -7.5%;
-  position: absolute;
-  text-align: left;
-  font-size: 13px;
-  color: #3366bb;
-}
-.invite-message {
-  white-space: initial;
-  font-size: calc(12px + 0.5vw);
-  margin-top: 3%;
 }
 .black-background {
   position: fixed;
@@ -814,8 +646,8 @@ export default {
 }
 .approval-buttons {
   position: relative;
-  float: right;
-  width: 120px;
+  display: flex;
+  margin-left: 16px;
 }
 .new-connections-notification {
   position: absolute;
