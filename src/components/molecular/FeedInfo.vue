@@ -15,24 +15,12 @@
     </div>
 
     <div class="feed-user-rating-container">
-      <button
-        v-bind:class="[rating == 3 ? 'feed-love-true' : 'feed-love-false']"
-        @click="submitRating(rating == 3 ? 0 : 3)"
-      ></button>
-
-      <button
-        v-bind:class="[
-          rating == 2 ? 'feed-thumbs-up-true' : 'feed-thumbs-up-false',
-        ]"
-        @click="submitRating(rating == 2 ? 0 : 2)"
-      ></button>
-
-      <button
-        v-bind:class="[
-          rating == 1 ? 'feed-thumbs-down-true' : 'feed-thumbs-down-false',
-        ]"
-        @click="submitRating(rating == 1 ? 0 : 1)"
-      ></button>
+      <UserRating
+        class="user-rating-icons"
+        :rating="rating"
+        :iconSize="28"
+        @update-rating="submitRating"
+      />
     </div>
 
     <div class="feed-watchlist-continer" @click="addToWatchlist">
@@ -100,19 +88,17 @@
           </p>
 
           <div class="more-info-ratings">
-            <div class="more-info-rating-container" v-if="imdbScore">
-              IMDB
-              <span style="font-weight: bold;">
-                {{ imdbScore }}
-              </span>
-            </div>
+            <ContentMetaBlock
+              class="more-info-rating-container"
+              v-if="imdbScore"
+              :text="'IMDb ' + imdbScore"
+            />
 
-            <div class="more-info-rating-container" v-if="tomatoMeter">
-              TOMATOMETER
-              <span style="font-weight: bold;">
-                {{ tomatoMeter }}
-              </span>
-            </div>
+            <ContentMetaBlock
+              class="more-info-rating-container"
+              v-if="tomatoMeter"
+              :text="'Tomatometer ' + tomatoMeter"
+            />
           </div>
 
           <h3 v-if="crew.length">
@@ -120,17 +106,16 @@
           </h3>
 
           <div class="more-info-artists" v-if="crew.length">
-            <div v-for="artist in crew" class="more-info-artists-container">
-              <div class="more-info-artist-cropper">
-                <img
-                  v-bind:src="artist.profile_photo"
-                  class="more-info-artist-pic"
-                />
-              </div>
-              <div class="more-info-artist-name">
-                {{ artist.person }}
-              </div>
-            </div>
+            <Person
+              v-for="(artist, index) in crew"
+              :key="index"
+              class="more-info-artists-container"
+              :name="artist.person"
+              :image="artist.profile_photo"
+              :width="55"
+              :height="70"
+              fontWeight="normal"
+            />
           </div>
 
           <h3 v-if="similar.length">
@@ -167,11 +152,17 @@
 <script>
 import axios from "axios";
 import Poster from "./Poster";
+import UserRating from "./UserRating";
+import Person from "./../atomic/Person";
+import ContentMetaBlock from "./../atomic/ContentMetaBlock";
 
 export default {
   name: "App",
   components: {
     Poster,
+    UserRating,
+    Person,
+    ContentMetaBlock,
   },
   props: {
     contentId: {
@@ -446,97 +437,8 @@ export default {
   left: 0%;
   text-align: left;
 }
-.feed-thumbs-up-true {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  margin-right: 10px;
-  background-image: url("./../../images/thumbs_up_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-thumbs-up-false {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  margin-right: 10px;
-  background-image: url("./../../images/thumbs_up_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-thumbs-down-true {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  transform: translateY(3px);
-  background-image: url("./../../images/thumbs_down_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-thumbs-down-false {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  transform: translateY(3px);
-  background-image: url("./../../images/thumbs_down_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-love-true {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  transform: translateY(1px);
-  margin-right: 10px;
-  background-image: url("./../../images/love_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-love-false {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  transform: translateY(1px);
-  margin-right: 10px;
-  background-image: url("./../../images/love_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
+.user-rating-icons {
+  width: 115px;
 }
 .feed-watchlist-continer {
   grid-row-start: 7;
@@ -698,40 +600,14 @@ export default {
   white-space: nowrap;
   width: 100%;
   margin-top: 10px;
+  align-items: flex-start;
 }
 .more-info-artists-container {
   display: inline-block;
   margin-right: 15px;
   vertical-align: top;
   text-align: center;
-}
-.more-info-artist-cropper {
-  display: inline-block;
-  width: 55px;
-  height: 70px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.more-info-artist-pic {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.more-info-artist-name {
-  margin-top: 3px;
-  position: relative;
-  width: 55px;
-  white-space: normal;
-  font-size: 12px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333333;
+  padding: 1px;
 }
 .more-info-similar-content {
   display: inline-flex;

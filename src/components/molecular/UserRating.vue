@@ -8,6 +8,7 @@
       @clicked="$emit('update-rating', rating == 3 ? 0 : 3)"
     />
     <Button
+      style="margin-top: -4px;"
       icon="thumbs_up"
       buttonType="iconOnly"
       :size="iconSize"
@@ -15,6 +16,7 @@
       @clicked="$emit('update-rating', rating == 2 ? 0 : 2)"
     />
     <Button
+      style="margin-top: 2px;"
       icon="thumbs_down"
       buttonType="iconOnly"
       :size="iconSize"

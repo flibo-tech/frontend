@@ -11,6 +11,7 @@
         'margin-top': 8 + spacing + 'px',
         width: width + 'px',
         'font-size': (is_mobile ? 10 : 12) + 'px',
+        'font-weight': fontWeight,
       }"
     >
       {{ name }}
@@ -47,10 +48,16 @@ export default {
     position: {
       type: String,
       default: "bottom",
+      require: false,
     },
     scale: {
       type: Boolean,
       default: false,
+      require: false,
+    },
+    fontWeight: {
+      type: String,
+      default: "700",
       require: false,
     },
   },
@@ -105,7 +112,6 @@ img {
 p {
   position: relative;
   white-space: normal;
-  font-weight: 700;
   font-stretch: normal;
   font-style: normal;
   line-height: 1.17;
