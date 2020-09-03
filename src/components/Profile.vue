@@ -526,60 +526,20 @@
                 v-on="$listeners"
               />
 
-              <div
-                v-if="own_profile"
+              <UserRating
                 :class="
                   is_mobile
                     ? 'profile-user-rating-container'
                     : 'desktop-profile-user-rating-container'
                 "
-              >
-                <button
-                  v-bind:class="[
-                    item.rating == 2
-                      ? 'profile-thumbs-up-true'
-                      : 'profile-thumbs-up-false',
-                  ]"
-                  @click="
-                    submitRating(
-                      item.content_id,
-                      item.rating == 2 ? 0 : 2,
-                      index
-                    )
-                  "
-                ></button>
-
-                <button
-                  v-bind:class="[
-                    item.rating == 1
-                      ? 'profile-thumbs-down-true'
-                      : 'profile-thumbs-down-false',
-                  ]"
-                  :style="is_mobile ? '' : 'margin-left: 33px;'"
-                  @click="
-                    submitRating(
-                      item.content_id,
-                      item.rating == 1 ? 0 : 1,
-                      index
-                    )
-                  "
-                ></button>
-
-                <button
-                  v-bind:class="[
-                    item.rating == 3
-                      ? 'profile-love-true'
-                      : 'profile-love-false',
-                  ]"
-                  @click="
-                    submitRating(
-                      item.content_id,
-                      item.rating == 3 ? 0 : 3,
-                      index
-                    )
-                  "
-                ></button>
-              </div>
+                :rating="item.rating"
+                :iconSize="28"
+                @update-rating="
+                  (userRating) => {
+                    submitRating(item.content_id, userRating, index);
+                  }
+                "
+              />
             </div>
           </div>
         </div>
@@ -626,60 +586,20 @@
                 v-on="$listeners"
               />
 
-              <div
-                v-if="own_profile"
+              <UserRating
                 :class="
                   is_mobile
                     ? 'profile-user-rating-container'
                     : 'desktop-profile-user-rating-container'
                 "
-              >
-                <button
-                  v-bind:class="[
-                    item.rating == 2
-                      ? 'profile-thumbs-up-true'
-                      : 'profile-thumbs-up-false',
-                  ]"
-                  @click="
-                    submitRating(
-                      item.content_id,
-                      item.rating == 2 ? 0 : 2,
-                      index
-                    )
-                  "
-                ></button>
-
-                <button
-                  v-bind:class="[
-                    item.rating == 1
-                      ? 'profile-thumbs-down-true'
-                      : 'profile-thumbs-down-false',
-                  ]"
-                  :style="is_mobile ? '' : 'margin-left: 33px;'"
-                  @click="
-                    submitRating(
-                      item.content_id,
-                      item.rating == 1 ? 0 : 1,
-                      index
-                    )
-                  "
-                ></button>
-
-                <button
-                  v-bind:class="[
-                    item.rating == 3
-                      ? 'profile-love-true'
-                      : 'profile-love-false',
-                  ]"
-                  @click="
-                    submitRating(
-                      item.content_id,
-                      item.rating == 3 ? 0 : 3,
-                      index
-                    )
-                  "
-                ></button>
-              </div>
+                :rating="item.rating"
+                :iconSize="28"
+                @update-rating="
+                  (userRating) => {
+                    submitRating(item.content_id, userRating, index);
+                  }
+                "
+              />
             </div>
           </div>
         </div>
@@ -726,60 +646,20 @@
                 v-on="$listeners"
               />
 
-              <div
-                v-if="own_profile"
+              <UserRating
                 :class="
                   is_mobile
                     ? 'profile-user-rating-container'
                     : 'desktop-profile-user-rating-container'
                 "
-              >
-                <button
-                  v-bind:class="[
-                    item.rating == 2
-                      ? 'profile-thumbs-up-true'
-                      : 'profile-thumbs-up-false',
-                  ]"
-                  @click="
-                    submitRating(
-                      item.content_id,
-                      item.rating == 2 ? 0 : 2,
-                      index
-                    )
-                  "
-                ></button>
-
-                <button
-                  v-bind:class="[
-                    item.rating == 1
-                      ? 'profile-thumbs-down-true'
-                      : 'profile-thumbs-down-false',
-                  ]"
-                  :style="is_mobile ? '' : 'margin-left: 33px;'"
-                  @click="
-                    submitRating(
-                      item.content_id,
-                      item.rating == 1 ? 0 : 1,
-                      index
-                    )
-                  "
-                ></button>
-
-                <button
-                  v-bind:class="[
-                    item.rating == 3
-                      ? 'profile-love-true'
-                      : 'profile-love-false',
-                  ]"
-                  @click="
-                    submitRating(
-                      item.content_id,
-                      item.rating == 3 ? 0 : 3,
-                      index
-                    )
-                  "
-                ></button>
-              </div>
+                :rating="item.rating"
+                :iconSize="28"
+                @update-rating="
+                  (userRating) => {
+                    submitRating(item.content_id, userRating, index);
+                  }
+                "
+              />
             </div>
           </div>
         </div>
@@ -1111,6 +991,7 @@ import GenresPie from "./GenresPie";
 import WatchedTimeline from "./WatchedTimeline";
 import Artist from "./molecular/Artist";
 import Poster from "./molecular/Poster";
+import UserRating from "./molecular/UserRating";
 import Person from "./atomic/Person";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
@@ -1124,6 +1005,7 @@ export default {
     Artist,
     Poster,
     Person,
+    UserRating,
   },
   data() {
     return {
@@ -2494,6 +2376,7 @@ h4 {
 .profile-user-rating-container {
   position: relative;
   text-align: left;
+  margin-top: 5px;
 }
 .desktop-profile-user-rating-container {
   position: relative;
@@ -2506,22 +2389,6 @@ h4 {
   left: 0%;
   margin-top: 3px;
   background-image: url("./../images/thumbs_up_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-thumbs-up-false {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  left: 0%;
-  margin-top: 3px;
-  background-image: url("./../images/thumbs_up_false.svg");
   background-color: #ffffff;
   background-size: 100% 100%;
   padding: 0;
@@ -2547,22 +2414,6 @@ h4 {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.profile-thumbs-down-false {
-  position: absolute;
-  height: 28px;
-  width: 28px;
-  margin-left: 10px;
-  margin-top: 4px;
-  background-image: url("./../images/thumbs_down_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
 .profile-love-true {
   position: absolute;
   height: 28px;
@@ -2570,22 +2421,6 @@ h4 {
   right: 0%;
   margin-top: 3px;
   background-image: url("./../images/love_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-love-false {
-  position: absolute;
-  height: 28px;
-  width: 28px;
-  right: 0%;
-  margin-top: 3px;
-  background-image: url("./../images/love_false.svg");
   background-color: #ffffff;
   background-size: 100% 100%;
   padding: 0;
