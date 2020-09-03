@@ -3,16 +3,20 @@
     <div
       class="image-container"
       :style="{ width: width + 'px', height: height + 'px' }"
+      @click="$emit('clicked')"
     >
       <img :src="image" :style="scale ? 'transform: scale(1.5);' : ''" />
     </div>
     <p
       :style="{
-        'margin-top': 8 + spacing + 'px',
-        width: width + 'px',
-        'font-size': (is_mobile ? 10 : 12) + 'px',
+        'margin-top': (position == 'bottom' ? 8 + spacing : 0) + 'px',
+        'margin-left': (position == 'right' ? 16 : 0) + 'px',
+        width: position == 'bottom' ? width + 'px' : 'fit-content',
+        'font-size': (fontSize ? fontSize : is_mobile ? 10 : 12) + 'px',
         'font-weight': fontWeight,
+        'white-space': position == 'right' ? 'nowrap' : 'normal',
       }"
+      @click="$emit('clicked')"
     >
       {{ name }}
     </p>
@@ -53,6 +57,11 @@ export default {
     scale: {
       type: Boolean,
       default: false,
+      require: false,
+    },
+    fontSize: {
+      type: Number,
+      default: null,
       require: false,
     },
     fontWeight: {
