@@ -1199,7 +1199,10 @@ export default {
             );
             if (self.$route.path == "/discover") {
               self.$store.state.feed_filters.apply_filters_wo_reset = true;
+            } else if (self.$store.state.suggestions.feed_list.length < 25) {
+              self.store.feed.home.apply_filters_on_create = true;
             }
+
             self.$store.state.suggestions.more_contents = [];
           } else {
             // console.log(response.status);

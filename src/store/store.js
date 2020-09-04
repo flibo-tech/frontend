@@ -255,6 +255,7 @@ export const store = new Vuex.Store({
       listThreshold: 15,
       update_dom: false,
       home: {
+        apply_filters_on_create: false,
         element_heights: my_store ? my_store.feed.home.element_heights : {},
         padding_top: my_store ? my_store.feed.home.padding_top : 0,
         padding_bottom: my_store ? my_store.feed.home.padding_bottom : 0,
@@ -264,6 +265,7 @@ export const store = new Vuex.Store({
           : 0
       },
       search_results: {
+        apply_filters_on_create: false,
         element_heights: my_store
           ? my_store.feed.search_results.element_heights
           : {},
@@ -280,6 +282,7 @@ export const store = new Vuex.Store({
           : 0
       },
       watchlist: {
+        apply_filters_on_create: false,
         element_heights: my_store
           ? my_store.feed.watchlist.element_heights
           : {},
