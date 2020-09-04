@@ -32,7 +32,10 @@
           class="platform-bar"
           :style="
             'margin-top: -' +
-            Math.min(40, 0.5 * containerWidth * (30 / 100)) +
+            Math.min(
+              40,
+              0.5 * containerWidth * ((scalePlatformsSize * 25) / 100)
+            ) +
             'px;'
           "
           :contentId="contentId"
@@ -41,6 +44,7 @@
           :containerWidth="containerWidth"
           :parent="parent"
           :posterLocation="posterLocation"
+          :scalePlatformsSize="scalePlatformsSize"
           v-on="$listeners"
         />
       </div>
@@ -85,6 +89,7 @@ export default {
     whereToWatch: {
       type: Object,
       required: false,
+      default: null,
     },
     showTrailer: {
       type: Boolean,
@@ -98,10 +103,12 @@ export default {
     feedType: {
       type: String,
       required: false,
+      default: null,
     },
     userPlatforms: {
       type: Array,
       required: false,
+      default: () => [""],
     },
     showName: {
       type: Boolean,
@@ -111,6 +118,12 @@ export default {
     posterLocation: {
       type: String,
       required: false,
+      default: null,
+    },
+    scalePlatformsSize: {
+      type: Number,
+      required: false,
+      default: 1,
     },
   },
 
