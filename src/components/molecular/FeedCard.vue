@@ -21,17 +21,22 @@
     </div>
 
     <div class="feed-card-poster">
-      <FeedPoster
+      <Poster
         :containerWidth="is_mobile ? 0.4 * screenWidth : 200"
         :contentId="content.content_id"
         :title="content.title"
         :image="content.poster"
         :trailerId="content.youtube_trailer_id"
         :whereToWatch="content.where_to_watch"
+        :userPlatforms="
+          store.user.id ? store.user.profile.platforms || [''] : ['']
+        "
+        :showName="false"
         :parent="parent"
         :feedType="
           typeof content.feed_type != 'undefined' ? content.feed_type : null
         "
+        posterLocation="feed"
         v-on="$listeners"
       />
     </div>
@@ -60,14 +65,14 @@
 
 <script>
 import FeedText from "./../atomic/FeedText";
-import FeedPoster from "./../atomic/FeedPoster";
-import FeedInfo from "./../atomic/FeedInfo";
+import Poster from "./Poster";
+import FeedInfo from "./FeedInfo";
 
 export default {
   name: "App",
   components: {
     FeedText,
-    FeedPoster,
+    Poster,
     FeedInfo,
   },
   props: {
@@ -84,6 +89,7 @@ export default {
     return {
       is_mobile: window.screen.height > window.screen.width,
       screenWidth: window.innerWidth,
+      store: this.$store.state,
     };
   },
 };

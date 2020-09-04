@@ -1,58 +1,21 @@
 <template>
-  <div
-    class="feed-poster-container"
-    :style="
-      'width: ' + containerWidth + 'px; height: ' + 1.5 * containerWidth + 'px;'
-    "
-  >
-    <img
-      :src="image"
-      class="poster"
-      :style="'height: ' + 1.5 * containerWidth + 'px;'"
-      alt="poster"
-      @click="openContent"
-    />
-
+  <div>
     <img
       src="https://flibo-images.s3-us-west-2.amazonaws.com/other/play-white-icon.svg"
       alt="play-trailer"
       class="play-trailer"
+      :style="'width: ' + size + 'px;'"
       @click="playTrailer"
-      v-if="trailerId || showPlatforms"
     />
-
-    <div class="where-to-watch-container" v-if="showPlatforms">
-      <div class="where-to-watch-subcontainer">
-        <div
-          class="poster-platforms-container"
-          v-for="(link, index) in whereToWatchOptions"
-          :key="index"
-        >
-          <div
-            @click="goToPlatform(link, 'feed_poster')"
-            class="poster-platform-cropper"
-          >
-            <img
-              v-bind:src="
-                'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                index +
-                '.jpg'
-              "
-              class="poster-platform-icon"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
 
     <transition
       appear
       enter-active-class="animated fadeIn"
       leave-active-class="animated fadeOut"
     >
-      <div>
+      <div v-if="play_trailer">
         <div
-          class="black-background"
+          class="trailer-black-background"
           v-if="play_trailer"
           @click="play_trailer = !play_trailer"
         />
@@ -101,6 +64,7 @@
             <div
               class="youtube-player-platforms-container"
               v-for="(item, index) in whereToWatchOptions"
+              :key="index"
             >
               <div
                 @click="goToPlatform(item, 'trailer_popup')"
@@ -127,29 +91,23 @@
 export default {
   name: "App",
   props: {
-    containerWidth: {
-      type: Number,
-      required: true,
-    },
     contentId: {
       type: Number,
-      required: true,
-    },
-    title: {
-      type: String,
-      required: true,
-    },
-    image: {
-      type: String,
       required: true,
     },
     trailerId: {
       type: String,
       required: false,
+      default: null,
     },
     whereToWatch: {
       type: Object,
       required: false,
+      default: null,
+    },
+    size: {
+      type: Number,
+      required: true,
     },
     parent: {
       type: String,
@@ -158,6 +116,7 @@ export default {
     feedType: {
       type: String,
       required: false,
+      default: null,
     },
   },
   data() {
@@ -190,6 +149,13 @@ export default {
       }
     },
   },
+  watch: {
+    play_trailer: {
+      handler(val) {
+        this.$emit("trailer-toggled", val);
+      },
+    },
+  },
   methods: {
     goToPlatform(link, traffic_origin) {
       this.$emit("leave-feed");
@@ -220,96 +186,24 @@ export default {
       };
       this.$emit("update-api-counter", activity);
     },
-    openContent() {
-      this.$emit("leave-feed");
-
-      var info = {
-        origin: this.parent,
-        sub_origin: this.feedType,
-        content_id: this.contentId,
-        title: this.title,
-      };
-      this.$emit("open-content-page", info);
-    },
   },
 };
 </script>
 
-<style lang="scss" scoped>
-.feed-poster-container {
-  display: grid;
-  grid-template-columns: 100%;
-  grid-template-rows: 1fr 1fr;
-  justify-items: center;
-}
-.poster {
-  grid-row-start: 1;
-  grid-row-end: 3;
-  grid-column-start: 1;
-  width: 100%;
-  border-radius: 8px;
-  background-color: #f8f8f8;
-}
+<style scoped>
 .play-trailer {
-  grid-row-start: 2;
-  grid-column-start: 1;
-  transform: translateY(-50%);
-  width: 50%;
   padding: 15px;
-  max-width: 70px;
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
-}
-.where-to-watch-container {
-  grid-row-end: 3;
-  grid-column-start: 1;
-  align-self: end;
-  width: 100%;
-  overflow-x: scroll;
-  padding: 5px 0px;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1;
-  border-radius: 0 0 8px 8px;
-}
-.where-to-watch-subcontainer {
-  position: relative;
-  display: flex;
-  width: fit-content;
-  max-width: 100%;
-  margin-left: 50%;
-  transform: translateX(-50%);
-}
-.poster-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin-left: 5px;
-  margin-right: 5px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.poster-platform-cropper {
-  width: 28px;
-  height: 28px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.poster-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
 }
 .fadeIn {
-  animation: fadeIn 0.3s;
+  animation: fadeIn 0.15s;
 }
 .fadeOut {
-  animation: fadeOut 0.6s;
+  animation: fadeOut 0.15s;
 }
-.black-background {
+.trailer-black-background {
   position: fixed;
   width: 100vw;
   height: 100vh;

@@ -1,17 +1,15 @@
 <template>
   <div class="suggested-user-box">
-    <div style="height: 150px;">
-      <div class="suggested-user-cropper" @click="goToProfile">
-        <img
-          v-bind:src="image"
-          onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
-          class="suggested-user-pic"
-        />
-      </div>
-
-      <div class="suggested-user-name" @click="goToProfile">
-        {{ userName }}
-      </div>
+    <div>
+      <Person
+        @clicked="goToProfile"
+        :name="userName"
+        :image="image"
+        :width="90"
+        :height="115"
+        :fontSize="14"
+        :scale="true"
+      />
 
       <div class="suggested-reason">
         {{
@@ -39,9 +37,13 @@
 
 <script>
 import axios from "axios";
+import Person from "./Person";
 
 export default {
   name: "App",
+  components: {
+    Person,
+  },
   props: {
     userId: {
       type: Number,
@@ -154,47 +156,9 @@ export default {
   width: 130px;
   min-width: 130px;
   margin-right: 24px;
-}
-.suggested-user-cropper {
-  display: inline-block;
-  width: 80px;
-  height: 80px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.suggested-user-pic {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.suggested-user-name {
-  margin-top: 3px;
-  max-height: 34px;
-  position: relative;
-  white-space: normal;
-  text-align: center;
-  font-size: 14px;
-  font-weight: bold;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  color: #333333;
-  text-transform: capitalize;
-  overflow: hidden;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .suggested-reason {
   margin-top: 3px;
@@ -210,6 +174,7 @@ export default {
   color: #333333;
 }
 .follow-suggested-button {
+  margin-top: 16px;
   text-align: center;
   font-size: 14px;
   color: #ffffff;

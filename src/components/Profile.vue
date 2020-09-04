@@ -1,940 +1,994 @@
 <template>
-    <div v-if="renderComponent">
-        <div v-if="fetching_profile & !own_profile"
-             class="fetching-profile-message">
-            <div class="sk-folding-cube">
-                <div class="sk-cube1 sk-cube"></div>
-                <div class="sk-cube2 sk-cube"></div>
-                <div class="sk-cube4 sk-cube"></div>
-                <div class="sk-cube3 sk-cube"></div>
-            </div>
-            <br>
-            <div class="quote-font">
-                {{store.quotes[Math.floor(Math.random() * 22)]}}
-            </div>
-        </div>
+  <div v-if="renderComponent">
+    <div
+      v-if="fetching_profile & !own_profile"
+      class="fetching-profile-message"
+    >
+      <div class="sk-folding-cube">
+        <div class="sk-cube1 sk-cube"></div>
+        <div class="sk-cube2 sk-cube"></div>
+        <div class="sk-cube4 sk-cube"></div>
+        <div class="sk-cube3 sk-cube"></div>
+      </div>
+      <br />
+      <div class="quote-font">
+        {{ store.quotes[Math.floor(Math.random() * 22)] }}
+      </div>
+    </div>
 
-        <div style="position: relative; width: 95%;margin-left: 2.5%;"
-             v-if="(!fetching_profile) | own_profile">
-            <div :class="(is_mobile) ? 'profile-cover' : 'desktop-profile-cover'">
-                <img v-for="item, index in posters"
-                    v-bind:class="'poster-'+(index+1)"
-                    @click="openContent(item.content_id, item.title, 'profile_'+(own_profile ? 'self_' : 'other_')+'cover')"
-                    v-bind:src="item.poster"/>
+    <div
+      style="position: relative; width: 95%; margin-left: 2.5%;"
+      v-if="!fetching_profile | own_profile"
+    >
+      <div :class="is_mobile ? 'profile-cover' : 'desktop-profile-cover'">
+        <img
+          v-for="(item, index) in posters"
+          v-bind:class="'poster-' + (index + 1)"
+          @click="
+            openContent(
+              item.content_id,
+              item.title,
+              'profile_' + (own_profile ? 'self_' : 'other_') + 'cover'
+            )
+          "
+          v-bind:src="item.poster"
+        />
 
-                <img v-for="item, index in covers"
-                    v-bind:class="'cover-'+(index+1)"
-                    @click="openContent(item.content_id, item.title, 'profile_'+(own_profile ? 'self_' : 'other_')+'cover')"
-                    v-bind:src="item.cover"/>
-            </div>
+        <img
+          v-for="(item, index) in covers"
+          v-bind:class="'cover-' + (index + 1)"
+          @click="
+            openContent(
+              item.content_id,
+              item.title,
+              'profile_' + (own_profile ? 'self_' : 'other_') + 'cover'
+            )
+          "
+          v-bind:src="item.cover"
+        />
+      </div>
 
-            <div :class="(is_mobile) ? 'profile-pp-cropper' : 'desktop-profile-pp-cropper'">
-                <img v-bind:src="profile_picture"
-                     onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
-                     class="profile-pp">
-            </div>
+      <div
+        :class="is_mobile ? 'profile-pp-cropper' : 'desktop-profile-pp-cropper'"
+      >
+        <img
+          v-bind:src="profile_picture"
+          onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
+          class="profile-pp"
+        />
+      </div>
 
-            <div :class="(is_mobile) ? 'user-name' : 'desktop-user-name'"
-                 :style="own_profile ? '' : 'width: 50%;margin-left: 25%;'">
-                <h4>
-                    {{user_name}}
+      <div
+        :class="is_mobile ? 'user-name' : 'desktop-user-name'"
+        :style="own_profile ? '' : 'width: 50%;margin-left: 25%;'"
+      >
+        <h4>
+          {{ user_name }}
 
-                    <span class="share-icon"
-                          v-if="own_profile"
-                          @click="promptShareProfile"/>
+          <span
+            class="share-icon"
+            v-if="own_profile"
+            @click="promptShareProfile"
+          />
 
-                    <span class="friendship-status"
-                        v-if="['other', 'request_sent', 'friend'].includes(user_type)"
-                        @click="(user_type=='friend') ? (prompt=true) :
-                                ['request_sent'].includes(user_type) ? unfriend('request_sent') :
-                                (['other'].includes(user_type)) ? sendRequest() : ''"
-                        :style="(['other'].includes(user_type)) ? `color: #ffffff;
+          <span
+            class="friendship-status"
+            v-if="['other', 'request_sent', 'friend'].includes(user_type)"
+            @click="
+              user_type == 'friend'
+                ? (prompt = true)
+                : ['request_sent'].includes(user_type)
+                ? unfriend('request_sent')
+                : ['other'].includes(user_type)
+                ? sendRequest()
+                : ''
+            "
+            :style="
+              ['other'].includes(user_type)
+                ? `color: #ffffff;
                                                                                     background-color: #3366BB;
                                                                                     padding: 5px;
-                                                                                    border: none;` : ''">
-
-                        {{(user_type=='friend') ? 'Connection' :
-                            ['request_sent'].includes(user_type) ? 'Requested' :
-                            (['other'].includes(user_type)) ? 'Connect' : ''}}
-                    </span>
-
-                    <span v-if="user_type == 'unapproved'"
-                        class="approve-request"
-                        @click="approveRequest">
-                        Accept
-                    </span>
-
-                    <span v-if="user_type == 'unapproved'"
-                        class="reject-request"
-                        @click="unfriend('unapproved')">
-                        Reject
-                    </span>
-                </h4>
-            </div>
-
-            <div :class="(is_mobile) ? 'profile-details' : 'desktop-profile-details'">
-                <div class="profile-status"
-                    v-if="own_profile"
-                    @click="update_profile_status=!update_profile_status">
-                    <div :style="profile_status_icon"/>
-                    <div class="profile-status-title">
-                        Status
-                    </div>
-                </div>
-
-                <div class="profile-connections"
-                    @click="goToFriends"
-                    v-if="own_profile">
-                    Connections
-                    <span style="font-size: 22px;position: relative;">
-                        {{store.friends_page.friends.length}}
-                    </span>
-
-                    <button v-if="store.notifications.friends | store.notifications.requests"
-                            class="profile-connections-notification"
-                            :style="(is_mobile) ? '' : 'margin-left: 41px;'"/>
-                </div>
-
-                <div class="profile-connections"
-                     style="width: 45px;margin-left: calc(33.33% - 75.5px);"
-                     @click="profile_vies_desc=!profile_vies_desc"
-                     v-if="own_profile & profile_vies_desc">
-                     Views
-                     <span style="font-size: 22px;position: relative;">
-                         {{profile_views}}
-                     </span>
-                </div>
-
-                <div class="profile-views"
-                     @click="profile_vies_desc=!profile_vies_desc"
-                     v-if="own_profile & !profile_vies_desc">
-                    <div class="profile-views-icon"/>
-                    <div class="profile-views-count">
-                        {{profile_views}}
-                    </div>
-                </div>
-
-                <div class="profile-more"
-                    v-if="own_profile"
-                    :style="(profile_vies_desc) ? 'margin-left: calc(33.33% - 70.5px - 37.5px);' : ''"
-                    @click="openProfileMore = !openProfileMore"/>
-            </div>
-
-            <transition appear
-                enter-active-class="animated fadeIn"
-                leave-active-class="animated fadeOut">
-                <div>
-                    <div v-if="openProfileMore"
-                        class="black-background"
-                        @click="openProfileMore=false"/>
-                    <div class="profile-more-options"
-                        v-if="openProfileMore">
-
-                        <div class="profile-more-option"
-                             style="margin-top: 10px;"
-                             @click="$router.push('/settings')">
-                            <div :style="profile_more_settings"/>
-                            <span class="profile-more-option-text">
-                                Country & Platforms
-                            </span>
-                        </div>
-
-                        <div class="profile-more-option"
-                             style="margin-top: 5px;"
-                            @click="goToAboutUs">
-                            <div class="profile-more-about-us"/>
-                            <span class="profile-more-option-text">
-                                About Us
-                            </span>
-                        </div>
-
-                        <div class="profile-more-option"
-                             style="margin-bottom: 1px;"
-                             @click="logOut">
-                            <div class="profile-more-logout"/>
-                            <span class="profile-more-option-text" style="color: #f54029;">
-                                Logout
-                            </span>
-                        </div>
-
-                    </div>
-                </div>
-            </transition>
-
-            <transition appear
-                enter-active-class="animated fadeIn"
-                leave-active-class="animated fadeOut">
-                <div>
-                    <div v-if="prompt"
-                        class="black-background"
-                        @click="prompt=!prompt"/>
-
-                    <div class="prompted-box"
-                        :style="(is_mobile) ? 'min-width: 250px;' : 'min-width: 250px;'"
-                            v-if="prompt">
-                        <div class="prompted-user-cropper"
-                             :style="(is_mobile) ? '' : 'width: 100px;height: 100px;'">
-                            <img v-bind:src="profile_picture"
-                                 onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
-                            class="prompted-user-pic"/>
-                        </div>
-
-                        <div class="prompted-user-name"
-                             :style="(is_mobile) ? '' : 'font-size: 15px;'">
-                            {{user_name}}
-                        </div>
-
-                        <p :style="(is_mobile) ? '' : 'font-size: 15px;'">
-                            Remove connection?
-                        </p>
-
-                        <div class="profile-prompted-buttons">
-                            <div class="prompted-cancel-button"
-                                    @click="prompt=!prompt">
-                                Cancel
-                            </div>
-                            <div class="prompted-confirm-button"
-                                    @click="unfriend('friend')">
-                                Remove
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </transition>
-
-            <transition appear
-                        enter-active-class="animated fadeIn"
-                        leave-active-class="animated fadeOut">
-                <div>
-                    <div v-if="update_profile_status"
-                        class="black-background"
-                        @click="update_profile_status=!update_profile_status"/>
-
-                    <div :class="(is_mobile) ? 'update-profile-status' : 'desktop-update-profile-status'"
-                        v-if="update_profile_status">
-
-                        <div :style="(is_mobile) ? 'text-align:left; padding:2%;font-size: 3.4vw;' : 'text-align:left; padding-bottom:10px;font-size: 15px;'">
-                            Your profile items should be visible to...
-                        </div>
-
-                        <div :class="(is_mobile) ? 'profile-status-checkbox' : 'desktop-profile-status-checkbox'"
-                            @click="updateProfileStatus('public')">
-                            <input type="radio"
-                                    value="public"
-                                    v-model="profile_status"
-                                    class="checkbox-input">
-                            <span :class="(is_mobile) ? 'profile-status-checkmark-abled' : 'desktop-profile-status-checkmark-abled'"/>
-                            <span class="profile-status-public-option-icon"
-                                  :style="(is_mobile) ? '' : 'margin-left: 50px;margin-top: 0px;height: 35px;width: 35px;'"/>
-                            <span class="profile-status-checkmark-text">Public</span>
-                        </div>
-
-                        <div :class="(is_mobile) ? 'profile-status-checkbox' : 'desktop-profile-status-checkbox'"
-                            @click="updateProfileStatus('friends')">
-                            <input type="radio"
-                                    value="friends"
-                                    v-model="profile_status"
-                                    class="checkbox-input">
-                            <span :class="(is_mobile) ? 'profile-status-checkmark-abled' : 'desktop-profile-status-checkmark-abled'"/>
-                            <span class="profile-status-friends-option-icon"
-                                  :style="(is_mobile) ? '' : 'margin-left: 50px;margin-top: 0px;height: 35px;width: 35px;'"/>
-                            <span class="profile-status-checkmark-text">Connections</span>
-                        </div>
-
-                        <div :class="(is_mobile) ? 'profile-status-checkbox' : 'desktop-profile-status-checkbox'"
-                            @click="updateProfileStatus('private')">
-                            <input type="radio"
-                                    value="private"
-                                    v-model="profile_status"
-                                    class="checkbox-input">
-                            <span :class="(is_mobile) ? 'profile-status-checkmark-abled' : 'desktop-profile-status-checkmark-abled'"/>
-                            <span class="profile-status-private-option-icon"
-                                  :style="(is_mobile) ? '' : 'margin-left: 50px;margin-top: 0px;height: 35px;width: 35px;'"/>
-                            <span class="profile-status-checkmark-text">Only Me</span>
-                        </div>
-                    </div>
-                </div>
-            </transition>
-
-            <div class="profile-quick-filters-content-type"
-            v-if="(total_watched.movie.total!='some great') || (total_watched.tv.total!='some great')">
-              <label
-                v-for="(item, index) in ['Movie', 'TV']"
-                :key="index"
-                class="content-type-checkbox"
-                :style="
-                  profile_content_type_tab == item
-                    ? 'background-color: #e8f0fe;border-color: #d2e3fc;'
-                    : ''
-                "
-              >
-                <input
-                  type="radio"
-                  v-bind:value="item"
-                  v-model="profile_content_type_tab"
-                  class="content-type-checkbox-input"
-                />
-                <span class="content-type-checkmark-text">{{ item }}</span>
-              </label>
-            </div>
-
-            <div class="total-watched-container">
-                <span  style="font-weight: bold;font-size: 15px;">
-                    {{(own_profile) ? 'You have': user_name.split(' ')[0]+' has'}} watched...
-                </span>
-
-                <div :class="(is_mobile) ? 'total-watched' : 'desktop-total-watched'">
-                    {{total_watched[content_type].total}}
-
-                    <span v-if="content_type=='movie'">
-                        Movies
-                    </span>
-                    <span v-if="content_type=='tv'">
-                        TV Series
-                    </span>
-                </div>
-                <div :class="(is_mobile) ? 'total-watched-time' : 'desktop-total-watched-time'">
-                    taking {{total_watched[content_type].time}}
-                </div>
-            </div>
-
-            <div class="profile-ratings"
-                v-if="filtered_ratings(3).length
-                    |
-                    filtered_ratings(2).length
-                    |
-                    filtered_ratings(1).length">
-                <span style="font-weight: bold;font-size: 15px;">
-                    {{(own_profile) ? 'Your': user_name.split(' ')[0]+"'s"}} ratings...
-                </span>
-                <span class="reset-ratings"
-                        v-if="own_profile"
-                        @click="reset_ratings_banner=!reset_ratings_banner">
-                    Reset Ratings
-                </span>
-
-                <div style="display:flex;"
-                    v-if="filtered_ratings(3).length">
-                    <div class="profile-love-true"
-                        :style="(is_mobile) ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;' : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'"/>
-
-                    <div :class="(is_mobile) ? 'ratings-container' : 'desktop-ratings-container'">
-                        <div v-for="item, index in contents_rated"
-                            v-if="(item.type == content_type) && ([3].includes(item.rating))"
-                            class="ratings-item-container">
-
-                            <img v-bind:src="item.poster"
-                                :style="(own_profile != true) ? 'border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;' : ''"
-                                :class="(is_mobile) ? 'ratings-item-poster' : 'desktop-ratings-item-poster'"
-                                @click="openContent(item.content_id, item.title, 'profile_'+(own_profile ? 'self_' : 'other_')+'ratings')"/>
-
-                            <div v-if="own_profile"
-                                    :class="(is_mobile) ? 'profile-user-rating-container' : 'desktop-profile-user-rating-container'">
-                                <button v-bind:class="[ (item.rating == 2) ? 'profile-thumbs-up-true' : 'profile-thumbs-up-false' ]"
-                                        @click="submitRating(item.content_id, ((item.rating == 2) ? 0 : 2), index)">
-                                </button>
-
-                                <button v-bind:class="[ (item.rating == 1) ? 'profile-thumbs-down-true' : 'profile-thumbs-down-false' ]"
-                                        :style="(is_mobile) ? '' : 'margin-left: 33px;'"
-                                        @click="submitRating(item.content_id, ((item.rating == 1) ? 0 : 1), index)">
-                                </button>
-
-                                <button v-bind:class="[ (item.rating == 3) ? 'profile-love-true' : 'profile-love-false' ]"
-                                        @click="submitRating(item.content_id, ((item.rating == 3) ? 0 : 3), index)">
-                                </button>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true) && (Object.keys(item.where_to_watch || {}).includes('stream'))">
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.stream">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'ratings')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true)
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                        &&
-                                        (Object.keys(item.where_to_watch || {}).includes('rent'))">
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.rent">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'ratings')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true)
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('rent'))
-                                        &&
-                                        (Object.keys(item.where_to_watch || {}).includes('buy'))"
-                                        >
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.buy">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'ratings')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="display:flex;"
-                    v-if="filtered_ratings(2).length">
-                    <div class="profile-thumbs-up-true"
-                        :style="(is_mobile) ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;' : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'"/>
-
-                    <div :class="(is_mobile) ? 'ratings-container' : 'desktop-ratings-container'">
-                        <div class="ratings-item-container"
-                            v-for="item, index in contents_rated"
-                            v-if="(item.type == content_type) && ([2].includes(item.rating))">
-
-                            <img v-bind:src="item.poster"
-                                :style="(own_profile != true) ? 'border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;' : ''"
-                                :class="(is_mobile) ? 'ratings-item-poster' : 'desktop-ratings-item-poster'"
-                                @click="openContent(item.content_id, item.title, 'profile_'+(own_profile ? 'self_' : 'other_')+'ratings')"/>
-
-                            <div v-if="own_profile"
-                                    :class="(is_mobile) ? 'profile-user-rating-container' : 'desktop-profile-user-rating-container'">
-                                <button v-bind:class="[ (item.rating == 2) ? 'profile-thumbs-up-true' : 'profile-thumbs-up-false' ]"
-                                        @click="submitRating(item.content_id, ((item.rating == 2) ? 0 : 2), index)">
-                                </button>
-
-                                <button v-bind:class="[ (item.rating == 1) ? 'profile-thumbs-down-true' : 'profile-thumbs-down-false' ]"
-                                        :style="(is_mobile) ? '' : 'margin-left: 33px;'"
-                                        @click="submitRating(item.content_id, ((item.rating == 1) ? 0 : 1), index)">
-                                </button>
-
-                                <button v-bind:class="[ (item.rating == 3) ? 'profile-love-true' : 'profile-love-false' ]"
-                                        @click="submitRating(item.content_id, ((item.rating == 3) ? 0 : 3), index)">
-                                </button>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true) && (Object.keys(item.where_to_watch || {}).includes('stream'))">
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.stream">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'ratings')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true)
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                        &&
-                                        (Object.keys(item.where_to_watch || {}).includes('rent'))">
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.rent">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'ratings')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true)
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('rent'))
-                                        &&
-                                        (Object.keys(item.where_to_watch || {}).includes('buy'))"
-                                        >
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.buy">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'ratings')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="display:flex;"
-                    v-if="filtered_ratings(1).length">
-                    <div class="profile-thumbs-down-true"
-                        :style="(is_mobile) ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;' : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'"/>
-
-                    <div :class="(is_mobile) ? 'ratings-container' : 'desktop-ratings-container'">
-                        <div v-for="item, index in contents_rated"
-                            v-if="(item.type == content_type) && ([1].includes(item.rating))"
-                            class="ratings-item-container">
-
-                            <img v-bind:src="item.poster"
-                                :style="(own_profile != true) ? 'border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;' : ''"
-                                :class="(is_mobile) ? 'ratings-item-poster' : 'desktop-ratings-item-poster'"
-                                @click="openContent(item.content_id, item.title, 'profile_'+(own_profile ? 'self_' : 'other_')+'ratings')"/>
-
-                            <div v-if="own_profile"
-                                    :class="(is_mobile) ? 'profile-user-rating-container' : 'desktop-profile-user-rating-container'">
-                                <button v-bind:class="[ (item.rating == 2) ? 'profile-thumbs-up-true' : 'profile-thumbs-up-false' ]"
-                                        @click="submitRating(item.content_id, ((item.rating == 2) ? 0 : 2), index)">
-                                </button>
-
-                                <button v-bind:class="[ (item.rating == 1) ? 'profile-thumbs-down-true' : 'profile-thumbs-down-false' ]"
-                                        :style="(is_mobile) ? '' : 'margin-left: 33px;'"
-                                        @click="submitRating(item.content_id, ((item.rating == 1) ? 0 : 1), index)">
-                                </button>
-
-                                <button v-bind:class="[ (item.rating == 3) ? 'profile-love-true' : 'profile-love-false' ]"
-                                        @click="submitRating(item.content_id, ((item.rating == 3) ? 0 : 3), index)">
-                                </button>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true) && (Object.keys(item.where_to_watch || {}).includes('stream'))">
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.stream">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'ratings')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true)
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                        &&
-                                        (Object.keys(item.where_to_watch || {}).includes('rent'))">
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.rent">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'ratings')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true)
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('rent'))
-                                        &&
-                                        (Object.keys(item.where_to_watch || {}).includes('buy'))"
-                                        >
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.buy">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'ratings')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <transition appear
-                enter-active-class="animated fadeIn"
-                leave-active-class="animated fadeOut">
-                <div>
-                    <div v-if="reset_ratings_banner && own_profile"
-                        class="black-background"
-                        @click="reset_ratings_banner=false"/>
-
-                    <div class="prompted-box"
-                        v-if="reset_ratings_banner && own_profile">
-
-                        <p style="margin-top: 0;font-size: 20px;white-space: nowrap;">
-                            Reset all your ratings?
-                        </p>
-
-                        <div class="profile-prompted-buttons">
-                            <div class="prompted-cancel-button"
-                                    @click="reset_ratings_banner=false">
-                                Cancel
-                            </div>
-                            <div class="prompted-confirm-button"
-                                    @click="resetRatings">
-                                Reset
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </transition>
-
-            <transition appear
-                enter-active-class="animated fadeIn"
-                leave-active-class="animated fadeOut">
-                <div>
-                    <div v-if="share_profile_banner && own_profile"
-                        class="black-background"
-                        @click="share_profile_banner=false"/>
-
-                    <div class="prompted-box"
-                         :style="(collage) ? (is_mobile ? 'top: 20vh;min-width: 75vw;' : 'top: 20vh;min-width: 25vw;') : ''"
-                        v-if="share_profile_banner && own_profile">
-
-                        <img :src="collage +'?' + new Date().getTime()"
-                             v-if="collage"
-                             style="max-width: 80vw;max-height: 45vh;">
-
-                        <div class="sk-folding-cube"
-                             v-if="!collage">
-                            <div class="sk-cube1 sk-cube"></div>
-                            <div class="sk-cube2 sk-cube"></div>
-                            <div class="sk-cube4 sk-cube"></div>
-                            <div class="sk-cube3 sk-cube"></div>
-                        </div>
-
-                        <span v-if="!collage"
-                           style="margin-top: 0px; width:60vw; font-size:16px;">
-                            Preparing collage for your taste...
-                            <p style="font-size:10px;"
-                               v-if="profile_status!='public'">
-                                Your profile will become public
-                            </p>
-                        </span>
-
-                        <div class="profile-prompted-buttons"
-                             v-if="collage">
-                            <div class="prompted-cancel-button"
-                                    @click="refreshCollage">
-                                Try Another
-                            </div>
-
-                            <input type="button"
-                                   class="prompted-android-share-button"
-                                   @click="promptAndroidShareIntent"
-                                   value="Share">
-
-                            <a v-if="collage && !store.is_webview"
-                               :href="collage+'?'+new Date().getTime()"
-                               download="flibo-collage.jpg"
-                               class="collage-download-button"/>
-                        </div>
-
-                        <p style="position: relative;font-size: 10px;margin-top: 55px;"
-                            v-if="collage && !store.is_webview">
-                            Profile URL copied, paste while posting
-                        </p>
-                    </div>
-                </div>
-
-            </transition>
-
-            <div v-if="filtered_watchlist().length"
-                style="width: 100%;text-align: left;padding: 7px;">
-                <span style="font-weight: bold;font-size: 15px;">
-                    {{(own_profile) ? 'Your': user_name.split(' ')[0]+"'s"}} watchlist...
-                </span>
-
-                <div :class="(is_mobile) ? 'ratings-container' : 'desktop-ratings-container'"
-                    style="margin-left: 0;width: 100%;">
-                    <div v-for="item, index in watchlist"
-                        v-if="item.type == content_type"
-                        class="ratings-item-container">
-
-                        <img v-bind:src="item.poster"
-                            :style="(own_profile != true) ? 'border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;' : ''"
-                            :class="(is_mobile) ? 'ratings-item-poster' : 'desktop-ratings-item-poster'"
-                            @click="openContent(item.content_id, item.title, 'profile_'+(own_profile ? 'self_' : 'other_')+'watchlist')"/>
-
-                        <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true) && (Object.keys(item.where_to_watch || {}).includes('stream'))">
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.stream">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'watchlist')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true)
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                        &&
-                                        (Object.keys(item.where_to_watch || {}).includes('rent'))">
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.rent">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'watchlist')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="profile-platforms"
-                                :style="(is_mobile) ? '' : 'width: 150px;margin-top: -42px;'"
-                                v-if="(own_profile!=true)
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                        &&
-                                        (!Object.keys(item.where_to_watch || {}).includes('rent'))
-                                        &&
-                                        (Object.keys(item.where_to_watch || {}).includes('buy'))"
-                                        >
-                                <div class="profile-platforms-container"
-                                    v-for="stream_item, stream_index in item.where_to_watch.buy">
-                                    <div @click="goToProfilePlatform(stream_item, item.content_id, 'watchlist')"
-                                        class="profile-platform-cropper"
-                                        :style="(is_mobile) ? '' : 'width: 28px;height: 28px;'">
-                                        <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                            class="profile-platform-icon"/>
-                                    </div>
-                                </div>
-                            </div>
-                    </div>
-                </div>
-            </div>
-
-            <div :style="(is_mobile) ? 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;' : 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;margin-top: 15px;'"
-                v-if="friends.length">
-                {{(own_profile) ? 'Your': user_name.split(' ')[0]+"'s"}} connections...
-            </div>
-
-            <div class="profile-friends-box"
-                 :style="(is_mobile) ? '' : 'margin-bottom: 0px;'"
-                 v-if="friends.length">
-                <div v-for="item, index in friends"
-                    class="profile-friend-container">
-
-                    <div class="profile-friend-pp-cropper"
-                         :style="(is_mobile) ? '' : 'width: 90px;height: 90px;'"
-                         @click="clickUser(item.id, item.name)">
-                        <img v-bind:src="item.picture"
-                                onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
-                                class="profile-friend-pp">
-                    </div>
-
-                    <h5 class="profile-friend-name"
-                        :style="(is_mobile) ? '' : 'width: 90px;'"
-                        @click="clickUser(item.id, item.name)">
-                        {{item.name.toLowerCase()}}
-                    </h5>
-                </div>
-            </div>
-
-            <div :class="(is_mobile) ? 'fav-artists-container' : 'desktop-fav-artists-container'"
-                 v-if="favorite_artists[content_type].directed_by
-                        ||
-                        favorite_artists[content_type].cast
-                        ||
-                        favorite_artists[content_type].writing_credits">
-                <span  style="width: 100%;font-weight: bold;font-size: 15px;margin-left: -7px;">
-                    {{(own_profile) ? 'Your': user_name.split(' ')[0]+"'s"}} favorite artists are...
-                </span>
-                <div :class="(is_mobile) ? 'fav-artist-category' : 'desktop-fav-artist-category'"
-                    v-if="favorite_artists[content_type].directed_by">
-                    Director
-                </div>
-                <div class="fav-artists" v-if="favorite_artists[content_type].directed_by">
-                    <div v-for="artist in favorite_artists[content_type].directed_by"
-                        class="fav-catg-artists-container"
-                        @click="moreContent(artist.person_id, artist.name, 'directed_by')">
-                    <div :class="(is_mobile) ? 'fav-artist-cropper' : 'desktop-fav-artist-cropper'">
-                        <img v-bind:src="artist.picture" class="fav-artist-pic">
-                    </div>
-                    <div :class="(is_mobile) ? 'fav-artist-name' : 'desktop-fav-artist-name'">
-                        {{artist.name}}
-                    </div>
-                    </div>
-                </div>
-
-                <div :class="(is_mobile) ? 'fav-artist-category' : 'desktop-fav-artist-category'"
-                     v-if="favorite_artists[content_type].cast">
-                    Actor
-                </div>
-                <div class="fav-artists" v-if="favorite_artists[content_type].cast">
-                    <div v-for="artist in favorite_artists[content_type].cast"
-                        class="fav-catg-artists-container"
-                        @click="moreContent(artist.person_id, artist.name, 'cast')">
-                        <div :class="(is_mobile) ? 'fav-artist-cropper' : 'desktop-fav-artist-cropper'">
-                            <img v-bind:src="artist.picture" class="fav-artist-pic">
-                        </div>
-                        <div :class="(is_mobile) ? 'fav-artist-name' : 'desktop-fav-artist-name'">
-                            {{artist.name}}
-                        </div>
-                    </div>
-                    </div>
-
-                <div :class="(is_mobile) ? 'fav-artist-category' : 'desktop-fav-artist-category'"
-                     v-if="favorite_artists[content_type].writing_credits">
-                    Writer
-                </div>
-                <div class="fav-artists" v-if="favorite_artists[content_type].writing_credits">
-                    <div v-for="artist in favorite_artists[content_type].writing_credits"
-                        class="fav-catg-artists-container"
-                        @click="moreContent(artist.person_id, artist.name, 'writing_credits')">
-                        <div :class="(is_mobile) ? 'fav-artist-cropper' : 'desktop-fav-artist-cropper'">
-                            <img v-bind:src="artist.picture" class="fav-artist-pic">
-                        </div>
-                        <div :class="(is_mobile) ? 'fav-artist-name' : 'desktop-fav-artist-name'">
-                            {{artist.name}}
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div v-if="genres[content_type].genre.length"
-                    class="genres-container">
-                    {{(own_profile) ? 'Your': user_name.split(' ')[0]+"'s"}} favorite genres...
-                <GenresPie :class="(is_mobile) ? 'genres-pie' : 'desktop-genres-pie'"
-                            :genres="genres[content_type].genre"
-                            :contribution="genres[content_type].contribution"
-                            :parent_content_type="content_type"/>
-            </div>
-
-            <div v-if="watched_timeline[content_type].years.length"
-                    class="watched-timeline-container">
-                    <div>A timeline of {{(own_profile) ? 'your': user_name.split(' ')[0]+"'s"}} taste...</div>
-                <WatchedTimeline :class="(is_mobile) ? 'watched-timeline' : 'desktop-watched-timeline'"
-                                    :years="watched_timeline[content_type].years"
-                                    :liked="watched_timeline[content_type].liked"
-                                    :disliked="watched_timeline[content_type].disliked"
-                                    :loved="watched_timeline[content_type].loved"
-                                    :total="watched_timeline[content_type].total"
-                                    :parent_content_type="content_type"/>
-            </div>
-
-            <div class="fav-artists-more-contents-container" v-if="more_by_artist.length | fetching_content_by_artist">
-                <div :style="(is_mobile) ? more_header_negative : desktop_more_header_negative"
-                     v-on-click-outside="close"
-                     v-if="fetching_content_by_artist">
-                    Fetching content by {{artist.split(' ')[0]}}...
-                </div>
-                <div :style="(is_mobile) ? close_more_header_negative : desktop_close_more_header_negative" v-if="fetching_content_by_artist"
-                     @click="close"/>
-
-                <div :style="(is_mobile) ? more_header_positive : desktop_more_header_positive" v-if="more_by_artist.length">
-                    &#160&#160Content by {{artist.split(' ')[0]}}...
-                </div>
-                <div :style="(is_mobile) ? close_more_header_positive : desktop_close_more_header_positive" v-if="more_by_artist.length"
-                     @click="close"/>
-
-                <div :style="(is_mobile) ? more_contents : desktop_more_contents"
-                     v-if="more_by_artist.length"
-                     v-on-click-outside="close">
-                    <div v-for="item in more_by_artist"
-                         :class="(is_mobile) ? 'fav-artists-content-container' : 'desktop-fav-artists-content-container'">
-                        <img v-bind:src="item.poster"
-                             @click="openContent(item.content_id, item.title, 'profile_'+(own_profile ? 'self__' : 'other__')+'more_by_artist')"
-                             :class="(is_mobile) ? 'fav-artists-content-poster' : 'desktop-fav-artists-content-poster'">
-
-                        <div class="profile-by-artist-platforms"
-                            :style="(is_mobile) ? null : 'width: 125px;margin-top: -37px;padding: 5.5px 0px;'"
-                            v-if="(Object.keys(item.where_to_watch || {}).includes('stream'))">
-                            <div class="profile-by-artist-platforms-container"
-                                v-for="stream_item, stream_index in item.where_to_watch.stream">
-                                <div @click="goToProfilePlatform(stream_item, item.content_id, 'more_by_artist')"
-                                    class="profile-by-artist-platform-cropper"
-                                    :style="(is_mobile) ? '' : 'width: 23px;height: 23px;'">
-                                    <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                        class="profile-by-artist-platform-icon"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="profile-by-artist-platforms"
-                            :style="(!is_mobile) ? null : 'width: 125px;margin-top: -37px;padding: 5.5px 0px;'"
-                            v-if="(own_profile!=true)
-                                    &&
-                                    (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                    &&
-                                    (Object.keys(item.where_to_watch || {}).includes('rent'))">
-                            <div class="profile-by-artist-platforms-container"
-                                v-for="stream_item, stream_index in item.where_to_watch.rent">
-                                <div @click="goToProfilePlatform(stream_item, item.content_id, 'more_by_artist')"
-                                    class="profile-by-artist-platform-cropper"
-                                    :style="(is_mobile) ? '' : 'width: 23px;height: 23px;'">
-                                    <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                        class="profile-by-artist-platform-icon"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="profile-by-artist-platforms"
-                            :style="(!is_mobile) ? null : 'width: 125px;margin-top: -37px;padding: 5.5px 0px;'"
-                            v-if="(own_profile!=true)
-                                    &&
-                                    (!Object.keys(item.where_to_watch || {}).includes('stream'))
-                                    &&
-                                    (!Object.keys(item.where_to_watch || {}).includes('rent'))
-                                    &&
-                                    (Object.keys(item.where_to_watch || {}).includes('buy'))"
-                                    >
-                            <div class="profile-by-artist-platforms-container"
-                                v-for="stream_item, stream_index in item.where_to_watch.buy">
-                                <div @click="goToProfilePlatform(stream_item, item.content_id, 'more_by_artist')"
-                                    class="profile-by-artist-platform-cropper"
-                                    :style="(is_mobile) ? '' : 'width: 23px;height: 23px;'">
-                                    <img v-bind:src="'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/'+stream_index+'.jpg'"
-                                        class="profile-by-artist-platform-icon"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="fav-artists-content-name"
-                             @click="openContent(item.content_id, item.title, 'profile_'+(own_profile ? 'self__' : 'other__')+'more_by_artist')"
-                             :style="(is_mobile) ? '' : 'width: 125px;'">
-                            {{item.title}}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                                                                    border: none;`
+                : ''
+            "
+          >
+            {{
+              user_type == "friend"
+                ? "Connection"
+                : ["request_sent"].includes(user_type)
+                ? "Requested"
+                : ["other"].includes(user_type)
+                ? "Connect"
+                : ""
+            }}
+          </span>
+
+          <span
+            v-if="user_type == 'unapproved'"
+            class="approve-request"
+            @click="approveRequest"
+          >
+            Accept
+          </span>
+
+          <span
+            v-if="user_type == 'unapproved'"
+            class="reject-request"
+            @click="unfriend('unapproved')"
+          >
+            Reject
+          </span>
+        </h4>
+      </div>
+
+      <div :class="is_mobile ? 'profile-details' : 'desktop-profile-details'">
+        <div
+          class="profile-status"
+          v-if="own_profile"
+          @click="update_profile_status = !update_profile_status"
+        >
+          <div :style="profile_status_icon" />
+          <div class="profile-status-title">
+            Status
+          </div>
         </div>
+
+        <div
+          class="profile-connections"
+          @click="goToFriends"
+          v-if="own_profile"
+        >
+          Connections
+          <span style="font-size: 22px; position: relative;">
+            {{ store.friends_page.friends.length }}
+          </span>
+
+          <button
+            v-if="store.notifications.friends | store.notifications.requests"
+            class="profile-connections-notification"
+            :style="is_mobile ? '' : 'margin-left: 41px;'"
+          />
+        </div>
+
+        <div
+          class="profile-connections"
+          style="width: 45px; margin-left: calc(33.33% - 75.5px);"
+          @click="profile_vies_desc = !profile_vies_desc"
+          v-if="own_profile & profile_vies_desc"
+        >
+          Views
+          <span style="font-size: 22px; position: relative;">
+            {{ profile_views }}
+          </span>
+        </div>
+
+        <div
+          class="profile-views"
+          @click="profile_vies_desc = !profile_vies_desc"
+          v-if="own_profile & !profile_vies_desc"
+        >
+          <div class="profile-views-icon" />
+          <div class="profile-views-count">
+            {{ profile_views }}
+          </div>
+        </div>
+
+        <div
+          class="profile-more"
+          v-if="own_profile"
+          :style="
+            profile_vies_desc
+              ? 'margin-left: calc(33.33% - 70.5px - 37.5px);'
+              : ''
+          "
+          @click="openProfileMore = !openProfileMore"
+        />
+      </div>
+
+      <transition
+        appear
+        enter-active-class="animated fadeIn"
+        leave-active-class="animated fadeOut"
+      >
+        <div>
+          <div
+            v-if="openProfileMore"
+            class="black-background"
+            @click="openProfileMore = false"
+          />
+          <div class="profile-more-options" v-if="openProfileMore">
+            <div
+              class="profile-more-option"
+              style="margin-top: 10px;"
+              @click="$router.push('/settings')"
+            >
+              <div :style="profile_more_settings" />
+              <span class="profile-more-option-text">
+                Country & Platforms
+              </span>
+            </div>
+
+            <div
+              class="profile-more-option"
+              style="margin-top: 5px;"
+              @click="goToAboutUs"
+            >
+              <div class="profile-more-about-us" />
+              <span class="profile-more-option-text">
+                About Us
+              </span>
+            </div>
+
+            <div
+              class="profile-more-option"
+              style="margin-bottom: 1px;"
+              @click="logOut"
+            >
+              <div class="profile-more-logout" />
+              <span class="profile-more-option-text" style="color: #f54029;">
+                Logout
+              </span>
+            </div>
+          </div>
+        </div>
+      </transition>
+
+      <transition
+        appear
+        enter-active-class="animated fadeIn"
+        leave-active-class="animated fadeOut"
+      >
+        <div>
+          <div
+            v-if="prompt"
+            class="black-background"
+            @click="prompt = !prompt"
+          />
+
+          <div
+            class="prompted-box"
+            :style="is_mobile ? 'min-width: 250px;' : 'min-width: 250px;'"
+            v-if="prompt"
+          >
+            <div
+              class="prompted-user-cropper"
+              :style="is_mobile ? '' : 'width: 100px;height: 100px;'"
+            >
+              <img
+                v-bind:src="profile_picture"
+                onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
+                class="prompted-user-pic"
+              />
+            </div>
+
+            <div
+              class="prompted-user-name"
+              :style="is_mobile ? '' : 'font-size: 15px;'"
+            >
+              {{ user_name }}
+            </div>
+
+            <p :style="is_mobile ? '' : 'font-size: 15px;'">
+              Remove connection?
+            </p>
+
+            <div class="profile-prompted-buttons">
+              <div class="prompted-cancel-button" @click="prompt = !prompt">
+                Cancel
+              </div>
+              <div class="prompted-confirm-button" @click="unfriend('friend')">
+                Remove
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+
+      <transition
+        appear
+        enter-active-class="animated fadeIn"
+        leave-active-class="animated fadeOut"
+      >
+        <div>
+          <div
+            v-if="update_profile_status"
+            class="black-background"
+            @click="update_profile_status = !update_profile_status"
+          />
+
+          <div
+            :class="
+              is_mobile
+                ? 'update-profile-status'
+                : 'desktop-update-profile-status'
+            "
+            v-if="update_profile_status"
+          >
+            <div
+              :style="
+                is_mobile
+                  ? 'text-align:left; padding:2%;font-size: 3.4vw;'
+                  : 'text-align:left; padding-bottom:10px;font-size: 15px;'
+              "
+            >
+              Your profile items should be visible to...
+            </div>
+
+            <div
+              :class="
+                is_mobile
+                  ? 'profile-status-checkbox'
+                  : 'desktop-profile-status-checkbox'
+              "
+              @click="updateProfileStatus('public')"
+            >
+              <input
+                type="radio"
+                value="public"
+                v-model="profile_status"
+                class="checkbox-input"
+              />
+              <span
+                :class="
+                  is_mobile
+                    ? 'profile-status-checkmark-abled'
+                    : 'desktop-profile-status-checkmark-abled'
+                "
+              />
+              <span
+                class="profile-status-public-option-icon"
+                :style="
+                  is_mobile
+                    ? ''
+                    : 'margin-left: 50px;margin-top: 0px;height: 35px;width: 35px;'
+                "
+              />
+              <span class="profile-status-checkmark-text">Public</span>
+            </div>
+
+            <div
+              :class="
+                is_mobile
+                  ? 'profile-status-checkbox'
+                  : 'desktop-profile-status-checkbox'
+              "
+              @click="updateProfileStatus('friends')"
+            >
+              <input
+                type="radio"
+                value="friends"
+                v-model="profile_status"
+                class="checkbox-input"
+              />
+              <span
+                :class="
+                  is_mobile
+                    ? 'profile-status-checkmark-abled'
+                    : 'desktop-profile-status-checkmark-abled'
+                "
+              />
+              <span
+                class="profile-status-friends-option-icon"
+                :style="
+                  is_mobile
+                    ? ''
+                    : 'margin-left: 50px;margin-top: 0px;height: 35px;width: 35px;'
+                "
+              />
+              <span class="profile-status-checkmark-text">Connections</span>
+            </div>
+
+            <div
+              :class="
+                is_mobile
+                  ? 'profile-status-checkbox'
+                  : 'desktop-profile-status-checkbox'
+              "
+              @click="updateProfileStatus('private')"
+            >
+              <input
+                type="radio"
+                value="private"
+                v-model="profile_status"
+                class="checkbox-input"
+              />
+              <span
+                :class="
+                  is_mobile
+                    ? 'profile-status-checkmark-abled'
+                    : 'desktop-profile-status-checkmark-abled'
+                "
+              />
+              <span
+                class="profile-status-private-option-icon"
+                :style="
+                  is_mobile
+                    ? ''
+                    : 'margin-left: 50px;margin-top: 0px;height: 35px;width: 35px;'
+                "
+              />
+              <span class="profile-status-checkmark-text">Only Me</span>
+            </div>
+          </div>
+        </div>
+      </transition>
+
+      <div
+        class="profile-quick-filters-content-type"
+        v-if="
+          total_watched.movie.total != 'some great' ||
+          total_watched.tv.total != 'some great'
+        "
+      >
+        <label
+          v-for="(item, index) in ['Movie', 'TV']"
+          :key="index"
+          class="content-type-checkbox"
+          :style="
+            profile_content_type_tab == item
+              ? 'background-color: #e8f0fe;border-color: #d2e3fc;'
+              : ''
+          "
+        >
+          <input
+            type="radio"
+            v-bind:value="item"
+            v-model="profile_content_type_tab"
+            class="content-type-checkbox-input"
+          />
+          <span class="content-type-checkmark-text">{{ item }}</span>
+        </label>
+      </div>
+
+      <div class="total-watched-container">
+        <span style="font-weight: bold; font-size: 15px;">
+          {{ own_profile ? "You have" : user_name.split(" ")[0] + " has" }}
+          watched...
+        </span>
+
+        <div :class="is_mobile ? 'total-watched' : 'desktop-total-watched'">
+          {{ total_watched[content_type].total }}
+
+          <span v-if="content_type == 'movie'">
+            Movies
+          </span>
+          <span v-if="content_type == 'tv'">
+            TV Series
+          </span>
+        </div>
+        <div
+          :class="
+            is_mobile ? 'total-watched-time' : 'desktop-total-watched-time'
+          "
+        >
+          taking {{ total_watched[content_type].time }}
+        </div>
+      </div>
+
+      <div
+        class="profile-ratings"
+        v-if="
+          filtered_ratings(3).length |
+            filtered_ratings(2).length |
+            filtered_ratings(1).length
+        "
+      >
+        <span style="font-weight: bold; font-size: 15px;">
+          {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }} ratings...
+        </span>
+        <span
+          class="reset-ratings"
+          v-if="own_profile"
+          @click="reset_ratings_banner = !reset_ratings_banner"
+        >
+          Reset Ratings
+        </span>
+
+        <div style="display: flex;" v-if="filtered_ratings(3).length">
+          <div
+            class="profile-love-true"
+            :style="
+              is_mobile
+                ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;'
+                : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'
+            "
+          />
+
+          <div
+            :class="
+              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
+            "
+          >
+            <div
+              v-for="(item, index) in contents_rated"
+              :key="index"
+              v-if="item.type == content_type && [3].includes(item.rating)"
+              class="ratings-item-container"
+            >
+              <Poster
+                :class="
+                  is_mobile
+                    ? 'ratings-item-poster'
+                    : 'desktop-ratings-item-poster'
+                "
+                :containerWidth="is_mobile ? 106 : 150"
+                :contentId="item.content_id"
+                :title="item.title"
+                :image="item.poster"
+                :showTrailer="false"
+                :whereToWatch="own_profile ? {} : item.where_to_watch"
+                :userPlatforms="
+                  store.user.id ? store.user.profile.platforms || [''] : ['']
+                "
+                :showName="false"
+                :parent="'profile_' + (own_profile ? 'self' : 'other')"
+                posterLocation="ratings"
+                :scalePlatformsSize="1.2"
+                v-on="$listeners"
+              />
+
+              <UserRating
+                v-if="own_profile"
+                :class="
+                  is_mobile
+                    ? 'profile-user-rating-container'
+                    : 'desktop-profile-user-rating-container'
+                "
+                :rating="item.rating"
+                :iconSize="25"
+                @update-rating="
+                  (userRating) => {
+                    submitRating(item.content_id, userRating, index);
+                  }
+                "
+              />
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex;" v-if="filtered_ratings(2).length">
+          <div
+            class="profile-thumbs-up-true"
+            :style="
+              is_mobile
+                ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;'
+                : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'
+            "
+          />
+
+          <div
+            :class="
+              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
+            "
+          >
+            <div
+              class="ratings-item-container"
+              v-for="(item, index) in contents_rated"
+              :key="index"
+              v-if="item.type == content_type && [2].includes(item.rating)"
+            >
+              <Poster
+                :class="
+                  is_mobile
+                    ? 'ratings-item-poster'
+                    : 'desktop-ratings-item-poster'
+                "
+                :containerWidth="is_mobile ? 106 : 150"
+                :contentId="item.content_id"
+                :title="item.title"
+                :image="item.poster"
+                :showTrailer="false"
+                :whereToWatch="own_profile ? {} : item.where_to_watch"
+                :userPlatforms="
+                  store.user.id ? store.user.profile.platforms || [''] : ['']
+                "
+                :showName="false"
+                :parent="'profile_' + (own_profile ? 'self' : 'other')"
+                posterLocation="ratings"
+                :scalePlatformsSize="1.2"
+                v-on="$listeners"
+              />
+
+              <UserRating
+                v-if="own_profile"
+                :class="
+                  is_mobile
+                    ? 'profile-user-rating-container'
+                    : 'desktop-profile-user-rating-container'
+                "
+                :rating="item.rating"
+                :iconSize="25"
+                @update-rating="
+                  (userRating) => {
+                    submitRating(item.content_id, userRating, index);
+                  }
+                "
+              />
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex;" v-if="filtered_ratings(1).length">
+          <div
+            class="profile-thumbs-down-true"
+            :style="
+              is_mobile
+                ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;'
+                : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'
+            "
+          />
+
+          <div
+            :class="
+              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
+            "
+          >
+            <div
+              v-for="(item, index) in contents_rated"
+              :key="index"
+              v-if="item.type == content_type && [1].includes(item.rating)"
+              class="ratings-item-container"
+            >
+              <Poster
+                :class="
+                  is_mobile
+                    ? 'ratings-item-poster'
+                    : 'desktop-ratings-item-poster'
+                "
+                :containerWidth="is_mobile ? 106 : 150"
+                :contentId="item.content_id"
+                :title="item.title"
+                :image="item.poster"
+                :showTrailer="false"
+                :whereToWatch="own_profile ? {} : item.where_to_watch"
+                :userPlatforms="
+                  store.user.id ? store.user.profile.platforms || [''] : ['']
+                "
+                :showName="false"
+                :parent="'profile_' + (own_profile ? 'self' : 'other')"
+                posterLocation="ratings"
+                :scalePlatformsSize="1.2"
+                v-on="$listeners"
+              />
+
+              <UserRating
+                v-if="own_profile"
+                :class="
+                  is_mobile
+                    ? 'profile-user-rating-container'
+                    : 'desktop-profile-user-rating-container'
+                "
+                :rating="item.rating"
+                :iconSize="25"
+                @update-rating="
+                  (userRating) => {
+                    submitRating(item.content_id, userRating, index);
+                  }
+                "
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <transition
+        appear
+        enter-active-class="animated fadeIn"
+        leave-active-class="animated fadeOut"
+      >
+        <div>
+          <div
+            v-if="reset_ratings_banner && own_profile"
+            class="black-background"
+            @click="reset_ratings_banner = false"
+          />
+
+          <div class="prompted-box" v-if="reset_ratings_banner && own_profile">
+            <p style="margin-top: 0; font-size: 20px; white-space: nowrap;">
+              Reset all your ratings?
+            </p>
+
+            <div class="profile-prompted-buttons">
+              <div
+                class="prompted-cancel-button"
+                @click="reset_ratings_banner = false"
+              >
+                Cancel
+              </div>
+              <div class="prompted-confirm-button" @click="resetRatings">
+                Reset
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+
+      <transition
+        appear
+        enter-active-class="animated fadeIn"
+        leave-active-class="animated fadeOut"
+      >
+        <div>
+          <div
+            v-if="share_profile_banner && own_profile"
+            class="black-background"
+            @click="share_profile_banner = false"
+          />
+
+          <div
+            class="prompted-box"
+            :style="
+              collage
+                ? is_mobile
+                  ? 'top: 20vh;min-width: 75vw;'
+                  : 'top: 20vh;min-width: 25vw;'
+                : ''
+            "
+            v-if="share_profile_banner && own_profile"
+          >
+            <img
+              :src="collage + '?' + new Date().getTime()"
+              v-if="collage"
+              style="max-width: 80vw; max-height: 45vh;"
+            />
+
+            <div class="sk-folding-cube" v-if="!collage">
+              <div class="sk-cube1 sk-cube"></div>
+              <div class="sk-cube2 sk-cube"></div>
+              <div class="sk-cube4 sk-cube"></div>
+              <div class="sk-cube3 sk-cube"></div>
+            </div>
+
+            <span
+              v-if="!collage"
+              style="margin-top: 0px; width: 60vw; font-size: 16px;"
+            >
+              Preparing collage for your taste...
+              <p style="font-size: 10px;" v-if="profile_status != 'public'">
+                Your profile will become public
+              </p>
+            </span>
+
+            <div class="profile-prompted-buttons" v-if="collage">
+              <div class="prompted-cancel-button" @click="refreshCollage">
+                Try Another
+              </div>
+
+              <input
+                type="button"
+                class="prompted-android-share-button"
+                @click="promptAndroidShareIntent"
+                value="Share"
+              />
+
+              <a
+                v-if="collage && !store.is_webview"
+                :href="collage + '?' + new Date().getTime()"
+                download="flibo-collage.jpg"
+                class="collage-download-button"
+              />
+            </div>
+
+            <p
+              style="position: relative; font-size: 10px; margin-top: 55px;"
+              v-if="collage && !store.is_webview"
+            >
+              Profile URL copied, paste while posting
+            </p>
+          </div>
+        </div>
+      </transition>
+
+      <div
+        v-if="filtered_watchlist().length"
+        style="width: 100%; text-align: left; padding: 7px;"
+      >
+        <span style="font-weight: bold; font-size: 15px;">
+          {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
+          watchlist...
+        </span>
+
+        <div
+          :class="is_mobile ? 'ratings-container' : 'desktop-ratings-container'"
+          style="margin-left: 0; width: 100%;"
+        >
+          <div
+            v-for="(item, index) in watchlist"
+            :key="index"
+            v-if="item.type == content_type"
+            class="ratings-item-container"
+          >
+            <Poster
+              :class="
+                is_mobile
+                  ? 'ratings-item-poster'
+                  : 'desktop-ratings-item-poster'
+              "
+              :containerWidth="is_mobile ? 106 : 150"
+              :contentId="item.content_id"
+              :title="item.title"
+              :image="item.poster"
+              :showTrailer="false"
+              :whereToWatch="own_profile ? {} : item.where_to_watch"
+              :userPlatforms="
+                store.user.id ? store.user.profile.platforms || [''] : ['']
+              "
+              :showName="false"
+              :parent="'profile_' + (own_profile ? 'self' : 'other')"
+              posterLocation="ratings"
+              :scalePlatformsSize="1.2"
+              v-on="$listeners"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div
+        :style="
+          is_mobile
+            ? 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;'
+            : 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;margin-top: 15px;'
+        "
+        v-if="friends.length"
+      >
+        {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
+        connections...
+      </div>
+
+      <div
+        class="profile-friends-box"
+        :style="is_mobile ? '' : 'margin-bottom: 0px;'"
+        v-if="friends.length"
+      >
+        <div
+          v-for="(item, index) in friends"
+          :key="index"
+          class="profile-friend-container"
+          @click="clickUser(item.id, item.name)"
+        >
+          <Person
+            :image="item.picture"
+            :name="item.name"
+            :width="is_mobile ? 55 : 75"
+            :height="is_mobile ? 70 : 95"
+            :scale="true"
+          />
+        </div>
+      </div>
+
+      <div
+        :class="
+          is_mobile ? 'fav-artists-container' : 'desktop-fav-artists-container'
+        "
+        v-if="
+          favorite_artists[content_type].directed_by ||
+          favorite_artists[content_type].cast ||
+          favorite_artists[content_type].writing_credits
+        "
+      >
+        <span
+          style="
+            width: 100%;
+            font-weight: bold;
+            font-size: 15px;
+            margin-left: -7px;
+          "
+        >
+          {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }} favorite
+          artists are...
+        </span>
+        <div
+          :class="
+            is_mobile ? 'fav-artist-category' : 'desktop-fav-artist-category'
+          "
+          v-if="favorite_artists[content_type].directed_by"
+        >
+          Director
+        </div>
+        <div
+          class="fav-artists"
+          v-if="favorite_artists[content_type].directed_by"
+        >
+          <Artist
+            v-for="(artist, index) in favorite_artists[content_type]
+              .directed_by"
+            :key="index"
+            class="fav-catg-artists-container"
+            :artistId="artist.person_id"
+            :name="artist.name"
+            :image="artist.picture"
+            credit_category="directed_by"
+            :width="is_mobile ? 55 : 75"
+            :height="is_mobile ? 70 : 95"
+            :parent="(own_profile ? 'self' : 'other') + '_profile'"
+            v-on="$listeners"
+          />
+        </div>
+
+        <div
+          :class="
+            is_mobile ? 'fav-artist-category' : 'desktop-fav-artist-category'
+          "
+          v-if="favorite_artists[content_type].cast"
+        >
+          Actor
+        </div>
+        <div class="fav-artists" v-if="favorite_artists[content_type].cast">
+          <Artist
+            v-for="(artist, index) in favorite_artists[content_type].cast"
+            :key="index"
+            class="fav-catg-artists-container"
+            :artistId="artist.person_id"
+            :name="artist.name"
+            :image="artist.picture"
+            credit_category="cast"
+            :width="is_mobile ? 55 : 75"
+            :height="is_mobile ? 70 : 95"
+            :parent="(own_profile ? 'self' : 'other') + '_profile'"
+            v-on="$listeners"
+          />
+        </div>
+
+        <div
+          :class="
+            is_mobile ? 'fav-artist-category' : 'desktop-fav-artist-category'
+          "
+          v-if="favorite_artists[content_type].writing_credits"
+        >
+          Writer
+        </div>
+        <div
+          class="fav-artists"
+          v-if="favorite_artists[content_type].writing_credits"
+        >
+          <Artist
+            v-for="(artist, index) in favorite_artists[content_type]
+              .writing_credits"
+            :key="index"
+            class="fav-catg-artists-container"
+            :artistId="artist.person_id"
+            :name="artist.name"
+            :image="artist.picture"
+            credit_category="writing_credits"
+            :width="is_mobile ? 55 : 75"
+            :height="is_mobile ? 70 : 95"
+            :parent="(own_profile ? 'self' : 'other') + '_profile'"
+            v-on="$listeners"
+          />
+        </div>
+      </div>
+
+      <div v-if="genres[content_type].genre.length" class="genres-container">
+        {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }} favorite
+        genres...
+        <GenresPie
+          :class="is_mobile ? 'genres-pie' : 'desktop-genres-pie'"
+          :genres="genres[content_type].genre"
+          :contribution="genres[content_type].contribution"
+          :parent_content_type="content_type"
+        />
+      </div>
+
+      <div
+        v-if="watched_timeline[content_type].years.length"
+        class="watched-timeline-container"
+      >
+        <div>
+          A timeline of
+          {{ own_profile ? "your" : user_name.split(" ")[0] + "'s" }} taste...
+        </div>
+        <WatchedTimeline
+          :class="is_mobile ? 'watched-timeline' : 'desktop-watched-timeline'"
+          :years="watched_timeline[content_type].years"
+          :liked="watched_timeline[content_type].liked"
+          :disliked="watched_timeline[content_type].disliked"
+          :loved="watched_timeline[content_type].loved"
+          :total="watched_timeline[content_type].total"
+          :parent_content_type="content_type"
+        />
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -942,6 +996,10 @@ import axios from "axios";
 import SearchBar from "./SearchBar";
 import GenresPie from "./GenresPie";
 import WatchedTimeline from "./WatchedTimeline";
+import Artist from "./molecular/Artist";
+import Poster from "./molecular/Poster";
+import UserRating from "./molecular/UserRating";
+import Person from "./atomic/Person";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -951,6 +1009,10 @@ export default {
     SearchBar,
     GenresPie,
     WatchedTimeline,
+    Artist,
+    Poster,
+    Person,
+    UserRating,
   },
   data() {
     return {
@@ -990,7 +1052,6 @@ export default {
         movie: {},
         tv: {},
       },
-      more_by_artist: [],
       artist: null,
       contents_rated: [],
       watchlist: [],
@@ -1560,45 +1621,6 @@ export default {
       }
       this.updateProfile();
     },
-    moreContent(artist_id, artist_name, credit_category) {
-      this.fetching_content_by_artist = true;
-      this.artist = artist_name;
-      this.$store.state.click_coordinate_x = event.clientX;
-      this.$store.state.click_coordinate_y = event.clientY;
-      var self = this;
-      axios
-        .post(this.$store.state.api_host + "more_by_artist", {
-          session_id: this.$store.state.session_id,
-          artist_id: artist_id,
-          credit_category: credit_category,
-          country:
-            self.$store.state.user.profile.country ||
-            self.$store.state.guest_country,
-          guest_id: self.$store.state.guest_id,
-        })
-        .then(
-          (response) => (
-            (self.more_by_artist = response.data.contents),
-            (self.fetching_content_by_artist = false)
-          )
-        )
-        .catch(function (error) {
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
-          }
-        });
-    },
-    close() {
-      this.more_by_artist = [];
-      this.artist = null;
-    },
     submitRating(content_id, user_rating, content_index) {
       var self = this;
       var prev_rating = self.contents_rated[content_index].rating;
@@ -1825,236 +1847,6 @@ export default {
           return this.$store.state.countries[country].country_flag;
         }
       }
-    },
-    more_header_positive() {
-      return (
-        `
-                position: fixed;
-                width: 90%;
-                height: 50px;
-                white-space: nowrap;
-                margin-left: 6%;
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 263, 58)
-        ) +
-        `px;
-                background-color: #f1f1f1;
-                border-radius: 10px;
-                text-align: left;
-                padding: 1%;
-                `
-      );
-    },
-    close_more_header_positive() {
-      return (
-        `
-                position: fixed;
-                width: 20px;
-                height: 20px;
-                left: calc(50vw + 45% - 25px);
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 259, 62)
-        ) +
-        `px;
-                background-image: url('` +
-        require(`./../images/close.png`) +
-        `');
-                background-size: 100%;
-                background-repeat: no-repeat;
-                background-position: center;
-                border: 0;
-                padding: 0;
-                cursor: pointer;
-                -webkit-tap-highlight-color: rgba(0,0,0,0);
-	              -webkit-tap-highlight-color: transparent;
-                `
-      );
-    },
-    desktop_more_header_positive() {
-      return (
-        `
-                position: fixed;
-                width: 750px;
-                height: 50px;
-                white-space: nowrap;
-                left: 50%;
-                transform: translateX(-375px);
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 273, 58)
-        ) +
-        `px;
-                background-color: #f1f1f1;
-                border-radius: 10px;
-                text-align: left;
-                padding: 10px;
-                `
-      );
-    },
-    desktop_close_more_header_positive() {
-      return (
-        `
-                position: fixed;
-                width: 25px;
-                height: 25px;
-                left: calc(50vw + 375px - 35px);
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 263, 68)
-        ) +
-        `px;
-                background-image: url('` +
-        require(`./../images/close.png`) +
-        `');
-                background-size: 100%;
-                background-repeat: no-repeat;
-                background-position: center;
-                border: 0;
-                padding: 0;
-                cursor: pointer;
-                -webkit-tap-highlight-color: rgba(0,0,0,0);
-	              -webkit-tap-highlight-color: transparent;
-                `
-      );
-    },
-    more_header_negative() {
-      return (
-        `
-                position: fixed;
-                width: 90%;
-                white-space: nowrap;
-                margin-left: 6%;
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 70, 59)
-        ) +
-        `px;
-                background-color: #ffffff;
-                border-radius: 10px;
-                text-align: left;
-                padding: 6px;
-                `
-      );
-    },
-    close_more_header_negative() {
-      return (
-        `
-                position: fixed;
-                width: 30px;
-                height: 30px;
-                left: calc(50vw + 45% - 27px);
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 70, 59)
-        ) +
-        `px;
-                background-image: url('` +
-        require(`./../images/close.png`) +
-        `');
-                background-size: 66%;
-                background-repeat: no-repeat;
-                background-position: center;
-                border: 0;
-                padding: 0;
-                cursor: pointer;
-                background-color: #ffffff;
-                border-radius: 50%;
-                -webkit-tap-highlight-color: rgba(0,0,0,0);
-	              -webkit-tap-highlight-color: transparent;
-                `
-      );
-    },
-    desktop_more_header_negative() {
-      return (
-        `
-                position: fixed;
-                white-space: nowrap;
-                width: 750px;
-                left: 50%;
-                transform: translateX(-375px);
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 70, 59)
-        ) +
-        `px;
-                background-color: #ffffff;
-                border-radius: 10px;
-                text-align: left;
-                padding: 10px;
-                `
-      );
-    },
-    desktop_close_more_header_negative() {
-      return (
-        `
-                position: fixed;
-                width: 25px;
-                height: 25px;
-                left: calc(50vw + 375px - 35px);
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 63, 66)
-        ) +
-        `px;
-                background-image: url('` +
-        require(`./../images/close.png`) +
-        `');
-                background-size: 100%;
-                background-repeat: no-repeat;
-                background-position: center;
-                border: 0;
-                padding: 0;
-                cursor: pointer;
-                background-color: #ffffff;
-                border-radius: 50%;
-                -webkit-tap-highlight-color: rgba(0,0,0,0);
-	              -webkit-tap-highlight-color: transparent;
-                `
-      );
-    },
-    more_contents() {
-      return (
-        `
-                position: fixed;
-                display: inline-flex;
-                overflow-x: scroll;
-                width: 90%;
-                white-space: nowrap;
-                margin-left: -44%;
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 238, 83)
-        ) +
-        `px;
-                background-color: #f1f1f1;
-                border-radius: 20px;
-                padding-left: 3%;
-                `
-      );
-    },
-    desktop_more_contents() {
-      return (
-        `
-                position: fixed;
-                display: inline-flex;
-                overflow-x: scroll;
-                width: 750px;
-                white-space: nowrap;
-                left: 50%;
-                transform: translateX(-50%);
-                top: ` +
-        String(
-          Math.max(parseInt(this.$store.state.click_coordinate_y) - 238, 93)
-        ) +
-        `px;
-                background-color: #f1f1f1;
-                padding-left: 15px;
-                padding-bottom: 10px;
-                border-radius: 10px;
-                `
-      );
     },
     profile_status_icon() {
       return (
@@ -2414,167 +2206,11 @@ h4 {
   border: none;
   outline: 0px;
 }
-.content-type-tabs {
-  right: 15px;
-  margin-top: 10px;
-  background-color: #ffffff;
-  position: fixed;
-  overflow: hidden;
-  padding: 0px 10px;
-  z-index: 10001;
-  text-align: center;
-  display: grid;
-  grid-column-gap: 10px;
-}
-.content-type-tabs a {
-  position: relative;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  border-radius: 5px 3px 0 0;
-  padding: 6px 0px;
-  font-size: 15px;
-  text-transform: uppercase;
-  display: inline-grid;
-  grid-row-start: 1;
-  grid-row-end: 3;
-  font-weight: bold;
-  -webkit-user-select: none; /* Chrome/Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE10+ */
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.content-type-tabs a.is-active {
-  font-weight: bold;
-}
-.content-type-tabs a.is-active:after {
-  content: "";
-  position: absolute;
-  left: calc(50% - 7.5px);
-  bottom: 0px;
-  width: 15px;
-  height: 3px;
-  background-color: #333333;
-  border-radius: 3px;
-}
-.watching-these-days {
-  display: inline-flex;
-  margin-top: 5%;
-  color: #333333;
-  font-size: 12.5px;
-  text-align: left;
-  width: 100%;
-  background-color: #f9f9f9;
-  border-radius: 7px;
-  padding: 7px;
-}
-.watching-these-days-card-container {
-  position: relative;
-  margin-top: 7%;
-  margin-right: 3%;
-}
-.watching-these-days-card {
-  width: 21vw;
-  height: 31.5vw;
-  border-radius: 7px;
-}
-.watching-these-days-no-card {
-  width: 21vw;
-  height: 31.5vw;
-  background-image: url("./../images/plus.svg");
-  background-size: 35% 35%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #f5f4f4;
-  border-radius: 7px;
-}
-.remove-card {
-  position: absolute;
-  right: -5px;
-  top: -5px;
-  height: 4vw;
-  width: 4vw;
-  background-image: url("./../images/close.png");
-  background-color: #706f6fb2;
-  background-size: 100% 100%;
-  border: none;
-  outline: 0;
-  border-radius: 10px;
-}
 .fadeIn {
   animation: fadeIn 0.3s;
 }
 .fadeOut {
   animation: fadeOut 0.6s;
-}
-.add-content-search .search-box {
-  position: fixed;
-  width: 65%;
-  left: 18%;
-  margin-top: 49%;
-  z-index: 100001;
-}
-.add-content-search .search-btn-clear-text {
-  position: fixed;
-  display: block;
-  right: 19%;
-  margin-top: 49%;
-  height: 18px;
-  width: 18px;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  background-image: url("./../images/close.png");
-  background-size: 100% 100%;
-  animation: 0.3s fadeIn;
-  z-index: 100001;
-}
-.add-content-search .filter-contents {
-  overflow-y: scroll;
-  width: 60%;
-  white-space: nowrap;
-  left: 20.5%;
-  margin-top: 50%;
-  background-color: white;
-  z-index: 100000;
-  position: fixed;
-  height: 35%;
-}
-.add-content-search .filter-contents .content-items {
-  overflow-y: scroll;
-  height: 100%;
-  margin-top: 0%;
-}
-.add-content-search .no-content-box {
-  margin-top: 0%;
-  height: 100%;
-  overflow-y: scroll;
-  background: #fdfdfd;
-}
-.add-content-search .no-content-found {
-  position: relative;
-  top: 50%;
-  font-size: 15px;
-  text-align: center;
-  transform: translateY(-50%);
-}
-.add-content-search .searching-content-box {
-  margin-top: 0%;
-  height: 100%;
-  overflow-y: scroll;
-  background: #fdfdfd;
-}
-.add-content-search .searching-content {
-  position: relative;
-  top: 50%;
-  font-size: 15px;
-  text-align: center;
-  transform: translateY(-50%);
 }
 .black-background {
   position: fixed;
@@ -2649,7 +2285,7 @@ h4 {
   font-weight: normal;
   font-size: 3.5vw;
   margin-left: 1%;
-  margin-top: calc(21% + 10px);
+  margin-top: calc(21% + 5px);
   width: 20%;
   color: #0e0d0d;
   text-transform: uppercase;
@@ -2677,65 +2313,14 @@ h4 {
   width: 94%;
   white-space: nowrap;
   padding: 10px;
-  margin-left: 4%;
-  margin-bottom: 5px;
-  margin-top: 5px;
+  margin-left: calc(20px + 1%);
+  margin-top: 10px;
 }
 .fav-artists::-webkit-scrollbar {
   display: none;
 }
 ::-webkit-scrollbar {
   display: none;
-}
-.fav-artist-cropper {
-  display: inline-block;
-  width: 55px;
-  height: 70px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.desktop-fav-artist-cropper {
-  display: inline-block;
-  width: 75px;
-  height: 95px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.fav-artist-pic {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.fav-artist-name {
-  margin-top: 7px;
-  position: relative;
-  font-size: 10px;
-  width: 55px;
-  white-space: normal;
-  font-weight: 700;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333;
-}
-.desktop-fav-artist-name {
-  margin-top: 7px;
-  position: relative;
-  font-size: 12px;
-  width: 75px;
-  white-space: normal;
-  font-weight: 700;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333;
 }
 .fav-catg-artists-container {
   display: inline-block;
@@ -2750,109 +2335,6 @@ h4 {
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
-}
-.fav-artists-more-contents-container {
-  position: fixed;
-  z-index: 100000;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 120%;
-  background-color: rgba(0, 0, 0, 0.75);
-  display: table;
-  transition: opacity 0.3s ease;
-}
-.fav-artists-content-container {
-  display: inline-block;
-  padding-right: 4%;
-  margin-top: 2%;
-  vertical-align: top;
-  text-align: center;
-}
-.desktop-fav-artists-content-container {
-  display: inline-block;
-  padding-right: 15px;
-  margin-top: 15px;
-  vertical-align: top;
-  text-align: center;
-}
-.fav-artists-content-poster {
-  display: inline;
-  margin: 0 auto;
-  width: 100px;
-  height: 150px;
-  border-radius: 7px;
-}
-.desktop-fav-artists-content-poster {
-  display: inline;
-  margin: 0 auto;
-  width: 125px;
-  height: 187.5px;
-  border-radius: 7px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.fav-artists-content-name {
-  margin-top: 0%;
-  position: relative;
-  font-size: 12px;
-  width: 100px;
-  white-space: normal;
-  font-weight: bold;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333333;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-tabs {
-  margin-bottom: -2px;
-  margin-top: 5%;
-  padding-bottom: 0.5%;
-  width: 100%;
-  background-color: #f8f8f8;
-  overflow: hidden;
-  text-align: center;
-  display: grid;
-  grid-column-gap: 10px;
-}
-.profile-tabs a {
-  position: relative;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  padding: 6px 0px;
-  transition: background-color 0.2s;
-  border-radius: 5px 3px 0 0;
-  font-weight: normal;
-  font-size: calc(11px + 1vw);
-  text-transform: uppercase;
-  display: inline-grid;
-  grid-row-start: 1;
-  grid-row-end: 3;
-}
-.profile-tabs a.is-active {
-  font-weight: bold;
-}
-.profile-tabs a.is-active:after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: calc(50% - 7.5px);
-  width: 15px;
-  height: 3px;
-  background-color: #333333;
-  border-radius: 3px;
 }
 .ratings-container {
   overflow-x: scroll;
@@ -2900,8 +2382,8 @@ h4 {
 }
 .profile-user-rating-container {
   position: relative;
-  margin-top: -4%;
   text-align: left;
+  margin-top: 5px;
 }
 .desktop-profile-user-rating-container {
   position: relative;
@@ -2914,22 +2396,6 @@ h4 {
   left: 0%;
   margin-top: 3px;
   background-image: url("./../images/thumbs_up_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-thumbs-up-false {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  left: 0%;
-  margin-top: 3px;
-  background-image: url("./../images/thumbs_up_false.svg");
   background-color: #ffffff;
   background-size: 100% 100%;
   padding: 0;
@@ -2955,22 +2421,6 @@ h4 {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.profile-thumbs-down-false {
-  position: absolute;
-  height: 28px;
-  width: 28px;
-  margin-left: 10px;
-  margin-top: 4px;
-  background-image: url("./../images/thumbs_down_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
 .profile-love-true {
   position: absolute;
   height: 28px;
@@ -2986,181 +2436,6 @@ h4 {
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
-}
-.profile-love-false {
-  position: absolute;
-  height: 28px;
-  width: 28px;
-  right: 0%;
-  margin-top: 3px;
-  background-image: url("./../images/love_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.rating-tabs {
-  overflow: hidden;
-  margin-left: 25%;
-  margin-bottom: 2%;
-  margin-top: 2%;
-  width: 50%;
-}
-.rating-tabs a.all-ratings {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  background-color: #ffffff;
-  height: 7.5vw;
-  width: 7.5vw;
-  margin-left: 5%;
-  margin-top: 1.5%;
-  border: none;
-  outline: 0;
-  padding: 5%;
-  font-weight: bold;
-  font-size: 4vw;
-}
-.rating-tabs a.all-ratings-are-active {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  height: 9vw;
-  width: 9vw;
-  margin-left: 5%;
-  margin-top: 1.5%;
-  background-color: #c4bdbdc0;
-  border: none;
-  outline: 0;
-  border-radius: 5px;
-  padding: 4%;
-  font-weight: bold;
-  font-size: 4vw;
-}
-.rating-tabs a.like {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  background-color: #ffffff;
-  height: 7.5vw;
-  width: 7.5vw;
-  margin-left: 6%;
-  margin-top: 1.5%;
-  background-image: url("./../images/thumbs_up_true.svg");
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-}
-.rating-tabs a.like-is-active {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  height: 9vw;
-  width: 9vw;
-  margin-left: 6%;
-  margin-top: 1%;
-  background-image: url("./../images/thumbs_up_true.svg");
-  background-color: #c4bdbdc0;
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-  border-radius: 5px;
-}
-.rating-tabs a.dislike {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  background-color: #ffffff;
-  height: 7.5vw;
-  width: 7.5vw;
-  margin-left: 6%;
-  margin-top: 3.5%;
-  background-image: url("./../images/thumbs_down_true.svg");
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-}
-.rating-tabs a.dislike-is-active {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  height: 9vw;
-  width: 9vw;
-  margin-left: 6%;
-  margin-top: 1.5%;
-  background-image: url("./../images/thumbs_down_true.svg");
-  background-color: #c4bdbdc0;
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-  border-radius: 5px;
-}
-.rating-tabs a.love {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  background-color: #ffffff;
-  height: 7.5vw;
-  width: 7.5vw;
-  margin-left: 6%;
-  margin-top: 2%;
-  background-image: url("./../images/love_true.svg");
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-}
-.rating-tabs a.love-is-active {
-  float: left;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.2s;
-  height: 9vw;
-  width: 9vw;
-  margin-left: 6%;
-  margin-top: 1%;
-  background-image: url("./../images/love_true.svg");
-  background-color: #c4bdbdc0;
-  background-size: 85% 85%;
-  background-repeat: no-repeat;
-  background-position: center;
-  padding: 0;
-  border: none;
-  outline: 0;
-  border-radius: 5px;
 }
 .genres-container {
   margin-top: 15px;
@@ -3216,11 +2491,6 @@ h4 {
   width: 50%;
   border-radius: 7px;
   padding: 7px;
-}
-.stats-fun-container {
-  height: 78vh;
-  overflow: scroll;
-  margin-bottom: 2%;
 }
 .banner {
   position: absolute;
@@ -3308,40 +2578,6 @@ h4 {
   margin-right: 15px;
   position: relative;
   display: inline-block;
-}
-.profile-friend-pp-cropper {
-  width: 65px;
-  height: 65px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-  z-index: 2;
-  background-color: #ffffff;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-friend-pp {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.profile-friend-name {
-  margin: 0 auto;
-  position: relative;
-  font-size: 13px;
-  width: 65px;
-  margin-top: 3px;
-  white-space: normal;
-  font-weight: bold;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  color: #333333;
-  overflow: hidden;
-  text-transform: capitalize;
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -3360,11 +2596,6 @@ h4 {
   text-align: left;
   overflow-x: scroll;
   display: flex;
-}
-.no-ratings-container {
-  height: 32vh;
-  overflow: scroll;
-  margin-bottom: 2%;
 }
 .reset-ratings {
   position: absolute;
@@ -3845,81 +3076,6 @@ h4 {
   letter-spacing: normal;
   color: #adaaaa;
   font-family: "Poiret One", cursive;
-}
-.profile-platforms {
-  text-align: center;
-  position: absolute;
-  overflow-x: scroll;
-  white-space: nowrap;
-  margin-top: -33px;
-  margin-left: 0px;
-  width: 106px;
-  padding: 5px 0px;
-  border-radius: 0 0 7px 7px;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-.profile-platform-cropper {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.profile-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
-}
-.profile-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin-left: 8px;
-  margin-right: 8px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-by-artist-platforms {
-  text-align: center;
-  position: absolute;
-  overflow-x: scroll;
-  white-space: nowrap;
-  margin-top: -34px;
-  margin-left: 0px;
-  width: 100px;
-  padding: 5px;
-  border-radius: 0 0 7px 7px;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-.profile-by-artist-platform-cropper {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.profile-by-artist-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
-}
-.profile-by-artist-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin-left: 8px;
-  margin-right: 8px;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 .collage-download-button {
   position: absolute;

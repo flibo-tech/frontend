@@ -67,11 +67,12 @@
       <div class="content-items" v-if="content_search_result.length">
         <div
           v-for="(content, index) in content_search_result"
+          :key="index"
           class="filter-contents-container"
           :style="
             parent == 'search_page'
               ? is_mobile
-                ? 'margin-bottom: 5px;'
+                ? ''
                 : 'margin-bottom: 10px;padding: 0px;'
               : ''
           "
@@ -104,7 +105,7 @@
             {{ content.subject }}
           </div>
 
-          <div
+          <UserRating
             class="search-user-rating-container"
             :style="
               is_mobile
@@ -112,53 +113,19 @@
                 : 'margin-left: 100px;margin-top: -55px;padding-bottom: 31px;'
             "
             v-if="parent == 'search_page'"
-          >
-            <button
-              v-bind:class="[
-                content.rating == 3 ? 'search-love-true' : 'search-love-false',
-              ]"
-              @click="
+            :rating="content.rating"
+            :iconSize="25"
+            @update-rating="
+              (userRating) => {
                 submitRating(
                   content.subject_id,
-                  content.rating == 3 ? 0 : 3,
+                  userRating,
                   content.rating,
                   index
-                )
-              "
-            ></button>
-
-            <button
-              v-bind:class="[
-                content.rating == 2
-                  ? 'search-thumbs-up-true'
-                  : 'search-thumbs-up-false',
-              ]"
-              @click="
-                submitRating(
-                  content.subject_id,
-                  content.rating == 2 ? 0 : 2,
-                  content.rating,
-                  index
-                )
-              "
-            ></button>
-
-            <button
-              v-bind:class="[
-                content.rating == 1
-                  ? 'search-thumbs-down-true'
-                  : 'search-thumbs-down-false',
-              ]"
-              @click="
-                submitRating(
-                  content.subject_id,
-                  content.rating == 1 ? 0 : 1,
-                  content.rating,
-                  index
-                )
-              "
-            ></button>
-          </div>
+                );
+              }
+            "
+          />
         </div>
         <div
           class="see-more-contents-box"
@@ -205,33 +172,25 @@
         class="user-items"
         v-if="user_search_result.length && parent != 'profile'"
       >
-        <div
-          v-for="user in user_search_result"
-          @click="clickUser(user)"
+        <Person
+          v-for="(user, index) in user_search_result"
+          :key="index"
           class="filter-users-container"
-          :style="is_mobile ? '' : 'margin-top: 0px;padding: 7px;'"
-        >
-          <div
-            class="filter-user-cropper"
-            :style="is_mobile ? '' : 'width: 80px;height: 80px;'"
-          >
-            <img
-              v-bind:src="user.picture"
-              onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
-              class="filter-user-pic"
-            />
-          </div>
-          <div
-            class="filter-user-name"
-            :style="
-              is_mobile
-                ? ''
-                : 'margin-left: 100px;margin-top: -50px;font-size: 16px;'
-            "
-          >
-            {{ user.name }}
-          </div>
-        </div>
+          :style="
+            is_mobile
+              ? 'justify-content: flex-start;'
+              : 'justify-content: flex-start;margin-top: 0px;padding: 7px;'
+          "
+          @clicked="clickUser(user)"
+          :name="user.name"
+          :image="user.picture"
+          :width="55"
+          :height="70"
+          position="right"
+          :fontSize="15"
+          fontWeight="normal"
+          :scale="true"
+        />
         <div
           class="see-more-users-box"
           v-if="user_ids.length"
@@ -283,12 +242,16 @@ import axios from "axios";
 const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
 import DiscoverFilter from "./DiscoverFilter";
+import UserRating from "./molecular/UserRating";
+import Person from "./atomic/Person";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
   name: "App",
   components: {
     DiscoverFilter,
+    UserRating,
+    Person,
   },
   mixins: [onClickOutside],
   data() {
@@ -718,6 +681,17 @@ export default {
         self.filters_applied.runtime != "180" ||
         self.filters_applied.languages.length
       ) {
+        var reset_info = {
+          parent: "search_results",
+          filters: true,
+          skip_suggestions_filter: false,
+          scroll: true,
+          paddings: true,
+          observer_current_index: true,
+          element_heights: true,
+        };
+        this.$emit("reset-feed-page", reset_info);
+
         this.$store.state.discover_filters.content_type_tab = ["movie", "tv"];
         this.$store.state.scroll_positions.discover.filter = 0;
         this.$router.push("/search-results");
@@ -987,7 +961,8 @@ export default {
   margin-left: 50px;
   margin-top: -39px;
   position: absolute;
-  width: 80%;
+  width: fit-content;
+  max-width: 80%;
   font-size: calc(11px + 0.5vw);
   font-style: normal;
   font-stretch: normal;
@@ -1006,13 +981,12 @@ export default {
 }
 .filter-contents-container {
   position: relative;
-  margin-top: 0%;
   vertical-align: top;
   text-align: center;
   border-bottom: 1px solid #f3f3f3;
   background-color: #ffffff;
   z-index: 10000;
-  padding: 1%;
+  padding: 5px;
 }
 .no-content-box {
   margin-top: calc(50vh - 100.5px);
@@ -1076,53 +1050,14 @@ export default {
   letter-spacing: normal;
   color: #333333;
 }
-.filter-user-cropper {
-  width: 50px;
-  height: 50px;
-  overflow: hidden;
-  border-radius: 50%;
-  z-index: 2;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.filter-user-pic {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.filter-user-name {
-  margin-left: 60px;
-  margin-top: -35px;
-  position: absolute;
-  white-space: initial;
-  width: 80%;
-  font-size: 15px;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: 1.31;
-  letter-spacing: normal;
-  text-align: left;
-  color: #333333;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
 .filter-users-container {
   position: relative;
-  margin-top: 1%;
   vertical-align: top;
   text-align: center;
   border-bottom: 1px solid #f3f3f3;
   background-color: #ffffff;
   z-index: 10000;
-  padding: 1%;
+  padding: 5px;
 }
 .no-user {
   width: 77%;
@@ -1134,18 +1069,6 @@ export default {
   padding-bottom: 1%;
   border-bottom-right-radius: 5px;
   border-bottom-left-radius: 5px;
-}
-.people {
-  text-align: left;
-  font-size: calc(14px + 0.5vw);
-  padding: 0.5%;
-  color: #868484;
-  background-color: #f2f2f2;
-  margin-bottom: 1px;
-  position: fixed;
-  z-index: 100000;
-  width: 90%;
-  border-top: 15px solid #ffffff;
 }
 .see-more-users-box {
   text-align: center;
@@ -1171,103 +1094,12 @@ export default {
 }
 .search-user-rating-container {
   position: relative;
+  width: 115px;
   margin-left: 65px;
   margin-top: -37px;
   text-align: left;
   padding-bottom: 9px;
   background-color: #ffffff;
-}
-.search-thumbs-up-true {
-  position: relative;
-  height: 30px;
-  width: 30px;
-  margin-right: 10px;
-  background-image: url("./../images/thumbs_up_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.search-thumbs-up-false {
-  position: relative;
-  height: 30px;
-  width: 30px;
-  margin-right: 10px;
-  background-image: url("./../images/thumbs_up_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.search-thumbs-down-true {
-  position: relative;
-  height: 30px;
-  width: 30px;
-  transform: translateY(3px);
-  background-image: url("./../images/thumbs_down_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.search-thumbs-down-false {
-  position: relative;
-  height: 30px;
-  width: 30px;
-  transform: translateY(3px);
-  background-image: url("./../images/thumbs_down_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.search-love-true {
-  position: relative;
-  height: 30px;
-  width: 30px;
-  transform: translateY(1px);
-  margin-right: 10px;
-  background-image: url("./../images/love_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.search-love-false {
-  position: relative;
-  height: 30px;
-  width: 30px;
-  transform: translateY(1px);
-  margin-right: 10px;
-  background-image: url("./../images/love_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 .search-type-tabs {
   margin-top: 20px;

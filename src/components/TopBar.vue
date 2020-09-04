@@ -6,10 +6,10 @@
     <div
       v-if="
         this.$route.path.includes('/connections') ||
-          this.$route.path.includes('/content') ||
-          this.$route.path.includes('/about-us') ||
-          this.$route.path.includes('/search-results') ||
-          this.$route.path.includes('/settings')
+        this.$route.path.includes('/content') ||
+        this.$route.path.includes('/about-us') ||
+        this.$route.path.includes('/search-results') ||
+        this.$route.path.includes('/settings')
       "
       class="go-back-button"
       :style="is_mobile ? '' : 'left: calc(50vw - 500px);'"
@@ -72,7 +72,7 @@ export default {
       store: this.$store.state,
       window_width: window.innerWidth,
       filters_meta: this.$store.state.discover_filters.filters_meta,
-      filters_applied: this.$store.state.discover_filters.filters_applied
+      filters_applied: this.$store.state.discover_filters.filters_applied,
     };
   },
   methods: {
@@ -85,8 +85,8 @@ export default {
     },
     goToLandingPage() {
       window.location = "/";
-    }
-  }
+    },
+  },
 };
 </script>
 

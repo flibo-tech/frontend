@@ -15,24 +15,12 @@
     </div>
 
     <div class="feed-user-rating-container">
-      <button
-        v-bind:class="[rating == 3 ? 'feed-love-true' : 'feed-love-false']"
-        @click="submitRating(rating == 3 ? 0 : 3)"
-      ></button>
-
-      <button
-        v-bind:class="[
-          rating == 2 ? 'feed-thumbs-up-true' : 'feed-thumbs-up-false',
-        ]"
-        @click="submitRating(rating == 2 ? 0 : 2)"
-      ></button>
-
-      <button
-        v-bind:class="[
-          rating == 1 ? 'feed-thumbs-down-true' : 'feed-thumbs-down-false',
-        ]"
-        @click="submitRating(rating == 1 ? 0 : 1)"
-      ></button>
+      <UserRating
+        class="user-rating-icons"
+        :rating="rating"
+        :iconSize="25"
+        @update-rating="submitRating"
+      />
     </div>
 
     <div class="feed-watchlist-continer" @click="addToWatchlist">
@@ -100,19 +88,17 @@
           </p>
 
           <div class="more-info-ratings">
-            <div class="more-info-rating-container" v-if="imdbScore">
-              IMDB
-              <span style="font-weight: bold;">
-                {{ imdbScore }}
-              </span>
-            </div>
+            <ContentMetaBlock
+              class="more-info-rating-container"
+              v-if="imdbScore"
+              :text="'IMDb ' + imdbScore"
+            />
 
-            <div class="more-info-rating-container" v-if="tomatoMeter">
-              TOMATOMETER
-              <span style="font-weight: bold;">
-                {{ tomatoMeter }}
-              </span>
-            </div>
+            <ContentMetaBlock
+              class="more-info-rating-container"
+              v-if="tomatoMeter"
+              :text="'Tomatometer ' + tomatoMeter"
+            />
           </div>
 
           <h3 v-if="crew.length">
@@ -120,17 +106,16 @@
           </h3>
 
           <div class="more-info-artists" v-if="crew.length">
-            <div v-for="artist in crew" class="more-info-artists-container">
-              <div class="more-info-artist-cropper">
-                <img
-                  v-bind:src="artist.profile_photo"
-                  class="more-info-artist-pic"
-                />
-              </div>
-              <div class="more-info-artist-name">
-                {{ artist.person }}
-              </div>
-            </div>
+            <Person
+              v-for="(artist, index) in crew"
+              :key="index"
+              class="more-info-artists-container"
+              :name="artist.person"
+              :image="artist.profile_photo"
+              :width="55"
+              :height="70"
+              fontWeight="normal"
+            />
           </div>
 
           <h3 v-if="similar.length">
@@ -138,69 +123,25 @@
           </h3>
 
           <div class="more-info-similar-content" v-if="similar.length">
-            <div
-              v-for="(item, index) in similar"
+            <Poster
+              v-for="(content, index) in similar"
               :key="index"
               class="more-info-content-container"
-            >
-              <img
-                v-bind:src="item.poster"
-                @click="
-                  openContent(
-                    item.content_id,
-                    (input_title = item.title),
-                    (suffix = 'similar')
-                  )
-                "
-                class="more-info-content-poster"
-              />
-
-              <div
-                class="more-info-similar-platforms"
-                v-if="showPlatforms(item.where_to_watch)"
-              >
-                <div
-                  class="more-info-similar-platforms-container"
-                  v-for="(stream_item, stream_index) in whereToWatchOptions(
-                    item.where_to_watch
-                  )"
-                  :key="stream_index"
-                >
-                  <div
-                    @click="
-                      goToPlatform(
-                        stream_item,
-                        item.content_id,
-                        'similar_content_poster'
-                      )
-                    "
-                    class="more-info-similar-platform-cropper"
-                  >
-                    <img
-                      v-bind:src="
-                        'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                        stream_index +
-                        '.jpg'
-                      "
-                      class="more-info-similar-platform-icon"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="more-info-content-name"
-                @click="
-                  openContent(
-                    (input_content_id = item.content_id),
-                    (input_title = item.title),
-                    (suffix = 'similar')
-                  )
-                "
-              >
-                {{ item.title }}
-              </div>
-            </div>
+              :containerWidth="125"
+              :contentId="content.content_id"
+              :title="content.title"
+              :image="content.poster"
+              :showTrailer="false"
+              :whereToWatch="content.where_to_watch"
+              :userPlatforms="
+                store.user.id ? store.user.profile.platforms || [''] : ['']
+              "
+              :showName="true"
+              :parent="parent"
+              :feedType="feedType"
+              posterLocation="similar"
+              v-on="$listeners"
+            />
           </div>
         </div>
       </div>
@@ -210,9 +151,19 @@
 
 <script>
 import axios from "axios";
+import Poster from "./Poster";
+import UserRating from "./UserRating";
+import Person from "./../atomic/Person";
+import ContentMetaBlock from "./../atomic/ContentMetaBlock";
 
 export default {
   name: "App",
+  components: {
+    Poster,
+    UserRating,
+    Person,
+    ContentMetaBlock,
+  },
   props: {
     contentId: {
       type: Number,
@@ -272,6 +223,7 @@ export default {
       summary: null,
       crew: [],
       similar: [],
+      store: this.$store.state,
     };
   },
   methods: {
@@ -485,104 +437,15 @@ export default {
   left: 0%;
   text-align: left;
 }
-.feed-thumbs-up-true {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  margin-right: 10px;
-  background-image: url("./../../images/thumbs_up_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-thumbs-up-false {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  margin-right: 10px;
-  background-image: url("./../../images/thumbs_up_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-thumbs-down-true {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  transform: translateY(3px);
-  background-image: url("./../../images/thumbs_down_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-thumbs-down-false {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  transform: translateY(3px);
-  background-image: url("./../../images/thumbs_down_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-love-true {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  transform: translateY(1px);
-  margin-right: 10px;
-  background-image: url("./../../images/love_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.feed-love-false {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  transform: translateY(1px);
-  margin-right: 10px;
-  background-image: url("./../../images/love_false.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
+.user-rating-icons {
+  width: 115px;
 }
 .feed-watchlist-continer {
   grid-row-start: 7;
   grid-column-start: 1;
   display: initial;
   padding: 5px 20px 5px 5px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   font-stretch: normal;
   font-style: normal;
@@ -603,8 +466,8 @@ export default {
 }
 .feed-watchlist-true {
   position: absolute;
-  height: 12px;
-  width: 12px;
+  height: 11px;
+  width: 11px;
   margin-left: 4px;
   margin-top: 1px;
   background-image: url("./../../images/checked.svg");
@@ -619,8 +482,8 @@ export default {
 }
 .feed-watchlist-false {
   position: absolute;
-  height: 12px;
-  width: 12px;
+  height: 11px;
+  width: 11px;
   margin-left: 4px;
   margin-top: 1px;
   background-image: url("./../../images/plus.svg");
@@ -639,7 +502,7 @@ export default {
   position: relative;
   display: initial;
   padding: 5px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   font-stretch: normal;
   font-style: normal;
@@ -737,40 +600,14 @@ export default {
   white-space: nowrap;
   width: 100%;
   margin-top: 10px;
+  align-items: flex-start;
 }
 .more-info-artists-container {
   display: inline-block;
   margin-right: 15px;
   vertical-align: top;
   text-align: center;
-}
-.more-info-artist-cropper {
-  display: inline-block;
-  width: 55px;
-  height: 70px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.more-info-artist-pic {
-  display: inline;
-  margin: 0 auto;
-  top: 100%;
-  width: 100%;
-}
-.more-info-artist-name {
-  margin-top: 3px;
-  position: relative;
-  width: 55px;
-  white-space: normal;
-  font-size: 12px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333333;
+  padding: 1px;
 }
 .more-info-similar-content {
   display: inline-flex;
@@ -785,74 +622,6 @@ export default {
   margin-right: 15px;
   vertical-align: top;
   text-align: center;
-}
-.more-info-content-poster {
-  position: relative;
-  display: inline;
-  margin: 0 auto;
-  width: 100px;
-  height: 150px;
-  border-radius: 7px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.more-info-content-name {
-  margin-top: 3px;
-  position: relative;
-  width: 100px;
-  white-space: normal;
-  font-size: 12px;
-  font-weight: bold;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: center;
-  color: #333333;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.more-info-similar-platforms {
-  text-align: center;
-  position: absolute;
-  overflow-x: scroll;
-  white-space: nowrap;
-  margin-top: -34px;
-  margin-left: 0px;
-  width: 100px;
-  padding: 5px;
-  border-radius: 0 0 7px 7px;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-.more-info-similar-platform-cropper {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-}
-.more-info-similar-platform-icon {
-  display: inline-block;
-  position: absolute;
-  width: 100%;
-  margin-left: -50%;
-}
-.more-info-similar-platforms-container {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  margin-left: 8px;
-  margin-right: 8px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 .more-info-container h3 {
   font-size: 16px;

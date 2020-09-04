@@ -254,7 +254,6 @@ export default {
       this.$emit("logging-out");
     },
     GoToRate() {
-      this.updateFeedScroll();
       this.$router.push("/rate");
       this.isRate = true;
       this.isSearch = false;
@@ -263,7 +262,6 @@ export default {
       this.isProfile = false;
     },
     GoToDiscover() {
-      this.updateFeedScroll();
       this.$router.push("/discover");
       this.isRate = false;
       this.isSearch = false;
@@ -273,7 +271,6 @@ export default {
       this.$emit("update-api-counter", { api: "home_button" });
     },
     GoToWatchlist() {
-      this.updateFeedScroll();
       this.$router.push("/watchlist");
       this.isRate = false;
       this.isSearch = false;
@@ -283,7 +280,6 @@ export default {
       this.$emit("update-api-counter", { api: "watchlist" });
     },
     GoToUserProfile() {
-      this.updateFeedScroll();
       this.$router.push(
         "/profile/" +
           this.$store.state.user.id +
@@ -298,7 +294,6 @@ export default {
       this.$emit("update-api-counter", { api: "profile" });
     },
     GoToSearch() {
-      this.updateFeedScroll();
       this.$router.push("/search");
       this.isRate = false;
       this.isSearch = true;
@@ -321,37 +316,6 @@ export default {
       this.lastScrollPosition = currentScrollPosition;
     },
     getNumFromStyle: (numStr) => Number(numStr.substring(0, numStr.length - 2)),
-    updateFeedScroll() {
-      var parent = null;
-      if (this.$route.path == "/discover") {
-        parent = "home";
-      } else if (this.$route.path == "/search-results") {
-        parent = "search_results";
-      } else if (this.$route.path == "/watchlist") {
-        parent = "watchlist";
-      }
-      if (parent) {
-        const container = document.querySelector(".feed-cards-container");
-        if (container != null) {
-          eval(
-            "this.$store.state.feed." +
-              parent +
-              ".padding_top = this.getNumFromStyle(container.style.paddingTop)"
-          );
-          eval(
-            "this.$store.state.feed." +
-              parent +
-              ".padding_bottom = this.getNumFromStyle(container.style.paddingBottom)"
-          );
-        }
-
-        eval(
-          "this.$store.state.feed." +
-            parent +
-            ".scroll_position = window.scrollY"
-        );
-      }
-    },
   },
   mounted() {
     window.addEventListener("scroll", this.onScroll);
