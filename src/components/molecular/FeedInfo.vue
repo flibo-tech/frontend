@@ -18,7 +18,7 @@
       <UserRating
         class="user-rating-icons"
         :rating="rating"
-        :iconSize="28"
+        :iconSize="25"
         @update-rating="submitRating"
       />
     </div>
@@ -445,7 +445,7 @@ export default {
   grid-column-start: 1;
   display: initial;
   padding: 5px 20px 5px 5px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   font-stretch: normal;
   font-style: normal;
@@ -466,8 +466,8 @@ export default {
 }
 .feed-watchlist-true {
   position: absolute;
-  height: 12px;
-  width: 12px;
+  height: 11px;
+  width: 11px;
   margin-left: 4px;
   margin-top: 1px;
   background-image: url("./../../images/checked.svg");
@@ -482,8 +482,8 @@ export default {
 }
 .feed-watchlist-false {
   position: absolute;
-  height: 12px;
-  width: 12px;
+  height: 11px;
+  width: 11px;
   margin-left: 4px;
   margin-top: 1px;
   background-image: url("./../../images/plus.svg");
@@ -502,7 +502,7 @@ export default {
   position: relative;
   display: initial;
   padding: 5px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   font-stretch: normal;
   font-style: normal;

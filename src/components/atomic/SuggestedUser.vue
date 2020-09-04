@@ -156,6 +156,9 @@ export default {
   width: 130px;
   min-width: 130px;
   margin-right: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .suggested-reason {
   margin-top: 3px;

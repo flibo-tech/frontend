@@ -405,8 +405,8 @@
           class="black-background"
           :style="
             is_mobile
-              ? 'height: calc(100vh - 370px - 3.5%);'
-              : 'height: calc(100vh - 490px);'
+              ? 'height: calc(100vh - 370px - 3.5% - 20px);'
+              : 'height: calc(100vh - 470px);'
           "
           v-if="show_tap_instructions"
         />
@@ -1085,6 +1085,7 @@ export default {
   position: relative;
   height: 11px;
   width: 11px;
+  margin-top: 1px;
   margin-left: 4px;
   background-image: url("./../images/checked.svg");
   background-color: #ffffff;
@@ -1100,6 +1101,7 @@ export default {
   position: relative;
   height: 11px;
   width: 11px;
+  margin-top: 1px;
   margin-left: 4px;
   background-image: url("./../images/plus.svg");
   background-color: #ffffff;
@@ -1131,7 +1133,7 @@ export default {
   position: relative;
   display: flex;
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 .info-item {
   margin-right: 10px;
@@ -1185,11 +1187,11 @@ export default {
   overflow-x: scroll;
   width: 100%;
   white-space: nowrap;
-  margin-top: 10px;
+  margin-top: 14px;
 }
 .platform-cropper {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   // margin: 0 auto;
   margin-left: 0%;
   position: relative;

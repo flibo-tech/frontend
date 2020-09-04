@@ -98,10 +98,12 @@ export default {
     trailerId: {
       type: String,
       required: false,
+      default: null,
     },
     whereToWatch: {
       type: Object,
       required: false,
+      default: null,
     },
     size: {
       type: Number,
@@ -114,6 +116,7 @@ export default {
     feedType: {
       type: String,
       required: false,
+      default: null,
     },
   },
   data() {

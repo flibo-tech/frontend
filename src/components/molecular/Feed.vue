@@ -263,7 +263,7 @@ export default {
     ) {
       self.applyQuickFilters();
       self.store.suggestions.discover_while_onboarding = false;
-    } else if (this.listSize) {
+    } else if (this.listSize || this.contentsCount) {
       this.$nextTick(function () {
         setTimeout(function () {
           if (
@@ -325,6 +325,9 @@ export default {
         this.defaultListSize,
         eval(this.feed_mappings[this.parent].feed).length
       );
+    },
+    contentsCount() {
+      return eval(this.feed_mappings[this.parent].contents).length;
     },
     div_height() {
       var elems = document.getElementsByClassName(this.containerTile);

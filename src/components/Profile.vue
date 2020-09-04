@@ -523,6 +523,7 @@
                 :showName="false"
                 :parent="'profile_' + (own_profile ? 'self' : 'other')"
                 posterLocation="ratings"
+                :scalePlatformsSize="1.2"
                 v-on="$listeners"
               />
 
@@ -534,7 +535,7 @@
                     : 'desktop-profile-user-rating-container'
                 "
                 :rating="item.rating"
-                :iconSize="28"
+                :iconSize="25"
                 @update-rating="
                   (userRating) => {
                     submitRating(item.content_id, userRating, index);
@@ -584,6 +585,7 @@
                 :showName="false"
                 :parent="'profile_' + (own_profile ? 'self' : 'other')"
                 posterLocation="ratings"
+                :scalePlatformsSize="1.2"
                 v-on="$listeners"
               />
 
@@ -595,7 +597,7 @@
                     : 'desktop-profile-user-rating-container'
                 "
                 :rating="item.rating"
-                :iconSize="28"
+                :iconSize="25"
                 @update-rating="
                   (userRating) => {
                     submitRating(item.content_id, userRating, index);
@@ -645,6 +647,7 @@
                 :showName="false"
                 :parent="'profile_' + (own_profile ? 'self' : 'other')"
                 posterLocation="ratings"
+                :scalePlatformsSize="1.2"
                 v-on="$listeners"
               />
 
@@ -656,7 +659,7 @@
                     : 'desktop-profile-user-rating-container'
                 "
                 :rating="item.rating"
-                :iconSize="28"
+                :iconSize="25"
                 @update-rating="
                   (userRating) => {
                     submitRating(item.content_id, userRating, index);
@@ -813,6 +816,7 @@
               :showName="false"
               :parent="'profile_' + (own_profile ? 'self' : 'other')"
               posterLocation="ratings"
+              :scalePlatformsSize="1.2"
               v-on="$listeners"
             />
           </div>

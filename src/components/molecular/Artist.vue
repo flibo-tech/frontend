@@ -138,12 +138,12 @@ export default {
           console.log(error);
         });
 
+      self.$store.state.content_page.never_tapped_any_artist = false;
       if (
         self.$store.state.session_id &&
         self.$store.state.content_page.never_tapped_any_artist &&
         self.parent == "content_page"
       ) {
-        self.$store.state.content_page.never_tapped_any_artist = false;
         axios
           .post(self.$store.state.api_host + "update_profile", {
             session_id: self.$store.state.session_id,

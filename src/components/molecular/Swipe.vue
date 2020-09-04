@@ -139,9 +139,8 @@
           store.user.id ? store.user.profile.platforms || [''] : ['']
         "
         :contentPlatforms="store.rate.visible_cards[0].where_to_watch"
-        :containerWidth="0.5 * cardHeight * (2 / 3)"
+        :containerWidth="0.6 * cardHeight * (2 / 3)"
         parent="swipe_poster"
-        posterLocation="rate"
         v-on="$listeners"
       />
     </transition>
@@ -459,7 +458,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "./../../styles/mixins.scss";
 
 #app {

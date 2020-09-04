@@ -72,7 +72,7 @@
           :style="
             parent == 'search_page'
               ? is_mobile
-                ? 'margin-bottom: 5px;'
+                ? ''
                 : 'margin-bottom: 10px;padding: 0px;'
               : ''
           "
@@ -114,7 +114,7 @@
             "
             v-if="parent == 'search_page'"
             :rating="content.rating"
-            :iconSize="28"
+            :iconSize="25"
             @update-rating="
               (userRating) => {
                 submitRating(
@@ -977,13 +977,12 @@ export default {
 }
 .filter-contents-container {
   position: relative;
-  margin-top: 0%;
   vertical-align: top;
   text-align: center;
   border-bottom: 1px solid #f3f3f3;
   background-color: #ffffff;
   z-index: 10000;
-  padding: 1%;
+  padding: 5px;
 }
 .no-content-box {
   margin-top: calc(50vh - 100.5px);
@@ -1049,13 +1048,12 @@ export default {
 }
 .filter-users-container {
   position: relative;
-  margin-top: 1%;
   vertical-align: top;
   text-align: center;
   border-bottom: 1px solid #f3f3f3;
   background-color: #ffffff;
   z-index: 10000;
-  padding: 1%;
+  padding: 5px;
 }
 .no-user {
   width: 77%;
