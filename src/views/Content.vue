@@ -1153,8 +1153,10 @@ export default {
   margin-top: 5px;
 }
 .artists-container {
+  position: relative;
   display: inline-block;
   margin-right: 20px;
+  padding: 1px;
   vertical-align: top;
   text-align: center;
   cursor: pointer;
