@@ -5,18 +5,19 @@
     :style="[
       noOfPlatforms === 1
         ? {
-            width: containerWidth * (30 / 100) + 'px',
-            height: containerWidth * (30 / 100) + 'px',
+            width: containerWidth * ((scalePlatformsSize * 25) / 100) + 'px',
+            height: containerWidth * ((scalePlatformsSize * 25) / 100) + 'px',
           }
         : {
-            width: containerWidth * (50 / 100) + 'px',
-            height: containerWidth * (30 / 100) + 'px',
+            width:
+              containerWidth * ((scalePlatformsSize * 25 + 20) / 100) + 'px',
+            height: containerWidth * ((scalePlatformsSize * 25) / 100) + 'px',
             transition: 'width 0.1s linear',
           },
       plusClicked
         ? noOfPlatforms === 2
-          ? { width: containerWidth * (60 / 100) + 'px' }
-          : { width: containerWidth * (90 / 100) + 'px' }
+          ? { width: containerWidth * ((scalePlatformsSize * 50) / 100) + 'px' }
+          : { width: containerWidth * ((scalePlatformsSize * 75) / 100) + 'px' }
         : {},
     ]"
   >
@@ -83,6 +84,7 @@ export default {
     contentPlatforms: {
       type: Object,
       required: false,
+      default: null,
     },
     parent: {
       type: String,
@@ -91,6 +93,12 @@ export default {
     posterLocation: {
       type: String,
       required: false,
+      default: null,
+    },
+    scalePlatformsSize: {
+      type: Number,
+      required: false,
+      default: 1,
     },
   },
 
@@ -116,19 +124,15 @@ export default {
     finalPlatforms() {
       let finalPlatform = {};
       for (let k in this.contentPlatforms) {
-        this.userPlatformsModified.forEach((userPlatform) => {
-          if (k === userPlatform) {
-            finalPlatform[k] = this.contentPlatforms[k];
-          }
-        });
+        if (this.userPlatformsModified.includes(k)) {
+          finalPlatform[k] = this.contentPlatforms[k];
+        }
       }
 
       for (let k in this.contentPlatforms) {
-        this.userPlatformsModified.forEach((userPlatform) => {
-          if (k != userPlatform) {
-            finalPlatform[k] = this.contentPlatforms[k];
-          }
-        });
+        if (!this.userPlatformsModified.includes(k)) {
+          finalPlatform[k] = this.contentPlatforms[k];
+        }
       }
       return finalPlatform;
     },
@@ -149,9 +153,7 @@ export default {
         url: link,
         traffic_origin:
           (this.parent == "search_results" ? "search_filter" : this.parent) +
-          "__" +
-          traffic_origin +
-          "_poster",
+          (traffic_origin ? "__" + traffic_origin + "_poster" : ""),
       };
       this.$emit("update-api-counter", activity);
     },
