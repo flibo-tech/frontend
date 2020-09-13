@@ -244,7 +244,7 @@
               class="artists-container"
               @click="clickUser(friend.user_id, friend.name)"
             >
-              <!-- margins in class friend-rating-icon are dependent on followin Person component's size -->
+              <!-- margins in class friend-rating-icon are dependent on following Person component's size -->
               <Button
                 class="friend-rating-icon"
                 style="background-color: #fff"
@@ -256,7 +256,7 @@
                     : 'thumbs_down'
                 "
                 buttonType="iconOnly"
-                :size="20"
+                :size="16"
                 :state="true"
                 :disabled="true"
               />
@@ -1598,7 +1598,7 @@ export default {
   transform: translate(-50%, -50%);
   z-index: 1;
   background-color: #fff;
-  padding: 7px;
+  padding: 5px;
   border-radius: 50%;
 }
 </style>
