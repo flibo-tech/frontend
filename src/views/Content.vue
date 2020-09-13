@@ -9,32 +9,14 @@
     ></button>
 
     <div v-if="!loading && content.data != null">
-      <!-- otherDivOffset & trailerIconSize props on below element depend on cover-trailer & content-below-cover elements -->
-      <ContentCoverLandscape
-        v-if="showCover"
-        :imageUrl="content.data.cover"
-        otherDivId="content-below-cover-container"
-        :otherDivOffset="40"
-        :trailerIconSize="80"
-        :trailerDiv="showTrailorIcon"
-        trailerDivId="cover-trailer"
-        :shareDiv="store.is_webview == 'true' ? true : false"
-        shareDivId="content-share-icon"
-      />
+      <div class="content-cover">
+        <ContentCoverLandscape
+          v-if="showCover"
+          :imageUrl="content.data.cover"
+        />
 
-      <ContentCoverPortrait
-        v-else
-        :imageUrl="content.data.poster"
-        otherDivId="content-below-cover-container"
-        :otherDivOffset="40"
-        :trailerIconSize="80"
-        :trailerDiv="showTrailorIcon"
-        trailerDivId="cover-trailer"
-        :shareDiv="store.is_webview == 'true' ? true : false"
-        shareDivId="content-share-icon"
-      />
+        <ContentCoverPortrait v-else :imageUrl="content.data.poster" />
 
-      <div id="content-below-cover-container">
         <div
           class="content-share-icon"
           id="content-share-icon"
@@ -42,13 +24,10 @@
           @click="prompt_content_share = true"
         />
 
-        <!-- Size of element below should go as prop input for cover pic-->
         <Trailer
           v-if="showTrailorIcon"
           class="cover-trailer"
-          id="cover-trailer"
           ref="coverTrailer"
-          style="height: 80px; margin-left: calc(50vw - 40px);"
           :size="80"
           parent="content_page"
           :contentId="content.content_id"
@@ -57,339 +36,338 @@
           @trailer-toggled="updateZIndex"
           v-on="$listeners"
         />
+      </div>
 
-        <!-- Margin top (absolute) on element below should go as prop input for cover pic-->
-        <div class="content-below-cover">
-          <div class="title">
-            <p style="position: relative; font-weight: bold; font-size: 24px;">
-              {{ content.data.title }}
-            </p>
+      <div class="content-below-cover">
+        <div class="title">
+          <p style="position: relative; font-weight: bold; font-size: 24px">
+            {{ content.data.title }}
+          </p>
 
-            <p
-              style="color: #676767; font-size: 14px; font-weight: normal;"
-              v-if="content.data.type == 'tv'"
-            >
-              {{ content.data.release_year }}-{{
-                content.data.end_year ? content.data.end_year : "Present"
+          <p
+            style="color: #676767; font-size: 14px; font-weight: normal"
+            v-if="content.data.type == 'tv'"
+          >
+            {{ content.data.release_year }}-{{
+              content.data.end_year ? content.data.end_year : "Present"
+            }}
+          </p>
+
+          <p
+            style="color: #676767; font-size: 14px; font-weight: normal"
+            v-if="content.data.type == 'movie'"
+          >
+            {{ content.data.release_year }}
+          </p>
+
+          <div class="user-rating-watchlist-container">
+            <UserRating
+              class="user-rating-container"
+              :rating="content.data.rating"
+              :iconSize="25"
+              @update-rating="submitRating"
+            />
+
+            <div class="watchlist-continer" @click="addToWatchlist">
+              {{
+                content.data.watch_later
+                  ? "ADDED"
+                  : "ADD&nbsp;TO&nbsp;WATCHLIST"
               }}
-            </p>
-
-            <p
-              style="color: #676767; font-size: 14px; font-weight: normal;"
-              v-if="content.data.type == 'movie'"
-            >
-              {{ content.data.release_year }}
-            </p>
-
-            <div class="user-rating-watchlist-container">
-              <UserRating
-                class="user-rating-container"
-                :rating="content.data.rating"
-                :iconSize="25"
-                @update-rating="submitRating"
-              />
-
-              <div class="watchlist-continer" @click="addToWatchlist">
-                {{
+              <button
+                v-bind:class="[
                   content.data.watch_later
-                    ? "ADDED"
-                    : "ADD&nbsp;TO&nbsp;WATCHLIST"
-                }}
-                <button
-                  v-bind:class="[
-                    content.data.watch_later
-                      ? 'watchlist-true'
-                      : 'watchlist-false',
-                  ]"
-                />
-              </div>
-            </div>
-
-            <p
-              class="summary-text"
-              :style="is_mobile ? '' : 'font-size: 15px;'"
-              v-if="content.data.summary_text"
-            >
-              {{ content.data.summary_text }}
-            </p>
-
-            <div class="info-container">
-              <ContentMetaBlock
-                class="info-item"
-                v-if="content.data.imdb_score"
-                :text="'IMDb ' + content.data.imdb_score"
-              />
-
-              <ContentMetaBlock
-                class="info-item"
-                v-if="content.data.tomato_meter"
-                :text="'Tomatometer ' + content.data.tomato_meter"
-              />
-
-              <ContentMetaBlock
-                class="info-item"
-                v-for="(genre, index) in content.data.genres"
-                :key="index"
-                :text="genre"
-              />
-
-              <ContentMetaBlock
-                class="info-item"
-                v-if="content.data.type == 'tv' && content.data.seasons"
-                :text="
-                  content.data.seasons +
-                  ' ' +
-                  (content.data.seasons > 1 ? 'Seasons' : 'Season')
-                "
-              />
-
-              <ContentMetaBlock
-                class="info-item"
-                v-if="content.data.type == 'tv' && content.data.episodes"
-                :text="
-                  content.data.episodes +
-                  ' ' +
-                  (content.data.episodes > 1 ? 'Episodes' : 'Episode')
-                "
-              />
-
-              <ContentMetaBlock
-                class="info-item"
-                v-if="content.data.type == 'tv' && content.data.runtime"
-                :text="
-                  content.data.runtime +
-                  ' ' +
-                  (content.data.episodes ? 'Each' : 'Each Episode')
-                "
-              />
-
-              <ContentMetaBlock
-                class="info-item"
-                v-if="content.data.type == 'movie'"
-                :text="content.data.runtime"
+                    ? 'watchlist-true'
+                    : 'watchlist-false',
+                ]"
               />
             </div>
+          </div>
 
-            <div
-              class="platforms"
-              :style="is_mobile ? '' : 'margin-top: 10px;'"
-              v-if="Object.keys(whereToWatchOptions).length"
-            >
-              <div
-                class="platforms-container"
-                v-for="(item, index) in whereToWatchOptions"
-                :key="index"
-              >
-                <div
-                  @click="goToPlatform(item, content.content_id, 'on_page')"
-                  class="platform-cropper"
-                  :style="
-                    is_mobile
-                      ? ''
-                      : 'width: 50px;height: 50px;border-radius: 10px;'
-                  "
-                >
-                  <img
-                    v-bind:src="
-                      'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
-                      index +
-                      '.jpg'
-                    "
-                    class="platform-icon"
-                  />
-                </div>
-              </div>
-            </div>
+          <p
+            class="summary-text"
+            :style="is_mobile ? '' : 'font-size: 15px;'"
+            v-if="content.data.summary_text"
+          >
+            {{ content.data.summary_text }}
+          </p>
+
+          <div class="info-container">
+            <ContentMetaBlock
+              class="info-item"
+              v-if="content.data.imdb_score"
+              :text="'IMDb ' + content.data.imdb_score"
+            />
+
+            <ContentMetaBlock
+              class="info-item"
+              v-if="content.data.tomato_meter"
+              :text="'Tomatometer ' + content.data.tomato_meter"
+            />
+
+            <ContentMetaBlock
+              class="info-item"
+              v-for="(genre, index) in content.data.genres"
+              :key="index"
+              :text="genre"
+            />
+
+            <ContentMetaBlock
+              class="info-item"
+              v-if="content.data.type == 'tv' && content.data.seasons"
+              :text="
+                content.data.seasons +
+                ' ' +
+                (content.data.seasons > 1 ? 'Seasons' : 'Season')
+              "
+            />
+
+            <ContentMetaBlock
+              class="info-item"
+              v-if="content.data.type == 'tv' && content.data.episodes"
+              :text="
+                content.data.episodes +
+                ' ' +
+                (content.data.episodes > 1 ? 'Episodes' : 'Episode')
+              "
+            />
+
+            <ContentMetaBlock
+              class="info-item"
+              v-if="content.data.type == 'tv' && content.data.runtime"
+              :text="
+                content.data.runtime +
+                ' ' +
+                (content.data.episodes ? 'Each' : 'Each Episode')
+              "
+            />
+
+            <ContentMetaBlock
+              class="info-item"
+              v-if="content.data.type == 'movie'"
+              :text="content.data.runtime"
+            />
           </div>
 
           <div
-            class="similar-content-box"
-            v-if="
-              content.similar_content != null && content.similar_content.length
-            "
+            class="platforms"
+            :style="is_mobile ? '' : 'margin-top: 10px;'"
+            v-if="Object.keys(whereToWatchOptions).length"
           >
             <div
-              class="category"
-              :style="
-                is_mobile
-                  ? 'margin-top: 30%;'
-                  : 'margin-left: 10px;font-size: 15px;margin-top: 180px;'
-              "
+              class="platforms-container"
+              v-for="(item, index) in whereToWatchOptions"
+              :key="index"
             >
-              Similar
-            </div>
-            <div class="similar-content">
-              <Poster
-                v-for="(item, index) in content.similar_content"
-                :key="index"
-                class="content-container"
-                :containerWidth="125"
-                :contentId="item.content_id"
-                :title="item.title"
-                :image="item.poster"
-                :showTrailer="false"
-                :whereToWatch="item.where_to_watch"
-                :userPlatforms="
-                  store.user.id ? store.user.profile.platforms || [''] : ['']
-                "
-                :showName="true"
-                parent="content_page"
-                posterLocation="similar"
-                v-on="$listeners"
-              />
-
               <div
-                v-if="!content.similar_content"
-                style="margin-top: 8%; margin-left: 3%; font-size: 4vw;"
+                @click="goToPlatform(item, content.content_id, 'on_page')"
+                class="platform-cropper"
+                :style="
+                  is_mobile
+                    ? ''
+                    : 'width: 50px;height: 50px;border-radius: 10px;'
+                "
               >
-                Oops...Could not find any similar content.
+                <img
+                  v-bind:src="
+                    'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+                    index +
+                    '.jpg'
+                  "
+                  class="platform-icon"
+                />
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="friends-box" v-if="friends_ratings.length">
-            <div
-              class="category"
-              :style="
-                is_mobile
-                  ? 'margin-top: 19%;'
-                  : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
+        <div
+          class="similar-content-box"
+          v-if="
+            content.similar_content != null && content.similar_content.length
+          "
+        >
+          <div
+            class="category"
+            :style="
+              is_mobile
+                ? 'margin-top: 30%;'
+                : 'margin-left: 10px;font-size: 15px;margin-top: 180px;'
+            "
+          >
+            Similar
+          </div>
+          <div class="similar-content">
+            <Poster
+              v-for="(item, index) in content.similar_content"
+              :key="index"
+              class="content-container"
+              :containerWidth="125"
+              :contentId="item.content_id"
+              :title="item.title"
+              :image="item.poster"
+              :showTrailer="false"
+              :whereToWatch="item.where_to_watch"
+              :userPlatforms="
+                store.user.id ? store.user.profile.platforms || [''] : ['']
               "
-            >
-              Friends
-            </div>
-            <div class="artists" style="padding: 0px 10px; margin-top: 0;">
-              <div
-                v-for="(friend, index) in friends_ratings"
-                :key="index"
-                class="artists-container"
-                @click="clickUser(friend.user_id, friend.name)"
-              >
-                <!-- margins in class friend-rating-icon are dependent on followin Person component's size -->
-                <Button
-                  class="friend-rating-icon"
-                  style="background-color: #fff;"
-                  :icon="
-                    friend.rating == 3
-                      ? 'love'
-                      : friend.rating == 2
-                      ? 'thumbs_up'
-                      : 'thumbs_down'
-                  "
-                  buttonType="iconOnly"
-                  :size="20"
-                  :state="true"
-                  :disabled="true"
-                />
+              :showName="true"
+              parent="content_page"
+              posterLocation="similar"
+              v-on="$listeners"
+            />
 
-                <Person
-                  :name="friend.name"
-                  :image="friend.picture"
-                  :width="55"
-                  :height="70"
-                  :spacing="14"
-                  :scale="true"
-                  v-on="$listeners"
-                />
-              </div>
+            <div
+              v-if="!content.similar_content"
+              style="margin-top: 8%; margin-left: 3%; font-size: 4vw"
+            >
+              Oops...Could not find any similar content.
             </div>
+          </div>
+        </div>
+
+        <div class="friends-box" v-if="friends_ratings.length">
+          <div
+            class="category"
+            :style="
+              is_mobile
+                ? 'margin-top: 19%;'
+                : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
+            "
+          >
+            Friends
+          </div>
+          <div class="artists" style="padding: 0px 10px; margin-top: 0">
+            <div
+              v-for="(friend, index) in friends_ratings"
+              :key="index"
+              class="artists-container"
+              @click="clickUser(friend.user_id, friend.name)"
+            >
+              <!-- margins in class friend-rating-icon are dependent on following Person component's size -->
+              <Button
+                class="friend-rating-icon"
+                style="background-color: #fff"
+                :icon="
+                  friend.rating == 3
+                    ? 'love'
+                    : friend.rating == 2
+                    ? 'thumbs_up'
+                    : 'thumbs_down'
+                "
+                buttonType="iconOnly"
+                :size="16"
+                :state="true"
+                :disabled="true"
+              />
+
+              <Person
+                :name="friend.name"
+                :image="friend.picture"
+                :width="55"
+                :height="70"
+                :spacing="14"
+                :scale="true"
+                v-on="$listeners"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="artists-box"
+          v-if="
+            content.crew != null &&
+            (content.crew.directed_by.length ||
+              content.crew.cast.length ||
+              content.crew.writing_credits.length)
+          "
+        >
+          <div
+            class="category"
+            :style="
+              is_mobile
+                ? ''
+                : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
+            "
+            v-if="content.crew.directed_by.length"
+          >
+            Direction
+          </div>
+          <div class="artists" v-if="content.crew.directed_by.length">
+            <Artist
+              v-for="(artist, index) in content.crew.directed_by"
+              :key="index"
+              class="artists-container"
+              :artistId="artist.person_id"
+              :name="artist.person"
+              :image="artist.profile_photo"
+              credit_category="directed_by"
+              :width="55"
+              :height="70"
+              :skipContentId="content.content_id"
+              parent="content_page"
+              @close-tap-instructions="show_tap_instructions = false"
+              v-on="$listeners"
+            />
           </div>
 
           <div
-            class="artists-box"
-            v-if="
-              content.crew != null &&
-              (content.crew.directed_by.length ||
-                content.crew.cast.length ||
-                content.crew.writing_credits.length)
+            class="category"
+            :style="
+              is_mobile
+                ? ''
+                : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
             "
+            v-if="content.crew.cast.length"
           >
-            <div
-              class="category"
-              :style="
-                is_mobile
-                  ? ''
-                  : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
-              "
-              v-if="content.crew.directed_by.length"
-            >
-              Direction
-            </div>
-            <div class="artists" v-if="content.crew.directed_by.length">
-              <Artist
-                v-for="(artist, index) in content.crew.directed_by"
-                :key="index"
-                class="artists-container"
-                :artistId="artist.person_id"
-                :name="artist.person"
-                :image="artist.profile_photo"
-                credit_category="directed_by"
-                :width="55"
-                :height="70"
-                :skipContentId="content.content_id"
-                parent="content_page"
-                @close-tap-instructions="show_tap_instructions = false"
-                v-on="$listeners"
-              />
-            </div>
+            Cast
+          </div>
+          <div class="artists" v-if="content.crew.cast.length">
+            <Artist
+              v-for="(artist, index) in content.crew.cast"
+              :key="index"
+              class="artists-container"
+              :artistId="artist.person_id"
+              :name="artist.person"
+              :image="artist.profile_photo"
+              credit_category="cast"
+              :width="55"
+              :height="70"
+              :skipContentId="content.content_id"
+              parent="content_page"
+              @close-tap-instructions="show_tap_instructions = false"
+              v-on="$listeners"
+            />
+          </div>
 
-            <div
-              class="category"
-              :style="
-                is_mobile
-                  ? ''
-                  : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
-              "
-              v-if="content.crew.cast.length"
-            >
-              Cast
-            </div>
-            <div class="artists" v-if="content.crew.cast.length">
-              <Artist
-                v-for="(artist, index) in content.crew.cast"
-                :key="index"
-                class="artists-container"
-                :artistId="artist.person_id"
-                :name="artist.person"
-                :image="artist.profile_photo"
-                credit_category="cast"
-                :width="55"
-                :height="70"
-                :skipContentId="content.content_id"
-                parent="content_page"
-                @close-tap-instructions="show_tap_instructions = false"
-                v-on="$listeners"
-              />
-            </div>
-
-            <div
-              class="category"
-              :style="
-                is_mobile
-                  ? ''
-                  : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
-              "
-              v-if="content.crew.writing_credits.length"
-            >
-              Writing
-            </div>
-            <div class="artists" v-if="content.crew.writing_credits.length">
-              <Artist
-                v-for="(artist, index) in content.crew.writing_credits"
-                :key="index"
-                class="artists-container"
-                :artistId="artist.person_id"
-                :name="artist.person"
-                :image="artist.profile_photo"
-                credit_category="writing_credits"
-                :width="55"
-                :height="70"
-                :skipContentId="content.content_id"
-                parent="content_page"
-                @close-tap-instructions="show_tap_instructions = false"
-                v-on="$listeners"
-              />
-            </div>
+          <div
+            class="category"
+            :style="
+              is_mobile
+                ? ''
+                : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
+            "
+            v-if="content.crew.writing_credits.length"
+          >
+            Writing
+          </div>
+          <div class="artists" v-if="content.crew.writing_credits.length">
+            <Artist
+              v-for="(artist, index) in content.crew.writing_credits"
+              :key="index"
+              class="artists-container"
+              :artistId="artist.person_id"
+              :name="artist.person"
+              :image="artist.profile_photo"
+              credit_category="writing_credits"
+              :width="55"
+              :height="70"
+              :skipContentId="content.content_id"
+              parent="content_page"
+              @close-tap-instructions="show_tap_instructions = false"
+              v-on="$listeners"
+            />
           </div>
         </div>
       </div>
@@ -464,7 +442,7 @@
         <div class="prompted-content-box" v-if="prompt_content_share">
           <img
             :src="content.data[share_item]"
-            style="max-width: 80vw; max-height: 45vh;"
+            style="max-width: 80vw; max-height: 45vh"
           />
 
           <label
@@ -1066,6 +1044,10 @@ export default {
   letter-spacing: normal;
   color: #333333;
 }
+.content-cover {
+  position: relative;
+  margin-top: 50px;
+}
 .content-below-cover {
   margin-top: -40px;
   border-radius: 24px;
@@ -1074,6 +1056,9 @@ export default {
 }
 .cover-trailer {
   position: absolute;
+  height: 80px;
+  margin-left: calc(50vw - 40px);
+  margin-top: calc(-20vh - 40px - 40px);
   z-index: 1000;
 }
 .title {
@@ -1153,8 +1138,10 @@ export default {
   margin-top: 5px;
 }
 .artists-container {
+  position: relative;
   display: inline-block;
   margin-right: 20px;
+  padding: 1px;
   vertical-align: top;
   text-align: center;
   cursor: pointer;
@@ -1310,9 +1297,9 @@ export default {
   color: #ffffff;
 }
 .content-share-icon {
-  position: fixed;
+  position: absolute;
   right: 20px;
-  top: 70px;
+  top: 20px;
   width: 8vw;
   height: 8vw;
   background-image: url("./../images/share-icon.svg");
@@ -1611,7 +1598,7 @@ export default {
   transform: translate(-50%, -50%);
   z-index: 1;
   background-color: #fff;
-  padding: 7px;
+  padding: 5px;
   border-radius: 50%;
 }
 </style>

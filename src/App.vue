@@ -1,16 +1,10 @@
 <template>
   <div v-if="this.$store.state.server_down" class="browser-alert">
-    <h1>
-      Please give us a couple of hours to upgrade our servers.
-    </h1>
+    <h1>Please give us a couple of hours to upgrade our servers.</h1>
     <br />
-    <h1>
-      We'll be back by 7:30 PM GMT.
-    </h1>
+    <h1>We'll be back by 7:30 PM GMT.</h1>
     <br />
-    <h2>
-      BTW we've never seen a pigeon sitting on a tree. Have you?
-    </h2>
+    <h2>BTW we've never seen a pigeon sitting on a tree. Have you?</h2>
   </div>
 
   <div

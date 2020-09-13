@@ -34,9 +34,7 @@
               :style="is_mobile ? '' : 'right: 70px;'"
             />
           </transition>
-          <span class="home-text">
-            Home
-          </span>
+          <span class="home-text"> Home </span>
         </div>
 
         <div
@@ -44,9 +42,7 @@
           v-bind:class="{ active: isSearch }"
           @click="GoToSearch"
         >
-          <span class="search-text">
-            Search
-          </span>
+          <span class="search-text"> Search </span>
         </div>
 
         <div
@@ -54,9 +50,7 @@
           v-bind:class="{ active: isRate }"
           @click="GoToRate"
         >
-          <span class="rate-text">
-            Rate
-          </span>
+          <span class="rate-text"> Rate </span>
         </div>
 
         <div
@@ -64,9 +58,7 @@
           v-bind:class="{ active: isWatchlist }"
           @click="GoToWatchlist"
         >
-          <span class="watchlist-text">
-            Watchlist
-          </span>
+          <span class="watchlist-text"> Watchlist </span>
         </div>
 
         <div
@@ -86,9 +78,7 @@
             class="nav-suggestions-notification"
             :style="is_mobile ? '' : 'right: 70px;'"
           />
-          <span class="profile-text">
-            Profile
-          </span>
+          <span class="profile-text"> Profile </span>
         </div>
       </nav>
 
@@ -104,9 +94,7 @@
         <div
           :class="is_mobile ? 'google-play-icon' : 'desktop-google-play-icon'"
         />
-        <span>
-          Google Play
-        </span>
+        <span> Google Play </span>
       </div>
 
       <div
@@ -115,9 +103,7 @@
         v-if="!this.$store.state.session_id & !this.is_policy_page"
       >
         <div :class="is_mobile ? 'ios-icon' : 'desktop-ios-icon'" />
-        <span>
-          iOS (M-Site)
-        </span>
+        <span> iOS (M-Site) </span>
       </div>
     </div>
   </div>
