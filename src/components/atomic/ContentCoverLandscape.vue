@@ -1,9 +1,13 @@
 <template>
-  <div class="landscape-image-container">
+  <div
+    class="landscape-image-container"
+    :style="is_mobile ? '' : 'min-width: 100%;'"
+  >
     <img
       ref="movieImage"
       class="landscape-content-image"
-      :src="imageUrl.replace('/w1280/', '/w780/')"
+      :style="is_mobile ? '' : 'min-width: auto;height: 60vh;'"
+      :src="is_mobile ? imageUrl.replace('/w1280/', '/w780/') : imageUrl"
       :onerror="
         'this.onerror=null;this.src=url;'.replace(
           'url',
@@ -23,6 +27,12 @@ export default {
       type: String,
       required: true,
     },
+  },
+
+  data() {
+    return {
+      is_mobile: window.screen.height > window.screen.width,
+    };
   },
 
   mounted() {

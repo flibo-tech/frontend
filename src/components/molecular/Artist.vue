@@ -4,7 +4,11 @@
       <Person :image="image" :width="width" :height="height" :name="name" />
     </div>
 
-    <div v-if="quickViewEnabled" class="quickview">
+    <div
+      v-if="quickViewEnabled"
+      class="quickview"
+      :style="is_mobile ? '' : 'width: 1000px;'"
+    >
       <div class="view-header">
         <h2 v-if="!artistData">
           Fetching more content by
@@ -105,6 +109,7 @@ export default {
   data() {
     return {
       store: this.$store.state,
+      is_mobile: window.screen.height > window.screen.width,
       quickViewEnabled: false,
       artistData: null,
     };

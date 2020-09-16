@@ -16,7 +16,7 @@
         <Trailer
           v-if="showTrailer"
           class="trailer"
-          style="margin-top: -35px;"
+          style="margin-top: -35px"
           ref="trailer"
           :contentId="contentId"
           :trailerId="trailerId"
@@ -213,5 +213,13 @@ export default {
   grid-column-start: 1;
   width: 100%;
   border-radius: 8px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 </style>

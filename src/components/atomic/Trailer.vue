@@ -280,6 +280,14 @@ export default {
   position: relative;
   overflow: hidden;
   border-radius: 20%;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 .youtube-player-platform-icon {
   display: inline-block;
