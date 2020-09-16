@@ -1,7 +1,11 @@
 <template>
-  <div class="portrait-image-container">
+  <div
+    class="portrait-image-container"
+    :style="is_mobile ? '' : 'height: 60vh;'"
+  >
     <img
       class="portrait-content-image"
+      :style="is_mobile ? '' : 'height: 60vh;'"
       :src="imageUrl.replace('/w1280/', '/w500/')"
       :onerror="
         'this.onerror=null;this.src=url;'.replace(
@@ -32,6 +36,12 @@ export default {
     imageUrl: {
       type: String,
     },
+  },
+
+  data() {
+    return {
+      is_mobile: window.screen.height > window.screen.width,
+    };
   },
 
   mounted() {

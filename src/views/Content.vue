@@ -27,6 +27,11 @@
         <Trailer
           v-if="showTrailorIcon"
           class="cover-trailer"
+          :style="
+            is_mobile
+              ? ''
+              : 'margin-left: calc(50% - 40px);margin-top: calc(-30vh - 40px - 20px);'
+          "
           ref="coverTrailer"
           :size="80"
           parent="content_page"
@@ -226,7 +231,11 @@
           </div>
         </div>
 
-        <div class="friends-box" v-if="friends_ratings.length">
+        <div
+          class="friends-rating-box"
+          :style="is_mobile ? '' : 'width: auto;'"
+          v-if="friends_ratings.length"
+        >
           <div
             class="category"
             :style="
@@ -1584,7 +1593,7 @@ export default {
   width: 100%;
   margin-top: 20px;
 }
-.friends-box {
+.friends-rating-box {
   position: relative;
   margin-top: 20px;
   background-color: #eeeeee;
