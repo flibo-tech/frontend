@@ -64,8 +64,28 @@
               : 'margin-bottom: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);'
           "
         >
-          <p style="font-weight: normal; text-align: center;">
+          <p style="font-weight: normal; text-align: center">
             Your watched movies & shows have been removed from the results.
+          </p>
+        </div>
+
+        <div
+          v-if="
+            is_mobile &&
+            parent == 'watchlist' &&
+            store.session_id != null &&
+            currentIndex == 0 &&
+            index == 0
+          "
+          class="user-suggestions-container"
+          :style="
+            is_mobile
+              ? 'margin-bottom: 24px;'
+              : 'margin-bottom: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);'
+          "
+        >
+          <p style="font-weight: normal; text-align: center">
+            Access your watchlist on desktop at flibo.ai
           </p>
         </div>
 
@@ -83,7 +103,7 @@
         <FeedCard :content="item" :parent="parent" v-on="$listeners" />
 
         <UserSuggestions
-          style="margin-top: 24px;"
+          style="margin-top: 24px"
           v-if="
             parent == 'home' &&
             store.suggestions.users_suggestions.length &&
@@ -104,12 +124,10 @@
               : 'margin-top: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);'
           "
         >
-          <p style="font-weight: normal; text-align: center;">
+          <p style="font-weight: normal; text-align: center">
             Search your friends on FLIBO and connect with them.
           </p>
-          <p style="text-align: center;">
-            Discover Together
-          </p>
+          <p style="text-align: center">Discover Together</p>
         </div>
       </div>
     </div>
