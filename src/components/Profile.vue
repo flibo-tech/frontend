@@ -17,7 +17,7 @@
     </div>
 
     <div
-      style="position: relative; width: 95%; margin-left: 2.5%;"
+      style="position: relative; width: 95%; margin-left: 2.5%"
       v-if="!fetching_profile | own_profile"
     >
       <div :class="is_mobile ? 'profile-cover' : 'desktop-profile-cover'">
@@ -128,9 +128,7 @@
           @click="update_profile_status = !update_profile_status"
         >
           <div :style="profile_status_icon" />
-          <div class="profile-status-title">
-            Status
-          </div>
+          <div class="profile-status-title">Status</div>
         </div>
 
         <div
@@ -139,7 +137,7 @@
           v-if="own_profile"
         >
           Connections
-          <span style="font-size: 22px; position: relative;">
+          <span style="font-size: 22px; position: relative">
             {{ store.friends_page.friends.length }}
           </span>
 
@@ -152,12 +150,12 @@
 
         <div
           class="profile-connections"
-          style="width: 45px; margin-left: calc(33.33% - 75.5px);"
+          style="width: 45px; margin-left: calc(33.33% - 75.5px)"
           @click="profile_vies_desc = !profile_vies_desc"
           v-if="own_profile & profile_vies_desc"
         >
           Views
-          <span style="font-size: 22px; position: relative;">
+          <span style="font-size: 22px; position: relative">
             {{ profile_views }}
           </span>
         </div>
@@ -199,7 +197,7 @@
           <div class="profile-more-options" v-if="openProfileMore">
             <div
               class="profile-more-option"
-              style="margin-top: 10px;"
+              style="margin-top: 10px"
               @click="$router.push('/settings')"
             >
               <div :style="profile_more_settings" />
@@ -210,22 +208,20 @@
 
             <div
               class="profile-more-option"
-              style="margin-top: 5px;"
+              style="margin-top: 5px"
               @click="goToAboutUs"
             >
               <div class="profile-more-about-us" />
-              <span class="profile-more-option-text">
-                About Us
-              </span>
+              <span class="profile-more-option-text"> About Us </span>
             </div>
 
             <div
               class="profile-more-option"
-              style="margin-bottom: 1px;"
+              style="margin-bottom: 1px"
               @click="logOut"
             >
               <div class="profile-more-logout" />
-              <span class="profile-more-option-text" style="color: #f54029;">
+              <span class="profile-more-option-text" style="color: #f54029">
                 Logout
               </span>
             </div>
@@ -441,7 +437,7 @@
       </div>
 
       <div class="total-watched-container">
-        <span style="font-weight: bold; font-size: 15px;">
+        <span style="font-weight: bold; font-size: 15px">
           {{ own_profile ? "You have" : user_name.split(" ")[0] + " has" }}
           watched...
         </span>
@@ -449,12 +445,8 @@
         <div :class="is_mobile ? 'total-watched' : 'desktop-total-watched'">
           {{ total_watched[content_type].total }}
 
-          <span v-if="content_type == 'movie'">
-            Movies
-          </span>
-          <span v-if="content_type == 'tv'">
-            TV Series
-          </span>
+          <span v-if="content_type == 'movie'"> Movies </span>
+          <span v-if="content_type == 'tv'"> TV Series </span>
         </div>
         <div
           :class="
@@ -473,7 +465,7 @@
             filtered_ratings(1).length
         "
       >
-        <span style="font-weight: bold; font-size: 15px;">
+        <span style="font-weight: bold; font-size: 15px">
           {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }} ratings...
         </span>
         <span
@@ -484,7 +476,7 @@
           Reset Ratings
         </span>
 
-        <div style="display: flex;" v-if="filtered_ratings(3).length">
+        <div style="display: flex" v-if="filtered_ratings(3).length">
           <div
             class="profile-love-true"
             :style="
@@ -546,7 +538,7 @@
           </div>
         </div>
 
-        <div style="display: flex;" v-if="filtered_ratings(2).length">
+        <div style="display: flex" v-if="filtered_ratings(2).length">
           <div
             class="profile-thumbs-up-true"
             :style="
@@ -608,7 +600,7 @@
           </div>
         </div>
 
-        <div style="display: flex;" v-if="filtered_ratings(1).length">
+        <div style="display: flex" v-if="filtered_ratings(1).length">
           <div
             class="profile-thumbs-down-true"
             :style="
@@ -684,7 +676,7 @@
           />
 
           <div class="prompted-box" v-if="reset_ratings_banner && own_profile">
-            <p style="margin-top: 0; font-size: 20px; white-space: nowrap;">
+            <p style="margin-top: 0; font-size: 20px; white-space: nowrap">
               Reset all your ratings?
             </p>
 
@@ -729,7 +721,7 @@
             <img
               :src="collage + '?' + new Date().getTime()"
               v-if="collage"
-              style="max-width: 80vw; max-height: 45vh;"
+              style="max-width: 80vw; max-height: 45vh"
             />
 
             <div class="sk-folding-cube" v-if="!collage">
@@ -741,10 +733,10 @@
 
             <span
               v-if="!collage"
-              style="margin-top: 0px; width: 60vw; font-size: 16px;"
+              style="margin-top: 0px; width: 60vw; font-size: 16px"
             >
               Preparing collage for your taste...
-              <p style="font-size: 10px;" v-if="profile_status != 'public'">
+              <p style="font-size: 10px" v-if="profile_status != 'public'">
                 Your profile will become public
               </p>
             </span>
@@ -770,7 +762,7 @@
             </div>
 
             <p
-              style="position: relative; font-size: 10px; margin-top: 55px;"
+              style="position: relative; font-size: 10px; margin-top: 55px"
               v-if="collage && !store.is_webview"
             >
               Profile URL copied, paste while posting
@@ -781,16 +773,16 @@
 
       <div
         v-if="filtered_watchlist().length"
-        style="width: 100%; text-align: left; padding: 7px;"
+        style="width: 100%; text-align: left; padding: 7px"
       >
-        <span style="font-weight: bold; font-size: 15px;">
+        <span style="font-weight: bold; font-size: 15px">
           {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
           watchlist...
         </span>
 
         <div
           :class="is_mobile ? 'ratings-container' : 'desktop-ratings-container'"
-          style="margin-left: 0; width: 100%;"
+          style="margin-left: 0; width: 100%"
         >
           <div
             v-for="(item, index) in watchlist"
@@ -1630,6 +1622,7 @@ export default {
           session_id: this.$store.state.session_id,
           content_ids: [content_id],
           rating: user_rating,
+          privacy: this.$store.state.user.profile.profile_status || "public",
         })
         .then(function (response) {
           var index = self.$store.state.suggestions.rate_counter.indexOf(
@@ -1671,6 +1664,7 @@ export default {
     },
     updateProfileStatus(profile_status) {
       this.profile_status = profile_status;
+      this.$store.state.user.profile.profile_status = profile_status;
       this.updateProfile();
       this.update_profile_status = false;
     },

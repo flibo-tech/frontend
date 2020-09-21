@@ -132,9 +132,7 @@
           v-if="content_search_ids.length"
           @click="fetchMoreContent"
         >
-          <div class="see-more-contents">
-            See More
-          </div>
+          <div class="see-more-contents">See More</div>
         </div>
       </div>
 
@@ -144,7 +142,7 @@
       >
         <div
           class="sk-folding-cube"
-          style="transform: translateY(-200%) rotateZ(45deg);"
+          style="transform: translateY(-200%) rotateZ(45deg)"
         >
           <div class="sk-cube1 sk-cube"></div>
           <div class="sk-cube2 sk-cube"></div>
@@ -154,9 +152,7 @@
       </div>
 
       <div v-if="no_content_found" class="no-content-box">
-        <div class="no-content-found">
-          No such content found !
-        </div>
+        <div class="no-content-found">No such content found !</div>
       </div>
     </div>
 
@@ -196,9 +192,7 @@
           v-if="user_ids.length"
           @click="fetchMoreUsers"
         >
-          <div class="see-more-users">
-            See More
-          </div>
+          <div class="see-more-users">See More</div>
         </div>
       </div>
 
@@ -210,7 +204,7 @@
       >
         <div
           class="sk-folding-cube"
-          style="transform: translateY(-200%) rotateZ(45deg);"
+          style="transform: translateY(-200%) rotateZ(45deg)"
         >
           <div class="sk-cube1 sk-cube"></div>
           <div class="sk-cube2 sk-cube"></div>
@@ -220,9 +214,7 @@
       </div>
 
       <div v-if="no_user_found" class="no-content-box">
-        <div class="no-content-found">
-          No such user found !
-        </div>
+        <div class="no-content-found">No such user found !</div>
       </div>
     </div>
 
@@ -610,6 +602,7 @@ export default {
             session_id: this.$store.state.session_id,
             content_ids: [content_id],
             rating: user_rating,
+            privacy: this.$store.state.user.profile.profile_status || "public",
           })
           .then(function (response) {
             var index = self.$store.state.suggestions.rate_counter.indexOf(
@@ -826,17 +819,19 @@ export default {
         })
         .then(function (response) {
           if ([200].includes(response.status)) {
-            self.$store.state.discover_filters.filtered_content.push(
-              ...response.data.contents
-            );
-            self.$store.state.discover_filters.more_filtered_content = [];
+            if (self.$route.path != "/search") {
+              self.$store.state.discover_filters.filtered_content.push(
+                ...response.data.contents
+              );
+              self.$store.state.discover_filters.more_filtered_content = [];
 
-            if (self.$route.path == "/search-results") {
-              self.$store.state.feed_filters.apply_filters_wo_reset = true;
-            } else if (
-              self.$store.state.feed.search_results.feed_list.length < 25
-            ) {
-              self.store.feed.search_results.apply_filters_on_create = true;
+              if (self.$route.path == "/search-results") {
+                self.$store.state.feed_filters.apply_filters_wo_reset = true;
+              } else if (
+                self.$store.state.feed.search_results.feed_list.length < 25
+              ) {
+                self.store.feed.search_results.apply_filters_on_create = true;
+              }
             }
           } else {
             // console.log(response.status);

@@ -801,6 +801,7 @@ export default {
             session_id: this.$store.state.session_id,
             content_id: this.$store.state.content_page.content_id,
             status: prev_state ? false : true,
+            privacy: this.$store.state.user.profile.profile_status || "public",
           })
           .then(function (response) {
             if (response.status == 200) {
@@ -870,6 +871,7 @@ export default {
             session_id: this.$store.state.session_id,
             content_ids: [this.content.content_id],
             rating: user_rating,
+            privacy: this.$store.state.user.profile.profile_status || "public",
           })
           .then(function (response) {
             var index = self.$store.state.suggestions.rate_counter.indexOf(

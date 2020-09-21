@@ -1178,44 +1178,46 @@ export default {
     },
     fetchRemaining() {
       var self = this;
-      self.store.suggestions.fetching_feed_incremental = true;
+      if (self.$store.state.suggestions.more_contents.length) {
+        self.store.suggestions.fetching_feed_incremental = true;
 
-      axios
-        .post(self.$store.state.api_host + "get_incremental_feed_contents", {
-          session_id: self.$store.state.session_id,
-          more_contents: self.$store.state.suggestions.more_contents.slice(),
-          country: self.$store.state.user.profile.country,
-        })
-        .then(function (response) {
-          if ([200].includes(response.status)) {
-            self.$store.state.suggestions.contents.push(
-              ...response.data.contents
-            );
-            if (self.$route.path == "/discover") {
-              self.$store.state.feed_filters.apply_filters_wo_reset = true;
-            } else if (self.$store.state.suggestions.feed_list.length < 25) {
-              self.store.feed.home.apply_filters_on_create = true;
+        axios
+          .post(self.$store.state.api_host + "get_incremental_feed_contents", {
+            session_id: self.$store.state.session_id,
+            more_contents: self.$store.state.suggestions.more_contents.slice(),
+            country: self.$store.state.user.profile.country,
+          })
+          .then(function (response) {
+            if ([200].includes(response.status)) {
+              self.$store.state.suggestions.contents.push(
+                ...response.data.contents
+              );
+              if (self.$route.path == "/discover") {
+                self.$store.state.feed_filters.apply_filters_wo_reset = true;
+              } else if (self.$store.state.suggestions.feed_list.length < 25) {
+                self.store.feed.home.apply_filters_on_create = true;
+              }
+
+              self.$store.state.suggestions.more_contents = [];
+            } else {
+              // console.log(response.status);
             }
-
-            self.$store.state.suggestions.more_contents = [];
-          } else {
-            // console.log(response.status);
-          }
-          self.store.suggestions.fetching_feed_incremental = false;
-        })
-        .catch(function (error) {
-          self.store.suggestions.fetching_feed_incremental = false;
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.logging_out = true;
-          } else {
-            // console.log(error.response.status);
-          }
-        });
+            self.store.suggestions.fetching_feed_incremental = false;
+          })
+          .catch(function (error) {
+            self.store.suggestions.fetching_feed_incremental = false;
+            if ([401, 419].includes(error.response.status)) {
+              window.location =
+                self.$store.state.login_host +
+                "logout?session_id=" +
+                self.$store.state.session_id;
+              self.$store.state.session_id = null;
+              self.logging_out = true;
+            } else {
+              // console.log(error.response.status);
+            }
+          });
+      }
     },
     openContentPage(info) {
       this.$store.state.content_page.more_by_artist = null;
@@ -1305,6 +1307,7 @@ export default {
           session_id: this.$store.state.session_id,
           content_ids: [info.content_id],
           rating: info.user_rating,
+          privacy: this.$store.state.user.profile.profile_status || "public",
         })
         .then(function (response) {
           var index = self.$store.state.suggestions.rate_counter.indexOf(
@@ -1376,6 +1379,7 @@ export default {
           session_id: this.$store.state.session_id,
           content_id: info.content_id,
           status: info.watch_later ? false : true,
+          privacy: this.$store.state.user.profile.profile_status || "public",
         })
         .then(function (response) {
           if (response.status == 200) {

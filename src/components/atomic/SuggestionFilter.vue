@@ -23,7 +23,6 @@
     <button
       v-if="parent == 'home' && store.notifications.suggestions"
       class="suggestion-filter-active"
-      :style="is_mobile ? '' : 'right: 195px;margin-top: 2px;'"
     />
   </div>
 </template>
