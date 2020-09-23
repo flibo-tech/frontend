@@ -46,6 +46,14 @@
         </div>
 
         <div
+          class="main-icon post"
+          v-bind:class="{ active: promptPost }"
+          @click="promptPost = true"
+        >
+          <span class="search-text"> Post </span>
+        </div>
+
+        <div
           class="main-icon rate"
           v-bind:class="{ active: isRate }"
           @click="GoToRate"
@@ -106,16 +114,23 @@
         <span> iOS (M-Site) </span>
       </div>
     </div>
+
+    <CreatePostPrompt v-if="promptPost" @close="promptPost = false" />
+    <div
+      class="post-prompt-bg"
+      v-if="promptPost"
+      @click="promptPost = false"
+    ></div>
   </div>
 </template>
 
 <script>
-import SearchBar from "./SearchBar";
+import CreatePostPrompt from "./molecular/CreatePostPrompt";
 
 export default {
   name: "App",
   components: {
-    SearchBar,
+    CreatePostPrompt,
   },
   props: {
     active: {
@@ -135,6 +150,7 @@ export default {
       isWatchlist: false,
       isProfile: false,
       is_policy_page: false,
+      promptPost: false,
     };
   },
   created() {
@@ -443,6 +459,15 @@ button {
   font-weight: 900;
   color: black;
 }
+.main-icon.post {
+  background-image: url("./../images/plus.svg");
+  background-size: 31px;
+  top: -8px;
+}
+.main-icon.post.active span {
+  font-weight: 900;
+  color: black;
+}
 .main-icon.discover {
   background-image: url("./../images/home-icon.svg");
   background-size: 28px;
@@ -701,5 +726,24 @@ button {
   line-height: 1.17;
   letter-spacing: normal;
   color: #333333;
+}
+.post-prompt-bg {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: table;
+  top: 0%;
+  left: 0%;
+  z-index: 100000;
+  animation: 0.2s ease-out 0s 1 load;
+}
+@keyframes load {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>
