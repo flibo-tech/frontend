@@ -6,12 +6,26 @@
       buttonClicked();
     "
     :disabled="disabled"
+    :style="
+      iconCircle
+        ? {
+            'background-color': '#7352ff',
+            width: size * 2 + 'px',
+            height: size * 2 + 'px',
+            'border-radius': '50%',
+          }
+        : {}
+    "
   >
     <p v-if="buttonType != 'iconOnly' && !buttonClickedBool">{{ text }}</p>
     <img
       v-if="buttonType === 'iconOnly' && !buttonClickedBool"
       :src="imageURL"
-      :style="{ width: size + 'px' }"
+      :style="
+        iconCircle
+          ? { width: size + 'px', display: 'initial', padding: '20px' }
+          : { width: size + 'px' }
+      "
     />
     <div v-if="buttonClickedBool && loading" class="loader"></div>
   </button>
@@ -20,7 +34,6 @@
 <script>
 export default {
   name: "Button",
-
   props: {
     text: {
       type: String,
@@ -52,14 +65,17 @@ export default {
       required: false,
       default: 18,
     },
+    iconCircle: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
-
   data() {
     return {
       buttonClickedBool: false,
     };
   },
-
   computed: {
     checkType() {
       let buttonClass = "";
@@ -74,7 +90,6 @@ export default {
       }
       return buttonClass;
     },
-
     imageURL() {
       if (this.state) {
         return require("./../../assets/icons/" + this.icon + "_true" + ".svg");
@@ -82,7 +97,6 @@ export default {
       return require("./../../assets/icons/" + this.icon + ".svg");
     },
   },
-
   methods: {
     buttonClicked() {
       if (this.loading) {
@@ -98,7 +112,6 @@ $border-radius: 5px;
 $primary-color: #7352ff;
 $secondary-color: #212121;
 $textOnly-color: #adadad;
-
 button {
   font-family: "Roboto", sans-serif;
   font-weight: medium;
@@ -135,7 +148,6 @@ button {
 .primary p {
   text-transform: uppercase;
 }
-
 .secondary {
   font-family: "Roboto", sans-serif;
   font-weight: medium;
@@ -162,7 +174,6 @@ button {
   border-color: rgb(36, 36, 36);
   background-color: grey;
 }
-
 .textOnly {
   border: none;
   border-radius: $border-radius;
@@ -185,7 +196,6 @@ button {
   cursor: inherit;
   color: rgb(54, 54, 54);
 }
-
 .iconOnly {
   background-color: transparent;
   border: none;
@@ -204,11 +214,9 @@ button {
 .iconOnly img {
   display: block;
 }
-
 button:focus {
   outline: none;
 }
-
 .loader {
   margin: auto;
   border: 2px solid #ffffff;
@@ -218,7 +226,6 @@ button:focus {
   height: 16px;
   animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
   0% {
     transform: rotate(0deg);
