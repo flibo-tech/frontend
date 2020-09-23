@@ -838,7 +838,7 @@
           class="profile-friend-container"
           @click="clickUser(item.id, item.name)"
         >
-          <Person
+          <ImageCard
             :image="item.picture"
             :name="item.name"
             :width="is_mobile ? 55 : 75"
@@ -991,7 +991,7 @@ import WatchedTimeline from "./WatchedTimeline";
 import Artist from "./molecular/Artist";
 import Poster from "./molecular/Poster";
 import UserRating from "./molecular/UserRating";
-import Person from "./atomic/Person";
+import ImageCard from "./atomic/ImageCard";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -1003,7 +1003,7 @@ export default {
     WatchedTimeline,
     Artist,
     Poster,
-    Person,
+    ImageCard,
     UserRating,
   },
   data() {

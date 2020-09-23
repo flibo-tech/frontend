@@ -168,7 +168,7 @@
         class="user-items"
         v-if="user_search_result.length && parent != 'profile'"
       >
-        <Person
+        <ImageCard
           v-for="(user, index) in user_search_result"
           :key="index"
           class="filter-users-container"
@@ -235,7 +235,7 @@ const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
 import DiscoverFilter from "./DiscoverFilter";
 import UserRating from "./molecular/UserRating";
-import Person from "./atomic/Person";
+import ImageCard from "./atomic/ImageCard";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -243,7 +243,7 @@ export default {
   components: {
     DiscoverFilter,
     UserRating,
-    Person,
+    ImageCard,
   },
   mixins: [onClickOutside],
   data() {

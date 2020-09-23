@@ -1,7 +1,7 @@
 <template>
   <div class="suggested-user-box">
     <div>
-      <Person
+      <ImageCard
         @clicked="goToProfile"
         :name="userName"
         :image="image"
@@ -37,12 +37,12 @@
 
 <script>
 import axios from "axios";
-import Person from "./Person";
+import ImageCard from "./ImageCard";
 
 export default {
   name: "App",
   components: {
-    Person,
+    ImageCard,
   },
   props: {
     userId: {

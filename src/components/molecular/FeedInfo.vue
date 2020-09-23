@@ -106,7 +106,7 @@
           </h3>
 
           <div class="more-info-artists" v-if="crew.length">
-            <Person
+            <ImageCard
               v-for="(artist, index) in crew"
               :key="index"
               class="more-info-artists-container"
@@ -153,7 +153,7 @@
 import axios from "axios";
 import Poster from "./Poster";
 import UserRating from "./UserRating";
-import Person from "./../atomic/Person";
+import ImageCard from "./../atomic/ImageCard";
 import ContentMetaBlock from "./../atomic/ContentMetaBlock";
 
 export default {
@@ -161,7 +161,7 @@ export default {
   components: {
     Poster,
     UserRating,
-    Person,
+    ImageCard,
     ContentMetaBlock,
   },
   props: {

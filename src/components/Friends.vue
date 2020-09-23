@@ -53,7 +53,7 @@
         "
         class="friend-container"
       >
-        <Person
+        <ImageCard
           style="justify-content: flex-start;"
           @clicked="clickUser(item.friend_id, item.name)"
           :name="item.name"
@@ -113,7 +113,7 @@
           "
           class="friend-container"
         >
-          <Person
+          <ImageCard
             style="justify-content: flex-start;"
             @clicked="clickUser(item.friend_id, item.name)"
             :name="item.name"
@@ -240,13 +240,13 @@
 
 <script>
 import axios from "axios";
-import Person from "./atomic/Person";
+import ImageCard from "./atomic/ImageCard";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
   name: "App",
   components: {
-    Person,
+    ImageCard,
   },
   mixins: [onClickOutside],
   data() {

@@ -7,30 +7,41 @@
     >
       <img :src="image" :style="scale ? 'transform: scale(1.5);' : ''" />
     </div>
-    <p
-      :style="{
-        'margin-top': (position == 'bottom' ? 8 + spacing : 0) + 'px',
-        'margin-left': (position == 'right' ? 16 : 0) + 'px',
-        width: position == 'bottom' ? width + 'px' : 'fit-content',
-        'font-size': (fontSize ? fontSize : is_mobile ? 10 : 12) + 'px',
-        'font-weight': fontWeight,
-        'white-space': position == 'right' ? 'nowrap' : 'normal',
-      }"
+    <div
+      class="text-container"
+      :style="customStyleTextContainer"
       @click="$emit('clicked')"
     >
-      {{ name }}
-    </p>
+      <p :style="customStyleText">
+        {{ name }}
+      </p>
+      <p
+        v-if="subText"
+        style="
+          font-size: 12px;
+          font-weight: normal;
+          color: #676767;
+          margin-top: 4px;
+        "
+      >
+        {{ subText }}
+      </p>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Person",
-
+  name: "ImageCard",
   props: {
     name: {
       type: String,
       required: true,
+    },
+    subText: {
+      type: String,
+      required: false,
+      default: null,
     },
     height: {
       type: Number,
@@ -70,13 +81,11 @@ export default {
       require: false,
     },
   },
-
   data() {
     return {
       is_mobile: window.screen.height > window.screen.width,
     };
   },
-
   computed: {
     adjustPosition() {
       switch (this.position) {
@@ -98,6 +107,22 @@ export default {
           };
       }
     },
+    customStyleTextContainer() {
+      return {
+        "margin-top": (this.position == "bottom" ? 8 + this.spacing : 0) + "px",
+        "margin-left": (this.position == "right" ? 16 : 0) + "px",
+        width: this.position == "bottom" ? this.width + "px" : "fit-content",
+      };
+    },
+    customStyleText() {
+      return {
+        width: this.position == "bottom" ? this.width + "px" : "fit-content",
+        "font-size":
+          (this.fontSize ? this.fontSize : this.is_mobile ? 10 : 12) + "px",
+        "font-weight": this.fontWeight,
+        "white-space": this.position == "right" ? "nowrap" : "normal",
+      };
+    },
   },
 };
 </script>
@@ -105,21 +130,34 @@ export default {
 <style scoped>
 .main-container {
   display: flex;
+  width: fit-content;
   justify-content: center;
   align-items: center;
 }
-
 .image-container {
   overflow: hidden;
   border-radius: 5px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
-
 img {
   width: 100%;
 }
-
-p {
+.text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.text-container p {
   position: relative;
+  margin: 0;
   white-space: normal;
   font-stretch: normal;
   font-style: normal;

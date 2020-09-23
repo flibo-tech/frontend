@@ -253,7 +253,7 @@
               class="artists-container"
               @click="clickUser(friend.user_id, friend.name)"
             >
-              <!-- margins in class friend-rating-icon are dependent on following Person component's size -->
+              <!-- margins in class friend-rating-icon are dependent on following ImageCard component's size -->
               <Button
                 class="friend-rating-icon"
                 style="background-color: #fff"
@@ -270,7 +270,7 @@
                 :disabled="true"
               />
 
-              <Person
+              <ImageCard
                 :name="friend.name"
                 :image="friend.picture"
                 :width="55"
@@ -490,7 +490,7 @@ import ContentCoverLandscape from "./../components/atomic/ContentCoverLandscape"
 import ContentCoverPortrait from "./../components/atomic/ContentCoverPortrait";
 import Trailer from "./../components/atomic/Trailer";
 import ContentMetaBlock from "./../components/atomic/ContentMetaBlock";
-import Person from "./../components/atomic/Person";
+import ImageCard from "./../components/atomic/ImageCard";
 import Button from "./../components/atomic/Button";
 import Poster from "./../components/molecular/Poster";
 import Artist from "./../components/molecular/Artist";
@@ -504,7 +504,7 @@ export default {
     ContentCoverPortrait,
     Trailer,
     ContentMetaBlock,
-    Person,
+    ImageCard,
     Poster,
     Artist,
     UserRating,
