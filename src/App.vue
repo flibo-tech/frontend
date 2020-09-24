@@ -21,7 +21,8 @@
         !this.is_search_page &&
         !this.is_user_search_page &&
         !this.is_onboarding &&
-        !this.is_landing_page
+        !this.is_landing_page &&
+        !this.is_create_page
       "
     />
 
@@ -38,7 +39,9 @@
     />
 
     <MainNavigation
-      v-if="!this.is_onboarding && !this.is_landing_page"
+      v-if="
+        !this.is_onboarding && !this.is_landing_page && !this.is_create_page
+      "
       @update-api-counter="updateApiCounter"
     />
   </div>
@@ -146,6 +149,7 @@ export default {
       is_policy_page: false,
       is_alert_page: false,
       is_onboarding: false,
+      is_create_page: false,
       store: this.$store.state,
       ip_info: {
         ip: null,
@@ -218,6 +222,7 @@ export default {
         this.is_profile_page = path.startsWith("/profile/");
         this.is_landing_page = path == "/";
         this.is_search_page = path == "/search";
+        this.is_create_page = path == "/create";
         this.is_search_results_page = path == "/search-results";
         this.is_user_search_page = path == "/search-users";
         this.is_policy_page = path == "/privacy-policy";
@@ -268,6 +273,7 @@ export default {
     this.is_profile_page = current_path.startsWith("/profile/");
     this.is_landing_page = current_path == "/";
     this.is_search_page = current_path == "/search";
+    this.is_create_page = current_path == "/create";
     this.is_search_results_page = current_path == "/search-results";
     this.is_user_search_page = current_path == "/search-users";
     this.is_policy_page = current_path == "/privacy-policy";
@@ -502,6 +508,7 @@ export default {
         if (
           current_path != "/" &&
           current_path != "/onboarding" &&
+          current_path != "/create" &&
           !this.is_signup_page
         ) {
           this.$store.state.current_path = this.$route.fullPath;

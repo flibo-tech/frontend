@@ -39,10 +39,11 @@
         <input
           ref="searchContent"
           placeholder="Search a movie / show"
-          v-model="searchString"
+          @keyup="setSearchString"
         />
         <TagSuggestions
           class="suggestion-box"
+          :style="is_mobile ? '' : 'width: 65vw;max-height: 350px;'"
           v-if="searchString && !selectedContent"
           :searchString="searchString"
           searchType="content"
@@ -66,29 +67,41 @@ export default {
   },
   data() {
     return {
+      store: this.$store.state,
       is_mobile: window.screen.height > window.screen.width,
-      selectedType: "",
       searchString: "",
+      selectedType: "",
       selectedContent: null,
     };
   },
   methods: {
     changeState(type) {
       this.selectedType = type;
-      this.searchString = "";
       this.selectedContent = null;
+      this.searchString = "";
+
       if (this.selectedType === "request") {
-        this.$emit("clicked", this.selectedType);
+        this.store.create.type = this.selectedType;
+        this.store.create.content = null;
+        this.$emit("close");
+        this.$router.push("/create");
       } else {
         this.$nextTick(function () {
+          this.$refs.searchContent.value = "";
           this.$refs.searchContent.focus();
         });
       }
     },
     submit(item) {
+      this.$refs.searchContent.value = item.subject;
       this.selectedContent = item;
-      this.searchString = item.subject;
-      this.$emit("clicked", this.selectedContent, this.selectedType);
+      this.store.create.content = item;
+      this.store.create.type = this.selectedType;
+      this.$emit("close");
+      this.$router.push("/create");
+    },
+    setSearchString() {
+      this.searchString = this.$refs.searchContent.value;
     },
   },
 };
@@ -105,7 +118,7 @@ export default {
   top: 50vh;
   transform: translateX(-50%) translateY(-50%);
   background-color: white;
-  border-radius: 24px;
+  border-radius: 16px;
   height: auto;
   width: 90vw;
   padding: 2em;
@@ -185,6 +198,7 @@ input:focus {
   transform: translateY(calc(-100% - 50px));
   width: 75vw;
   height: 60vh;
+  max-height: 450px;
   z-index: 2;
 }
 ::-webkit-scrollbar {

@@ -42,6 +42,10 @@
         <div class="sk-cube3 sk-cube"></div>
       </div>
     </div>
+
+    <div v-if="!fetching && showNoResultMessage" class="no-tag-result">
+      No such movie or show found!
+    </div>
   </div>
 </template>
 
@@ -70,6 +74,7 @@ export default {
       contentSearchIds: [],
       fetching: false,
       fetchingIncremental: false,
+      showNoResultMessage: false,
     };
   },
   created() {
@@ -83,6 +88,7 @@ export default {
   methods: {
     fetchTagSuggestions() {
       var self = this;
+      self.showNoResultMessage = false;
       clearTimeout(self.timeout);
       self.timeout = setTimeout(function () {
         self.searchData = [];
@@ -102,6 +108,8 @@ export default {
                 self.searchData = response.data.result.contents;
                 self.contentSearchIds = response.data.result.content_search_ids;
               }
+            } else if (response.status == 204) {
+              self.showNoResultMessage = true;
             }
             self.fetching = false;
           })
@@ -292,6 +300,12 @@ export default {
   100% {
     transform: rotate(360deg);
   }
+}
+.no-tag-result {
+  width: 90%;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  margin-top: 50%;
 }
 ::-webkit-scrollbar {
   display: none;

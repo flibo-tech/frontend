@@ -17,6 +17,7 @@ import Onboarding from "@/views/Onboarding.vue";
 import Home from "@/views/Home.vue";
 import SearchResults from "@/views/SearchResults.vue";
 import Watchlist from "@/views/Watchlist.vue";
+import Create from "@/views/Create.vue";
 
 Vue.use(Router);
 
@@ -103,6 +104,11 @@ export default new Router({
       path: "/onboarding",
       name: "Onboarding",
       component: Onboarding
+    },
+    {
+      path: "/create",
+      name: "Create",
+      component: Create
     }
   ]
 });

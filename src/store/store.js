@@ -523,6 +523,10 @@ export const store = new Vuex.Store({
       ES: "Spain",
       GB: "United Kingdom",
       US: "United States"
+    },
+    create: {
+      type: null,
+      content: null
     }
   }
 });
