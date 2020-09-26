@@ -735,7 +735,7 @@ button {
   display: table;
   top: 0%;
   left: 0%;
-  z-index: 100000;
+  z-index: 1000000;
   animation: 0.2s ease-out 0s 1 load;
 }
 @keyframes load {

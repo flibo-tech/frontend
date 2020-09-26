@@ -52,6 +52,37 @@
       ></div>
     </div>
 
+    <div class="create-title-input">
+      <textarea
+        ref="titleBox"
+        placeholder="An interesting title"
+        maxlength="100"
+        v-model="title"
+        rows="1"
+        @focus="showCounter = true"
+        @blur="showCounter = false"
+        @paste.prevent
+      />
+      <transition name="counter-animation">
+        <CharacterCounter
+          v-if="showCounter"
+          :limit="100"
+          :count="title ? title.length : 0"
+          :radius="10"
+          :width="3"
+        />
+      </transition>
+    </div>
+
+    <div class="create-box-below-title">
+      <TextEditor
+        class="create-text-editor"
+        parent="post"
+        :isSubmitClicked="isSubmitClicked"
+      />
+      <div class="temp2" />
+    </div>
+
     <CreatePostPrompt
       v-if="promptChangeType"
       @close="promptChangeType = false"
@@ -111,11 +142,15 @@
 
 <script>
 import CreatePostPrompt from "./../components/molecular/CreatePostPrompt";
+import CharacterCounter from "./../components/atomic/CharacterCounter";
+import TextEditor from "./../components/molecular/TextEditor";
 
 export default {
   name: "Create",
   components: {
     CreatePostPrompt,
+    CharacterCounter,
+    TextEditor,
   },
   data() {
     return {
@@ -129,6 +164,9 @@ export default {
       postPrivacy: "public",
       promptChangePrivacy: false,
       promptChangeType: false,
+      title: null,
+      showCounter: false,
+      isSubmitClicked: false,
     };
   },
   computed: {
@@ -161,9 +199,18 @@ export default {
       }
     },
   },
+  watch: {
+    title: function (val) {
+      this.autoGrow(this.$refs.titleBox);
+    },
+  },
   methods: {
     goBack() {
       window.history.back();
+    },
+    autoGrow(element) {
+      element.style.height = "auto";
+      element.style.height = element.scrollHeight + "px";
     },
   },
 };
@@ -348,5 +395,52 @@ export default {
   background-size: 100% 100%;
   border: none;
   outline: 0px;
+}
+.create-title-input {
+  display: flex;
+  align-items: flex-start;
+  width: calc(100% - 48px);
+  min-height: 32px;
+  margin-left: 24px;
+  margin-top: 32px;
+  border-bottom: 1px solid #9b9b9b8f;
+}
+.create-title-input textarea {
+  width: 100%;
+  margin-right: 8px;
+  font-size: 18px;
+  white-space: normal;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: normal;
+  color: #222222;
+  font-family: "Roboto", sans-serif;
+  text-align: left;
+  border: none;
+  outline: none;
+  resize: none;
+}
+.create-title-input textarea::placeholder {
+  color: #9b9b9b;
+  font-weight: normal;
+}
+.counter-animation-enter-active,
+.counter-animation-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+.counter-animation-enter,
+.counter-animation-leave-to {
+  opacity: 0;
+}
+.create-box-below-title {
+  display: flex;
+  flex-direction: column;
+  margin-top: 24px;
+}
+.create-text-editor {
+  width: calc(100% - 48px);
+  margin-left: 24px;
 }
 </style>

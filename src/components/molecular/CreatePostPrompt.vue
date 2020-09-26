@@ -37,12 +37,13 @@
     <transition name="input">
       <div v-if="selectedType === 'review' || selectedType === 'suggest'">
         <input
+          class="create-prompt-input"
           ref="searchContent"
           placeholder="Search a movie / show"
           @keyup="setSearchString"
         />
         <TagSuggestions
-          class="suggestion-box"
+          class="tag-suggestion-box"
           :style="is_mobile ? '' : 'width: 65vw;max-height: 350px;'"
           v-if="searchString && !selectedContent"
           :searchString="searchString"
@@ -126,7 +127,7 @@ export default {
   overflow: scroll;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
   animation: 0.2s ease-out 0s 1 load;
-  z-index: 100001;
+  z-index: 1000001;
 }
 @keyframes load {
   0% {
@@ -168,7 +169,7 @@ export default {
   height: 40px;
 }
 
-input {
+.create-prompt-input {
   font-size: 1.5em;
   width: 90%;
   margin: 1em 1em 0em 0em;
@@ -177,11 +178,11 @@ input {
   border-bottom: 1px solid #9b9b9b8f;
 }
 
-input::placeholder {
+.create-prompt-input::placeholder {
   color: #9b9b9b;
 }
 
-input:focus {
+.create-prompt-input:focus {
   outline: none;
 }
 
@@ -193,7 +194,7 @@ input:focus {
 .input-leave-to {
   opacity: 0;
 }
-.suggestion-box {
+.tag-suggestion-box {
   position: absolute;
   transform: translateY(calc(-100% - 50px));
   width: 75vw;

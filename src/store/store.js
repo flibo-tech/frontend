@@ -526,7 +526,8 @@ export const store = new Vuex.Store({
     },
     create: {
       type: null,
-      content: null
+      content: null,
+      ids: []
     }
   }
 });
