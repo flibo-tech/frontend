@@ -84,6 +84,7 @@ export default {
       if (this.selectedType === "request") {
         this.store.create.type = this.selectedType;
         this.store.create.content = null;
+        this.store.create.ids = [];
         this.$emit("close");
         this.$router.push("/create");
       } else {
@@ -98,6 +99,7 @@ export default {
       this.selectedContent = item;
       this.store.create.content = item;
       this.store.create.type = this.selectedType;
+      this.store.create.ids = [item.subject_id];
       this.$emit("close");
       this.$router.push("/create");
     },

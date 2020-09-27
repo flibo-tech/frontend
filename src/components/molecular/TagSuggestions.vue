@@ -44,7 +44,11 @@
     </div>
 
     <div v-if="!fetching && showNoResultMessage" class="no-tag-result">
-      No such movie or show found!
+      {{
+        searchType == "all"
+          ? "No result found!"
+          : "No such movie or show found!"
+      }}
     </div>
   </div>
 </template>
@@ -305,7 +309,7 @@ export default {
   width: 90%;
   margin-left: 50%;
   transform: translateX(-50%);
-  margin-top: 50%;
+  margin-top: 25%;
 }
 ::-webkit-scrollbar {
   display: none;

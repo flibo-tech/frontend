@@ -527,7 +527,13 @@ export const store = new Vuex.Store({
     create: {
       type: null,
       content: null,
-      ids: []
+      ids: [],
+      includeImage: my_store ? my_store.create.includeImage : false,
+      processedContent: "",
+      spoiler: false,
+      never_tapped_spoiler: my_store
+        ? my_store.create.never_tapped_spoiler
+        : true
     }
   }
 });

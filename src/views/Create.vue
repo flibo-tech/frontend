@@ -52,7 +52,7 @@
       ></div>
     </div>
 
-    <div class="create-title-input">
+    <div class="create-title-input" ref="titleInput">
       <textarea
         ref="titleBox"
         placeholder="An interesting title"
@@ -74,13 +74,17 @@
       </transition>
     </div>
 
-    <div class="create-box-below-title">
+    <div class="create-box-below-title" ref="boxBelowTitle">
       <TextEditor
         class="create-text-editor"
         parent="post"
         :isSubmitClicked="isSubmitClicked"
       />
-      <div class="temp2" />
+      <ImageSlider
+        class="create-image-slider"
+        v-if="store.create.ids.length"
+        :contentIds="store.create.ids"
+      />
     </div>
 
     <CreatePostPrompt
@@ -143,6 +147,7 @@
 <script>
 import CreatePostPrompt from "./../components/molecular/CreatePostPrompt";
 import CharacterCounter from "./../components/atomic/CharacterCounter";
+import ImageSlider from "./../components/atomic/ImageSlider";
 import TextEditor from "./../components/molecular/TextEditor";
 
 export default {
@@ -151,6 +156,7 @@ export default {
     CreatePostPrompt,
     CharacterCounter,
     TextEditor,
+    ImageSlider,
   },
   data() {
     return {
@@ -168,6 +174,9 @@ export default {
       showCounter: false,
       isSubmitClicked: false,
     };
+  },
+  mounted() {
+    this.resizeContainer();
   },
   computed: {
     privacyOptions() {
@@ -211,6 +220,13 @@ export default {
     autoGrow(element) {
       element.style.height = "auto";
       element.style.height = element.scrollHeight + "px";
+      this.resizeContainer();
+    },
+    resizeContainer() {
+      const spaceUnavailable = this.$refs.titleInput.getBoundingClientRect()
+        .bottom;
+      this.$refs.boxBelowTitle.style.minHeight =
+        "calc(100vh - " + spaceUnavailable + "px - 24px)";
     },
   },
 };
@@ -437,10 +453,18 @@ export default {
 .create-box-below-title {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   margin-top: 24px;
 }
 .create-text-editor {
   width: calc(100% - 48px);
   margin-left: 24px;
+}
+.create-image-slider {
+  padding: 24px 0px 48px;
+  min-height: calc(30vh + 72px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 </style>

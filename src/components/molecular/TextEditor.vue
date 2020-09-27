@@ -8,12 +8,12 @@
     >
       <textarea
         @paste.prevent
-        @focus="showCounter = true"
+        @focus="(showSpoilerTag = true), (showCounter = true)"
         @blur="showCounter = false"
         @keyup="removeSearch"
         :style="parent === 'post' ? {} : { 'margin-right': '8px' }"
         :maxlength="textboxLimit"
-        :rows="parent === 'post' ? 5 : 1"
+        :rows="parent === 'post' ? 7 : 1"
         v-model="content"
         ref="inputField"
         id="inputField"
@@ -22,7 +22,32 @@
         "
       ></textarea>
 
-      <div class="textfield-counter">
+      <div
+        class="textfield-spoiler-n-counter"
+        :style="parent === 'post' ? 'margin-top: 8px;' : ''"
+      >
+        <div v-if="showSpoilerTag" class="textfield-spoiler-container">
+          <div
+            class="textfield-spoiler"
+            v-bind:class="{ active: store.create.spoiler }"
+            @click="
+              (store.create.spoiler = !store.create.spoiler),
+                (store.create.never_tapped_spoiler = false)
+            "
+          >
+            {{ store.create.spoiler ? "Spoiler" : "Not spoiler" }}
+          </div>
+          <ToolTip
+            v-if="
+              parent === 'post' &&
+              store.create.never_tapped_spoiler &&
+              !store.create.spoiler
+            "
+            class="textfield-spoiler-tooltip"
+            text="Tap this if your content contains spoiler"
+            :reverse="true"
+          />
+        </div>
         <transition name="counter-animation">
           <CharacterCounter
             v-if="showCounter"
@@ -54,18 +79,16 @@
 <script>
 import Emoji from "./../../assets/emoji";
 import CharacterCounter from "./../atomic/CharacterCounter";
+import ToolTip from "./../atomic/ToolTip";
 import TagSuggestions from "./TagSuggestions";
 
 export default {
   name: "TextEditor",
-  components: { CharacterCounter, TagSuggestions },
+  components: { CharacterCounter, TagSuggestions, ToolTip },
   props: {
     parent: {
       type: String,
       required: true,
-    },
-    isSubmitClicked: {
-      type: Boolean,
     },
   },
   data() {
@@ -75,6 +98,7 @@ export default {
       content: "",
       selectedWord: "",
       textboxLimit: null,
+      showSpoilerTag: false,
       showCounter: false,
       highlightWords: {},
       caretLocationY: null,
@@ -140,11 +164,6 @@ export default {
     },
   },
   watch: {
-    isSubmitClicked: function () {
-      if (this.isSubmitClicked) {
-        console.log(this.processedContent);
-      }
-    },
     content: function (val) {
       this.getCaretIndex();
       if (this.content) {
@@ -154,13 +173,20 @@ export default {
       if (this.length >= this.characterLimit) {
         this.textboxLimit = this.content.length;
       }
+      var newIds = [];
       for (let content in this.highlightWords) {
-        this.store.create.ids.forEach((varId) => {
-          if (varId != this.highlightWords[content].subject_id) {
-            this.store.create.ids.push(this.highlightWords[content].subject_id);
-          }
-        });
+        if (
+          !this.store.create.ids.includes(
+            this.highlightWords[content].subject_id
+          )
+        ) {
+          newIds.push(this.highlightWords[content].subject_id);
+        }
       }
+      if (newIds.length) {
+        this.store.create.ids.push(...newIds);
+      }
+      this.store.create.processedContent = this.processedContent;
     },
   },
   methods: {
@@ -247,10 +273,12 @@ export default {
         let contentSlice = this.content.slice(0, this.caretIndex);
         lastWord = getLastWord(contentSlice);
 
+        var removedTag = null;
         if (lastWord) {
           if (
             (this.content.match(new RegExp(lastWord, "g")) || []).length == 1
           ) {
+            removedTag = this.highlightWords[lastWord.slice(1) + lastChar];
             delete this.highlightWords[lastWord.slice(1) + lastChar];
           }
 
@@ -262,6 +290,19 @@ export default {
             elem.selectionStart = contentSlice.length;
             elem.selectionEnd = contentSlice.length;
             self.oldInput = elem.value;
+
+            if (
+              removedTag &&
+              removedTag.subject_type == "content" &&
+              removedTag.subject_id !=
+                (self.store.create.content
+                  ? self.store.create.content.subject_id
+                  : null)
+            ) {
+              self.store.create.ids = self.store.create.ids.filter(
+                (id) => id != removedTag.subject_id
+              );
+            }
           }, 0);
         } else {
           this.oldInput = elem.value;
@@ -339,7 +380,7 @@ export default {
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
-  line-height: 1.17;
+  line-height: 1.6;
   letter-spacing: normal;
   color: #222222;
   font-family: "Roboto", sans-serif;
@@ -352,11 +393,48 @@ export default {
   color: #9b9b9b;
 }
 
-.textfield-counter {
+.textfield-spoiler-n-counter {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   position: relative;
-  height: 26px;
+}
+.textfield-spoiler-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.textfield-spoiler {
+  width: fit-content;
+  font-size: 11px;
+  margin-right: 8px;
+  white-space: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  letter-spacing: normal;
+  color: #545454;
+  line-height: 1.6;
+  background-color: #e4e4e4;
+  font-family: "Roboto", sans-serif;
+  padding: 5px 10px;
+  text-align: center;
+  border-radius: 16px;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.textfield-spoiler.active {
+  color: #ffffff;
+  background-color: #ff6060;
+}
+.textfield-spoiler-tooltip {
+  margin-top: 4px;
 }
 
 .counter-animation-enter-active,
