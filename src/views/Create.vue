@@ -75,17 +75,25 @@
     </div>
 
     <div class="create-box-below-title" ref="boxBelowTitle">
-      <TextEditor
-        class="create-text-editor"
-        parent="post"
-        :isSubmitClicked="isSubmitClicked"
-      />
+      <TextEditor class="create-text-editor" parent="post" />
       <ImageSlider
         class="create-image-slider"
         v-if="store.create.ids.length"
         :contentIds="store.create.ids"
       />
     </div>
+
+    <Button
+      class="create-post"
+      icon="send"
+      buttonType="iconOnly"
+      :iconCircle="true"
+      :size="40"
+      margin="0px 0px 0px 7px"
+      :loading="true"
+      :disabled="title.length == 0 || store.create.processedContent.length == 0"
+      @clicked="post"
+    />
 
     <CreatePostPrompt
       v-if="promptChangeType"
@@ -148,6 +156,7 @@
 import CreatePostPrompt from "./../components/molecular/CreatePostPrompt";
 import CharacterCounter from "./../components/atomic/CharacterCounter";
 import ImageSlider from "./../components/atomic/ImageSlider";
+import Button from "./../components/atomic/Button";
 import TextEditor from "./../components/molecular/TextEditor";
 
 export default {
@@ -157,6 +166,7 @@ export default {
     CharacterCounter,
     TextEditor,
     ImageSlider,
+    Button,
   },
   data() {
     return {
@@ -170,10 +180,13 @@ export default {
       postPrivacy: "public",
       promptChangePrivacy: false,
       promptChangeType: false,
-      title: null,
+      title: "",
       showCounter: false,
-      isSubmitClicked: false,
     };
+  },
+  created() {
+    this.store.create.processedContent = "";
+    this.store.create.spoiler = false;
   },
   mounted() {
     this.resizeContainer();
@@ -227,6 +240,9 @@ export default {
         .bottom;
       this.$refs.boxBelowTitle.style.minHeight =
         "calc(100vh - " + spaceUnavailable + "px - 24px)";
+    },
+    post() {
+      console.log(1);
     },
   },
 };
@@ -466,5 +482,11 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+.create-post {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
 }
 </style>

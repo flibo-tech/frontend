@@ -9,7 +9,7 @@
     :style="
       iconCircle
         ? {
-            'background-color': '#7352ff',
+            'background-color': disabled ? '#E4E4E4' : '#7352ff',
             width: size * 2 + 'px',
             height: size * 2 + 'px',
             'border-radius': '50%',
@@ -23,11 +23,15 @@
       :src="imageURL"
       :style="
         iconCircle
-          ? { width: size + 'px', display: 'initial', padding: '20px' }
+          ? { width: size + 'px', display: 'initial', margin: margin }
           : { width: size + 'px' }
       "
     />
-    <div v-if="buttonClickedBool && loading" class="loader"></div>
+    <div
+      v-if="buttonClickedBool && loading"
+      class="loader"
+      :style="iconCircle ? { width: '30px', height: '30px' } : {}"
+    ></div>
   </button>
 </template>
 
@@ -69,6 +73,11 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+    margin: {
+      type: String,
+      required: false,
+      default: "0",
     },
   },
   data() {

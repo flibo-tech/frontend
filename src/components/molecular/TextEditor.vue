@@ -44,7 +44,7 @@
               !store.create.spoiler
             "
             class="textfield-spoiler-tooltip"
-            text="Tap this if your content contains spoiler"
+            text="Tap this if your post has spoiler"
             :reverse="true"
           />
         </div>
