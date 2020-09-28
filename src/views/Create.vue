@@ -253,7 +253,10 @@ export default {
           title: this.title,
           contents: null,
           privacy: this.postPrivacy,
-          image: this.store.create.image,
+          image:
+            this.store.create.includeImage && this.store.create.image
+              ? this.store.create.image.replace("/original/", "/w500/")
+              : null,
           content_id: this.store.create.content
             ? this.store.create.content.subject_id
             : null,
