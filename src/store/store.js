@@ -11,7 +11,7 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_ap == "undefined") {
+    if (typeof my_store.unused_key_aq == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       localStorage.clear();
@@ -40,7 +40,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_ap: my_store ? my_store.unused_key_ap : true,
+    unused_key_aq: my_store ? my_store.unused_key_aq : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -528,6 +528,7 @@ export const store = new Vuex.Store({
       type: null,
       content: null,
       ids: [],
+      image: null,
       includeImage: my_store ? my_store.create.includeImage : false,
       processedContent: "",
       spoiler: false,

@@ -18,7 +18,9 @@
         ref="inputField"
         id="inputField"
         :placeholder="
-          parent === 'post' ? 'Express yourself...' : 'Add a comment...'
+          parent === 'post'
+            ? 'Express yourself. Tag friends, movies, artists using @...'
+            : 'Add a comment...'
         "
       ></textarea>
 
@@ -65,7 +67,7 @@
       class="editor-suggestion-box"
       :style="
         is_mobile
-          ? 'top: 0; height: calc(' + caretLocationY + 'px - 18px);'
+          ? 'top: 0; height: calc(' + caretLocationY + 'px - 18px - 4px);'
           : 'width: 65vw;max-height: 350px;'
       "
       v-if="searchString"
@@ -129,7 +131,11 @@ export default {
           let regex = new RegExp(`@${key}`, "g");
           text = text.replace(
             regex,
-            `[${this.highlightWords[key].subject}](${this.highlightWords[key].subject_type},${this.highlightWords[key].subject_id})`
+            `[${this.highlightWords[key].subject}](${
+              this.highlightWords[key].subject_type == "friend"
+                ? "user"
+                : this.highlightWords[key].subject_type
+            },${this.highlightWords[key].subject_id})`
           );
         }
       });
@@ -148,6 +154,14 @@ export default {
             ? contentSlice.length
             : contentSlice.indexOf(" ", contentSlice.lastIndexOf("@"))
         );
+      }
+      if (
+        Object.keys(this.highlightWords).includes(str) ||
+        Object.keys(this.highlightWords)
+          .map((key) => key.slice(0, -1))
+          .includes(str)
+      ) {
+        str = "";
       }
       if (str) {
         this.caretLocationY = this.caretLocation().y;
@@ -176,6 +190,7 @@ export default {
       var newIds = [];
       for (let content in this.highlightWords) {
         if (
+          this.highlightWords[content].subject_type == "content" &&
           !this.store.create.ids.includes(
             this.highlightWords[content].subject_id
           )

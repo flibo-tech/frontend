@@ -153,6 +153,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import CreatePostPrompt from "./../components/molecular/CreatePostPrompt";
 import CharacterCounter from "./../components/atomic/CharacterCounter";
 import ImageSlider from "./../components/atomic/ImageSlider";
@@ -187,6 +188,7 @@ export default {
   created() {
     this.store.create.processedContent = "";
     this.store.create.spoiler = false;
+    this.store.create.image = null;
   },
   mounted() {
     this.resizeContainer();
@@ -242,7 +244,38 @@ export default {
         "calc(100vh - " + spaceUnavailable + "px - 24px)";
     },
     post() {
-      console.log(1);
+      var self = this;
+      axios
+        .post(this.$store.state.api_host + "save_action", {
+          session_id: this.$store.state.session_id,
+          action_type: this.store.create.type,
+          text: this.store.create.processedContent,
+          title: this.title,
+          contents: null,
+          privacy: this.postPrivacy,
+          image: this.store.create.image,
+          content_id: this.store.create.content
+            ? this.store.create.content.subject_id
+            : null,
+          spoiler: this.store.create.spoiler,
+        })
+        .then(function (response) {
+          if (response.status == 200) {
+            self.$router.push(response.data.path);
+          }
+        })
+        .catch(function (error) {
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.$emit("logging-out");
+          } else {
+            // console.log(error.response.status);
+          }
+        });
     },
   },
 };

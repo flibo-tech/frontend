@@ -84,7 +84,7 @@
           <button
             v-if="store.notifications.friends | store.notifications.requests"
             class="nav-suggestions-notification"
-            :style="is_mobile ? '' : 'right: 70px;'"
+            :style="is_mobile ? '' : 'right: 56px;'"
           />
           <span class="profile-text"> Profile </span>
         </div>

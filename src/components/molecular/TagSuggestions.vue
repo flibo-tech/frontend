@@ -6,6 +6,7 @@
       class="tag-suggestion"
     >
       <ImageCard
+        style="justify-content: flex-start; min-width: 100%"
         :name="item.subject"
         :subText="
           ['content', undefined].includes(item.subject_type)

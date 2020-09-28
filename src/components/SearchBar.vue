@@ -83,49 +83,58 @@
             :style="
               parent == 'search_page'
                 ? is_mobile
-                  ? 'width: 55px;height: 82.5px;'
-                  : 'width: 80px;height: 120px;'
+                  ? 'width: 55px;min-width: 55px;height: 82.5px;'
+                  : 'width: 80px;min-width: 80px;height: 120px;'
                 : ''
             "
           >
             <img v-bind:src="content.image" class="filter-content-pic" />
           </div>
 
-          <div
-            class="filter-content-name"
-            :style="
-              parent == 'search_page'
-                ? is_mobile
-                  ? 'margin-left: 65px;margin-top: -70px;font-size: 15px;'
-                  : 'margin-left: 100px;margin-top: -95px;font-size: 16px;'
-                : ''
-            "
-            @click="clickContent(content)"
-          >
-            {{ content.subject }}
-          </div>
+          <div class="title-rating-container">
+            <div
+              class="filter-content-name"
+              :style="
+                parent == 'search_page'
+                  ? is_mobile
+                    ? 'font-size: 15px;'
+                    : 'font-size: 16px;'
+                  : ''
+              "
+              @click="clickContent(content)"
+            >
+              {{ content.subject }}
+            </div>
 
-          <UserRating
-            class="search-user-rating-container"
-            :style="
-              is_mobile
-                ? ''
-                : 'margin-left: 100px;margin-top: -55px;padding-bottom: 31px;'
-            "
-            v-if="parent == 'search_page'"
-            :rating="content.rating"
-            :iconSize="25"
-            @update-rating="
-              (userRating) => {
-                submitRating(
-                  content.subject_id,
-                  userRating,
-                  content.rating,
-                  index
-                );
-              }
-            "
-          />
+            <div style="display: flex">
+              <UserRating
+                class="search-user-rating-container"
+                :style="
+                  is_mobile
+                    ? ''
+                    : 'margin-left:100px;margin-top:-55px;padding-bottom:31px;'
+                "
+                v-if="parent == 'search_page'"
+                :rating="content.rating"
+                :iconSize="25"
+                @update-rating="
+                  (userRating) => {
+                    submitRating(
+                      content.subject_id,
+                      userRating,
+                      content.rating,
+                      index
+                    );
+                  }
+                "
+              />
+              <div
+                style="width: 100%; margin-left: 8px"
+                @click="clickContent(content)"
+              />
+            </div>
+          </div>
+          <div style="width: 100%" @click="clickContent(content)" />
         </div>
         <div
           class="see-more-contents-box"
@@ -174,8 +183,8 @@
           class="filter-users-container"
           :style="
             is_mobile
-              ? 'justify-content: flex-start;'
-              : 'justify-content: flex-start;margin-top: 0px;padding: 7px;'
+              ? 'justify-content: flex-start;min-width: 100%;'
+              : 'justify-content: flex-start;min-width: 100%;margin-top: 0px;padding: 7px;'
           "
           @clicked="clickUser(user)"
           :name="user.name"
@@ -952,12 +961,13 @@ export default {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
+.title-rating-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 16px;
+  justify-content: space-evenly;
+}
 .filter-content-name {
-  margin-left: 50px;
-  margin-top: -39px;
-  position: absolute;
-  width: fit-content;
-  max-width: 80%;
   font-size: calc(11px + 0.5vw);
   font-style: normal;
   font-stretch: normal;
@@ -975,9 +985,9 @@ export default {
   -webkit-tap-highlight-color: transparent;
 }
 .filter-contents-container {
-  position: relative;
-  vertical-align: top;
-  text-align: center;
+  display: flex;
+  width: 100%;
+  overflow: scroll;
   background-color: #ffffff;
   z-index: 10000;
   padding: 8px 5px;
@@ -1086,12 +1096,9 @@ export default {
 .user-items {
 }
 .search-user-rating-container {
-  position: relative;
   width: 115px;
-  margin-left: 65px;
-  margin-top: -37px;
+  min-width: 115px;
   text-align: left;
-  padding-bottom: 9px;
   background-color: #ffffff;
 }
 .search-type-tabs {

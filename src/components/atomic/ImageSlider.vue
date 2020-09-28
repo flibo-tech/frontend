@@ -57,6 +57,7 @@ export default {
       store: this.$store.state,
       images: [],
       fetching: false,
+      flickityAvailable: false,
       flickityOptions: {
         initialIndex: 0,
         prevNextButtons: false,
@@ -69,13 +70,6 @@ export default {
   created() {
     this.fetchImages();
   },
-  computed: {
-    selectedImage() {
-      return this.images.length
-        ? this.images[this.$refs.flickity.selectedIndex()]
-        : null;
-    },
-  },
   watch: {
     contentIds: {
       handler() {
@@ -86,8 +80,8 @@ export default {
   methods: {
     fetchImages() {
       var self = this;
-      const selectedImageUrl = self.selectedImage;
       self.fetching = true;
+      self.flickityAvailable = false;
       axios
         .post(self.$store.state.api_host + "fetch_content_images", {
           session_id: self.$store.state.session_id,
@@ -95,15 +89,16 @@ export default {
         })
         .then(function (response) {
           if (response.status == 200) {
-            if (response.data.images.includes(selectedImageUrl)) {
-              self.images = [selectedImageUrl];
+            if (response.data.images.includes(self.store.create.image)) {
+              self.images = [self.store.create.image];
               self.images.push(
                 ...response.data.images.filter(
-                  (image) => image != selectedImageUrl
+                  (image) => image != self.store.create.image
                 )
               );
             } else {
               self.images = response.data.images;
+              self.store.create.image = self.images[0];
             }
             self.$nextTick(function () {
               self.addClickEventListener();
@@ -130,12 +125,18 @@ export default {
     },
     addClickEventListener() {
       setTimeout(() => {
+        this.flickityAvailable = true;
+
         this.$refs.flickity.on(
           "staticClick",
           (event, pointer, cellElement, cellIndex) => {
             this.store.create.includeImage = !this.store.create.includeImage;
           }
         );
+
+        this.$refs.flickity.on("change", (index) => {
+          this.store.create.image = this.images[index];
+        });
       }, 0);
     },
   },

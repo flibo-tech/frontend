@@ -74,11 +74,11 @@
               {{ title }}
             </span>
 
-            <span v-if="contentType == 'tv'" style="font-weight: normal;">
+            <span v-if="contentType == 'tv'" style="font-weight: normal">
               ({{ releaseYear }}-{{ endYear ? endYear : "Present" }})
             </span>
 
-            <span v-if="contentType == 'movie'" style="font-weight: normal;">
+            <span v-if="contentType == 'movie'" style="font-weight: normal">
               ({{ releaseYear }})
             </span>
           </div>
@@ -101,15 +101,14 @@
             />
           </div>
 
-          <h3 v-if="crew.length">
-            Cast and Crew
-          </h3>
+          <h3 v-if="crew.length">Cast and Crew</h3>
 
           <div class="more-info-artists" v-if="crew.length">
             <ImageCard
               v-for="(artist, index) in crew"
               :key="index"
               class="more-info-artists-container"
+              style="min-width: auto"
               :name="artist.person"
               :image="artist.profile_photo"
               :width="55"

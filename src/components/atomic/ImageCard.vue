@@ -1,17 +1,12 @@
 <template>
-  <div class="main-container" :style="adjustPosition">
+  <div class="main-container" :style="adjustPosition" @click="$emit('clicked')">
     <div
       class="image-container"
       :style="{ width: width + 'px', height: height + 'px' }"
-      @click="$emit('clicked')"
     >
       <img :src="image" :style="scale ? 'transform: scale(1.5);' : ''" />
     </div>
-    <div
-      class="text-container"
-      :style="customStyleTextContainer"
-      @click="$emit('clicked')"
-    >
+    <div class="text-container" :style="customStyleTextContainer">
       <p :style="customStyleText">
         {{ name }}
       </p>
