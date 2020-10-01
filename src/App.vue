@@ -46,26 +46,13 @@
     />
   </div>
 
-  <!-- <div v-else-if="(this.$store.state.session_id && !this.is_mobile)
-                  ||
-                  (!this.$store.state.session_id && this.is_content_page && !this.is_mobile)
-                  ||
-                  (!this.$store.state.session_id && this.is_profile_page && !this.is_mobile)" class="browser-alert"> -->
-  <!-- <div class="flibo-logo-desktop"/> -->
-  <!-- <h1>
-      Currently FLIBO works only on mobile browsers.
-    </h1>
-    <h1>
-      Please switch to a mobile device to use FLIBO.
-    </h1> -->
-  <!-- </div> -->
-
   <LandingPage
     v-else-if="
       !this.$store.state.session_id &&
       !this.logging_out &&
       !this.is_signup_page &&
       !this.is_content_page &&
+      !this.is_activity_page &&
       !this.is_search_page &&
       !this.is_search_results_page &&
       !this.is_profile_page &&
@@ -83,6 +70,7 @@
     v-else-if="
       this.is_signup_page |
         this.is_content_page |
+        this.is_activity_page |
         this.is_profile_page |
         this.is_search_page |
         this.is_search_results_page |
@@ -142,6 +130,7 @@ export default {
       is_landing_page: false,
       is_signup_page: false,
       is_content_page: false,
+      is_activity_page: false,
       is_profile_page: false,
       is_search_page: false,
       is_search_results_page: false,
@@ -219,6 +208,12 @@ export default {
       handler: function (path) {
         this.is_signup_page = path.startsWith("/signup");
         this.is_content_page = path.startsWith("/content/");
+        this.is_activity_page =
+          path.startsWith("/review/") ||
+          path.startsWith("/request/") ||
+          path.startsWith("/suggest/") ||
+          path.startsWith("/activity/") ||
+          path.startsWith("/list/");
         this.is_profile_page = path.startsWith("/profile/");
         this.is_landing_page = path == "/";
         this.is_search_page = path == "/search";
@@ -270,6 +265,12 @@ export default {
     var current_path = this.$route.path;
     this.is_signup_page = current_path.startsWith("/signup");
     this.is_content_page = current_path.startsWith("/content/");
+    this.is_activity_page =
+      current_path.startsWith("/review/") ||
+      current_path.startsWith("/request/") ||
+      current_path.startsWith("/suggest/") ||
+      current_path.startsWith("/activity/") ||
+      current_path.startsWith("/list/");
     this.is_profile_page = current_path.startsWith("/profile/");
     this.is_landing_page = current_path == "/";
     this.is_search_page = current_path == "/search";
@@ -283,12 +284,13 @@ export default {
 
     if (!route_session_id && !store_session_id && !this.is_signup_page) {
       if (
-        current_path.startsWith("/content/") |
-        current_path.startsWith("/profile/") |
-        this.is_search_page |
-        this.is_search_results_page |
-        this.is_policy_page |
-        this.is_alert_page |
+        current_path.startsWith("/content/") ||
+        current_path.startsWith("/profile/") ||
+        this.is_activity_page ||
+        this.is_search_page ||
+        this.is_search_results_page ||
+        this.is_policy_page ||
+        this.is_alert_page ||
         this.is_blog_page
       ) {
         if (this.$store.state.guest_id == null) {

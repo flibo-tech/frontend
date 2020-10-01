@@ -18,6 +18,7 @@ import Home from "@/views/Home.vue";
 import SearchResults from "@/views/SearchResults.vue";
 import Watchlist from "@/views/Watchlist.vue";
 import Create from "@/views/Create.vue";
+import ActionDetails from "@/views/ActionDetails.vue";
 
 Vue.use(Router);
 
@@ -109,6 +110,12 @@ export default new Router({
       path: "/create",
       name: "Create",
       component: Create
+    },
+    {
+      path:
+        "/:actionType(review|request|suggest|activity|list)/:actionId(\\d+)/:urlText([a-z0-9\\-]+)(/comment/)?:reactionId(\\d+)?",
+      name: "ActionDetails",
+      component: ActionDetails
     }
   ]
 });
