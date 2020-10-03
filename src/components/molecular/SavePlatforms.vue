@@ -22,9 +22,9 @@
         />
         <span
           class="save-platforms-checkbox-abled"
-          style="border-radius: 5px;"
+          style="border-radius: 5px"
         />
-        <div class="save-platforms-icon" style="border-radius: 5px;">
+        <div class="save-platforms-icon" style="border-radius: 5px">
           <img :src="item.platform_link" class="save-platforms-icon-pp" />
         </div>
       </label>
@@ -40,7 +40,7 @@
       />
     </div>
 
-    <div class="save-platforms-button" style="margin-right: 15px;">
+    <div class="save-platforms-button" style="margin-right: 15px">
       <Button
         buttonType="secondary"
         :loading="true"

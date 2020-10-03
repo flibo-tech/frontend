@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="checkType"
+    :class="customClass"
     @click="
       $emit('clicked');
       buttonClicked();
@@ -13,6 +13,11 @@
             width: size * 2 + 'px',
             height: size * 2 + 'px',
             'border-radius': '50%',
+          }
+        : ['primary', 'secondary'].includes(buttonType)
+        ? {
+            width: width,
+            height: height + 'px',
           }
         : {}
     "
@@ -64,7 +69,20 @@ export default {
       type: Boolean,
       default: false,
     },
+    width: {
+      // applicable when buttonType is primary or secondary
+      type: String,
+      required: false,
+      default: "100%",
+    },
+    height: {
+      // applicable when buttonType is primary or secondary
+      type: Number,
+      required: false,
+      default: 48,
+    },
     size: {
+      // applicable when iconCircle is true
       type: Number,
       required: false,
       default: 18,
@@ -86,7 +104,7 @@ export default {
     };
   },
   computed: {
-    checkType() {
+    customClass() {
       let buttonClass = "";
       if (this.buttonType === "primary") {
         buttonClass = "primary";
@@ -160,7 +178,7 @@ button {
 .secondary {
   font-family: "Roboto", sans-serif;
   font-weight: medium;
-  border: 2px solid $secondary-color;
+  border: 1px solid #777777;
   border-radius: $border-radius;
   font-size: 14px;
   min-width: 100px;

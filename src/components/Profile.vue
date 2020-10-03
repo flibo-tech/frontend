@@ -457,108 +457,66 @@
         </div>
       </div>
 
-      <div
-        class="profile-ratings"
-        v-if="
-          filtered_ratings(3).length |
-            filtered_ratings(2).length |
-            filtered_ratings(1).length
-        "
-      >
-        <span style="font-weight: bold; font-size: 15px">
-          {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }} ratings...
-        </span>
-        <span
-          class="reset-ratings"
-          v-if="own_profile"
-          @click="reset_ratings_banner = !reset_ratings_banner"
+      <div class="profile-ratings" v-if="filtered_ratings.length">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 30px;
+            margin-bottom: 4px;
+          "
         >
-          Reset Ratings
-        </span>
+          <span style="font-weight: bold; font-size: 15px">
+            {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
+            ratings...
+          </span>
 
-        <div style="display: flex" v-if="filtered_ratings(3).length">
-          <div
-            class="profile-love-true"
-            :style="
-              is_mobile
-                ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;'
-                : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'
-            "
-          />
-
-          <div
-            :class="
-              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
-            "
+          <transition
+            appear
+            enter-active-class="animated fastFadeIn"
+            leave-active-class="animated fastFadeOut"
           >
-            <div
-              v-for="(item, index) in contents_rated"
-              :key="index"
-              v-if="item.type == content_type && [3].includes(item.rating)"
-              class="ratings-item-container"
-            >
-              <Poster
-                :class="
-                  is_mobile
-                    ? 'ratings-item-poster'
-                    : 'desktop-ratings-item-poster'
-                "
-                :containerWidth="is_mobile ? 106 : 150"
-                :contentId="item.content_id"
-                :title="item.title"
-                :image="item.poster"
-                :showTrailer="false"
-                :whereToWatch="own_profile ? {} : item.where_to_watch"
-                :userPlatforms="
-                  store.user.id ? store.user.profile.platforms || [''] : ['']
-                "
-                :showName="false"
-                :parent="'profile_' + (own_profile ? 'self' : 'other')"
-                posterLocation="ratings"
-                :scalePlatformsSize="1.2"
-                v-on="$listeners"
-              />
-
-              <UserRating
-                v-if="own_profile"
-                :class="
-                  is_mobile
-                    ? 'profile-user-rating-container'
-                    : 'desktop-profile-user-rating-container'
-                "
-                :rating="item.rating"
-                :iconSize="25"
-                @update-rating="
-                  (userRating) => {
-                    submitRating(item.content_id, userRating, index);
-                  }
-                "
-              />
-            </div>
-          </div>
+            <!-- height of following button also affects min-height of parent -->
+            <Button
+              v-if="rating_items > 10 && showAllRatingsMainButton"
+              buttonType="secondary"
+              width="auto"
+              :height="30"
+              text="Show All"
+              v-on:clicked="true"
+            />
+          </transition>
         </div>
 
-        <div style="display: flex" v-if="filtered_ratings(2).length">
-          <div
-            class="profile-thumbs-up-true"
-            :style="
-              is_mobile
-                ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;'
-                : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'
-            "
-          />
-
+        <div style="display: flex">
           <div
             :class="
               is_mobile ? 'ratings-container' : 'desktop-ratings-container'
             "
+            id="ratings-container"
           >
             <div
-              class="ratings-item-container"
-              v-for="(item, index) in contents_rated"
+              v-for="(item, index) in filtered_ratings"
               :key="index"
-              v-if="item.type == content_type && [2].includes(item.rating)"
+              class="ratings-item-container"
             >
+              <Button
+                class="profile-user-rating-icon"
+                style="background-color: #fff"
+                :icon="
+                  item.rating == 3
+                    ? 'love'
+                    : item.rating == 2
+                    ? 'thumbs_up'
+                    : 'thumbs_down'
+                "
+                buttonType="iconOnly"
+                :size="16"
+                :state="true"
+                :disabled="true"
+              />
+
               <Poster
                 :class="
                   is_mobile
@@ -570,7 +528,7 @@
                 :title="item.title"
                 :image="item.poster"
                 :showTrailer="false"
-                :whereToWatch="own_profile ? {} : item.where_to_watch"
+                :whereToWatch="item.where_to_watch"
                 :userPlatforms="
                   store.user.id ? store.user.profile.platforms || [''] : ['']
                 "
@@ -580,120 +538,22 @@
                 :scalePlatformsSize="1.2"
                 v-on="$listeners"
               />
-
-              <UserRating
-                v-if="own_profile"
-                :class="
-                  is_mobile
-                    ? 'profile-user-rating-container'
-                    : 'desktop-profile-user-rating-container'
-                "
-                :rating="item.rating"
-                :iconSize="25"
-                @update-rating="
-                  (userRating) => {
-                    submitRating(item.content_id, userRating, index);
-                  }
-                "
-              />
             </div>
-          </div>
-        </div>
 
-        <div style="display: flex" v-if="filtered_ratings(1).length">
-          <div
-            class="profile-thumbs-down-true"
-            :style="
-              is_mobile
-                ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;'
-                : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'
-            "
-          />
-
-          <div
-            :class="
-              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
-            "
-          >
-            <div
-              v-for="(item, index) in contents_rated"
-              :key="index"
-              v-if="item.type == content_type && [1].includes(item.rating)"
-              class="ratings-item-container"
-            >
-              <Poster
-                :class="
-                  is_mobile
-                    ? 'ratings-item-poster'
-                    : 'desktop-ratings-item-poster'
-                "
-                :containerWidth="is_mobile ? 106 : 150"
-                :contentId="item.content_id"
-                :title="item.title"
-                :image="item.poster"
-                :showTrailer="false"
-                :whereToWatch="own_profile ? {} : item.where_to_watch"
-                :userPlatforms="
-                  store.user.id ? store.user.profile.platforms || [''] : ['']
-                "
-                :showName="false"
-                :parent="'profile_' + (own_profile ? 'self' : 'other')"
-                posterLocation="ratings"
-                :scalePlatformsSize="1.2"
-                v-on="$listeners"
-              />
-
-              <UserRating
-                v-if="own_profile"
-                :class="
-                  is_mobile
-                    ? 'profile-user-rating-container'
-                    : 'desktop-profile-user-rating-container'
-                "
-                :rating="item.rating"
-                :iconSize="25"
-                @update-rating="
-                  (userRating) => {
-                    submitRating(item.content_id, userRating, index);
-                  }
-                "
-              />
-            </div>
+            <Button
+              v-if="rating_items > 10"
+              class="show-all-button"
+              :style="is_mobile ? '' : 'margin-top: 112.5px'"
+              id="rating-show-all"
+              buttonType="secondary"
+              width="auto"
+              :height="30"
+              text="Show All"
+              v-on:clicked="true"
+            />
           </div>
         </div>
       </div>
-
-      <transition
-        appear
-        enter-active-class="animated fadeIn"
-        leave-active-class="animated fadeOut"
-      >
-        <div>
-          <div
-            v-if="reset_ratings_banner && own_profile"
-            class="black-background"
-            @click="reset_ratings_banner = false"
-          />
-
-          <div class="prompted-box" v-if="reset_ratings_banner && own_profile">
-            <p style="margin-top: 0; font-size: 20px; white-space: nowrap">
-              Reset all your ratings?
-            </p>
-
-            <div class="profile-prompted-buttons">
-              <div
-                class="prompted-cancel-button"
-                @click="reset_ratings_banner = false"
-              >
-                Cancel
-              </div>
-              <div class="prompted-confirm-button" @click="resetRatings">
-                Reset
-              </div>
-            </div>
-          </div>
-        </div>
-      </transition>
 
       <transition
         appear
@@ -771,45 +631,83 @@
         </div>
       </transition>
 
-      <div
-        v-if="filtered_watchlist().length"
-        style="width: 100%; text-align: left; padding: 7px"
-      >
-        <span style="font-weight: bold; font-size: 15px">
-          {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
-          watchlist...
-        </span>
-
+      <div class="profile-ratings" v-if="filtered_watchlist.length">
         <div
-          :class="is_mobile ? 'ratings-container' : 'desktop-ratings-container'"
-          style="margin-left: 0; width: 100%"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 30px;
+            margin-bottom: 4px;
+          "
         >
-          <div
-            v-for="(item, index) in watchlist"
-            :key="index"
-            v-if="item.type == content_type"
-            class="ratings-item-container"
+          <span style="font-weight: bold; font-size: 15px">
+            {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
+            watchlist...
+          </span>
+
+          <transition
+            appear
+            enter-active-class="animated fastFadeIn"
+            leave-active-class="animated fastFadeOut"
           >
-            <Poster
-              :class="
-                is_mobile
-                  ? 'ratings-item-poster'
-                  : 'desktop-ratings-item-poster'
-              "
-              :containerWidth="is_mobile ? 106 : 150"
-              :contentId="item.content_id"
-              :title="item.title"
-              :image="item.poster"
-              :showTrailer="false"
-              :whereToWatch="own_profile ? {} : item.where_to_watch"
-              :userPlatforms="
-                store.user.id ? store.user.profile.platforms || [''] : ['']
-              "
-              :showName="false"
-              :parent="'profile_' + (own_profile ? 'self' : 'other')"
-              posterLocation="ratings"
-              :scalePlatformsSize="1.2"
-              v-on="$listeners"
+            <!-- height of following button also affects min-height of parent -->
+            <Button
+              v-if="watchlist_items > 10 && showAllWatchlistMainButton"
+              buttonType="secondary"
+              width="auto"
+              :height="30"
+              text="Show All"
+              v-on:clicked="true"
+            />
+          </transition>
+        </div>
+
+        <div style="display: flex">
+          <div
+            :class="
+              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
+            "
+            id="watchlist-container"
+          >
+            <div
+              v-for="(item, index) in filtered_watchlist"
+              :key="index"
+              class="ratings-item-container"
+            >
+              <Poster
+                :class="
+                  is_mobile
+                    ? 'ratings-item-poster'
+                    : 'desktop-ratings-item-poster'
+                "
+                :containerWidth="is_mobile ? 106 : 150"
+                :contentId="item.content_id"
+                :title="item.title"
+                :image="item.poster"
+                :showTrailer="false"
+                :whereToWatch="item.where_to_watch"
+                :userPlatforms="
+                  store.user.id ? store.user.profile.platforms || [''] : ['']
+                "
+                :showName="false"
+                :parent="'profile_' + (own_profile ? 'self' : 'other')"
+                posterLocation="ratings"
+                :scalePlatformsSize="1.2"
+                v-on="$listeners"
+              />
+            </div>
+
+            <Button
+              v-if="watchlist_items > 10"
+              class="show-all-button"
+              :style="is_mobile ? '' : 'margin-top: 112.5px'"
+              id="watchlist-show-all"
+              buttonType="secondary"
+              width="auto"
+              :height="30"
+              text="Show All"
+              v-on:clicked="true"
             />
           </div>
         </div>
@@ -992,6 +890,7 @@ import Artist from "./molecular/Artist";
 import Poster from "./molecular/Poster";
 import UserRating from "./molecular/UserRating";
 import ImageCard from "./atomic/ImageCard";
+import Button from "./atomic/Button";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -1005,6 +904,7 @@ export default {
     Poster,
     ImageCard,
     UserRating,
+    Button,
   },
   data() {
     return {
@@ -1082,6 +982,12 @@ export default {
       fetching_content_by_artist: false,
       openProfileMore: false,
       collage: null,
+      rating_items: null,
+      watchlist_items: null,
+      ratingsObserver: null,
+      watchlistObserver: null,
+      showAllRatingsMainButton: true,
+      showAllWatchlistMainButton: true,
     };
   },
   created() {
@@ -1100,11 +1006,17 @@ export default {
       self.posters = self.store.user.profile.posters;
       self.covers = self.store.user.profile.covers;
       self.total_watched = self.store.user.profile.total_watched;
-      self.contents_rated = self.store.user.profile.contents_rated;
+      self.contents_rated = self.userTopRatings;
       self.genres = self.store.user.profile.genres;
       self.watched_timeline = self.store.user.profile.watched_timeline;
       self.profile_status = self.store.user.profile.profile_status;
       self.profile_views = self.store.user.profile.profile_views;
+      self.rating_items = self.store.user.profile.contents_rated.length;
+      self.watchlist_items = self.$store.state.watchlist.length;
+      self.$nextTick(() => {
+        self.initIntersectionObserver();
+      });
+      self.watchlist = self.userTopWatchlist;
     } else {
       self.own_profile = false;
     }
@@ -1152,6 +1064,11 @@ export default {
                 self.watched_timeline = response.data.rating_timeline;
                 self.profile_status = response.data.profile_status;
                 self.profile_views = response.data.profile_views;
+                self.rating_items = response.data.rating_items;
+                self.watchlist_items = response.data.watchlist_items;
+                self.$nextTick(() => {
+                  self.initIntersectionObserver();
+                });
                 if (self.store.user.id == self.user_id) {
                   self.own_profile = true;
                 } else {
@@ -1220,6 +1137,11 @@ export default {
             self.watched_timeline = response.data.rating_timeline;
             self.profile_status = response.data.profile_status;
             self.profile_views = response.data.profile_views;
+            self.rating_items = response.data.rating_items;
+            self.watchlist_items = response.data.watchlist_items;
+            self.$nextTick(() => {
+              self.initIntersectionObserver();
+            });
             if (self.store.user.id == self.user_id) {
               self.own_profile = true;
             } else {
@@ -1421,6 +1343,11 @@ export default {
             self.watched_timeline = response.data.rating_timeline;
             self.profile_status = response.data.profile_status;
             self.profile_views = response.data.profile_views;
+            self.rating_items = response.data.rating_items;
+            self.watchlist_items = response.data.watchlist_items;
+            self.$nextTick(() => {
+              self.initIntersectionObserver();
+            });
             if (self.store.user.id == self.user_id) {
               self.own_profile = true;
             } else {
@@ -1490,29 +1417,6 @@ export default {
           }
         });
     },
-    filtered_ratings(rating) {
-      var filtered = [];
-      var item;
-      for (item in this.contents_rated) {
-        if (
-          (this.contents_rated[item].rating == rating) &
-          (this.contents_rated[item].type == this.content_type)
-        ) {
-          filtered.push(this.contents_rated[item]);
-        }
-      }
-      return filtered;
-    },
-    filtered_watchlist() {
-      var filtered = [];
-      var item;
-      for (item in this.watchlist) {
-        if (this.watchlist[item].type == this.content_type) {
-          filtered.push(this.watchlist[item]);
-        }
-      }
-      return filtered;
-    },
     goToAboutUs() {
       this.$router.push("/about-us");
       this.$emit("update-api-counter", { api: "about_us" });
@@ -1567,89 +1471,6 @@ export default {
         })
         .catch(function (error) {
           // console.log(error);
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
-          }
-        });
-    },
-    addContent(content) {
-      var movies = [];
-      var tv_series = [];
-      var index;
-      for (index in this.movies_these_days) {
-        movies.push(this.movies_these_days[index].subject_id);
-      }
-      for (index in this.tv_series_these_days) {
-        tv_series.push(this.tv_series_these_days[index].subject_id);
-      }
-      if (this.content_type == "movie" && /^[1]/.test(content.subject_id)) {
-        var index = movies.indexOf(content.subject_id);
-        // console.log(index);
-        if (index == -1) {
-          this.movies_these_days.push(content);
-        }
-      } else if (this.content_type == "tv" && /^[2]/.test(content.subject_id)) {
-        var index = tv_series.indexOf(content.subject_id);
-        // console.log(index);
-        if (index == -1) {
-          this.tv_series_these_days.push(content);
-        }
-      }
-      this.add_content = false;
-      this.updateProfile();
-    },
-    removeCard(index) {
-      if (this.content_type == "movie") {
-        this.movies_these_days.splice(index, 1);
-      } else {
-        this.tv_series_these_days.splice(index, 1);
-      }
-      this.updateProfile();
-    },
-    submitRating(content_id, user_rating, content_index) {
-      var self = this;
-      var prev_rating = self.contents_rated[content_index].rating;
-      self.contents_rated[content_index].rating = user_rating;
-      axios
-        .post(this.$store.state.api_host + "submit_rating", {
-          session_id: this.$store.state.session_id,
-          content_ids: [content_id],
-          rating: user_rating,
-          privacy: this.$store.state.user.profile.profile_status || "public",
-        })
-        .then(function (response) {
-          var index = self.$store.state.suggestions.rate_counter.indexOf(
-            content_id
-          );
-          if (index == -1) {
-            self.$store.state.suggestions.rate_counter.push(content_id);
-            if (
-              self.$store.state.suggestions.rate_counter.length ==
-              self.$store.state.suggestions.calc_after
-            ) {
-              self.$store.state.suggestions.rate_counter = [];
-              axios
-                .post(
-                  self.$store.state.ai_host + "calculate_contents_to_recommend",
-                  {
-                    session_id: self.$store.state.session_id,
-                  }
-                )
-                .then(function (response) {
-                  self.$store.state.notifications.suggestions = true;
-                });
-            }
-          }
-        })
-        .catch(function (error) {
-          self.contents_rated[content_index].rating = prev_rating;
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -1780,45 +1601,60 @@ export default {
         "/profile/" + id + "/" + name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
     },
-    resetRatings() {
-      var self = this;
-      axios
-        .post(self.$store.state.api_host + "reset_ratings", {
-          session_id: self.$store.state.session_id,
-        })
-        .then(function (response) {
-          self.reset_ratings_banner = false;
-          if ([200].includes(response.status)) {
-            self.contents_rated = [];
-            axios
-              .post(self.$store.state.api_host + "update_profile", {
-                session_id: self.$store.state.session_id,
-                suggestions_ready_message_seen: false,
-              })
-              .then(function (response) {
-                if ([200].includes(response.status)) {
-                  self.renderComponent = true;
-                  self.reRender();
-                }
-              });
+    initIntersectionObserver() {
+      this.resetIntersectionObserver();
+
+      const ratingsCallback = (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.showAllRatingsMainButton = false;
           } else {
-            // console.log(response.status);
-          }
-        })
-        .catch(function (error) {
-          self.reset_ratings_banner = false;
-          // console.log(error);
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
+            this.showAllRatingsMainButton = true;
           }
         });
+      };
+
+      const watchlistCallback = (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.showAllWatchlistMainButton = false;
+          } else {
+            this.showAllWatchlistMainButton = true;
+          }
+        });
+      };
+
+      setTimeout(() => {
+        this.ratingsObserver = new IntersectionObserver(ratingsCallback, {
+          root: document.querySelector("#ratings-container"),
+          rootMargin: "0px",
+          threshold: 0.0,
+        });
+        var rateElem = document.querySelector("#rating-show-all");
+        if (rateElem) {
+          this.ratingsObserver.observe(rateElem);
+        }
+
+        this.watchlistObserver = new IntersectionObserver(watchlistCallback, {
+          root: document.querySelector("#watchlist-container"),
+          rootMargin: "0px",
+          threshold: 0.0,
+        });
+        var watchlistElem = document.querySelector("#watchlist-show-all");
+        if (watchlistElem) {
+          this.watchlistObserver.observe(watchlistElem);
+        }
+      }, 0);
+    },
+    resetIntersectionObserver() {
+      if (this.ratingsObserver) {
+        this.ratingsObserver.disconnect();
+        this.ratingsObserver = null;
+      }
+      if (this.watchlistObserver) {
+        this.watchlistObserver.disconnect();
+        this.watchlistObserver = null;
+      }
     },
   },
   computed: {
@@ -1874,6 +1710,56 @@ export default {
                 `
       );
     },
+    filtered_ratings() {
+      var filtered = [];
+      var item;
+      for (item in this.contents_rated) {
+        if (this.contents_rated[item].type == this.content_type) {
+          filtered.push(this.contents_rated[item]);
+        }
+      }
+      return filtered;
+    },
+    filtered_watchlist() {
+      var filtered = [];
+      var item;
+      for (item in this.watchlist) {
+        if (this.watchlist[item].type == this.content_type) {
+          filtered.push(this.watchlist[item]);
+        }
+      }
+      return filtered;
+    },
+    userTopRatings() {
+      var output = [];
+      output.push(
+        ...this.store.user.profile.contents_rated
+          .filter((content) => content.type == "movie")
+          .slice(0, 10)
+      );
+      output.push(
+        ...this.store.user.profile.contents_rated
+          .filter((content) => content.type == "tv")
+          .slice(0, 10)
+      );
+
+      return output;
+    },
+    userTopWatchlist() {
+      var output = [];
+      output.push(
+        ...this.store.watchlist
+          .filter((content) => content.type == "movie")
+          .slice(0, 10)
+      );
+      output.push(
+        ...this.store.watchlist
+          .filter((content) => content.type == "tv")
+          .slice(0, 10)
+      );
+
+      return output;
+    },
   },
   watch: {
     router_path: {
@@ -1890,6 +1776,9 @@ export default {
         }
       },
     },
+  },
+  beforeDestroy() {
+    this.resetIntersectionObserver();
   },
 };
 </script>
@@ -2206,6 +2095,12 @@ h4 {
 .fadeOut {
   animation: fadeOut 0.6s;
 }
+.fastFadeIn {
+  animation: fadeIn 0.12s;
+}
+.fastFadeOut {
+  animation: fadeOut 0.12s;
+}
 .black-background {
   position: fixed;
   width: 100%;
@@ -2332,28 +2227,24 @@ h4 {
 }
 .ratings-container {
   overflow-x: scroll;
-  width: calc(100% - 35px);
+  width: 100%;
   display: flex;
   margin-bottom: 2%;
   margin-top: 2%;
-  margin-left: 10px;
 }
 .desktop-ratings-container {
   overflow-x: scroll;
-  width: calc(100% - 35px);
+  width: 100%;
   display: flex;
   margin-top: 5px;
-  margin-left: 10px;
 }
 .desktop-ratings-container::-webkit-scrollbar {
   display: none;
 }
 .ratings-item-container {
   position: relative;
-  margin-top: 1.5%;
-  margin-right: 2%;
-  margin-bottom: 2%;
-  margin-left: 2%;
+  margin-right: 8px;
+  margin-left: 8px;
   display: inline-block;
   border-radius: 7px;
 }
@@ -2370,63 +2261,6 @@ h4 {
   height: 225px;
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-user-rating-container {
-  position: relative;
-  text-align: left;
-  margin-top: 5px;
-}
-.desktop-profile-user-rating-container {
-  position: relative;
-  text-align: left;
-}
-.profile-thumbs-up-true {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  left: 0%;
-  margin-top: 3px;
-  background-image: url("./../images/thumbs_up_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-thumbs-down-true {
-  position: absolute;
-  height: 28px;
-  width: 28px;
-  margin-left: 10px;
-  margin-top: 4px;
-  background-image: url("./../images/thumbs_down_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-love-true {
-  position: absolute;
-  height: 28px;
-  width: 28px;
-  right: 0%;
-  margin-top: 3px;
-  background-image: url("./../images/love_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
@@ -3123,5 +2957,20 @@ h4 {
   letter-spacing: normal;
   text-align: left;
   color: #333333;
+}
+.show-all-button {
+  width: auto;
+  height: 30px;
+  transform: translateY(-50%);
+  margin-left: 8px;
+  margin-top: 79px;
+}
+.profile-user-rating-icon {
+  position: absolute;
+  right: -2px;
+  top: -2px;
+  z-index: 1;
+  padding: 5px;
+  border-radius: 50%;
 }
 </style>
