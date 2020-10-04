@@ -484,7 +484,7 @@
               width="auto"
               :height="30"
               text="Show All"
-              v-on:clicked="true"
+              @clicked="goToRatings"
             />
           </transition>
         </div>
@@ -549,7 +549,7 @@
               width="auto"
               :height="30"
               text="Show All"
-              v-on:clicked="true"
+              @clicked="goToRatings"
             />
           </div>
         </div>
@@ -1599,6 +1599,34 @@ export default {
     clickUser(id, name) {
       this.$router.push(
         "/profile/" + id + "/" + name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
+    },
+    goToRatings() {
+      this.store.feed.ratings.contents = [];
+      this.store.feed.ratings.apply_filters_on_create = false;
+      this.store.feed.ratings.element_heights = {};
+      this.store.feed.ratings.feed_list = [];
+      this.store.feed.ratings.fetching = false;
+      this.store.feed.ratings.fetching_incremental = false;
+      this.store.feed.ratings.content_type_tab = ["movie", "tv"];
+      this.store.feed.ratings.discover_type_tab = [
+        "community",
+        "friends",
+        "flibo",
+        "self",
+      ];
+      this.store.feed.ratings.platforms = [];
+      this.store.feed.ratings.genres = [];
+      this.store.feed.ratings.padding_top = 0;
+      this.store.feed.ratings.padding_bottom = 0;
+      this.store.feed.ratings.scroll_position = 0;
+      this.store.feed.ratings.observer_current_index = 0;
+
+      this.$router.push(
+        "/ratings/" +
+          this.user_id +
+          "/" +
+          this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
     },
     initIntersectionObserver() {

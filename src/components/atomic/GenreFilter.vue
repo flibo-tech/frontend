@@ -61,6 +61,11 @@ export default {
       quick_filters_meta: this.$store.state.feed_filters.filters_meta,
       quick_filters_mapping: {
         watchlist: "this.$store.state.feed_filters.filters_applied.watchlist",
+        ratings: "this.$store.state.feed.ratings",
+      },
+      contents: {
+        watchlist: "this.$store.state.watchlist",
+        ratings: "this.$store.state.feed.ratings.contents",
       },
       store: this.$store.state,
       just_created: true,
@@ -71,20 +76,15 @@ export default {
       return eval(this.quick_filters_mapping[this.parent]);
     },
     quick_genres() {
-      if (this.parent == "watchlist") {
-        return this.watchlist_genres;
-      }
-    },
-    watchlist_genres() {
-      var watchlist_genres = [];
-      this.store.watchlist.forEach(function (item, index) {
-        watchlist_genres.push(...item.genres);
+      var contents_genres = [];
+      eval(this.contents[this.parent]).forEach(function (item, index) {
+        contents_genres.push(...item.genres);
       });
 
       var applied_genre = [];
       var new_applied_genres = [];
       this.quick_filters_applied.genres.forEach(function (item, index) {
-        if (watchlist_genres.indexOf(item.genre_name) != -1) {
+        if (contents_genres.indexOf(item.genre_name) != -1) {
           new_applied_genres.push(item);
           applied_genre.push(item.genre_name);
         }
@@ -95,7 +95,7 @@ export default {
       var self = this;
       var filters_meta = this.quick_filters_meta.genres.slice();
       filters_meta.forEach(function (item, index) {
-        if (watchlist_genres.indexOf(item.genre_name) != -1) {
+        if (contents_genres.indexOf(item.genre_name) != -1) {
           if (self.just_created) {
             if (applied_genre.indexOf(item.genre_name) != -1) {
               item.score = 1;

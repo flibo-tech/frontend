@@ -12,9 +12,10 @@
         this.$route.path.includes('/settings') ||
         this.$route.path.includes('/review/') ||
         this.$route.path.includes('/request/') ||
-        this.$route.path.includes('/suggest') ||
-        this.$route.path.includes('/activity') ||
-        this.$route.path.includes('/list')
+        this.$route.path.includes('/suggest/') ||
+        this.$route.path.includes('/activity/') ||
+        this.$route.path.includes('/list/') ||
+        this.$route.path.includes('/ratings/')
       "
       class="go-back-button"
       :style="is_mobile ? '' : 'left: calc(50vw - 500px);'"
@@ -31,9 +32,10 @@
         this.$route.path.includes('/settings') ||
         this.$route.path.includes('/review/') ||
         this.$route.path.includes('/request/') ||
-        this.$route.path.includes('/suggest') ||
-        this.$route.path.includes('/activity') ||
-        this.$route.path.includes('/list')
+        this.$route.path.includes('/suggest/') ||
+        this.$route.path.includes('/activity/') ||
+        this.$route.path.includes('/list/') ||
+        this.$route.path.includes('/ratings/')
           ? is_mobile
             ? 'left: calc(5% + 15px);'
             : 'left: calc(50vw - 500px + 30px);'
@@ -71,6 +73,8 @@
           ? "Suggestion"
           : this.$route.path.includes("/list/")
           ? "List"
+          : this.$route.path.includes("/ratings/")
+          ? "Ratings"
           : ""
       }}
     </div>

@@ -53,6 +53,7 @@
       !this.is_signup_page &&
       !this.is_content_page &&
       !this.is_activity_page &&
+      !this.is_ratings_page &&
       !this.is_search_page &&
       !this.is_search_results_page &&
       !this.is_profile_page &&
@@ -71,6 +72,7 @@
       this.is_signup_page |
         this.is_content_page |
         this.is_activity_page |
+        this.is_ratings_page |
         this.is_profile_page |
         this.is_search_page |
         this.is_search_results_page |
@@ -131,6 +133,7 @@ export default {
       is_signup_page: false,
       is_content_page: false,
       is_activity_page: false,
+      is_ratings_page: false,
       is_profile_page: false,
       is_search_page: false,
       is_search_results_page: false,
@@ -181,6 +184,14 @@ export default {
           genre_filters:
             "this.$store.state.feed_filters.filters_applied.watchlist.genres",
         },
+        ratings: {
+          contents: "this.$store.state.feed.ratings.contents",
+          feed: "this.$store.state.feed.ratings.feed_list",
+          content_filter: "this.$store.state.feed.ratings.content_type_tab",
+          discover_filters: "this.$store.state.feed.ratings.discover_type_tab",
+          platform_filters: "this.$store.state.feed.ratings.platforms",
+          genre_filters: "this.$store.state.feed.ratings.genres",
+        },
       },
     };
   },
@@ -215,6 +226,7 @@ export default {
           path.startsWith("/activity/") ||
           path.startsWith("/list/");
         this.is_profile_page = path.startsWith("/profile/");
+        this.is_ratings_page = path.startsWith("/ratings/");
         this.is_landing_page = path == "/";
         this.is_search_page = path == "/search";
         this.is_create_page = path == "/create";
@@ -272,6 +284,7 @@ export default {
       current_path.startsWith("/activity/") ||
       current_path.startsWith("/list/");
     this.is_profile_page = current_path.startsWith("/profile/");
+    this.is_ratings_page = current_path.startsWith("/ratings/");
     this.is_landing_page = current_path == "/";
     this.is_search_page = current_path == "/search";
     this.is_create_page = current_path == "/create";
@@ -287,6 +300,7 @@ export default {
         current_path.startsWith("/content/") ||
         current_path.startsWith("/profile/") ||
         this.is_activity_page ||
+        this.is_ratings_page ||
         this.is_search_page ||
         this.is_search_results_page ||
         this.is_policy_page ||

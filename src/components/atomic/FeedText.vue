@@ -29,17 +29,13 @@
         "
         @click="goToProfile(user_id, user_name)"
       >
-        {{ user_name }}
+        {{ user_id == store.user.id ? "You" : user_name }}
       </span>
 
-      <span v-if="item_type == 'suggestions'">
-        recommends you
-      </span>
+      <span v-if="item_type == 'suggestions'"> recommends you </span>
 
       <span v-if="item_type != 'suggestions'">
-        <span v-if="user_ids.length > 1">
-          and
-        </span>
+        <span v-if="user_ids.length > 1"> and </span>
         <span
           v-if="user_ids.length > 1"
           style="
@@ -70,12 +66,16 @@
       </span>
 
       <span v-if="item_type == 'ratings'">
-        {{ other_user_rating == 2 ? "liked" : "loved" }}
+        {{
+          other_user_rating == 2
+            ? "liked"
+            : other_user_rating == 3
+            ? "loved"
+            : "disliked"
+        }}
       </span>
 
-      <span v-if="item_type == 'watchlist'">
-        added
-      </span>
+      <span v-if="item_type == 'watchlist'"> added </span>
 
       <span v-if="item_type == 'watching'">
         {{
@@ -87,11 +87,9 @@
         }}
       </span>
 
-      this {{ type == "movie" ? "movie" : "TV series" }}
+      this {{ type == "movie" ? "movie" : "TV show" }}
 
-      <span v-if="item_type == 'watchlist'">
-        to watchlist
-      </span>
+      <span v-if="item_type == 'watchlist'"> to watchlist </span>
 
       <span v-if="(item_type == 'watching') & (type == 'tv')">
         these days
@@ -203,6 +201,7 @@ export default {
       is_mobile: window.screen.height > window.screen.width,
       show_others: false,
       other_users: [],
+      store: this.$store.state,
     };
   },
   methods: {

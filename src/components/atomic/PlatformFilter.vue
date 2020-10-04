@@ -58,6 +58,11 @@ export default {
       quick_filters_mapping: {
         home: "this.$store.state.feed_filters.filters_applied.home",
         watchlist: "this.$store.state.feed_filters.filters_applied.watchlist",
+        ratings: "this.$store.state.feed.ratings",
+      },
+      contents: {
+        watchlist: "this.$store.state.watchlist",
+        ratings: "this.$store.state.feed.ratings.contents",
       },
       store: this.$store.state,
       just_created: true,
@@ -67,8 +72,8 @@ export default {
     quick_platforms() {
       if (this.parent == "home") {
         return this.user_platforms;
-      } else if (this.parent == "watchlist") {
-        return this.watchlist_platforms;
+      } else if (["watchlist", "ratings"].includes(this.parent)) {
+        return this.contents_platforms;
       }
     },
     quick_filters_applied() {
@@ -137,15 +142,15 @@ export default {
 
       return output;
     },
-    watchlist_platforms() {
-      var watchlist_platforms = [];
-      this.store.watchlist.forEach(function (item, index) {
+    contents_platforms() {
+      var contents_platforms = [];
+      eval(this.contents[this.parent]).forEach(function (item, index) {
         if (Object.keys(item.where_to_watch || {}).includes("stream")) {
-          watchlist_platforms.push(...Object.keys(item.where_to_watch.stream));
+          contents_platforms.push(...Object.keys(item.where_to_watch.stream));
         } else if (Object.keys(item.where_to_watch || {}).includes("rent")) {
-          watchlist_platforms.push(...Object.keys(item.where_to_watch.rent));
+          contents_platforms.push(...Object.keys(item.where_to_watch.rent));
         } else if (Object.keys(item.where_to_watch || {}).includes("buy")) {
-          watchlist_platforms.push(...Object.keys(item.where_to_watch.buy));
+          contents_platforms.push(...Object.keys(item.where_to_watch.buy));
         }
       });
 
@@ -153,7 +158,7 @@ export default {
       var new_applied_platforms = [];
       this.quick_filters_applied.platforms.forEach(function (item, index) {
         if (
-          watchlist_platforms.indexOf(
+          contents_platforms.indexOf(
             item.platform_name.replace(/[^a-z0-9]+/gi, "_").toLowerCase()
           ) != -1
         ) {
@@ -168,7 +173,7 @@ export default {
       var filters_meta = this.quick_filters_meta.platforms.slice();
       filters_meta.forEach(function (item, index) {
         if (
-          watchlist_platforms.indexOf(
+          contents_platforms.indexOf(
             item.platform_name.replace(/[^a-z0-9]+/gi, "_").toLowerCase()
           ) != -1
         ) {

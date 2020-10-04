@@ -28,7 +28,7 @@ export default {
   },
   created() {
     var self = this;
-    this.$store.state.current_path = this.$route.fullPath;
+    this.$store.state.current_path = this.$route.path;
     this.actionType = this.$route.params.actionType;
     this.actionId = parseInt(this.$route.params.actionId);
     this.reactionId = this.$route.params.reactionId

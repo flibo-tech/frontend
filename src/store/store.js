@@ -294,6 +294,22 @@ export const store = new Vuex.Store({
         observer_current_index: my_store
           ? my_store.feed.watchlist.observer_current_index
           : 0
+      },
+      ratings: {
+        contents: [],
+        apply_filters_on_create: false,
+        element_heights: {},
+        feed_list: [],
+        fetching: false,
+        fetching_incremental: false,
+        content_type_tab: ["movie", "tv"],
+        discover_type_tab: ["community", "friends", "flibo", "self"],
+        platforms: [],
+        genres: [],
+        padding_top: 0,
+        padding_bottom: 0,
+        scroll_position: 0,
+        observer_current_index: 0
       }
     },
     feed_filters: {

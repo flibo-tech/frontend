@@ -19,6 +19,7 @@ import SearchResults from "@/views/SearchResults.vue";
 import Watchlist from "@/views/Watchlist.vue";
 import Create from "@/views/Create.vue";
 import ActionDetails from "@/views/ActionDetails.vue";
+import Ratings from "@/views/Ratings.vue";
 
 Vue.use(Router);
 
@@ -116,6 +117,11 @@ export default new Router({
         "/:actionType(review|request|suggest|activity|list)/:actionId(\\d+)/:urlText([a-z0-9\\-]+)(/comment/)?:reactionId(\\d+)?",
       name: "ActionDetails",
       component: ActionDetails
+    },
+    {
+      path: "/ratings/:user_id/:user_name",
+      name: "Ratings",
+      component: Ratings
     }
   ]
 });

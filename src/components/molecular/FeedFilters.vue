@@ -1,6 +1,6 @@
 <template>
   <div class="feed-filters-container">
-    <div style="overflow-x: scroll;">
+    <div style="overflow-x: scroll">
       <div class="feed-filters-top-row">
         <ContentFilter
           class="content-filter"
@@ -9,7 +9,7 @@
         />
 
         <SuggestionFilter
-          v-if="parent != 'watchlist'"
+          v-if="!['watchlist', 'ratings'].includes(parent)"
           class="suggestion-filter"
           :style="
             parent == 'home'
@@ -41,9 +41,9 @@
     </div>
 
     <GenreFilter
-      v-if="parent == 'watchlist'"
+      v-if="['watchlist', 'ratings'].includes(parent)"
       class="genre-filter"
-      parent="watchlist"
+      :parent="parent"
       v-on="$listeners"
     />
   </div>

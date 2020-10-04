@@ -29,12 +29,12 @@
       :class="mainContainer.replace('.', '')"
       :style="
         is_mobile
-          ? parent == 'watchlist'
+          ? ['watchlist', 'ratings'].includes(parent)
             ? 'margin-top: 200px;'
             : parent == 'search_results'
             ? 'margin-top: 105px;'
             : 'margin-top: 140px;'
-          : parent == 'watchlist'
+          : ['watchlist', 'ratings'].includes(parent)
           ? 'position: relative;margin-top: 225px;'
           : parent == 'search_results'
           ? 'position: relative;margin-top: 105px;'
@@ -241,6 +241,18 @@ export default {
             "this.$store.state.feed_filters.filters_applied.watchlist.genres",
           element_heights: "this.$store.state.feed.watchlist.element_heights",
         },
+        ratings: {
+          contents: "this.$store.state.feed.ratings.contents",
+          feed: "this.$store.state.feed.ratings.feed_list",
+          fetching: "this.$store.state.feed.ratings.fetching",
+          fetching_incremental:
+            "this.$store.state.feed.ratings.fetching_incremental",
+          content_filter: "this.$store.state.feed.ratings.content_type_tab",
+          discover_filters: "this.$store.state.feed.ratings.discover_type_tab",
+          platform_filters: "this.$store.state.feed.ratings.platforms",
+          genre_filters: "this.$store.state.feed.ratings.genres",
+          element_heights: "this.$store.state.feed.ratings.element_heights",
+        },
       },
       observer: null,
       mainContainer: ".feed-cards-container",
@@ -438,6 +450,7 @@ export default {
           output_list.push(feed_contents[feed_item]);
         }
       }
+
       return output_list;
     },
   },
