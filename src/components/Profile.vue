@@ -1617,6 +1617,7 @@ export default {
       ];
       this.store.feed.ratings.platforms = [];
       this.store.feed.ratings.genres = [];
+      this.store.feed.ratings.rating_tab = [1, 2, 3];
       this.store.feed.ratings.padding_top = 0;
       this.store.feed.ratings.padding_bottom = 0;
       this.store.feed.ratings.scroll_position = 0;

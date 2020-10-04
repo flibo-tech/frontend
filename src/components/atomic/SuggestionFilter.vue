@@ -127,6 +127,7 @@ export default {
 }
 .discover-type-checkbox {
   display: inline-block;
+  margin-left: 8px;
   position: relative;
   width: max-content;
   border-radius: 50px;

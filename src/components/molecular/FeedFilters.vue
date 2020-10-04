@@ -22,10 +22,16 @@
           v-on="$listeners"
         />
 
+        <RatingFilter
+          v-if="['ratings'].includes(parent)"
+          class="rating-filter"
+          :parent="parent"
+          v-on="$listeners"
+        />
+
         <PlatformFilter
           v-if="parent != 'search_results'"
           class="platform-filter"
-          :style="parent == 'watchlist' ? 'grid-column-start: 3;' : ''"
           :parent="parent"
           v-on="$listeners"
         />
@@ -54,6 +60,7 @@ import ContentFilter from "./../atomic/ContentFilter";
 import SuggestionFilter from "./../atomic/SuggestionFilter";
 import PlatformFilter from "./../atomic/PlatformFilter";
 import GenreFilter from "./../atomic/GenreFilter";
+import RatingFilter from "./../atomic/RatingFilter";
 
 export default {
   name: "app",
@@ -62,6 +69,7 @@ export default {
     SuggestionFilter,
     PlatformFilter,
     GenreFilter,
+    RatingFilter,
   },
   props: {
     parent: {
@@ -89,30 +97,19 @@ export default {
   position: relative;
 }
 .feed-filters-top-row {
-  display: grid;
-  grid-template-columns: auto 8px auto 8px auto 8px auto;
-  grid-template-rows: auto;
+  display: flex;
   justify-items: center;
   width: fit-content;
   align-items: center;
 }
 .content-filter {
-  grid-row-start: 1;
-  grid-column-start: 1;
   border-right: 1px solid #dfe1e5;
   padding-right: 3px;
 }
-.suggestion-filter {
-  grid-row-start: 1;
-  grid-column-start: 3;
-}
-.platform-filter {
-  grid-row-start: 1;
-  grid-column-start: 5;
-}
-.more-filters {
-  grid-row-start: 1;
-  grid-column-start: 7;
+.rating-filter {
+  border-right: 1px solid #dfe1e5;
+  padding-right: 3px;
+  margin-left: 8px;
 }
 .more-filters-icon {
   height: 34px;

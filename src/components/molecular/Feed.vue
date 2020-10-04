@@ -223,6 +223,7 @@ export default {
           platform_filters:
             "this.$store.state.feed_filters.filters_applied.home.platforms",
           genre_filters: null,
+          rating_filter: null,
           element_heights: "this.$store.state.feed.home.element_heights",
         },
         search_results: {
@@ -236,6 +237,7 @@ export default {
             "this.$store.state.discover_filters.discover_type_tab",
           platform_filters: null,
           genre_filters: null,
+          rating_filter: null,
           element_heights:
             "this.$store.state.feed.search_results.element_heights",
         },
@@ -250,6 +252,7 @@ export default {
             "this.$store.state.feed.watchlist.discover_type_tab",
           platform_filters: "this.$store.state.feed.watchlist.platforms",
           genre_filters: "this.$store.state.feed.watchlist.genres",
+          rating_filter: null,
           element_heights: "this.$store.state.feed.watchlist.element_heights",
         },
         ratings: {
@@ -262,6 +265,7 @@ export default {
           discover_filters: "this.$store.state.feed.ratings.discover_type_tab",
           platform_filters: "this.$store.state.feed.ratings.platforms",
           genre_filters: "this.$store.state.feed.ratings.genres",
+          rating_filter: "this.$store.state.feed.ratings.rating_tab",
           element_heights: "this.$store.state.feed.ratings.element_heights",
         },
       },
@@ -407,6 +411,12 @@ export default {
         var content_type_tab = ["pass_check"];
       }
 
+      if (this.feed_mappings[this.parent].rating_filter != null) {
+        var rating_tab = eval(this.feed_mappings[this.parent].rating_filter);
+      } else {
+        var rating_tab = ["pass_check"];
+      }
+
       if (this.feed_mappings[this.parent].discover_filters != null) {
         var discover_type_tab = eval(
           this.feed_mappings[this.parent].discover_filters
@@ -446,6 +456,9 @@ export default {
         if (
           content_type_tab.includes(
             feed_contents[feed_item].type || "pass_check"
+          ) &&
+          rating_tab.includes(
+            feed_contents[feed_item].other_user_rating || "pass_check"
           ) &&
           discover_type_tab.includes(
             feed_contents[feed_item].feed_type || "pass_check"
