@@ -72,7 +72,7 @@
         <div
           v-if="
             is_mobile &&
-            parent == 'watchlist' &&
+            ['watchlist', 'ratings'].includes(parent) &&
             store.session_id != null &&
             currentIndex == 0 &&
             index == 0
@@ -85,7 +85,9 @@
           "
         >
           <p style="font-weight: normal; text-align: center">
-            Access your watchlist on desktop at flibo.ai
+            Access
+            {{ userType == "self" ? "your" : userName.split(" ")[0] + "'s" }}
+            {{ parent }} on desktop at flibo.ai
           </p>
         </div>
 
@@ -191,6 +193,16 @@ export default {
       type: String,
       required: true,
     },
+    userType: {
+      type: String,
+      required: false,
+      default: "self",
+    },
+    userName: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   data() {
     return {
@@ -228,17 +240,16 @@ export default {
             "this.$store.state.feed.search_results.element_heights",
         },
         watchlist: {
-          contents: "this.$store.state.watchlist",
+          contents: "this.$store.state.feed.watchlist.contents",
           feed: "this.$store.state.feed.watchlist.feed_list",
           fetching: "this.$store.state.feed.watchlist.fetching",
-          fetching_incremental: "false",
-          content_filter:
-            "this.$store.state.watchlist_filters.content_type_tab",
-          discover_filters: null,
-          platform_filters:
-            "this.$store.state.feed_filters.filters_applied.watchlist.platforms",
-          genre_filters:
-            "this.$store.state.feed_filters.filters_applied.watchlist.genres",
+          fetching_incremental:
+            "this.$store.state.feed.watchlist.fetching_incremental",
+          content_filter: "this.$store.state.feed.watchlist.content_type_tab",
+          discover_filters:
+            "this.$store.state.feed.watchlist.discover_type_tab",
+          platform_filters: "this.$store.state.feed.watchlist.platforms",
+          genre_filters: "this.$store.state.feed.watchlist.genres",
           element_heights: "this.$store.state.feed.watchlist.element_heights",
         },
         ratings: {
@@ -305,7 +316,6 @@ export default {
             self.updating_dom = true;
 
             if (
-              self.parent == "watchlist" ||
               eval(
                 "self.store.feed." + self.parent + ".apply_filters_on_create"
               )
@@ -670,33 +680,19 @@ export default {
         this.observer.disconnect();
         this.observer = null;
 
-        if (this.parent == "watchlist") {
-          eval(
-            this.feed_mappings[this.parent].feed +
-              " = this.parent_feed_list.slice(this.currentIndex, this.currentIndex + this.defaultListSize)"
-          );
-        } else {
-          eval(
-            this.feed_mappings[this.parent].feed +
-              " = this.parent_feed_list.slice(0, this.defaultListSize)"
-          );
-        }
+        eval(
+          this.feed_mappings[this.parent].feed +
+            " = this.parent_feed_list.slice(0, this.defaultListSize)"
+        );
 
         this.$nextTick(function () {
           self.initIntersectionObserver();
         });
       } else {
-        if (this.parent == "watchlist") {
-          eval(
-            this.feed_mappings[this.parent].feed +
-              " = this.parent_feed_list.slice(this.currentIndex, this.currentIndex + this.defaultListSize)"
-          );
-        } else {
-          eval(
-            this.feed_mappings[this.parent].feed +
-              " = this.parent_feed_list.slice(0, this.defaultListSize)"
-          );
-        }
+        eval(
+          this.feed_mappings[this.parent].feed +
+            " = this.parent_feed_list.slice(0, this.defaultListSize)"
+        );
       }
     },
     refreshFeed(refreshSuggestions) {

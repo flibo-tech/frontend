@@ -15,7 +15,8 @@
         this.$route.path.includes('/suggest/') ||
         this.$route.path.includes('/activity/') ||
         this.$route.path.includes('/list/') ||
-        this.$route.path.includes('/ratings/')
+        this.$route.path.includes('/ratings/') ||
+        this.$route.path.includes('/watchlist/')
       "
       class="go-back-button"
       :style="is_mobile ? '' : 'left: calc(50vw - 500px);'"
@@ -35,7 +36,8 @@
         this.$route.path.includes('/suggest/') ||
         this.$route.path.includes('/activity/') ||
         this.$route.path.includes('/list/') ||
-        this.$route.path.includes('/ratings/')
+        this.$route.path.includes('/ratings/') ||
+        this.$route.path.includes('/watchlist/')
           ? is_mobile
             ? 'left: calc(5% + 15px);'
             : 'left: calc(50vw - 500px + 30px);'
@@ -47,7 +49,7 @@
           ? "Rate"
           : this.$route.path.includes("/discover")
           ? "Discover"
-          : this.$route.path.includes("/watchlist")
+          : this.$route.path.includes("/watchlist/")
           ? "Watchlist"
           : this.$route.path.includes("/profile/")
           ? "Profile"

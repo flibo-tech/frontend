@@ -60,11 +60,11 @@ export default {
       filtered_genres: [],
       quick_filters_meta: this.$store.state.feed_filters.filters_meta,
       quick_filters_mapping: {
-        watchlist: "this.$store.state.feed_filters.filters_applied.watchlist",
+        watchlist: "this.$store.state.feed.watchlist",
         ratings: "this.$store.state.feed.ratings",
       },
       contents: {
-        watchlist: "this.$store.state.watchlist",
+        watchlist: "this.$store.state.feed.watchlist.contents",
         ratings: "this.$store.state.feed.ratings.contents",
       },
       store: this.$store.state,

@@ -658,7 +658,7 @@
               width="auto"
               :height="30"
               text="Show All"
-              v-on:clicked="true"
+              @clicked="goToWatchlist"
             />
           </transition>
         </div>
@@ -707,7 +707,7 @@
               width="auto"
               :height="30"
               text="Show All"
-              v-on:clicked="true"
+              @clicked="goToWatchlist"
             />
           </div>
         </div>
@@ -1624,6 +1624,34 @@ export default {
 
       this.$router.push(
         "/ratings/" +
+          this.user_id +
+          "/" +
+          this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
+    },
+    goToWatchlist() {
+      this.store.feed.watchlist.contents = [];
+      this.store.feed.watchlist.apply_filters_on_create = false;
+      this.store.feed.watchlist.element_heights = {};
+      this.store.feed.watchlist.feed_list = [];
+      this.store.feed.watchlist.fetching = false;
+      this.store.feed.watchlist.fetching_incremental = false;
+      this.store.feed.watchlist.content_type_tab = ["movie", "tv"];
+      this.store.feed.watchlist.discover_type_tab = [
+        "community",
+        "friends",
+        "flibo",
+        "self",
+      ];
+      this.store.feed.watchlist.platforms = [];
+      this.store.feed.watchlist.genres = [];
+      this.store.feed.watchlist.padding_top = 0;
+      this.store.feed.watchlist.padding_bottom = 0;
+      this.store.feed.watchlist.scroll_position = 0;
+      this.store.feed.watchlist.observer_current_index = 0;
+
+      this.$router.push(
+        "/watchlist/" +
           this.user_id +
           "/" +
           this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()

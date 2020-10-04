@@ -54,6 +54,7 @@
       !this.is_content_page &&
       !this.is_activity_page &&
       !this.is_ratings_page &&
+      !this.is_watchlist_page &&
       !this.is_search_page &&
       !this.is_search_results_page &&
       !this.is_profile_page &&
@@ -73,6 +74,7 @@
         this.is_content_page |
         this.is_activity_page |
         this.is_ratings_page |
+        this.is_watchlist_page |
         this.is_profile_page |
         this.is_search_page |
         this.is_search_results_page |
@@ -134,6 +136,7 @@ export default {
       is_content_page: false,
       is_activity_page: false,
       is_ratings_page: false,
+      is_watchlist_page: false,
       is_profile_page: false,
       is_search_page: false,
       is_search_results_page: false,
@@ -174,15 +177,13 @@ export default {
           genre_filters: null,
         },
         watchlist: {
-          contents: "this.$store.state.watchlist",
+          contents: "this.$store.state.feed.watchlist.contents",
           feed: "this.$store.state.feed.watchlist.feed_list",
-          content_filter:
-            "this.$store.state.watchlist_filters.content_type_tab",
-          discover_filters: null,
-          platform_filters:
-            "this.$store.state.feed_filters.filters_applied.watchlist.platforms",
-          genre_filters:
-            "this.$store.state.feed_filters.filters_applied.watchlist.genres",
+          content_filter: "this.$store.state.feed.watchlist.content_type_tab",
+          discover_filters:
+            "this.$store.state.feed.watchlist.discover_type_tab",
+          platform_filters: "this.$store.state.feed.watchlist.platforms",
+          genre_filters: "this.$store.state.feed.watchlist.genres",
         },
         ratings: {
           contents: "this.$store.state.feed.ratings.contents",
@@ -227,6 +228,7 @@ export default {
           path.startsWith("/list/");
         this.is_profile_page = path.startsWith("/profile/");
         this.is_ratings_page = path.startsWith("/ratings/");
+        this.is_watchlist_page = path.startsWith("/watchlist/");
         this.is_landing_page = path == "/";
         this.is_search_page = path == "/search";
         this.is_create_page = path == "/create";
@@ -285,6 +287,7 @@ export default {
       current_path.startsWith("/list/");
     this.is_profile_page = current_path.startsWith("/profile/");
     this.is_ratings_page = current_path.startsWith("/ratings/");
+    this.is_watchlist_page = current_path.startsWith("/watchlist/");
     this.is_landing_page = current_path == "/";
     this.is_search_page = current_path == "/search";
     this.is_create_page = current_path == "/create";
@@ -301,6 +304,7 @@ export default {
         current_path.startsWith("/profile/") ||
         this.is_activity_page ||
         this.is_ratings_page ||
+        this.is_watchlist_page ||
         this.is_search_page ||
         this.is_search_results_page ||
         this.is_policy_page ||
@@ -483,14 +487,13 @@ export default {
             element_heights: true,
           };
 
-          var feed_parents = ["home", "search_results", "watchlist"];
+          var feed_parents = ["home", "search_results"];
           feed_parents.forEach(function (item, index) {
             reset_info.parent = item;
             self.resetFeedPage(reset_info);
           });
 
           this.refreshDiscoverPage();
-          this.updateWatchlist(true);
 
           this.$store.state.discover_filters.filtered_content = [];
           this.$store.state.discover_filters.more_filtered_content = [];
@@ -604,13 +607,6 @@ export default {
               ) {
                 self.refreshDiscoverPage();
               }
-
-              if (
-                self.$store.state.watchlist.length == 0 &&
-                !self.$store.state.feed.watchlist.fetching
-              ) {
-                self.updateWatchlist(true);
-              }
             }
 
             if (
@@ -664,7 +660,6 @@ export default {
         }
 
         self.timeout = setInterval(function () {
-          self.updateWatchlist(false);
           self.updateProfile();
           self.updateFriendsPage();
         }, 2 * 60 * 1000);
@@ -674,49 +669,6 @@ export default {
     }
   },
   methods: {
-    updateWatchlist(on_load) {
-      if (this.router_path != "/watchlist" || on_load) {
-        var self = this;
-        self.$store.state.feed.watchlist.fetching = true;
-        axios
-          .post(self.$store.state.api_host + "watchlist", {
-            session_id: self.$store.state.session_id,
-            country: self.$store.state.user.profile.country,
-          })
-          .then(function (response) {
-            if ([200].includes(response.status)) {
-              self.$store.state.watchlist = response.data.watchlist;
-              self.$store.state.feed.watchlist.feed_list = self.$store.state.watchlist.slice(
-                0,
-                self.$store.state.feed.defaultListSize
-              );
-
-              if (self.$route.path == "/watchlist") {
-                self.$nextTick(function () {
-                  self.$store.state.feed.update_dom = true;
-                });
-              }
-            } else {
-              // console.log(response.status);
-            }
-            self.$store.state.feed.watchlist.fetching = false;
-          })
-          .catch(function (error) {
-            self.$store.state.feed.watchlist.fetching = false;
-            // console.log(error);
-            if ([401, 419].includes(error.response.status)) {
-              window.location =
-                self.$store.state.login_host +
-                "logout?session_id=" +
-                self.$store.state.session_id;
-              self.$store.state.session_id = null;
-              self.logging_out = true;
-            } else {
-              // console.log(error.response.status);
-            }
-          });
-      }
-    },
     updateProfile() {
       if (
         !this.router_path.startsWith(
@@ -1406,7 +1358,7 @@ export default {
         })
         .then(function (response) {
           if (response.status == 200) {
-            self.updateWatchlist(false);
+            // console.log(response.status);
           } else {
             // console.log(response.status);
           }

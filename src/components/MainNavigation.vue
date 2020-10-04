@@ -14,7 +14,7 @@
       <nav v-if="this.$store.state.session_id">
         <div
           class="main-icon discover"
-          v-bind:class="{ active: isDiscover }"
+          v-bind:class="{ active: isDiscover && !promptPost }"
           @click="GoToDiscover"
         >
           <transition
@@ -39,7 +39,7 @@
 
         <div
           class="main-icon search"
-          v-bind:class="{ active: isSearch }"
+          v-bind:class="{ active: isSearch && !promptPost }"
           @click="GoToSearch"
         >
           <span class="search-text"> Search </span>
@@ -55,23 +55,15 @@
 
         <div
           class="main-icon rate"
-          v-bind:class="{ active: isRate }"
+          v-bind:class="{ active: isRate && !promptPost }"
           @click="GoToRate"
         >
           <span class="rate-text"> Rate </span>
         </div>
 
         <div
-          class="main-icon watchlist"
-          v-bind:class="{ active: isWatchlist }"
-          @click="GoToWatchlist"
-        >
-          <span class="watchlist-text"> Watchlist </span>
-        </div>
-
-        <div
           class="main-icon profile"
-          v-bind:class="{ active: isProfile }"
+          v-bind:class="{ active: isProfile && !promptPost }"
           @click="GoToUserProfile"
         >
           <div class="pp-cropper">

@@ -3,13 +3,17 @@
     <Feed
       v-if="!profileClosed && !noRatingsFound"
       parent="ratings"
+      :userType="store.user.id == userId ? 'self' : 'other'"
+      :userName="userName"
       v-on="$listeners"
     />
     <div v-else class="na-message">
       {{
-        profileClosed
-          ? userName.split(" ")[0] + "'s profile is private."
-          : userName.split(" ")[0] + " hasn't rated any movies or shows."
+        store.user.id != userId
+          ? profileClosed
+            ? userName.split(" ")[0] + "'s profile is private."
+            : userName.split(" ")[0] + " hasn't rated any movies or shows."
+          : "Please rate some movies & shows to get personalized suggestions."
       }}
     </div>
   </div>

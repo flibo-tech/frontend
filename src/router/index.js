@@ -47,7 +47,7 @@ export default new Router({
       component: Home
     },
     {
-      path: "/watchlist",
+      path: "/watchlist/:user_id/:user_name",
       name: "Watchlist",
       component: Watchlist
     },
