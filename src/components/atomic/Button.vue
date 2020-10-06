@@ -1,6 +1,7 @@
 <template>
   <div
     :class="customClass"
+    ref="buttonContainer"
     @click="
       $emit('clicked');
       buttonClicked();
@@ -13,6 +14,8 @@
             height: size * 2 + 'px',
             'border-radius': '50%',
           }
+        : buttonType == 'primary' && big
+        ? 'padding: 16px 32px;'
         : {}
     "
   >
@@ -93,11 +96,27 @@ export default {
       required: false,
       default: true,
     },
+    big: {
+      // applicable when buttonType is primary
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
       buttonClickedBool: false,
     };
+  },
+  mounted() {
+    if (
+      this.loading &&
+      ["primary", "secondary", "textOnly"].includes(this.buttonType)
+    ) {
+      var elem = this.$refs.buttonContainer.getBoundingClientRect();
+      this.$refs.buttonContainer.style.width = elem.width + "px";
+      this.$refs.buttonContainer.style.height = elem.height + "px";
+    }
   },
   computed: {
     customClass() {
@@ -141,10 +160,12 @@ $textOnly-color: #adadad;
   border: none;
   border-radius: $border-radius;
   color: white;
+  display: flex;
   white-space: nowrap;
   font-size: 14px;
   line-height: 1.5;
-  padding: 4px 8px;
+  padding: 5px 8px;
+  width: fit-content;
   height: fit-content;
   background-color: $primary-color;
   transition-property: background-color;
@@ -168,8 +189,10 @@ $textOnly-color: #adadad;
   border: 1px solid #777777;
   border-radius: $border-radius;
   font-size: 14px;
+  display: flex;
   line-height: 1.5;
   white-space: nowrap;
+  width: fit-content;
   height: fit-content;
   padding: 4px 8px;
   background-color: #fff;
@@ -194,8 +217,10 @@ $textOnly-color: #adadad;
   font-weight: normal;
   border: none;
   border-radius: $border-radius;
+  display: flex;
   background-color: Transparent;
   font-size: 13px;
+  align-self: center;
   white-space: nowrap;
   color: $textOnly-color;
   cursor: pointer;

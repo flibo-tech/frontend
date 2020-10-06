@@ -6,8 +6,10 @@
       :userType="store.user.id == userId ? 'self' : 'other'"
       :userName="userName"
       @update-profile="updateProfileStatus('public')"
+      @prompt-reset-ratings="resetRatingsBanner = true"
       v-on="$listeners"
     />
+
     <div v-else class="na-message">
       {{
         store.user.id != userId
@@ -17,17 +19,57 @@
           : "Please rate some movies & shows to get personalized suggestions."
       }}
     </div>
+
+    <div
+      class="reset-prompted-box"
+      v-if="resetRatingsBanner && store.user.id == userId"
+    >
+      <p style="font-size: 20px; white-space: nowrap; margin-bottom: 24px">
+        Reset all your ratings?
+      </p>
+
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 50%;
+        "
+      >
+        <Button
+          buttonType="secondary"
+          text="Cancel"
+          @clicked="resetRatingsBanner = false"
+        />
+
+        <Button
+          buttonType="primary"
+          text="Reset"
+          :capitalize="false"
+          :loading="true"
+          @clicked="resetRatings"
+        />
+      </div>
+    </div>
+
+    <div
+      v-if="resetRatingsBanner"
+      class="modal-bg"
+      @click="resetRatingsBanner = false"
+    ></div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import Feed from "./../components/molecular/Feed";
+import Button from "./../components/atomic/Button";
 
 export default {
   name: "app",
   components: {
     Feed,
+    Button,
   },
   data() {
     return {
@@ -38,6 +80,7 @@ export default {
       userId: null,
       userName: null,
       userUrlName: null,
+      resetRatingsBanner: false,
     };
   },
   created() {
@@ -176,6 +219,43 @@ export default {
           }
         });
     },
+    resetRatings() {
+      var self = this;
+      axios
+        .post(self.$store.state.api_host + "reset_ratings", {
+          session_id: self.$store.state.session_id,
+        })
+        .then(function (response) {
+          self.resetRatingsBanner = false;
+          if ([200].includes(response.status)) {
+            self.$store.state.user.profile.contents_rated = [];
+            self.$router.push(
+              "/profile/" +
+                self.$store.state.user.id +
+                "/" +
+                self.$store.state.user.name
+                  .replace(/[^a-z0-9]+/gi, "-")
+                  .toLowerCase()
+            );
+          } else {
+            // console.log(response.status);
+          }
+        })
+        .catch(function (error) {
+          // self.resetRatingsBanner = false;
+          // console.log(error);
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.$emit("logging-out");
+          } else {
+            // console.log(error.response.status);
+          }
+        });
+    },
   },
 };
 </script>
@@ -203,5 +283,50 @@ export default {
   font-family: "Roboto", sans-serif;
   text-align: center;
   cursor: none;
+}
+.modal-bg {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: table;
+  top: 0%;
+  left: 0%;
+  z-index: 100000;
+  animation: 0.2s ease-out 0s 1 load;
+}
+@keyframes load {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.reset-prompted-box {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border-radius: 8px;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background-color: white;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
+  width: 90vw;
+  max-width: 500px;
+  z-index: 100001;
+  animation: 0.2s ease-out 0s 1 load;
+  font-size: 14px;
+  white-space: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: normal;
+  color: #333333;
+  font-family: "Roboto", sans-serif;
 }
 </style>

@@ -104,6 +104,19 @@
           />
         </div>
 
+        <div
+          v-if="
+            parent == 'ratings' &&
+            userType == 'self' &&
+            store.session_id != null &&
+            currentIndex == 0 &&
+            index == 0
+          "
+          style="padding: 0px 16px; display: flex; justify-content: flex-end"
+        >
+          <Button buttonType="secondary" text="Reset Ratings" @clicked="$emit('prompt-reset-ratings')"/>
+        </div>
+
         <SavePlatforms
           v-if="
             parent == 'home' &&

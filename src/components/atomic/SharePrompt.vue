@@ -52,6 +52,17 @@
         </div>
       </div>
 
+      <div
+        v-if="
+          store.user.profile.profile_status != 'public' &&
+          ['ratings', 'watchlist'].includes(this.parent) &&
+          this.profileId == this.store.user.id
+        "
+        style="text-align: left; margin-bottom: 16px"
+      >
+        Your profile will become public.
+      </div>
+
       <div class="external-share-box">
         <p>
           {{ url }}

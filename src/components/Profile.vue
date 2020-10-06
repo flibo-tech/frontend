@@ -139,7 +139,10 @@
         </h4>
       </div>
 
-      <div :class="is_mobile ? 'profile-details' : 'desktop-profile-details'">
+      <div
+        v-if="own_profile"
+        :class="is_mobile ? 'profile-details' : 'desktop-profile-details'"
+      >
         <div
           class="profile-status"
           v-if="own_profile"
@@ -167,24 +170,16 @@
         </div>
 
         <div
-          class="profile-connections"
-          style="width: 45px; margin-left: calc(33.33% - 75.5px)"
-          @click="profile_vies_desc = !profile_vies_desc"
-          v-if="own_profile & profile_vies_desc"
-        >
-          Views
-          <span style="font-size: 22px; position: relative">
-            {{ profile_views }}
-          </span>
-        </div>
-
-        <div
           class="profile-views"
           @click="profile_vies_desc = !profile_vies_desc"
-          v-if="own_profile & !profile_vies_desc"
+          v-if="own_profile"
         >
-          <div class="profile-views-icon" />
-          <div class="profile-views-count">
+          <div v-if="!profile_vies_desc" class="profile-views-icon" />
+          <div style="margin-top: 7px; font-size: 15px" v-else>Views</div>
+          <div
+            class="profile-views-count"
+            :style="profile_vies_desc ? 'margin-top: 0px;' : ''"
+          >
             {{ profile_views }}
           </div>
         </div>
@@ -192,11 +187,6 @@
         <div
           class="profile-more"
           v-if="own_profile"
-          :style="
-            profile_vies_desc
-              ? 'margin-left: calc(33.33% - 70.5px - 37.5px);'
-              : ''
-          "
           @click="openProfileMore = !openProfileMore"
         />
       </div>
@@ -321,8 +311,8 @@
             <div
               :style="
                 is_mobile
-                  ? 'text-align:left; padding:2%;font-size: 3.4vw;'
-                  : 'text-align:left; padding-bottom:10px;font-size: 15px;'
+                  ? 'text-align:left; padding:8px;font-size: 16px;'
+                  : 'text-align:left; padding-bottom:10px;font-size: 16px;'
               "
             >
               Your profile items should be visible to...
@@ -422,6 +412,17 @@
                 "
               />
               <span class="profile-status-checkmark-text">Only Me</span>
+            </div>
+
+            <div
+              style="
+                font-size: 12px;
+                margin-top: 16px;
+                text-align: left;
+                padding: 8px;
+              "
+            >
+              This does not change privacy of your posts.
             </div>
           </div>
         </div>
@@ -953,16 +954,16 @@ export default {
       self.covers = self.store.user.profile.covers;
       self.total_watched = self.store.user.profile.total_watched;
       self.contents_rated = self.userTopRatings;
+      self.watchlist = self.userTopWatchlist;
       self.genres = self.store.user.profile.genres;
       self.watched_timeline = self.store.user.profile.watched_timeline;
       self.profile_status = self.store.user.profile.profile_status;
       self.profile_views = self.store.user.profile.profile_views;
       self.rating_items = self.store.user.profile.contents_rated.length;
-      self.watchlist_items = self.$store.state.watchlist.length;
+      self.watchlist_items = self.store.user.profile.watchlist.length;
       self.$nextTick(() => {
         self.initIntersectionObserver();
       });
-      self.watchlist = self.userTopWatchlist;
     } else {
       self.own_profile = false;
     }
@@ -1029,6 +1030,7 @@ export default {
                     response.data.total_watched;
                   self.store.user.profile.contents_rated =
                     response.data.contents_rated;
+                  self.store.user.profile.watchlist = response.data.watchlist;
                   self.store.user.profile.genres = response.data.genres;
                   self.store.user.profile.watched_timeline =
                     response.data.rating_timeline;
@@ -1102,6 +1104,7 @@ export default {
                 response.data.total_watched;
               self.store.user.profile.contents_rated =
                 response.data.contents_rated;
+              self.store.user.profile.watchlist = response.data.watchlist;
               self.store.user.profile.genres = response.data.genres;
               self.store.user.profile.watched_timeline =
                 response.data.rating_timeline;
@@ -1188,6 +1191,7 @@ export default {
         self.covers = self.store.user.profile.covers;
         self.total_watched = self.store.user.profile.total_watched;
         self.contents_rated = self.store.user.profile.contents_rated;
+        self.watchlist = self.store.user.profile.watchlist;
         self.genres = self.store.user.profile.genres;
         self.watched_timeline = self.store.user.profile.watched_timeline;
         self.profile_status = self.store.user.profile.profile_status;
@@ -1239,6 +1243,7 @@ export default {
                 response.data.total_watched;
               self.store.user.profile.contents_rated =
                 response.data.contents_rated;
+              self.store.user.profile.watchlist = response.data.watchlist;
               self.store.user.profile.genres = response.data.genres;
               self.store.user.profile.watched_timeline =
                 response.data.rating_timeline;
@@ -1618,7 +1623,6 @@ export default {
                 display: inline-block;
                 width: 35px;
                 height: 35px;
-                margin-top: 17px;
                 position: relative;
                 background-image: url('` +
         require(`./../images/` + this.profile_status + `.png`) +
@@ -1682,12 +1686,12 @@ export default {
     userTopWatchlist() {
       var output = [];
       output.push(
-        ...this.store.watchlist
+        ...this.store.user.profile.watchlist
           .filter((content) => content.type == "movie")
           .slice(0, 10)
       );
       output.push(
-        ...this.store.watchlist
+        ...this.store.user.profile.watchlist
           .filter((content) => content.type == "tv")
           .slice(0, 10)
       );
@@ -2524,7 +2528,11 @@ h4 {
 }
 .profile-details {
   position: relative;
-  display: -webkit-inline-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 16px;
+  margin-top: 16px;
   white-space: nowrap;
   text-align: left;
   width: 100%;
@@ -2532,16 +2540,17 @@ h4 {
 }
 .desktop-profile-details {
   position: relative;
-  display: -webkit-inline-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 16px;
   white-space: nowrap;
   text-align: left;
-  width: 60%;
   overflow: hidden;
   margin-top: 15px;
 }
 .profile-status {
   text-align: center;
-  margin-left: 20px;
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -2565,9 +2574,7 @@ h4 {
 }
 .profile-connections {
   text-align: center;
-  margin-left: calc(33.33% - 70.5px);
   font-size: 15px;
-  margin-top: 15px;
   width: 85px;
   white-space: initial;
   font-weight: bold;
@@ -2587,11 +2594,9 @@ h4 {
 }
 .profile-more {
   position: relative;
-  width: 85px;
-  height: 85px;
-  margin-top: 1px;
-  margin-left: calc(33.33% - 70.5px - 32.5px);
-  background-image: url("./../images/three_dots.png");
+  width: 24px;
+  height: 40px;
+  background-image: url("./../images/more-icon.svg");
   background-color: #ffffff;
   background-repeat: no-repeat;
   background-position: center;
@@ -2691,8 +2696,13 @@ h4 {
 }
 .profile-views {
   position: relative;
+  width: 42px;
+  height: 61px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
   text-align: center;
-  margin-left: calc(33.33% - 70.5px);
   z-index: 1;
   cursor: pointer;
   -webkit-user-select: none;
@@ -2707,7 +2717,6 @@ h4 {
   display: inline-block;
   width: 35px;
   height: 35px;
-  margin-top: 9px;
   position: relative;
   background-image: url("./../images/eye.svg");
   background-size: 100% 100%;
@@ -2853,6 +2862,7 @@ h4 {
   height: max-content;
   justify-content: center;
   margin-bottom: 10px;
+  margin-top: 16px;
 }
 .content-type-checkbox {
   display: inline-block;

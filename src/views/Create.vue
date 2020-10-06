@@ -85,6 +85,7 @@
 
     <Button
       class="create-post"
+      :style="is_mobile ? '' : 'right: calc(50vw - 500px + 16px);'"
       icon="send"
       buttonType="iconOnly"
       :iconCircle="true"

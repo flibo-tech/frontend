@@ -109,11 +109,6 @@
             <div style="display: flex">
               <UserRating
                 class="search-user-rating-container"
-                :style="
-                  is_mobile
-                    ? ''
-                    : 'margin-left:100px;margin-top:-55px;padding-bottom:31px;'
-                "
                 v-if="parent == 'search_page'"
                 :rating="content.rating"
                 :iconSize="25"
@@ -129,12 +124,15 @@
                 "
               />
               <div
-                style="width: 100%; margin-left: 8px"
+                style="width: 100%; margin-left: 8px; cursor: pointer"
                 @click="clickContent(content)"
               />
             </div>
           </div>
-          <div style="width: 100%" @click="clickContent(content)" />
+          <div
+            style="width: 100%; cursor: pointer"
+            @click="clickContent(content)"
+          />
         </div>
         <div
           class="see-more-contents-box"
@@ -183,8 +181,8 @@
           class="filter-users-container"
           :style="
             is_mobile
-              ? 'justify-content: flex-start;min-width: 100%;'
-              : 'justify-content: flex-start;min-width: 100%;margin-top: 0px;padding: 7px;'
+              ? 'justify-content: flex-start;min-width: 100%;cursor: pointer;'
+              : 'justify-content: flex-start;min-width: 100%;margin-top: 0px;padding: 7px;cursor: pointer;'
           "
           @clicked="clickUser(user)"
           :name="user.name"
@@ -411,6 +409,11 @@ export default {
             self.$store.state.discover_filters.fetching_filtered = false;
           });
       }
+    }
+  },
+  mounted() {
+    if (!this.is_mobile) {
+      document.getElementById(this.parent + "_search_string").focus();
     }
   },
   methods: {

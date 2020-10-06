@@ -12,6 +12,10 @@
         <div class="sk-cube3 sk-cube"></div>
       </div>
 
+      <div v-else-if="profile_status != 'open'" style="font-size: 20px">
+        {{ name.split(" ")[0] }}'s profile is private.
+      </div>
+
       <div v-else style="width: 100%">
         <div class="user-preview-picture-box" @click="clickUser(id, name)">
           <div class="user-preview-picture-cropper">
@@ -160,14 +164,16 @@ export default {
       })
       .then((response) => {
         this.profile_status = response.data.profile_status;
-        this.picture = response.data.picture;
-        this.movies_watched = response.data.movies_watched;
-        this.shows_watched = response.data.shows_watched;
-        this.ratings = response.data.ratings;
-        this.mutual_friends = response.data.mutual_friends;
+        if (this.profile_status == "open") {
+          this.picture = response.data.picture;
+          this.movies_watched = response.data.movies_watched;
+          this.shows_watched = response.data.shows_watched;
+          this.ratings = response.data.ratings;
+          this.mutual_friends = response.data.mutual_friends;
+          this.$refs.userPreviewContainer.style.justifyContent = "flex-start";
+          this.$refs.userPreviewContainer.style.alignItems = "flex-start";
+        }
         this.fetching = false;
-        this.$refs.userPreviewContainer.style.justifyContent = "flex-start";
-        this.$refs.userPreviewContainer.style.alignItems = "flex-start";
       })
       .catch((error) => {
         this.fetching = false;

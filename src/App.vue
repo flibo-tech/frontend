@@ -694,6 +694,8 @@ export default {
                 response.data.total_watched;
               self.$store.state.user.profile.contents_rated =
                 response.data.contents_rated;
+              self.$store.state.user.profile.watchlist =
+                response.data.watchlist;
               self.$store.state.user.profile.genres = response.data.genres;
               self.$store.state.user.profile.watched_timeline =
                 response.data.rating_timeline;
