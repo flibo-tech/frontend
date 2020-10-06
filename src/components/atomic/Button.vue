@@ -1,11 +1,10 @@
 <template>
-  <button
+  <div
     :class="customClass"
     @click="
       $emit('clicked');
       buttonClicked();
     "
-    :disabled="disabled"
     :style="
       iconCircle
         ? {
@@ -14,15 +13,19 @@
             height: size * 2 + 'px',
             'border-radius': '50%',
           }
-        : ['primary', 'secondary'].includes(buttonType)
-        ? {
-            width: width,
-            height: height + 'px',
-          }
         : {}
     "
   >
-    <p v-if="buttonType != 'iconOnly' && !buttonClickedBool">{{ text }}</p>
+    <p
+      v-if="buttonType != 'iconOnly' && !buttonClickedBool"
+      :style="
+        buttonType == 'primary' && capitalize
+          ? 'text-transform: uppercase;'
+          : ''
+      "
+    >
+      {{ text }}
+    </p>
     <img
       v-if="buttonType === 'iconOnly' && !buttonClickedBool"
       :src="imageURL"
@@ -37,7 +40,7 @@
       class="loader"
       :style="iconCircle ? { width: '30px', height: '30px' } : {}"
     ></div>
-  </button>
+  </div>
 </template>
 
 <script>
@@ -55,7 +58,6 @@ export default {
     buttonType: {
       type: String,
       required: true,
-      default: "primary",
     },
     loading: {
       type: Boolean,
@@ -68,18 +70,6 @@ export default {
     state: {
       type: Boolean,
       default: false,
-    },
-    width: {
-      // applicable when buttonType is primary or secondary
-      type: String,
-      required: false,
-      default: "100%",
-    },
-    height: {
-      // applicable when buttonType is primary or secondary
-      type: Number,
-      required: false,
-      default: 48,
     },
     size: {
       // applicable when iconCircle is true
@@ -97,6 +87,12 @@ export default {
       required: false,
       default: "0",
     },
+    capitalize: {
+      // applicable when buttonType is primary
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
   data() {
     return {
@@ -107,13 +103,13 @@ export default {
     customClass() {
       let buttonClass = "";
       if (this.buttonType === "primary") {
-        buttonClass = "primary";
+        buttonClass = this.disabled ? "primary disabled" : "primary";
       } else if (this.buttonType === "secondary") {
-        buttonClass = "secondary";
+        buttonClass = this.disabled ? "secondary disabled" : "secondary";
       } else if (this.buttonType === "textOnly") {
-        buttonClass = "textOnly";
+        buttonClass = this.disabled ? "textOnly disabled" : "textOnly";
       } else if (this.buttonType === "iconOnly") {
-        buttonClass = "iconOnly";
+        buttonClass = this.disabled ? "iconOnly disabled" : "iconOnly";
       }
       return buttonClass;
     },
@@ -139,18 +135,17 @@ $border-radius: 5px;
 $primary-color: #7352ff;
 $secondary-color: #212121;
 $textOnly-color: #adadad;
-button {
-  font-family: "Roboto", sans-serif;
-  font-weight: medium;
-}
 .primary {
+  font-family: "Roboto", sans-serif;
+  font-weight: normal;
   border: none;
   border-radius: $border-radius;
-  width: 100%;
-  height: 48px;
   color: white;
+  white-space: nowrap;
   font-size: 14px;
-  min-width: 100px;
+  line-height: 1.5;
+  padding: 4px 8px;
+  height: fit-content;
   background-color: $primary-color;
   transition-property: background-color;
   transition-timing-function: ease-out;
@@ -167,23 +162,16 @@ button {
 .primary:active {
   background-color: #3c20b8;
 }
-.primary:disabled {
-  cursor: inherit;
-  background-color: rgb(220, 220, 220);
-  color: rgb(178, 178, 178);
-}
-.primary p {
-  text-transform: uppercase;
-}
 .secondary {
   font-family: "Roboto", sans-serif;
-  font-weight: medium;
+  font-weight: normal;
   border: 1px solid #777777;
   border-radius: $border-radius;
   font-size: 14px;
-  min-width: 100px;
-  width: 100%;
-  height: 48px;
+  line-height: 1.5;
+  white-space: nowrap;
+  height: fit-content;
+  padding: 4px 8px;
   background-color: #fff;
   color: $secondary-color;
   cursor: pointer;
@@ -195,17 +183,20 @@ button {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.secondary:disabled {
+.disabled {
   cursor: auto;
-  color: white;
-  border-color: rgb(36, 36, 36);
-  background-color: grey;
+  border-color: transparent;
+  background-color: rgb(220, 220, 220);
+  color: rgb(170, 170, 170);
 }
 .textOnly {
+  font-family: "Roboto", sans-serif;
+  font-weight: normal;
   border: none;
   border-radius: $border-radius;
   background-color: Transparent;
   font-size: 13px;
+  white-space: nowrap;
   color: $textOnly-color;
   cursor: pointer;
   transition-property: color;
@@ -220,10 +211,13 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 .textOnly:disabled {
-  cursor: inherit;
+  cursor: auto;
   color: rgb(54, 54, 54);
 }
 .iconOnly {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -234,9 +228,6 @@ button {
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
-}
-.iconOnly:disabled {
-  cursor: auto;
 }
 .iconOnly img {
   display: block;

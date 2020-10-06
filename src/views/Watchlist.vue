@@ -5,6 +5,7 @@
       parent="watchlist"
       :userType="store.user.id == userId ? 'self' : 'other'"
       :userName="userName"
+      @update-profile="updateProfileStatus('public')"
       v-on="$listeners"
     />
     <div v-else class="na-message">
@@ -148,6 +149,34 @@ export default {
             self.$store.state.feed.watchlist.fetching_incremental = false;
           } else {
             self.$store.state.feed.watchlist.fetching = false;
+          }
+        });
+    },
+    updateProfileStatus(profile_status) {
+      var self = this;
+      this.$store.state.user.profile.profile_status = profile_status;
+      axios
+        .post(self.$store.state.api_host + "update_profile", {
+          session_id: self.$store.state.session_id,
+          profile_status: profile_status,
+        })
+        .then(function (response) {
+          if ([200].includes(response.status)) {
+          } else {
+            // console.log(response.status);
+          }
+        })
+        .catch(function (error) {
+          // console.log(error);
+          if ([401, 419].includes(error.response.status)) {
+            window.location =
+              self.$store.state.login_host +
+              "logout?session_id=" +
+              self.$store.state.session_id;
+            self.$store.state.session_id = null;
+            self.$emit("logging-out");
+          } else {
+            // console.log(error.response.status);
           }
         });
     },

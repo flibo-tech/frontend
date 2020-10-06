@@ -892,6 +892,15 @@ export default {
           content_id: Object.keys(activity).includes("content_id")
             ? activity.content_id
             : null,
+          profile_id: Object.keys(activity).includes("profile_id")
+            ? activity.profile_id
+            : null,
+          action_id: Object.keys(activity).includes("action_id")
+            ? activity.action_id
+            : null,
+          reaction_id: Object.keys(activity).includes("reaction_id")
+            ? activity.reaction_id
+            : null,
           rating: Object.keys(activity).includes("rating")
             ? activity.rating
             : null,
@@ -907,7 +916,10 @@ export default {
             : null,
         })
         .then(function (response) {
-          if (Object.keys(activity).includes("url")) {
+          if (
+            activity.api == "outbound_traffic" &&
+            Object.keys(activity).includes("url")
+          ) {
             window.open(activity.url);
           }
           if ([200].includes(response.status)) {

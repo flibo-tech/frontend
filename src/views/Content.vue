@@ -17,13 +17,6 @@
 
         <ContentCoverPortrait v-else :imageUrl="content.data.poster" />
 
-        <div
-          class="content-share-icon"
-          id="content-share-icon"
-          v-if="store.is_webview == 'true'"
-          @click="prompt_content_share = true"
-        />
-
         <Trailer
           v-if="showTrailorIcon"
           class="cover-trailer"
@@ -45,9 +38,23 @@
 
       <div class="content-below-cover">
         <div class="title">
-          <p style="position: relative; font-weight: bold; font-size: 24px">
-            {{ content.data.title }}
-          </p>
+          <div style="display: flex">
+            <p style="position: relative; font-weight: bold; font-size: 24px">
+              {{ content.data.title }}
+            </p>
+
+            <Button
+              style="
+                transform: rotate(22deg);
+                margin-top: -4px;
+                margin-left: 16px;
+              "
+              icon="send_outline"
+              buttonType="iconOnly"
+              :size="25"
+              @clicked="prompt_content_share = true"
+            />
+          </div>
 
           <p
             style="color: #676767; font-size: 14px; font-weight: normal"
@@ -436,50 +443,15 @@
       </div>
     </div>
 
-    <transition
-      appear
-      enter-active-class="animated fadeIn"
-      leave-active-class="animated fadeOut"
-    >
-      <div>
-        <div
-          v-if="prompt_content_share"
-          class="black-background"
-          @click="prompt_content_share = false"
-        />
-
-        <div class="prompted-content-box" v-if="prompt_content_share">
-          <img
-            :src="content.data[share_item]"
-            style="max-width: 80vw; max-height: 45vh"
-          />
-
-          <label
-            v-for="(tab, index) in ['poster', 'cover']"
-            :key="index"
-            class="content-share-tab-checkbox"
-          >
-            <input
-              type="radio"
-              v-bind:value="tab"
-              v-model="share_item"
-              class="content-share-tab-checkbox-input"
-            />
-            <span class="content-share-tab-checkmark-abled" />
-            <span class="content-share-tab-checkmark-text">{{ tab }}</span>
-          </label>
-
-          <div class="prompted-content-buttons">
-            <input
-              type="button"
-              class="prompted-content-android-share-button"
-              @click="promptContentAndroidShareIntent"
-              value="Share"
-            />
-          </div>
-        </div>
-      </div>
-    </transition>
+    <SharePrompt
+      v-if="prompt_content_share"
+      parent="content"
+      :url="'https://flibo.ai' + $route.fullPath"
+      :contentId="store.content_page.content_id"
+      :contentTitle="content.data.title"
+      @close-share-prompt="prompt_content_share = false"
+      v-on="$listeners"
+    />
   </div>
 </template>
 
@@ -495,6 +467,7 @@ import Button from "./../components/atomic/Button";
 import Poster from "./../components/molecular/Poster";
 import Artist from "./../components/molecular/Artist";
 import UserRating from "./../components/molecular/UserRating";
+import SharePrompt from "./../components/atomic/SharePrompt";
 
 export default {
   name: "App",
@@ -509,6 +482,7 @@ export default {
     Artist,
     UserRating,
     Button,
+    SharePrompt,
   },
 
   data() {
@@ -742,16 +716,6 @@ export default {
         .catch(function (error) {
           // console.log(error);
         });
-    },
-    promptContentAndroidShareIntent() {
-      this.$emit("update-api-counter", {
-        api: "share_content_" + this.share_item,
-        content_id: this.content.content_id,
-      });
-      Android.shareCollage(
-        this.content.data[this.share_item],
-        window.location.href
-      );
     },
     promptTapOnArtist() {
       var scroll_completion =
@@ -1306,22 +1270,6 @@ export default {
   letter-spacing: normal;
   text-align: center;
   color: #ffffff;
-}
-.content-share-icon {
-  position: absolute;
-  right: 20px;
-  top: 20px;
-  width: 8vw;
-  height: 8vw;
-  background-image: url("./../images/share-icon.svg");
-  background-color: #ffffffb7;
-  background-size: 75% 75%;
-  background-repeat: no-repeat;
-  background-position: 0.75vw;
-  border: none;
-  outline: 0;
-  z-index: 1;
-  border-radius: 50%;
 }
 .prompted-content-box {
   position: fixed;

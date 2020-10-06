@@ -60,64 +60,82 @@
 
       <div
         :class="is_mobile ? 'user-name' : 'desktop-user-name'"
-        :style="own_profile ? '' : 'width: 50%;margin-left: 25%;'"
+        :style="own_profile ? '' : 'width: 90%;margin-left: 5%;'"
       >
-        <h4>
+        <h4
+          :style="
+            own_profile
+              ? 'display: flex; justify-content: center; align-items: center;'
+              : 'display: flex; flex-direction: column; justify-content: center; align-items: center;'
+          "
+        >
           {{ user_name }}
 
-          <span
-            class="share-icon"
-            v-if="own_profile"
-            @click="promptShareProfile"
-          />
-
-          <span
-            class="friendship-status"
-            v-if="['other', 'request_sent', 'friend'].includes(user_type)"
-            @click="
-              user_type == 'friend'
-                ? (prompt = true)
-                : ['request_sent'].includes(user_type)
-                ? unfriend('request_sent')
-                : ['other'].includes(user_type)
-                ? sendRequest()
-                : ''
-            "
+          <div
             :style="
-              ['other'].includes(user_type)
-                ? `color: #ffffff;
-                                                                                    background-color: #3366BB;
-                                                                                    padding: 5px;
-                                                                                    border: none;`
-                : ''
+              own_profile ? 'display: flex;' : 'display: flex; margin-top: 8px'
             "
           >
-            {{
-              user_type == "friend"
-                ? "Connection"
-                : ["request_sent"].includes(user_type)
-                ? "Requested"
-                : ["other"].includes(user_type)
-                ? "Connect"
-                : ""
-            }}
-          </span>
+            <span
+              class="friendship-status"
+              v-if="['other', 'request_sent', 'friend'].includes(user_type)"
+              @click="
+                user_type == 'friend'
+                  ? (prompt = true)
+                  : ['request_sent'].includes(user_type)
+                  ? unfriend('request_sent')
+                  : ['other'].includes(user_type)
+                  ? sendRequest()
+                  : ''
+              "
+              :style="
+                ['other'].includes(user_type)
+                  ? `color: #ffffff;
+                                                                                      background-color: #3366BB;
+                                                                                      padding: 5px;
+                                                                                      border: none;`
+                  : ''
+              "
+            >
+              {{
+                user_type == "friend"
+                  ? "Connection"
+                  : ["request_sent"].includes(user_type)
+                  ? "Requested"
+                  : ["other"].includes(user_type)
+                  ? "Connect"
+                  : ""
+              }}
+            </span>
 
-          <span
-            v-if="user_type == 'unapproved'"
-            class="approve-request"
-            @click="approveRequest"
-          >
-            Accept
-          </span>
+            <span
+              v-if="user_type == 'unapproved'"
+              class="approve-request"
+              @click="approveRequest"
+            >
+              Accept
+            </span>
 
-          <span
-            v-if="user_type == 'unapproved'"
-            class="reject-request"
-            @click="unfriend('unapproved')"
-          >
-            Reject
-          </span>
+            <span
+              v-if="user_type == 'unapproved'"
+              class="reject-request"
+              @click="unfriend('unapproved')"
+            >
+              Reject
+            </span>
+
+            <Button
+              :style="
+                own_profile
+                  ? 'transform: rotate(22deg); margin-left: 16px;'
+                  : 'transform: rotate(22deg); margin-left: 16px; margin-top: -4px;'
+              "
+              icon="send_outline"
+              buttonType="iconOnly"
+              :size="25"
+              @clicked="share_profile_banner = true"
+            />
+          </div>
         </h4>
       </div>
 
@@ -481,8 +499,6 @@
             <Button
               v-if="rating_items > 10 && showAllRatingsMainButton"
               buttonType="secondary"
-              width="auto"
-              :height="30"
               text="Show All"
               @clicked="goToRatings"
             />
@@ -546,90 +562,12 @@
               :style="is_mobile ? '' : 'margin-top: 112.5px'"
               id="rating-show-all"
               buttonType="secondary"
-              width="auto"
-              :height="30"
               text="Show All"
               @clicked="goToRatings"
             />
           </div>
         </div>
       </div>
-
-      <transition
-        appear
-        enter-active-class="animated fadeIn"
-        leave-active-class="animated fadeOut"
-      >
-        <div>
-          <div
-            v-if="share_profile_banner && own_profile"
-            class="black-background"
-            @click="share_profile_banner = false"
-          />
-
-          <div
-            class="prompted-box"
-            :style="
-              collage
-                ? is_mobile
-                  ? 'top: 20vh;min-width: 75vw;'
-                  : 'top: 20vh;min-width: 25vw;'
-                : ''
-            "
-            v-if="share_profile_banner && own_profile"
-          >
-            <img
-              :src="collage + '?' + new Date().getTime()"
-              v-if="collage"
-              style="max-width: 80vw; max-height: 45vh"
-            />
-
-            <div class="sk-folding-cube" v-if="!collage">
-              <div class="sk-cube1 sk-cube"></div>
-              <div class="sk-cube2 sk-cube"></div>
-              <div class="sk-cube4 sk-cube"></div>
-              <div class="sk-cube3 sk-cube"></div>
-            </div>
-
-            <span
-              v-if="!collage"
-              style="margin-top: 0px; width: 60vw; font-size: 16px"
-            >
-              Preparing collage for your taste...
-              <p style="font-size: 10px" v-if="profile_status != 'public'">
-                Your profile will become public
-              </p>
-            </span>
-
-            <div class="profile-prompted-buttons" v-if="collage">
-              <div class="prompted-cancel-button" @click="refreshCollage">
-                Try Another
-              </div>
-
-              <input
-                type="button"
-                class="prompted-android-share-button"
-                @click="promptAndroidShareIntent"
-                value="Share"
-              />
-
-              <a
-                v-if="collage && !store.is_webview"
-                :href="collage + '?' + new Date().getTime()"
-                download="flibo-collage.jpg"
-                class="collage-download-button"
-              />
-            </div>
-
-            <p
-              style="position: relative; font-size: 10px; margin-top: 55px"
-              v-if="collage && !store.is_webview"
-            >
-              Profile URL copied, paste while posting
-            </p>
-          </div>
-        </div>
-      </transition>
 
       <div class="profile-ratings" v-if="filtered_watchlist.length">
         <div
@@ -655,8 +593,6 @@
             <Button
               v-if="watchlist_items > 10 && showAllWatchlistMainButton"
               buttonType="secondary"
-              width="auto"
-              :height="30"
               text="Show All"
               @clicked="goToWatchlist"
             />
@@ -704,8 +640,6 @@
               :style="is_mobile ? '' : 'margin-top: 112.5px'"
               id="watchlist-show-all"
               buttonType="secondary"
-              width="auto"
-              :height="30"
               text="Show All"
               @clicked="goToWatchlist"
             />
@@ -878,6 +812,16 @@
         />
       </div>
     </div>
+
+    <SharePrompt
+      v-if="share_profile_banner"
+      parent="profile"
+      :url="'https://flibo.ai' + $route.fullPath"
+      :profileId="parseInt(user_id)"
+      @close-share-prompt="share_profile_banner = false"
+      @update-profile="updateProfileStatus('public')"
+      v-on="$listeners"
+    />
   </div>
 </template>
 
@@ -891,6 +835,7 @@ import Poster from "./molecular/Poster";
 import UserRating from "./molecular/UserRating";
 import ImageCard from "./atomic/ImageCard";
 import Button from "./atomic/Button";
+import SharePrompt from "./atomic/SharePrompt";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -905,6 +850,7 @@ export default {
     ImageCard,
     UserRating,
     Button,
+    SharePrompt,
   },
   data() {
     return {
@@ -1224,75 +1170,6 @@ export default {
           traffic_origin,
       };
       this.$emit("update-api-counter", activity);
-    },
-    promptShareProfile() {
-      this.collage = null;
-      this.share_profile_banner = true;
-
-      var dummy = document.createElement("input");
-      document.body.appendChild(dummy);
-      dummy.value = window.location.href;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-
-      this.refreshCollage();
-    },
-    refreshCollage() {
-      this.$emit("update-api-counter", { api: "refresh_collage" });
-      this.collage = null;
-      var self = this;
-      axios
-        .post(self.$store.state.api_host + "collage", {
-          session_id: self.$store.state.session_id,
-        })
-        .then(function (response) {
-          if ([200].includes(response.status)) {
-            self.collage = response.data.collage;
-          } else {
-            // console.log(response.status);
-          }
-        })
-        .catch(function (error) {
-          // console.log(error);
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
-          }
-        });
-    },
-    copyProfileUrl() {
-      this.updateProfileStatus("public");
-      var dummy = document.createElement("input");
-      document.body.appendChild(dummy);
-      dummy.value = window.location.href;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-      this.share_profile_banner = false;
-    },
-    promptAndroidShareIntent() {
-      this.$emit("update-api-counter", { api: "share_profile" });
-      this.updateProfileStatus("public");
-
-      if (this.store.is_webview) {
-        Android.shareCollage(this.collage, window.location.href);
-      } else {
-        this.share_profile_banner = false;
-        window.open(
-          "http://www.facebook.com/sharer.php?u=" +
-            encodeURIComponent(this.collage + "?" + new Date().getTime()) +
-            "&quote=Checkout my profile, hope you find something great to watch:)",
-          "sharer",
-          "toolbar=0,status=0,width=626,height=436"
-        );
-      }
     },
     reRender() {
       window.scrollTo(0, 0);
@@ -2387,8 +2264,6 @@ h4 {
   border-radius: 5px;
 }
 .friendship-status {
-  position: absolute;
-  margin-left: 3%;
   text-align: center;
   font-size: 14px;
   color: #333333;
@@ -2420,8 +2295,6 @@ h4 {
   -webkit-tap-highlight-color: transparent;
 }
 .approve-request {
-  position: absolute;
-  margin-left: 5%;
   text-align: center;
   font-size: calc(10px + 10%);
   color: #ffffff;
@@ -2438,8 +2311,7 @@ h4 {
   -webkit-tap-highlight-color: transparent;
 }
 .reject-request {
-  position: absolute;
-  margin-left: calc(18% + 15px);
+  margin-left: 16px;
   text-align: center;
   font-size: calc(10px + 10%);
   color: #333333;
@@ -3016,8 +2888,6 @@ h4 {
   color: #333333;
 }
 .show-all-button {
-  width: auto;
-  height: 30px;
   transform: translateY(-50%);
   margin-left: 8px;
   margin-top: 79px;

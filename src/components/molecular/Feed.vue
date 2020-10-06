@@ -71,7 +71,6 @@
 
         <div
           v-if="
-            is_mobile &&
             ['watchlist', 'ratings'].includes(parent) &&
             store.session_id != null &&
             currentIndex == 0 &&
@@ -80,15 +79,29 @@
           class="user-suggestions-container"
           :style="
             is_mobile
-              ? 'margin-bottom: 24px;'
-              : 'margin-bottom: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);'
+              ? 'margin-bottom: 24px; display: flex;align-items: center;justify-content: center;'
+              : 'margin-bottom: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);display: flex;align-items: center;justify-content: center;'
           "
         >
-          <p style="font-weight: normal; text-align: center">
+          <p v-if="is_mobile" style="font-weight: normal; text-align: center">
             Access
             {{ userType == "self" ? "your" : userName.split(" ")[0] + "'s" }}
             {{ parent }} on desktop at flibo.ai
           </p>
+
+          <p v-else style="font-weight: normal; text-align: center">
+            Share
+            {{ userType == "self" ? "your" : userName.split(" ")[0] + "'s" }}
+            {{ parent }} with others
+          </p>
+
+          <Button
+            style="transform: rotate(22deg); margin-left: 16px"
+            icon="send_outline"
+            buttonType="iconOnly"
+            :size="25"
+            @clicked="share_prompt = true"
+          />
         </div>
 
         <SavePlatforms
@@ -171,6 +184,15 @@
         <div class="sk-cube3 sk-cube"></div>
       </div>
     </div>
+
+    <SharePrompt
+      v-if="share_prompt"
+      :parent="parent"
+      :url="'https://flibo.ai' + $route.fullPath"
+      :profileId="parseInt($route.params.user_id)"
+      @close-share-prompt="share_prompt = false"
+      v-on="$listeners"
+    />
   </div>
 </template>
 
@@ -179,6 +201,8 @@ import FeedFilters from "./FeedFilters";
 import FeedCard from "./FeedCard";
 import UserSuggestions from "./UserSuggestions";
 import SavePlatforms from "./SavePlatforms";
+import SharePrompt from "./../atomic/SharePrompt";
+import Button from "./../atomic/Button";
 
 export default {
   name: "app",
@@ -187,6 +211,8 @@ export default {
     FeedCard,
     UserSuggestions,
     SavePlatforms,
+    SharePrompt,
+    Button,
   },
   props: {
     parent: {
@@ -211,6 +237,7 @@ export default {
       store: this.$store.state,
       showRefreshButton: true,
       is_string_query: false,
+      share_prompt: false,
       feed_mappings: {
         home: {
           contents: "this.$store.state.suggestions.contents",
