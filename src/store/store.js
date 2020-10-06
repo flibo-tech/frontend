@@ -127,7 +127,7 @@ export const store = new Vuex.Store({
       never_tapped_any_artist: my_store
         ? my_store.content_page.never_tapped_any_artist
         : true,
-      rerender: my_store ? my_store.content_page.rerender : false
+      rerender: false
     },
     click_coordinate_x: null,
     click_coordinate_y: null,

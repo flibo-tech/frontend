@@ -206,6 +206,7 @@ export default {
   grid-template-columns: 100%;
   grid-template-rows: 1fr 1fr;
   justify-items: center;
+  padding-bottom: 3px;
 }
 .poster {
   grid-row-start: 1;

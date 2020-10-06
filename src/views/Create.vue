@@ -190,6 +190,14 @@ export default {
     this.store.create.spoiler = false;
     this.store.create.image = null;
   },
+  beforeDestroy() {
+    this.store.create.type = null;
+    this.store.create.content = null;
+    this.store.create.ids = [];
+    this.store.create.image = null;
+    this.store.create.processedContent = "";
+    this.store.create.spoiler = false;
+  },
   mounted() {
     this.resizeContainer();
   },
