@@ -2,7 +2,7 @@
   <div>
     <div class="text-view">
       <span
-        v-for="(item, index) in textArray"
+        v-for="(item, index) in textArray.slice(0, previewLimitIndex)"
         :key="index"
         :style="isTag(item) ? 'font-weight: bold; cursor: pointer;' : ''"
         @click="isTag(item) ? openPreview(item) : ''"
@@ -15,6 +15,10 @@
                 .trim()
             : item
         }}
+      </span>
+
+      <span class="text-view-see-more" v-if="showSeeMore" @click="seeMore">
+        ... more
       </span>
     </div>
 
@@ -75,13 +79,56 @@ export default {
         id: null,
       },
       showPreview: false,
+      previewLimit: 200,
+      previewLimitIndex: 0,
+      showSeeMore: false,
     };
   },
   computed: {
     textArray() {
-      return this.text
+      var splitArr = this.text
         ? this.text.split(/(\[.+?\]\((?:content|artist|user),\s*\d+\))/)
         : [];
+
+      var itemText = "";
+      var len = 0;
+      var output = [];
+      for (const [index, item] of splitArr.entries()) {
+        if (this.isTag(item)) {
+          itemText = item
+            .split(/\]\s*\(/)[0]
+            .slice(1)
+            .trim();
+          if (len + itemText.length <= this.previewLimit) {
+            len = len + itemText.length;
+            output.push(item);
+            this.previewLimitIndex = index + 1;
+          } else {
+            output.push(...splitArr.slice(index));
+            this.previewLimitIndex = index;
+            this.showSeeMore = true;
+            break;
+          }
+        } else {
+          if (len + item.length <= this.previewLimit) {
+            len = len + item.length;
+            output.push(item);
+            this.previewLimitIndex = index + 1;
+          } else {
+            var splitIndex = [...item.matchAll(new RegExp(" ", "gi"))]
+              .map((item) => item.index)
+              .filter((item) => item <= this.previewLimit - len)
+              .slice(-1)[0];
+            output.push(...[item.slice(0, splitIndex), item.slice(splitIndex)]);
+            output.push(...splitArr.slice(index + 1));
+            this.previewLimitIndex = index + 1;
+            this.showSeeMore = true;
+            break;
+          }
+        }
+      }
+
+      return output;
     },
   },
   methods: {
@@ -103,6 +150,13 @@ export default {
       );
       this.showPreview = true;
     },
+    seeMore() {
+      this.previewLimitIndex = this.textArray.length;
+      this.showSeeMore = false;
+      this.$nextTick(() => {
+        this.$emit("update-element-heights");
+      });
+    },
   },
 };
 </script>
@@ -110,13 +164,14 @@ export default {
 <style scoped>
 .text-view {
   font-size: 14px;
+  display: inline;
   white-space: normal;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
   line-height: 1.6;
   letter-spacing: normal;
-  color: #222222;
+  color: #565656;
   font-family: "Roboto", sans-serif;
   text-align: left;
   user-select: none;
@@ -125,6 +180,13 @@ export default {
   -khtml-user-select: none; /* Konqueror HTML */
   -moz-user-select: none; /* Old versions of Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.text-view-see-more {
+  color: #8e8e8e;
+  margin-left: -1.5px;
+  cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }

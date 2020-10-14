@@ -10,6 +10,13 @@
           : 'width: 1000px;left: calc(50vw - 500px);box-shadow: black 0px -7px 8px -10px;display: flex;align-items: center;'
       "
       :class="{ 'main-navigation--hidden': !showNavbar }"
+      v-if="
+        this.$store.state.session_id
+          ? !RegExp(/^\/(review|request|suggest|activity|list)\/.*$/).test(
+              $route.path
+            )
+          : true
+      "
     >
       <nav v-if="this.$store.state.session_id">
         <div

@@ -10,7 +10,7 @@
           class="poster"
           :style="'height: ' + 1.5 * containerWidth + 'px;'"
           alt="poster"
-          @click="openContent"
+          @click="openContentOnClick ? openContent() : $emit('clicked')"
         />
 
         <Trailer
@@ -124,6 +124,11 @@ export default {
       type: Number,
       required: false,
       default: 1,
+    },
+    openContentOnClick: {
+      type: Boolean,
+      required: false,
+      default: true,
     },
   },
 

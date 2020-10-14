@@ -1,17 +1,16 @@
 <template>
   <div>
-    <div
-      class="textfield-wrapper"
-      :style="
-        parent === 'post' ? 'flex-direction: column;' : 'flex-direction: row;'
-      "
-    >
+    <div class="textfield-wrapper">
       <textarea
         @paste.prevent
-        @focus="(showSpoilerTag = true), (showCounter = true)"
-        @blur="showCounter = false"
+        @focus="focusTextArea"
+        @blur="unfocusTextArea"
         @keyup="removeSearch"
-        :style="parent === 'post' ? {} : { 'margin-right': '8px' }"
+        :style="
+          parent === 'post'
+            ? {}
+            : { 'margin-right': '8px', 'font-size': '14px' }
+        "
         :maxlength="textboxLimit"
         :rows="parent === 'post' ? 7 : 1"
         v-model="content"
@@ -24,41 +23,49 @@
         "
       ></textarea>
 
-      <div
-        class="textfield-spoiler-n-counter"
-        :style="parent === 'post' ? 'margin-top: 8px;' : ''"
-      >
-        <div v-if="showSpoilerTag" class="textfield-spoiler-container">
-          <div
-            class="textfield-spoiler"
-            v-bind:class="{ active: store.create.spoiler }"
-            @click="
-              (store.create.spoiler = !store.create.spoiler),
-                (store.create.never_tapped_spoiler = false)
-            "
-          >
-            {{ store.create.spoiler ? "Spoiler" : "Not spoiler" }}
-          </div>
-          <ToolTip
-            v-if="
-              parent === 'post' &&
-              store.create.never_tapped_spoiler &&
-              !store.create.spoiler
-            "
-            class="textfield-spoiler-tooltip"
-            text="Tap this if your post has spoiler"
-            :reverse="true"
-          />
-        </div>
+      <div class="textfield-spoiler-n-counter" @click="stopUnfocus">
         <transition name="counter-animation">
-          <CharacterCounter
-            v-if="showCounter"
-            :limit="characterLimit"
-            :count="length"
-            :radius="10"
-            :width="3"
-          />
+          <div v-if="showSpoilerTag" class="textfield-spoiler-container">
+            <div
+              class="textfield-spoiler"
+              v-bind:class="{ active: store.create.spoiler }"
+              @click="alterSpoilerTag"
+            >
+              {{ store.create.spoiler ? "Spoiler" : "Not spoiler" }}
+            </div>
+            <ToolTip
+              v-if="
+                parent === 'post' &&
+                store.create.never_tapped_spoiler &&
+                !store.create.spoiler
+              "
+              class="textfield-spoiler-tooltip"
+              text="Tap this if your post has spoiler"
+              :reverse="true"
+            />
+          </div>
         </transition>
+        <div style="display: flex">
+          <transition name="counter-animation">
+            <CharacterCounter
+              v-if="showCounter"
+              :limit="characterLimit"
+              :count="length"
+              :radius="10"
+              :width="3"
+            />
+          </transition>
+
+          <transition name="counter-animation">
+            <Button
+              v-if="parent === 'comment' && showCounter"
+              style="margin-left: 16px"
+              buttonType="textOnly"
+              text="Post"
+              :state="content ? true : false"
+            />
+          </transition>
+        </div>
       </div>
     </div>
 
@@ -66,12 +73,15 @@
       ref="editorSuggestionBox"
       class="editor-suggestion-box"
       :style="
-        is_mobile
-          ? 'top: 0; height: calc(' + caretLocationY + 'px - 18px - 4px);'
-          : 'width: 65vw;max-height: 350px;'
+        parent != 'comment'
+          ? is_mobile
+            ? 'top: 0; height: calc(' + caretLocationY + 'px - 18px - 4px);'
+            : 'width: 65vw;max-height: 350px;'
+          : customStyle
       "
       v-if="searchString"
       :searchString="searchString"
+      topMargin="calc(37.5vh - 22.5px - 40px)"
       searchType="all"
       v-on:clicked="addHighlight"
     />
@@ -82,11 +92,12 @@
 import Emoji from "./../../assets/emoji";
 import CharacterCounter from "./../atomic/CharacterCounter";
 import ToolTip from "./../atomic/ToolTip";
+import Button from "./../atomic/Button";
 import TagSuggestions from "./TagSuggestions";
 
 export default {
   name: "TextEditor",
-  components: { CharacterCounter, TagSuggestions, ToolTip },
+  components: { CharacterCounter, TagSuggestions, ToolTip, Button },
   props: {
     parent: {
       type: String,
@@ -106,7 +117,17 @@ export default {
       caretLocationY: null,
       caretIndex: 0,
       oldInput: "",
+      letUnfocus: true,
+      createCommentHeight: 0,
     };
+  },
+  mounted() {
+    setTimeout(() => {
+      var element = document.getElementById("create-comment-container");
+      if (element) {
+        this.createCommentHeight = element.getBoundingClientRect().height;
+      }
+    }, 0);
   },
   computed: {
     characterLimit() {
@@ -176,6 +197,34 @@ export default {
       plainText = plainText.replace(/\s\s+/g, " ").trim();
       return plainText.length;
     },
+    customStyle() {
+      var element = document.getElementById("create-comment-container");
+      if (element && element.style.position == "fixed") {
+        const tagSuggestionHeight =
+          "calc(" +
+          window.innerHeight +
+          "px - " +
+          this.createCommentHeight +
+          "px - 50px - 8px)";
+        return (
+          "position: absolute; top: 0px; transform: translateY(-100%); width: 100vw; left: 0; height: " +
+          tagSuggestionHeight +
+          ";"
+        );
+      } else {
+        const tagSuggestionHeight =
+          "calc(" +
+          window.innerHeight +
+          "px - " +
+          this.createCommentHeight +
+          "px - 50px - 8px - 8px)";
+        return (
+          "position: absolute; top: -8px; transform: translateY(-100%); width: 100vw; left: 0; height: " +
+          tagSuggestionHeight +
+          ";"
+        );
+      }
+    },
   },
   watch: {
     content: function (val) {
@@ -187,24 +236,77 @@ export default {
       if (this.length >= this.characterLimit) {
         this.textboxLimit = this.content.length;
       }
-      var newIds = [];
-      for (let content in this.highlightWords) {
-        if (
-          this.highlightWords[content].subject_type == "content" &&
-          !this.store.create.ids.includes(
-            this.highlightWords[content].subject_id
-          )
-        ) {
-          newIds.push(this.highlightWords[content].subject_id);
+      if (this.parent == "post") {
+        var newIds = [];
+        for (let content in this.highlightWords) {
+          if (
+            this.highlightWords[content].subject_type == "content" &&
+            !this.store.create.ids.includes(
+              this.highlightWords[content].subject_id
+            )
+          ) {
+            newIds.push(this.highlightWords[content].subject_id);
+          }
         }
+        if (newIds.length) {
+          this.store.create.ids.push(...newIds);
+        }
+        this.store.create.processedContent = this.processedContent;
       }
-      if (newIds.length) {
-        this.store.create.ids.push(...newIds);
-      }
-      this.store.create.processedContent = this.processedContent;
     },
   },
   methods: {
+    focusTextArea() {
+      if (this.parent == "comment") {
+        this.scrollToCreateComment();
+      }
+      this.showSpoilerTag = true;
+      this.showCounter = true;
+    },
+    unfocusTextArea() {
+      setTimeout(
+        () => {
+          if (this.letUnfocus) {
+            if (this.parent === "comment") {
+              var element = document.getElementById("create-comment-container");
+              this.createCommentHeight = element.getBoundingClientRect().height;
+              if (element.style.position == "fixed") {
+                var container_element = document.getElementById(
+                  "action-details-container"
+                );
+                container_element.style.paddingBottom =
+                  this.createCommentHeight + 8 - 27 + "px";
+              }
+              this.showSpoilerTag = false;
+            }
+            this.showCounter = false;
+          }
+          this.letUnfocus = true;
+        },
+        this.is_mobile ? 0 : 500
+      );
+    },
+    alterSpoilerTag() {
+      this.store.create.spoiler = !this.store.create.spoiler;
+      if (this.parent === "post") {
+        this.store.create.never_tapped_spoiler = false;
+      }
+    },
+    stopUnfocus() {
+      this.letUnfocus = false;
+      if (this.showCounter) {
+        this.$refs.inputField.focus();
+      }
+    },
+    scrollToCreateComment() {
+      var element = document.getElementById("create-comment-container");
+      if (element && element.style.position != "fixed") {
+        setTimeout(() => {
+          element.scrollIntoView(false);
+          window.scrollBy(0, 10);
+        }, 250);
+      }
+    },
     getCaretIndex() {
       setTimeout(() => {
         var elem = this.$refs.inputField;
@@ -259,6 +361,19 @@ export default {
     autoGrow(element) {
       element.style.height = "auto";
       element.style.height = element.scrollHeight + "px";
+      if (this.parent == "comment") {
+        this.scrollToCreateComment();
+
+        var element = document.getElementById("create-comment-container");
+        this.createCommentHeight = element.getBoundingClientRect().height;
+        if (element.style.position == "fixed") {
+          var container_element = document.getElementById(
+            "action-details-container"
+          );
+          container_element.style.paddingBottom =
+            this.createCommentHeight + 8 + "px";
+        }
+      }
     },
     removeSearch() {
       var elem = this.$refs.inputField;
@@ -307,6 +422,7 @@ export default {
             self.oldInput = elem.value;
 
             if (
+              self.parent == "post" &&
               removedTag &&
               removedTag.subject_type == "content" &&
               removedTag.subject_id !=
@@ -367,11 +483,14 @@ export default {
 
       this.content = contentSlice + this.content.slice(this.caretIndex);
 
+      this.letUnfocus = false;
+
       var elem = this.$refs.inputField;
       elem.focus();
-      setTimeout(function () {
+      setTimeout(() => {
         elem.selectionStart = contentSlice.length;
         elem.selectionEnd = contentSlice.length;
+        this.autoGrow(this.$refs.inputField);
       }, 0);
     },
   },
@@ -385,10 +504,12 @@ export default {
 
 .textfield-wrapper {
   display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
 .textfield-wrapper textarea {
+  /* word-break: break-all; */
   width: 100%;
   font-size: 16px;
   white-space: normal;
@@ -412,6 +533,7 @@ export default {
   display: flex;
   justify-content: space-between;
   position: relative;
+  margin-top: 8px;
 }
 .textfield-spoiler-container {
   display: flex;
@@ -422,7 +544,7 @@ export default {
   width: fit-content;
   font-size: 11px;
   margin-right: 8px;
-  white-space: normal;
+  white-space: nowrap;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
@@ -464,7 +586,8 @@ export default {
 .editor-suggestion-box {
   position: fixed;
   width: calc(100vw - 48px);
-  max-height: 450px;
+  max-width: 600px;
+  max-height: 400px;
   z-index: 2;
   left: 24px;
 }

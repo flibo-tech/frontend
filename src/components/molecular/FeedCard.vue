@@ -3,77 +3,252 @@
     class="feed-card-container"
     :style="is_mobile ? '' : 'grid-template-columns: 16px 200px 48px 1fr 16px;'"
   >
-    <div
-      v-if="parent != 'watchlist' && content.feed_type"
-      class="feed-card-text"
-    >
+    <div class="feed-card-text">
       <FeedText
-        :user_id="content.user_id"
-        :user_name="content.user_name"
-        :user_picture="content.user_picture"
-        :item_type="content.item_type"
-        :user_ids="content.user_ids"
-        :other_user_rating="content.other_user_rating"
+        :user_id="content.creator_id"
+        :user_name="content.creator_name"
+        :user_picture="content.creator_picture"
+        :item_type="content.action_type"
+        :other_user_rating="content.creator_rating"
         :type="content.type"
         :feed_type="content.feed_type"
+        :content_id="content.content_id"
+        :content_title="content.content_title"
+        :parent="parent"
+        :created_at="content.created_at"
         v-on="$listeners"
       />
     </div>
 
-    <div class="feed-card-poster">
-      <Poster
-        :containerWidth="is_mobile ? 0.4 * screenWidth : 200"
-        :contentId="content.content_id"
-        :title="content.title"
-        :image="content.poster"
-        :trailerId="content.youtube_trailer_id"
-        :whereToWatch="content.where_to_watch"
+    <div class="feed-description">
+      <div
+        class="feed-description-textbox"
+        ref="feedDescription"
+        :style="
+          isSpoiler
+            ? 'filter: blur(5px); background-color: rgba(0, 0, 0, 0.4);'
+            : ''
+        "
+      >
+        <h1
+          v-if="
+            ['request', 'suggest', 'review'].includes(content.action_type)
+              ? content.action_title
+              : content.action_type == null
+              ? true
+              : false
+          "
+        >
+          {{
+            content.action_type != null
+              ? content.action_title
+              : content.content_title
+          }}
+        </h1>
+        <TextView
+          v-if="content.description"
+          :text="content.description"
+          :parent="parent"
+          v-on="$listeners"
+        />
+      </div>
+
+      <div
+        class="spoiler-layer"
+        v-if="
+          isSpoiler && showSpoilerAlert && content.creator_id != store.user.id
+        "
+        @click="alterSpoilerAlert"
+      >
+        <h2>SPOILER</h2>
+        <p>It may have spoilers. Tap to see.</p>
+      </div>
+    </div>
+
+    <div
+      v-if="content.image_info"
+      class="feed-card-image"
+      :style="is_mobile ? '' : 'align-self: flex-start; padding: 0px 16px;'"
+    >
+      <img
+        :src="content.image_info.image"
+        alt="feed-image"
+        @click="
+          showPreview(
+            content.image_info.content_id,
+            content.image_info.content_title
+          )
+        "
+      />
+
+      <PlatformBar
+        v-if="Object.keys(whereToWatchOptions).length"
+        class="feed-card-platform-bar"
+        :contentId="content.image_info.content_id"
         :userPlatforms="
           store.user.id ? store.user.profile.platforms || [''] : ['']
         "
-        :showName="false"
+        :contentPlatforms="whereToWatchOptions"
+        :containerWidth="is_mobile ? 150 : 200"
         :parent="parent"
-        :feedType="
-          typeof content.feed_type != 'undefined' ? content.feed_type : null
-        "
-        posterLocation="feed"
+        posterLocation="feedcard_image"
         v-on="$listeners"
       />
     </div>
 
-    <div class="feed-card-info">
-      <FeedInfo
-        :contentId="content.content_id"
-        :title="content.title"
-        :contentType="content.type"
-        :releaseYear="content.release_year"
-        :endYear="content.end_year"
-        :imdbScore="content.imdb_score"
-        :tomatoMeter="content.tomato_meter"
-        :rating="content.rating"
-        :genres="content.genres"
-        :watchLater="content.watch_later"
-        :parent="parent"
-        :feedType="
-          typeof content.feed_type != 'undefined' ? content.feed_type : null
-        "
+    <div
+      v-if="
+        content.image_info == null && Object.keys(whereToWatchOptions).length
+      "
+      class="feed-card-platforms-container"
+    >
+      <div
+        class="feed-card-platform-container"
+        v-for="(item, index) in whereToWatchOptions"
+        :key="index"
+      >
+        <div
+          @click="goToPlatform(item, content.content_id, 'feedcard')"
+          class="feed-card-platform-cropper"
+          :style="
+            is_mobile ? '' : 'width: 50px;height: 50px;border-radius: 10px;'
+          "
+        >
+          <img
+            v-bind:src="
+              'https://flibo-images.s3-us-west-2.amazonaws.com/logos/platforms/' +
+              index +
+              '.jpg'
+            "
+            class="feed-card-platform-icon"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="feed-card-actions-container"
+      :style="
+        content.image_info == null || !Object.keys(whereToWatchOptions).length
+          ? 'margin-top: 16px;'
+          : ''
+      "
+    >
+      <Vote
+        style="min-width: 85px"
+        :actionId="content.action_id"
+        :totalVote="content.upvotes"
+        :creatorId="content.creator_id"
+        :userVote="content.user_vote"
         v-on="$listeners"
+        @update-user-vote="
+          (vote) => {
+            $emit('action-user-vote', vote);
+          }
+        "
+        @update-total-vote="
+          (vote) => {
+            $emit('action-total-vote', vote);
+          }
+        "
+      />
+
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          margin-left: 24px;
+          cursor: pointer;
+        "
+        @click="
+          RegExp(/^.*_details$/).test(parent)
+            ? scrollToComments()
+            : goToDetails()
+        "
+      >
+        <Button
+          icon="comment"
+          style="margin-top: -4px"
+          buttonType="iconOnly"
+          :size="18"
+        />
+
+        <p style="margin-left: 8px; font-size: 14px; user-select: none">
+          {{ content.total_comments || 0 }}
+        </p>
+      </div>
+
+      <Button
+        style="transform: rotate(22deg); margin-left: 24px; margin-top: -6px"
+        icon="send_outline"
+        buttonType="iconOnly"
+        :size="21"
+        @clicked="share_prompt = true"
       />
     </div>
+
+    <div
+      class="create-comment-container"
+      id="create-comment-container"
+      :style="
+        RegExp(/^.*_details$/).test(parent)
+          ? { position: 'fixed', bottom: 0, padding: '8px 16px 4px 16px' }
+          : { position: 'relative', marginTop: '16px', padding: '0px 16px' }
+      "
+    >
+      <div class="create-comment-profile-cropper" v-if="store.session_id">
+        <img
+          class="create-comment-profile-pp"
+          :src="store.user.picture"
+          onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
+        />
+      </div>
+
+      <TextEditor style="margin-top: 4px; flex: 1" parent="comment" />
+    </div>
+
+    <ContentPreview
+      v-if="previewDetails.show"
+      :id="previewDetails.id"
+      :name="previewDetails.title"
+      :parent="parent"
+      @close-preview="previewDetails.show = false"
+      v-on="$listeners"
+    />
+
+    <SharePrompt
+      v-if="share_prompt"
+      :parent="parent"
+      :url="content.url"
+      :image="content.image_info.image"
+      :actionId="content.action_id"
+      @close-share-prompt="share_prompt = false"
+      v-on="$listeners"
+    />
   </div>
 </template>
 
 <script>
-import FeedText from "./../atomic/FeedText";
-import Poster from "./Poster";
-import FeedInfo from "./FeedInfo";
+import FeedText from "./FeedText";
+import TextView from "./TextView";
+import PlatformBar from "./../atomic/PlatformBar";
+import ContentPreview from "./ContentPreview";
+import Vote from "./../atomic/Vote";
+import SharePrompt from "./../atomic/SharePrompt";
+import Button from "./../atomic/Button";
+import TextEditor from "./TextEditor";
 
 export default {
   name: "App",
   components: {
     FeedText,
-    Poster,
-    FeedInfo,
+    TextView,
+    PlatformBar,
+    ContentPreview,
+    Vote,
+    SharePrompt,
+    Button,
+    TextEditor,
   },
   props: {
     content: {
@@ -90,33 +265,196 @@ export default {
       is_mobile: window.screen.height > window.screen.width,
       screenWidth: window.innerWidth,
       store: this.$store.state,
+      showSpoilerAlert: true,
+      showContentPreview: false,
+      share_prompt: false,
+      previewDetails: {
+        show: false,
+        title: null,
+        id: null,
+      },
     };
+  },
+  computed: {
+    isSpoiler() {
+      return this.content.spoiler;
+    },
+    whereToWatchOptions() {
+      var whereToWatch =
+        this.content.image_info.where_to_watch || this.content.where_to_watch;
+      if (Object.keys(whereToWatch || {}).includes("stream")) {
+        return whereToWatch.stream;
+      } else if (Object.keys(whereToWatch || {}).includes("rent")) {
+        return whereToWatch.rent;
+      } else if (Object.keys(whereToWatch || {}).includes("buy")) {
+        return whereToWatch.buy;
+      } else {
+        return {};
+      }
+    },
+  },
+  methods: {
+    alterSpoilerAlert() {
+      this.$refs.feedDescription.style.filter = "none";
+      this.$refs.feedDescription.style.backgroundColor = "transparent";
+      this.showSpoilerAlert = false;
+    },
+    showPreview(id, title) {
+      this.previewDetails.id = id;
+      this.previewDetails.title = title;
+      this.previewDetails.show = true;
+    },
+    scrollToComments() {
+      var element = document.getElementById("comments-container");
+      if (element) {
+        var topbarHeight = 50;
+        var elementPosition = element.getBoundingClientRect().top;
+        var offsetPosition =
+          window.scrollY + elementPosition - topbarHeight - 10;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }
+    },
+    goToDetails() {
+      this.$emit("leave-feed");
+      this.$router.push(this.content.url);
+    },
+    goToPlatform(link, content_id, traffic_origin) {
+      this.$emit("leave-feed");
+
+      var activity = {
+        api: "outbound_traffic",
+        content_id: content_id,
+        url: link,
+        traffic_origin: this.parent + "__" + traffic_origin,
+      };
+      this.$emit("update-api-counter", activity);
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .feed-card-container {
-  display: grid;
-  grid-template-columns: 16px 40vw 24px 1fr 16px;
-  grid-template-rows: auto auto;
-  justify-items: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .feed-card-text {
-  grid-row-start: 1;
-  grid-column-start: 2;
-  margin-bottom: 10px;
-}
-.feed-card-poster {
-  grid-row-start: 3;
-  grid-column-start: 2;
-}
-.feed-card-info {
-  grid-row-start: 3;
-  grid-column-start: 4;
-  width: 100%;
+  align-self: flex-start;
 }
 ::-webkit-scrollbar {
   display: none;
+}
+.feed-description {
+  position: relative;
+  width: 100%;
+  margin-top: 16px;
+  text-align: left;
+}
+.feed-description-textbox {
+  padding: 0px 16px;
+}
+.feed-description h1 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+.spoiler-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font-family: "Roboto", sans-serif;
+  border: none;
+  color: white;
+  display: flex;
+  white-space: nowrap;
+  font-size: 14px;
+  line-height: 1.5;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.spoiler-layer h2 {
+  font-size: 22px;
+}
+.feed-card-image {
+  position: relative;
+  display: flex;
+  align-self: center;
+  margin-top: 16px;
+}
+.feed-card-image img {
+  max-width: 100%;
+  max-height: 250px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.feed-card-platform-bar {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+.feed-card-actions-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 0px 16px;
+  margin-top: 24px;
+}
+.feed-card-platform-cropper {
+  width: 45px;
+  height: 45px;
+  overflow: hidden;
+  border-radius: 50%;
+}
+.feed-card-platform-icon {
+  width: 100%;
+}
+.feed-card-platform-container {
+  margin-right: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.feed-card-platforms-container {
+  display: flex;
+  margin-top: 16px;
+  overflow: scroll;
+  width: 100%;
+  text-align: left;
+  padding: 0px 16px;
+}
+.create-comment-container {
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  z-index: 1;
+  background-color: #fff;
+}
+.create-comment-profile-cropper {
+  height: 30px;
+  width: 30px;
+  min-width: 30px;
+  margin-right: 8px;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: #ffffff;
+}
+.create-comment-profile-pp {
+  width: 101%;
 }
 </style>

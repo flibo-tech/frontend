@@ -114,7 +114,11 @@
           "
           style="padding: 0px 16px; display: flex; justify-content: flex-end"
         >
-          <Button buttonType="secondary" text="Reset Ratings" @clicked="$emit('prompt-reset-ratings')"/>
+          <Button
+            buttonType="secondary"
+            text="Reset Ratings"
+            @clicked="$emit('prompt-reset-ratings')"
+          />
         </div>
 
         <SavePlatforms
@@ -128,7 +132,12 @@
           v-on="$listeners"
         />
 
-        <FeedCard :content="item" :parent="parent" v-on="$listeners" />
+        <FeedCard
+          :content="item"
+          :parent="parent"
+          @update-element-heights="updateElementHeights"
+          v-on="$listeners"
+        />
 
         <UserSuggestions
           style="margin-top: 24px"
