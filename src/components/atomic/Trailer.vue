@@ -22,7 +22,7 @@
 
         <div
           class="youtube-player-header"
-          :style="is_mobile ? '' : 'top: 75px;left: calc(50vw - 500px);'"
+          :style="is_mobile ? '' : 'left: calc(50vw - 500px);'"
           v-if="play_trailer & (trailerId != null)"
         >
           Trailer
@@ -37,23 +37,32 @@
           "
         />
 
-        <iframe
-          class="youtube-player"
-          :style="
-            is_mobile
-              ? ''
-              : 'width: 1000px;left: calc(50vw - 500px);top: 100px;height: 500px;'
-          "
-          v-if="play_trailer & (trailerId != null)"
-          type="text/html"
-          :src="'https://www.youtube.com/embed/' + trailerId + '?autoplay=1'"
-          frameborder="0"
-          allowfullscreen
-        />
+        <div
+          class="youtube-player-iframe-container"
+          :style="is_mobile ? '' : 'height: 60vh;left: calc(50vw - 500px);'"
+        >
+          <div class="youtube-player-iframe-box">
+            <iframe
+              class="youtube-player-iframe"
+              :style="is_mobile ? '' : 'height: 60vh;'"
+              v-if="play_trailer & (trailerId != null)"
+              type="text/html"
+              :src="
+                'https://www.youtube.com/embed/' +
+                trailerId +
+                '?autoplay=1&rel=0&controls=0&modestbranding=1'
+              "
+              frameborder="0"
+              allowfullscreen
+            />
+          </div>
+        </div>
 
         <div
           class="youtube-player-streaming-box"
-          :style="trailerId ? (is_mobile ? '' : 'top: 650px;') : 'top: 40vh;'"
+          :style="
+            trailerId ? (is_mobile ? '' : 'top: calc(60vh + 124px);') : '40vh;'
+          "
           v-if="play_trailer && showPlatforms"
         >
           <div class="tap-to-watch-text" v-if="showPlatforms">
@@ -215,7 +224,7 @@ export default {
 }
 .youtube-player-header {
   position: fixed;
-  top: calc(50vh - 28.125vw - 20vh - 25px);
+  top: 75px;
   left: 10px;
   z-index: 100001;
   white-space: initial;
@@ -236,7 +245,7 @@ export default {
   height: 14vw;
   animation: spin 2s linear infinite;
   position: fixed;
-  top: calc(50vh - 20vh - 7vw);
+  top: calc(100px + 17.5vh - 7vw);
   left: calc(50% - 7vw);
   z-index: 100000;
 }
@@ -248,8 +257,8 @@ export default {
   height: 75px;
   animation: spin 2s linear infinite;
   position: fixed;
-  top: 312.5px;
-  left: calc(50vw - 37.5px);
+  top: calc(100px + 30vh - 37.5px);
+  left: calc(50% - 37.5px);
   z-index: 100000;
 }
 
@@ -261,11 +270,25 @@ export default {
     transform: rotate(360deg);
   }
 }
-.youtube-player {
+.youtube-player-iframe {
+  width: 1000%;
+  height: 35vh;
+  left: calc(-500%);
+  transform: translate(5%);
+  position: absolute;
+}
+.youtube-player-iframe-box {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+.youtube-player-iframe-container {
   position: fixed;
   width: 100vw;
-  height: 56.25vw;
-  top: calc(50vh - 28.125vw - 20vh);
+  max-width: 1000px;
+  height: 35vh;
+  top: 100px;
   left: 0;
   z-index: 100001;
 }
@@ -314,7 +337,7 @@ export default {
 }
 .youtube-player-streaming-box {
   position: fixed;
-  top: calc(60vh + 28.125vw - 25vh);
+  top: calc(35vh + 124px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 100001;

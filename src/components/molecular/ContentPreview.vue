@@ -47,17 +47,19 @@
           <div class="content-preview-trailer">
             <div class="content-preview-youtube-player-loader" />
 
-            <iframe
-              class="content-preview-youtube-player"
-              type="text/html"
-              :src="
-                'https://www.youtube.com/embed/' +
-                metaInfo.youtube_trailer_id +
-                '?autoplay=1'
-              "
-              frameborder="0"
-              allowfullscreen
-            />
+            <div class="content-preview-iframe-container">
+              <iframe
+                class="content-preview-youtube-player"
+                type="text/html"
+                :src="
+                  'https://www.youtube.com/embed/' +
+                  metaInfo.youtube_trailer_id +
+                  '?autoplay=1&rel=0&controls=0&modestbranding=1'
+                "
+                frameborder="0"
+                allowfullscreen
+              />
+            </div>
           </div>
         </div>
 
@@ -715,10 +717,18 @@ export default {
   }
 }
 .content-preview-youtube-player {
-  width: 95vw;
+  width: 1000%;
   height: 35vh;
-  left: 0;
+  left: calc(-500%);
+  transform: translate(5%);
+  position: absolute;
+}
+.content-preview-iframe-container {
+  position: relative;
+  overflow: hidden;
   z-index: 1;
+  width: 95vw;
   max-width: 800px;
+  height: 35vh;
 }
 </style>
