@@ -80,6 +80,14 @@
           : ""
       }}
     </div>
+
+    <button
+      class="top-bar-search-icon"
+      v-if="store.session_id == null"
+      :style="is_mobile ? '' : 'right: calc(50vw - 500px);'"
+      @click="$router.push('/search')"
+      type="button"
+    ></button>
   </div>
 </template>
 
@@ -101,7 +109,7 @@ export default {
   },
   methods: {
     goBack() {
-      if (this.store.is_webview && window.history.length == 2) {
+      if (window.history.length <= 2) {
         this.$router.push("/discover");
       } else {
         window.history.back();
@@ -174,5 +182,24 @@ export default {
   background-image: url("./../images/flibo-logo-dark.svg");
   background-position: center;
   background-repeat: no-repeat;
+}
+.top-bar-search-icon {
+  position: fixed;
+  display: block;
+  right: 0;
+  top: 0;
+  height: 50px;
+  width: 50px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+  background-image: url("./../images/search-icon.svg");
+  background-size: 50% 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 100000;
 }
 </style>

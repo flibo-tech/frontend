@@ -1,13 +1,5 @@
 <template>
   <div id="content" class="content-box">
-    <button
-      class="content-search-icon"
-      v-if="store.session_id == null"
-      :style="is_mobile ? '' : 'right: calc(50vw - 500px);'"
-      @click="$router.push('/search')"
-      type="button"
-    ></button>
-
     <div v-if="!loading && content.data != null">
       <div class="content-cover">
         <ContentCoverLandscape
@@ -1516,25 +1508,6 @@ export default {
   z-index: 100001;
   border-radius: 50%;
 }
-.content-search-icon {
-  position: fixed;
-  display: block;
-  right: 0;
-  top: 0;
-  height: 50px;
-  width: 50px;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  background-image: url("./../images/search-icon.svg");
-  background-size: 50% 50%;
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 100000;
-}
 
 .user-rating-watchlist-container {
   position: relative;
@@ -1546,7 +1519,7 @@ export default {
 .friends-rating-box {
   position: relative;
   margin-top: 20px;
-  background-color: #eeeeee;
+  background-color: #f9f9f9;
   width: 100vw;
   margin-left: -24px;
   padding: 16px 24px;

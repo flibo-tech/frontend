@@ -930,7 +930,10 @@ export default {
           }
         })
         .catch(function (error) {
-          if (Object.keys(activity).includes("url")) {
+          if (
+            activity.api == "outbound_traffic" &&
+            Object.keys(activity).includes("url")
+          ) {
             window.open(activity.url);
           }
           // console.log(error);
@@ -1471,6 +1474,16 @@ export default {
 #app {
   font-family: "Roboto", sans-serif;
   text-align: center;
+}
+
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .flibo-logo-desktop {

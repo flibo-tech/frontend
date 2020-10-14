@@ -177,13 +177,12 @@ export default {
       })
       .catch((error) => {
         this.fetching = false;
-        this.$refs.userPreviewContainer.style.justifyContent = "flex-start";
-        this.$refs.userPreviewContainer.style.alignItems = "flex-start";
         console.log(error);
       });
   },
   methods: {
     clickUser(id, name) {
+      this.$emit("leave-feed");
       this.$router.push(
         "/profile/" + id + "/" + name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );

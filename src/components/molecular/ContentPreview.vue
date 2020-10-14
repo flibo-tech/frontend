@@ -245,6 +245,7 @@ export default {
   },
   methods: {
     openContent() {
+      this.$emit("leave-feed");
       var info = {
         origin: this.parent,
         content_id: this.id,
@@ -269,8 +270,8 @@ export default {
             var index = self.$store.state.suggestions.rate_counter.indexOf(
               self.id
             );
-            if (index != -1) {
-              // self.$store.state.suggestions.rate_counter.push(self.id);
+            if (index == -1) {
+              self.$store.state.suggestions.rate_counter.push(self.id);
               if (
                 self.$store.state.suggestions.rate_counter.length !=
                 self.$store.state.suggestions.calc_after
@@ -371,6 +372,7 @@ export default {
       }
     },
     goToPlatform(link, content_id, traffic_origin) {
+      this.$emit("leave-feed");
       var activity = {
         api: "outbound_traffic",
         content_id: content_id,
@@ -522,7 +524,6 @@ export default {
   background-color: #ffffff;
   border-radius: 7px;
   padding: 15px;
-
   z-index: 1000001;
 }
 .content-preview-info-name {

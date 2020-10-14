@@ -24,6 +24,8 @@
       :style="
         buttonType == 'primary' && capitalize
           ? 'text-transform: uppercase;'
+          : buttonType == 'textOnly' && state
+          ? 'color: #7352ff'
           : ''
       "
     >
@@ -52,10 +54,12 @@ export default {
   props: {
     text: {
       type: String,
+      required: false,
       default: null,
     },
     icon: {
       type: String,
+      required: false,
       default: null,
     },
     buttonType: {
@@ -64,14 +68,17 @@ export default {
     },
     loading: {
       type: Boolean,
+      required: false,
       default: false,
     },
     disabled: {
       type: Boolean,
+      required: false,
       default: false,
     },
     state: {
       type: Boolean,
+      required: false,
       default: false,
     },
     size: {

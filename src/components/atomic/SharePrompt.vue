@@ -352,6 +352,8 @@ export default {
       this.$emit("close-share-prompt");
     },
     shareExternal() {
+      this.$emit("leave-feed");
+
       this.$emit("update-api-counter", {
         api: "share_prompt_external",
         content_id: this.contentId,

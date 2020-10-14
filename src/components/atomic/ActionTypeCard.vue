@@ -88,7 +88,7 @@ export default {
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  background-color: #ffffff;
+  background-color: #b4b4b4;
   width: 50px;
   height: 50px;
 }
