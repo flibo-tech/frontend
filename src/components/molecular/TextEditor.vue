@@ -266,11 +266,15 @@ export default {
   },
   methods: {
     focusTextArea() {
-      if (this.parent == "comment") {
-        this.scrollToCreateComment();
+      if (this.$store.state.session_id) {
+        if (this.parent == "comment") {
+          this.scrollToCreateComment();
+        }
+        this.showSpoilerTag = true;
+        this.showCounter = true;
+      } else {
+        this.$store.state.prompt_signup = true;
       }
-      this.showSpoilerTag = true;
-      this.showCounter = true;
     },
     unfocusTextArea() {
       setTimeout(

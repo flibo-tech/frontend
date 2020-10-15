@@ -200,11 +200,12 @@
           : { position: 'relative', marginTop: '16px', padding: '0px 16px' }
       "
     >
-      <div class="create-comment-profile-cropper" v-if="store.session_id">
+      <div class="create-comment-profile-cropper">
         <img
           class="create-comment-profile-pp"
-          :src="store.user.picture"
+          :src="store.user.picture || 'invalid'"
           onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
+          alt="profile-image"
         />
       </div>
 

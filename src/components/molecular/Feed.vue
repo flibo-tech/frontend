@@ -72,7 +72,6 @@
         <div
           v-if="
             ['watchlist', 'ratings'].includes(parent) &&
-            store.session_id != null &&
             currentIndex == 0 &&
             index == 0
           "

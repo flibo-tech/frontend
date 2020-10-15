@@ -16,6 +16,7 @@
           <div class="prompt-img-wrapper">
             <img
               :src="item.replace('/original/', '/w500/')"
+              onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
               alt="share-image"
             />
           </div>
