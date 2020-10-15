@@ -47,7 +47,7 @@
         :class="containerTile"
         :id="containerTile + '-' + index"
         :style="is_mobile ? '' : 'width: 100%;'"
-        :content-id="item.content_id"
+        :action-id="item.action_id"
       >
         <div
           v-if="
@@ -507,7 +507,7 @@ export default {
             feed_contents[feed_item].type || "pass_check"
           ) &&
           rating_tab.includes(
-            feed_contents[feed_item].other_user_rating || "pass_check"
+            feed_contents[feed_item].creator_rating || "pass_check"
           ) &&
           discover_type_tab.includes(
             feed_contents[feed_item].feed_type || "pass_check"
@@ -591,7 +591,7 @@ export default {
         dom_elem_heights[
           document
             .querySelector(`#${self.containerTile}-${j}`)
-            .getAttribute("content-id")
+            .getAttribute("action-id")
         ] = document
           .querySelector(`#${self.containerTile}-${j}`)
           .getBoundingClientRect().height;
@@ -694,9 +694,14 @@ export default {
         var platform_count = 0;
         for (platform in filtered_platforms) {
           if (
-            JSON.stringify(feed_contents[feed_item].where_to_watch).includes(
-              filtered_platforms[platform]
-            )
+            JSON.stringify(
+              feed_contents[feed_item].image_info &&
+                feed_contents[feed_item].image_info.where_to_watch
+                ? feed_contents[feed_item].image_info.where_to_watch
+                : feed_contents[feed_item].where_to_watch
+                ? feed_contents[feed_item].where_to_watch
+                : null
+            ).includes(filtered_platforms[platform])
           ) {
             platform_count++;
           }
@@ -803,10 +808,15 @@ export default {
       if (Math.abs(currentScrollPosition - self.lastScrollPosition) < 0) {
         return;
       }
-      self.showRefreshButton = currentScrollPosition < self.lastScrollPosition;
-      self.lastScrollPosition = currentScrollPosition;
-      if ([NaN, 0, 1].includes(scroll_completion)) {
-        setTimeout((self.showRefreshButton = true), 0);
+      if (self.store.letNavAutoHide) {
+        self.showRefreshButton =
+          currentScrollPosition < self.lastScrollPosition;
+        self.lastScrollPosition = currentScrollPosition;
+        if ([NaN, 0, 1].includes(scroll_completion)) {
+          setTimeout((self.showRefreshButton = true), 0);
+        }
+      } else {
+        self.showRefreshButton = false;
       }
 
       if (!this.scroll.updating) {
@@ -856,7 +866,7 @@ export default {
       var totalHeight = 0;
       for (let i = startIndex; i < endIndex; i++) {
         totalHeight += eval(this.feed_mappings[this.parent].element_heights)[
-          this.parent_feed_list[i].content_id
+          this.parent_feed_list[i].action_id
         ];
       }
       return totalHeight;

@@ -128,7 +128,8 @@ export default {
       axios
         .post(self.$store.state.api_host + "user_ratings", {
           session_id: self.$store.state.session_id,
-          country: self.store.guest_country,
+          country:
+            self.$store.state.user.profile.country || self.store.guest_country,
           guest_id: self.$store.state.guest_id,
           user_id: self.userId,
           user_name: self.userUrlName,

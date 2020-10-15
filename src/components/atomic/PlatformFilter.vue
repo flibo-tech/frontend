@@ -145,12 +145,12 @@ export default {
     contents_platforms() {
       var contents_platforms = [];
       eval(this.contents[this.parent]).forEach(function (item, index) {
-        if (Object.keys(item.where_to_watch || {}).includes("stream")) {
+        if (item.image_info && item.image_info.where_to_watch) {
+          contents_platforms.push(
+            ...Object.keys(item.image_info.where_to_watch.stream)
+          );
+        } else if (item.where_to_watch) {
           contents_platforms.push(...Object.keys(item.where_to_watch.stream));
-        } else if (Object.keys(item.where_to_watch || {}).includes("rent")) {
-          contents_platforms.push(...Object.keys(item.where_to_watch.rent));
-        } else if (Object.keys(item.where_to_watch || {}).includes("buy")) {
-          contents_platforms.push(...Object.keys(item.where_to_watch.buy));
         }
       });
 

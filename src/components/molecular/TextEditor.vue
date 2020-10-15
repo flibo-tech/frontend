@@ -103,6 +103,11 @@ export default {
       type: String,
       required: true,
     },
+    actionId: {
+      type: Number,
+      required: false,
+      default: null,
+    },
   },
   data() {
     return {
@@ -123,7 +128,9 @@ export default {
   },
   mounted() {
     setTimeout(() => {
-      var element = document.getElementById("create-comment-container");
+      var element = document.getElementById(
+        "create-comment-container-" + this.actionId
+      );
       if (element) {
         this.createCommentHeight = element.getBoundingClientRect().height;
       }
@@ -198,7 +205,9 @@ export default {
       return plainText.length;
     },
     customStyle() {
-      var element = document.getElementById("create-comment-container");
+      var element = document.getElementById(
+        "create-comment-container-" + this.actionId
+      );
       if (element && element.style.position == "fixed") {
         const tagSuggestionHeight =
           "calc(" +
@@ -268,7 +277,9 @@ export default {
         () => {
           if (this.letUnfocus) {
             if (this.parent === "comment") {
-              var element = document.getElementById("create-comment-container");
+              var element = document.getElementById(
+                "create-comment-container-" + this.actionId
+              );
               this.createCommentHeight = element.getBoundingClientRect().height;
               if (element.style.position == "fixed") {
                 var container_element = document.getElementById(
@@ -299,12 +310,20 @@ export default {
       }
     },
     scrollToCreateComment() {
-      var element = document.getElementById("create-comment-container");
-      if (element && element.style.position != "fixed") {
-        setTimeout(() => {
-          element.scrollIntoView(false);
-          window.scrollBy(0, 10);
-        }, 250);
+      if (this.is_mobile) {
+        var element = document.getElementById(
+          "create-comment-container-" + this.actionId
+        );
+        if (element && element.style.position != "fixed") {
+          this.store.letNavAutoHide = false;
+          setTimeout(() => {
+            element.scrollIntoView(false);
+            window.scrollBy(0, 10);
+            setTimeout(() => {
+              this.store.letNavAutoHide = true;
+            }, 250);
+          }, 250);
+        }
       }
     },
     getCaretIndex() {
@@ -364,7 +383,9 @@ export default {
       if (this.parent == "comment") {
         this.scrollToCreateComment();
 
-        var element = document.getElementById("create-comment-container");
+        var element = document.getElementById(
+          "create-comment-container-" + this.actionId
+        );
         this.createCommentHeight = element.getBoundingClientRect().height;
         if (element.style.position == "fixed") {
           var container_element = document.getElementById(

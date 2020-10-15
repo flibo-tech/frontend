@@ -33,7 +33,7 @@
 
           <span v-if="feed_type == 'flibo'"> recommends you </span>
 
-          <span v-if="item_type == 'ratings'">
+          <span v-if="item_type == 'rating'">
             {{
               other_user_rating == 2
                 ? "liked"

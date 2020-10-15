@@ -66,7 +66,7 @@
     </div>
 
     <div
-      v-if="content.image_info"
+      v-if="content.image_info && content.image_info.image"
       class="feed-card-image"
       :style="is_mobile ? '' : 'align-self: flex-start; padding: 0px 16px;'"
     >
@@ -82,7 +82,7 @@
       />
 
       <PlatformBar
-        v-if="Object.keys(whereToWatchOptions).length"
+        v-if="whereToWatchOptions"
         class="feed-card-platform-bar"
         :contentId="content.image_info.content_id"
         :userPlatforms="
@@ -98,7 +98,9 @@
 
     <div
       v-if="
-        content.image_info == null && Object.keys(whereToWatchOptions).length
+        (content.image_info == null ||
+          (content.image_info && content.image_info.image == null)) &&
+        whereToWatchOptions
       "
       class="feed-card-platforms-container"
     >
@@ -129,7 +131,9 @@
     <div
       class="feed-card-actions-container"
       :style="
-        content.image_info == null || !Object.keys(whereToWatchOptions).length
+        content.image_info == null ||
+        (content.image_info && content.image_info.image == null) ||
+        !whereToWatchOptions
           ? 'margin-top: 16px;'
           : ''
       "
@@ -189,7 +193,7 @@
 
     <div
       class="create-comment-container"
-      id="create-comment-container"
+      :id="'create-comment-container-' + content.action_id"
       :style="
         RegExp(/^.*_details$/).test(parent)
           ? { position: 'fixed', bottom: 0, padding: '8px 16px 4px 16px' }
@@ -204,7 +208,11 @@
         />
       </div>
 
-      <TextEditor style="margin-top: 4px; flex: 1" parent="comment" />
+      <TextEditor
+        style="margin-top: 4px; flex: 1"
+        parent="comment"
+        :actionId="content.action_id"
+      />
     </div>
 
     <ContentPreview
@@ -281,15 +289,15 @@ export default {
     },
     whereToWatchOptions() {
       var whereToWatch =
-        this.content.image_info.where_to_watch || this.content.where_to_watch;
-      if (Object.keys(whereToWatch || {}).includes("stream")) {
+        this.content.image_info && this.content.image_info.where_to_watch
+          ? this.content.image_info.where_to_watch
+          : this.content.where_to_watch
+          ? this.content.where_to_watch
+          : null;
+      if (whereToWatch) {
         return whereToWatch.stream;
-      } else if (Object.keys(whereToWatch || {}).includes("rent")) {
-        return whereToWatch.rent;
-      } else if (Object.keys(whereToWatch || {}).includes("buy")) {
-        return whereToWatch.buy;
       } else {
-        return {};
+        return null;
       }
     },
   },
@@ -320,7 +328,7 @@ export default {
     },
     goToDetails() {
       this.$emit("leave-feed");
-      this.$router.push(this.content.url);
+      this.$router.push(this.content.url.replace("https://flibo.ai", ""));
     },
     goToPlatform(link, content_id, traffic_origin) {
       this.$emit("leave-feed");

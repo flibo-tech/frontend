@@ -77,6 +77,8 @@
           ? "List"
           : this.$route.path.includes("/ratings/")
           ? "Ratings"
+          : this.$route.path.includes("/activity/")
+          ? "Activity"
           : ""
       }}
     </div>

@@ -313,7 +313,11 @@ export default {
       if (Math.abs(currentScrollPosition - this.lastScrollPosition) < 0) {
         return;
       }
-      this.showNavbar = currentScrollPosition < this.lastScrollPosition;
+      if (this.store.letNavAutoHide) {
+        this.showNavbar = currentScrollPosition < this.lastScrollPosition;
+      } else {
+        this.showNavbar = false;
+      }
       this.lastScrollPosition = currentScrollPosition;
     },
     getNumFromStyle: (numStr) => Number(numStr.substring(0, numStr.length - 2)),
