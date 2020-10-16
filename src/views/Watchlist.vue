@@ -46,6 +46,10 @@ export default {
     this.userId = parseInt(this.$route.params.user_id);
     this.userUrlName = this.$route.params.user_name;
 
+    if (this.$store.state.feed.watchlist.contents.length) {
+      this.userName = this.$store.state.feed.watchlist.contents[0].creator_name
+    }
+
     if (self.$store.state.feed.watchlist.contents.length == 0) {
       if (
         this.store.user.profile.country == null &&
