@@ -43,7 +43,7 @@
             }}
           </span>
 
-          <span v-if="item_type == 'watchlist'"> added </span>
+          <span v-if="item_type == 'watch_later'"> added </span>
 
           <span v-if="item_type == 'suggest'"> suggested </span>
 
@@ -74,7 +74,7 @@
             {{ content_title }}
           </span>
 
-          <span v-if="item_type == 'watchlist'"> to watchlist </span>
+          <span v-if="item_type == 'watch_later'"> to watchlist </span>
 
           <span v-if="item_type == 'suggest'"> to everyone </span>
         </p>

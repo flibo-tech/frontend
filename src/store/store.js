@@ -263,7 +263,9 @@ export const store = new Vuex.Store({
         scroll_position: my_store ? my_store.feed.home.scroll_position : 0,
         observer_current_index: my_store
           ? my_store.feed.home.observer_current_index
-          : 0
+          : 0,
+        see_more_elements: [],
+        element_comments: {}
       },
       search_results: {
         apply_filters_on_create: false,
@@ -280,7 +282,9 @@ export const store = new Vuex.Store({
           : 0,
         observer_current_index: my_store
           ? my_store.feed.search_results.observer_current_index
-          : 0
+          : 0,
+        see_more_elements: [],
+        element_comments: {}
       },
       watchlist: {
         contents: [],
@@ -296,7 +300,9 @@ export const store = new Vuex.Store({
         padding_top: 0,
         padding_bottom: 0,
         scroll_position: 0,
-        observer_current_index: 0
+        observer_current_index: 0,
+        see_more_elements: [],
+        element_comments: {}
       },
       ratings: {
         contents: [],
@@ -313,7 +319,9 @@ export const store = new Vuex.Store({
         padding_top: 0,
         padding_bottom: 0,
         scroll_position: 0,
-        observer_current_index: 0
+        observer_current_index: 0,
+        see_more_elements: [],
+        element_comments: {}
       }
     },
     feed_filters: {

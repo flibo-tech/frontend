@@ -6,16 +6,12 @@
         @focus="focusTextArea"
         @blur="unfocusTextArea"
         @keyup="removeSearch"
-        :style="
-          parent === 'post'
-            ? {}
-            : { 'margin-right': '8px', 'font-size': '14px' }
-        "
+        :style="parent === 'post' ? {} : { 'font-size': '14px' }"
         :maxlength="textboxLimit"
         :rows="parent === 'post' ? 7 : 1"
         v-model="content"
-        ref="inputField"
-        id="inputField"
+        :ref="'inputField-' + actionId"
+        :id="'inputField-' + actionId"
         :placeholder="
           parent === 'post'
             ? 'Express yourself. Tag friends, movies, artists using @...'
@@ -23,7 +19,13 @@
         "
       ></textarea>
 
-      <div class="textfield-spoiler-n-counter" @click="stopUnfocus">
+      <div
+        class="textfield-spoiler-n-counter"
+        @click="stopUnfocus"
+        :style="
+          parent === 'comment' ? { minHeight: '24px', marginTop: '4px' } : {}
+        "
+      >
         <transition name="counter-animation">
           <div v-if="showSpoilerTag" class="textfield-spoiler-container">
             <div
@@ -51,7 +53,7 @@
               v-if="showCounter"
               :limit="characterLimit"
               :count="length"
-              :radius="10"
+              :radius="9"
               :width="3"
             />
           </transition>
@@ -103,6 +105,11 @@ export default {
       type: String,
       required: true,
     },
+    grandParent: {
+      type: String,
+      required: false,
+      default: null,
+    },
     actionId: {
       type: Number,
       required: false,
@@ -124,6 +131,8 @@ export default {
       oldInput: "",
       letUnfocus: true,
       createCommentHeight: 0,
+      preventContentWatch: false,
+      prevHeight: 0,
     };
   },
   mounted() {
@@ -135,6 +144,10 @@ export default {
         this.createCommentHeight = element.getBoundingClientRect().height;
       }
     }, 0);
+
+    if (this.actionId) {
+      this.restoreEditor();
+    }
   },
   computed: {
     characterLimit() {
@@ -237,31 +250,48 @@ export default {
   },
   watch: {
     content: function (val) {
-      this.getCaretIndex();
-      if (this.content) {
-        this.addEmoji(val);
-      }
-      this.autoGrow(this.$refs.inputField);
-      if (this.length >= this.characterLimit) {
-        this.textboxLimit = this.content.length;
-      }
-      if (this.parent == "post") {
-        var newIds = [];
-        for (let content in this.highlightWords) {
-          if (
-            this.highlightWords[content].subject_type == "content" &&
-            !this.store.create.ids.includes(
-              this.highlightWords[content].subject_id
-            )
-          ) {
-            newIds.push(this.highlightWords[content].subject_id);
+      if (!this.preventContentWatch) {
+        this.getCaretIndex();
+        if (this.content) {
+          this.addEmoji(val);
+        }
+        this.autoGrow(this.$refs["inputField-" + this.actionId]);
+        if (this.length >= this.characterLimit) {
+          this.textboxLimit = this.content.length;
+        }
+        if (this.parent == "post") {
+          var newIds = [];
+          for (let content in this.highlightWords) {
+            if (
+              this.highlightWords[content].subject_type == "content" &&
+              !this.store.create.ids.includes(
+                this.highlightWords[content].subject_id
+              )
+            ) {
+              newIds.push(this.highlightWords[content].subject_id);
+            }
           }
+          if (newIds.length) {
+            this.store.create.ids.push(...newIds);
+          }
+          this.store.create.processedContent = this.processedContent;
+        } else if (
+          ["watchlist", "ratings", "search_results", "home"].includes(
+            this.grandParent
+          )
+        ) {
+          this.$store.state.feed[this.grandParent].element_comments[
+            this.actionId
+          ] = {
+            content: this.content,
+            highlightWords: this.highlightWords,
+            processedContent: this.processedContent,
+          };
         }
-        if (newIds.length) {
-          this.store.create.ids.push(...newIds);
-        }
-        this.store.create.processedContent = this.processedContent;
       }
+    },
+    actionId: function (val) {
+      this.restoreEditor(true);
     },
   },
   methods: {
@@ -290,7 +320,7 @@ export default {
                   "action-details-container"
                 );
                 container_element.style.paddingBottom =
-                  this.createCommentHeight + 8 - 27 + "px";
+                  this.createCommentHeight + 8 - 24 + "px";
               }
               this.showSpoilerTag = false;
             }
@@ -310,7 +340,7 @@ export default {
     stopUnfocus() {
       this.letUnfocus = false;
       if (this.showCounter) {
-        this.$refs.inputField.focus();
+        this.$refs["inputField-" + this.actionId].focus();
       }
     },
     scrollToCreateComment() {
@@ -332,12 +362,12 @@ export default {
     },
     getCaretIndex() {
       setTimeout(() => {
-        var elem = this.$refs.inputField;
+        var elem = this.$refs["inputField-" + this.actionId];
         this.caretIndex = elem ? elem.selectionEnd : 0;
       }, 0);
     },
     caretLocation() {
-      let input = this.$refs.inputField;
+      let input = this.$refs["inputField-" + this.actionId];
       let selectionPoint = this.caretIndex;
       const { offsetLeft: inputX, offsetTop: inputY } = input;
       // create a dummy element that will be a clone of our input
@@ -381,27 +411,48 @@ export default {
         y: inputY + spanY,
       };
     },
-    autoGrow(element) {
+    autoGrow(element, scroll = true) {
+      const currentHeight =
+        Number(
+          element.style.height.substring(0, element.style.height.length - 2)
+        ) || element.scrollHeight;
       element.style.height = "auto";
       element.style.height = element.scrollHeight + "px";
-      if (this.parent == "comment") {
-        this.scrollToCreateComment();
 
-        var element = document.getElementById(
-          "create-comment-container-" + this.actionId
-        );
-        this.createCommentHeight = element.getBoundingClientRect().height;
-        if (element.style.position == "fixed") {
-          var container_element = document.getElementById(
-            "action-details-container"
+      if (!scroll && currentHeight != element.scrollHeight) {
+        window.scrollBy(0, currentHeight - element.scrollHeight);
+      }
+
+      if (this.parent == "comment") {
+        if (
+          ["watchlist", "ratings", "search_results", "home"].includes(
+            this.grandParent
+          ) &&
+          this.prevHeight != element.scrollHeight
+        ) {
+          this.$emit("update-element-heights");
+        }
+        this.prevHeight = element.scrollHeight;
+
+        if (scroll) {
+          this.scrollToCreateComment();
+
+          var element = document.getElementById(
+            "create-comment-container-" + this.actionId
           );
-          container_element.style.paddingBottom =
-            this.createCommentHeight + 8 + "px";
+          this.createCommentHeight = element.getBoundingClientRect().height;
+          if (element.style.position == "fixed") {
+            var container_element = document.getElementById(
+              "action-details-container"
+            );
+            container_element.style.paddingBottom =
+              this.createCommentHeight + 8 + "px";
+          }
         }
       }
     },
     removeSearch() {
-      var elem = this.$refs.inputField;
+      var elem = this.$refs["inputField-" + this.actionId];
       var newInput = elem.value;
       if (newInput.length < this.oldInput.length) {
         this.caretIndex = elem.selectionEnd;
@@ -510,13 +561,51 @@ export default {
 
       this.letUnfocus = false;
 
-      var elem = this.$refs.inputField;
+      var elem = this.$refs["inputField-" + this.actionId];
       elem.focus();
       setTimeout(() => {
         elem.selectionStart = contentSlice.length;
         elem.selectionEnd = contentSlice.length;
-        this.autoGrow(this.$refs.inputField);
+        this.autoGrow(this.$refs["inputField-" + this.actionId]);
       }, 0);
+    },
+    restoreEditor(actOnNextTick = false) {
+      this.preventContentWatch = true;
+
+      if (
+        Object.keys(
+          this.$store.state.feed[this.grandParent].element_comments
+        ).includes(JSON.stringify(this.actionId))
+      ) {
+        var obj = this.$store.state.feed[this.grandParent].element_comments[
+          this.actionId
+        ];
+        this.content = obj.content;
+        this.highlightWords = obj.highlightWords;
+      } else {
+        this.content = "";
+        this.highlightWords = {};
+      }
+      this.selectedWord = "";
+      this.textboxLimit = null;
+      this.showSpoilerTag = false;
+      this.showCounter = false;
+      this.caretLocationY = null;
+      this.caretIndex = 0;
+      this.oldInput = "";
+      this.letUnfocus = true;
+      this.createCommentHeight = 0;
+      if (actOnNextTick) {
+        this.$nextTick(() => {
+          this.autoGrow(this.$refs["inputField-" + this.actionId], false);
+          this.$refs["inputField-" + this.actionId].blur();
+          this.preventContentWatch = false;
+        });
+      } else {
+        setTimeout(() => {
+          this.preventContentWatch = false;
+        }, 0);
+      }
     },
   },
 };
@@ -567,7 +656,7 @@ export default {
 }
 .textfield-spoiler {
   width: fit-content;
-  font-size: 11px;
+  font-size: 10px;
   margin-right: 8px;
   white-space: nowrap;
   font-weight: normal;
@@ -578,7 +667,7 @@ export default {
   line-height: 1.6;
   background-color: #e4e4e4;
   font-family: "Roboto", sans-serif;
-  padding: 5px 10px;
+  padding: 4px 10px;
   text-align: center;
   border-radius: 16px;
   text-transform: uppercase;

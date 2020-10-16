@@ -1487,6 +1487,8 @@ export default {
       this.store.feed.ratings.contents = [];
       this.store.feed.ratings.apply_filters_on_create = false;
       this.store.feed.ratings.element_heights = {};
+      this.store.feed.ratings.see_more_elements = [];
+      this.store.feed.ratings.element_comments = {};
       this.store.feed.ratings.feed_list = [];
       this.store.feed.ratings.fetching = false;
       this.store.feed.ratings.fetching_incremental = false;
@@ -1516,6 +1518,8 @@ export default {
       this.store.feed.watchlist.contents = [];
       this.store.feed.watchlist.apply_filters_on_create = false;
       this.store.feed.watchlist.element_heights = {};
+      this.store.feed.watchlist.see_more_elements = [];
+      this.store.feed.watchlist.element_comments = {};
       this.store.feed.watchlist.feed_list = [];
       this.store.feed.watchlist.fetching = false;
       this.store.feed.watchlist.fetching_incremental = false;

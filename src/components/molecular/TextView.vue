@@ -64,6 +64,11 @@ export default {
       type: String,
       required: true,
     },
+    actionId: {
+      type: Number,
+      required: true,
+      default: null,
+    },
     parent: {
       type: String,
       required: true,
@@ -128,6 +133,20 @@ export default {
         }
       }
 
+      if (
+        this.$store.state.feed[this.parent] &&
+        this.$store.state.feed[this.parent].see_more_elements &&
+        this.$store.state.feed[this.parent].see_more_elements.includes(
+          this.actionId
+        )
+      ) {
+        this.previewLimitIndex = output.length;
+      }
+
+      if (this.previewLimitIndex == output.length) {
+        this.showSeeMore = false;
+      }
+
       return output;
     },
   },
@@ -154,7 +173,7 @@ export default {
       this.previewLimitIndex = this.textArray.length;
       this.showSeeMore = false;
       this.$nextTick(() => {
-        this.$emit("update-element-heights");
+        this.$emit("see-more");
       });
     },
   },

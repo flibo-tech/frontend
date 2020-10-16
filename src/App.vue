@@ -1458,6 +1458,12 @@ export default {
 
       if (info.element_heights) {
         eval("this.$store.state.feed." + info.parent + ".element_heights = {}");
+        eval(
+          "this.$store.state.feed." + info.parent + ".see_more_elements = []"
+        );
+        eval(
+          "this.$store.state.feed." + info.parent + ".element_comments = {}"
+        );
       }
     },
   },

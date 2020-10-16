@@ -111,7 +111,12 @@
             currentIndex == 0 &&
             index == 0
           "
-          style="padding: 0px 16px; display: flex; justify-content: flex-end"
+          style="
+            padding: 0px 16px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+          "
         >
           <Button
             buttonType="secondary"
@@ -134,6 +139,9 @@
         <FeedCard
           :content="item"
           :parent="parent"
+          @see-more="
+            [updateElementHeights(), updateSeeMoreElements(item.action_id)]
+          "
           @update-element-heights="updateElementHeights"
           v-on="$listeners"
         />
@@ -273,6 +281,7 @@ export default {
           genre_filters: null,
           rating_filter: null,
           element_heights: "this.$store.state.feed.home.element_heights",
+          see_more_elements: "this.$store.state.feed.home.see_more_elements",
         },
         search_results: {
           contents: "this.$store.state.discover_filters.filtered_content",
@@ -288,6 +297,8 @@ export default {
           rating_filter: null,
           element_heights:
             "this.$store.state.feed.search_results.element_heights",
+          see_more_elements:
+            "this.$store.state.feed.search_results.see_more_elements",
         },
         watchlist: {
           contents: "this.$store.state.feed.watchlist.contents",
@@ -302,6 +313,8 @@ export default {
           genre_filters: "this.$store.state.feed.watchlist.genres",
           rating_filter: null,
           element_heights: "this.$store.state.feed.watchlist.element_heights",
+          see_more_elements:
+            "this.$store.state.feed.watchlist.see_more_elements",
         },
         ratings: {
           contents: "this.$store.state.feed.ratings.contents",
@@ -315,6 +328,7 @@ export default {
           genre_filters: "this.$store.state.feed.ratings.genres",
           rating_filter: "this.$store.state.feed.ratings.rating_tab",
           element_heights: "this.$store.state.feed.ratings.element_heights",
+          see_more_elements: "this.$store.state.feed.ratings.see_more_elements",
         },
       },
       observer: null,
@@ -587,17 +601,19 @@ export default {
       }
 
       for (let j = 0; j < self.listSize; j++) {
+        var elem = document.querySelector(`#${self.containerTile}-${j}`);
         dom_elem_heights[
-          document
-            .querySelector(`#${self.containerTile}-${j}`)
-            .getAttribute("action-id")
-        ] = document
-          .querySelector(`#${self.containerTile}-${j}`)
-          .getBoundingClientRect().height;
+          elem.getAttribute("action-id")
+        ] = elem.getBoundingClientRect().height;
       }
 
       eval(
         self.feed_mappings[self.parent].element_heights + " = dom_elem_heights"
+      );
+    },
+    updateSeeMoreElements(actionId) {
+      eval(
+        this.feed_mappings[this.parent].see_more_elements + ".push(actionId)"
       );
     },
     updatePadding() {
@@ -1215,7 +1231,8 @@ export default {
   width: 100vw;
   vertical-align: top;
   text-align: left;
-  padding: 15px 0px;
+  padding-top: 24px;
+  padding-bottom: 4px;
   border-bottom: 10px solid #f8f8f8;
 }
 .fetching-feed {

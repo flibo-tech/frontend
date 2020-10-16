@@ -25,7 +25,7 @@
         class="feed-description-textbox"
         ref="feedDescription"
         :style="
-          isSpoiler
+          isSpoiler && showSpoilerAlert && content.creator_id != store.user.id
             ? 'filter: blur(5px); background-color: rgba(0, 0, 0, 0.4);'
             : ''
         "
@@ -48,6 +48,7 @@
         <TextView
           v-if="content.description"
           :text="content.description"
+          :actionId="content.action_id"
           :parent="parent"
           v-on="$listeners"
         />
@@ -212,7 +213,9 @@
       <TextEditor
         style="margin-top: 4px; flex: 1"
         parent="comment"
+        :grandParent="parent"
         :actionId="content.action_id"
+        v-on="$listeners"
       />
     </div>
 
