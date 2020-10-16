@@ -23,7 +23,11 @@
         class="textfield-spoiler-n-counter"
         @click="stopUnfocus"
         :style="
-          parent === 'comment' ? { minHeight: '24px', marginTop: '4px' } : {}
+          parent === 'comment'
+            ? RegExp(/^.*_details$/).test(grandParent)
+              ? { marginTop: '8px' }
+              : { minHeight: '24px', marginTop: '4px' }
+            : {}
         "
       >
         <transition name="counter-animation">
@@ -573,6 +577,7 @@ export default {
       this.preventContentWatch = true;
 
       if (
+        this.$store.state.feed[this.grandParent] &&
         Object.keys(
           this.$store.state.feed[this.grandParent].element_comments
         ).includes(JSON.stringify(this.actionId))

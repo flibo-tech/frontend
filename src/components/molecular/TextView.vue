@@ -7,14 +7,13 @@
         :style="isTag(item) ? 'font-weight: bold; cursor: pointer;' : ''"
         @click="isTag(item) ? openPreview(item) : ''"
       >
-        {{
-          isTag(item)
-            ? item
-                .split(/\]\s*\(/)[0]
-                .slice(1)
-                .trim()
-            : item
-        }}
+        <span v-if="isTag(item)">{{
+          item
+            .split(/\]\s*\(/)[0]
+            .slice(1)
+            .trim()
+        }}</span>
+        <span v-else v-html="item"></span>
       </span>
 
       <span class="text-view-see-more" v-if="showSeeMore" @click="seeMore">
