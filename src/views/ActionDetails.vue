@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <div v-else class="action-details-container" id="action-details-container">
+  <div v-else-if="!badRequest" class="action-details-container" id="action-details-container">
     <FeedCard
       v-if="data != null"
       :content="data"
@@ -90,6 +90,10 @@
       v-on="$listeners"
     />
   </div>
+
+  <div v-else class="na-message">
+    No such page exists.
+  </div>
 </template>
 
 <script>
@@ -117,6 +121,7 @@ export default {
         title: null,
         id: null,
       },
+      badRequest: false
     };
   },
   created() {
@@ -162,6 +167,9 @@ export default {
               self.fetching = false;
             })
             .catch(function (error) {
+              if (error.response.status == 400) {
+                self.badRequest = true
+              }
               self.fetching = false;
               // console.log(error);
             });
@@ -182,6 +190,9 @@ export default {
           self.fetching = false;
         })
         .catch(function (error) {
+          if (error.response.status == 400) {
+                self.badRequest = true
+              }
           self.fetching = false;
           // console.log(error);
         });
@@ -343,5 +354,24 @@ export default {
 }
 ::-webkit-scrollbar {
   display: none;
+}
+.na-message {
+  position: fixed;
+  width: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  padding: 16px;
+  white-space: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: normal;
+  color: #222222;
+  font-family: "Roboto", sans-serif;
+  text-align: center;
+  cursor: none;
 }
 </style>
