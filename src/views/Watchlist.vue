@@ -47,10 +47,19 @@ export default {
     this.userUrlName = this.$route.params.user_name;
 
     if (this.$store.state.feed.watchlist.contents.length) {
-      this.userName = this.$store.state.feed.watchlist.contents[0].creator_name
+      if (
+        this.$store.state.feed.watchlist.contents[0].creator_id != this.userId
+      ) {
+        this.fetchWatchlist([]);
+      } else {
+        this.userName = this.$store.state.feed.watchlist.contents[0].creator_name;
+      }
     }
 
-    if (self.$store.state.feed.watchlist.contents.length == 0) {
+    if (
+      self.$store.state.feed.watchlist.contents.length == 0 &&
+      !self.$store.state.feed.watchlist.fetching
+    ) {
       if (
         this.store.user.profile.country == null &&
         this.store.guest_country == null
@@ -79,6 +88,10 @@ export default {
   methods: {
     fetchWatchlist(fetchedWatchlistItems) {
       var self = this;
+
+      if (fetchedWatchlistItems.length == 0) {
+        this.resetWatchlistStore();
+      }
 
       if (fetchedWatchlistItems.length) {
         self.$store.state.feed.watchlist.fetching_incremental = true;
@@ -184,6 +197,29 @@ export default {
             // console.log(error.response.status);
           }
         });
+    },
+    resetWatchlistStore() {
+      this.store.feed.watchlist.contents = [];
+      this.store.feed.watchlist.apply_filters_on_create = false;
+      this.store.feed.watchlist.element_heights = {};
+      this.store.feed.watchlist.see_more_elements = [];
+      this.store.feed.watchlist.element_comments = {};
+      this.store.feed.watchlist.feed_list = [];
+      this.store.feed.watchlist.fetching = false;
+      this.store.feed.watchlist.fetching_incremental = false;
+      this.store.feed.watchlist.content_type_tab = ["movie", "tv"];
+      this.store.feed.watchlist.discover_type_tab = [
+        "community",
+        "friends",
+        "flibo",
+        "self",
+      ];
+      this.store.feed.watchlist.platforms = [];
+      this.store.feed.watchlist.genres = [];
+      this.store.feed.watchlist.padding_top = 0;
+      this.store.feed.watchlist.padding_bottom = 0;
+      this.store.feed.watchlist.scroll_position = 0;
+      this.store.feed.watchlist.observer_current_index = 0;
     },
   },
 };

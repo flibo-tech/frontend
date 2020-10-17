@@ -1484,29 +1484,6 @@ export default {
       );
     },
     goToRatings() {
-      this.store.feed.ratings.contents = [];
-      this.store.feed.ratings.apply_filters_on_create = false;
-      this.store.feed.ratings.element_heights = {};
-      this.store.feed.ratings.see_more_elements = [];
-      this.store.feed.ratings.element_comments = {};
-      this.store.feed.ratings.feed_list = [];
-      this.store.feed.ratings.fetching = false;
-      this.store.feed.ratings.fetching_incremental = false;
-      this.store.feed.ratings.content_type_tab = ["movie", "tv"];
-      this.store.feed.ratings.discover_type_tab = [
-        "community",
-        "friends",
-        "flibo",
-        "self",
-      ];
-      this.store.feed.ratings.platforms = [];
-      this.store.feed.ratings.genres = [];
-      this.store.feed.ratings.rating_tab = [1, 2, 3];
-      this.store.feed.ratings.padding_top = 0;
-      this.store.feed.ratings.padding_bottom = 0;
-      this.store.feed.ratings.scroll_position = 0;
-      this.store.feed.ratings.observer_current_index = 0;
-
       this.$router.push(
         "/ratings/" +
           this.user_id +
@@ -1515,28 +1492,6 @@ export default {
       );
     },
     goToWatchlist() {
-      this.store.feed.watchlist.contents = [];
-      this.store.feed.watchlist.apply_filters_on_create = false;
-      this.store.feed.watchlist.element_heights = {};
-      this.store.feed.watchlist.see_more_elements = [];
-      this.store.feed.watchlist.element_comments = {};
-      this.store.feed.watchlist.feed_list = [];
-      this.store.feed.watchlist.fetching = false;
-      this.store.feed.watchlist.fetching_incremental = false;
-      this.store.feed.watchlist.content_type_tab = ["movie", "tv"];
-      this.store.feed.watchlist.discover_type_tab = [
-        "community",
-        "friends",
-        "flibo",
-        "self",
-      ];
-      this.store.feed.watchlist.platforms = [];
-      this.store.feed.watchlist.genres = [];
-      this.store.feed.watchlist.padding_top = 0;
-      this.store.feed.watchlist.padding_bottom = 0;
-      this.store.feed.watchlist.scroll_position = 0;
-      this.store.feed.watchlist.observer_current_index = 0;
-
       this.$router.push(
         "/watchlist/" +
           this.user_id +

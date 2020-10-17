@@ -90,10 +90,19 @@ export default {
     this.userUrlName = this.$route.params.user_name;
 
     if (this.$store.state.feed.ratings.contents.length) {
-      this.userName = this.$store.state.feed.ratings.contents[0].creator_name
+      if (
+        this.$store.state.feed.ratings.contents[0].creator_id != this.userId
+      ) {
+        this.fetchRatings([]);
+      } else {
+        this.userName = this.$store.state.feed.ratings.contents[0].creator_name;
+      }
     }
 
-    if (self.$store.state.feed.ratings.contents.length == 0) {
+    if (
+      self.$store.state.feed.ratings.contents.length == 0 &&
+      !self.$store.state.feed.ratings.fetching
+    ) {
       if (
         this.store.user.profile.country == null &&
         this.store.guest_country == null
@@ -122,6 +131,10 @@ export default {
   methods: {
     fetchRatings(fetchedRatings) {
       var self = this;
+
+      if (fetchedRatings.length == 0) {
+        this.resetRatingsStore();
+      }
 
       if (fetchedRatings.length) {
         self.$store.state.feed.ratings.fetching_incremental = true;
@@ -260,6 +273,30 @@ export default {
             // console.log(error.response.status);
           }
         });
+    },
+    resetRatingsStore() {
+      this.store.feed.ratings.contents = [];
+      this.store.feed.ratings.apply_filters_on_create = false;
+      this.store.feed.ratings.element_heights = {};
+      this.store.feed.ratings.see_more_elements = [];
+      this.store.feed.ratings.element_comments = {};
+      this.store.feed.ratings.feed_list = [];
+      this.store.feed.ratings.fetching = false;
+      this.store.feed.ratings.fetching_incremental = false;
+      this.store.feed.ratings.content_type_tab = ["movie", "tv"];
+      this.store.feed.ratings.discover_type_tab = [
+        "community",
+        "friends",
+        "flibo",
+        "self",
+      ];
+      this.store.feed.ratings.platforms = [];
+      this.store.feed.ratings.genres = [];
+      this.store.feed.ratings.rating_tab = [1, 2, 3];
+      this.store.feed.ratings.padding_top = 0;
+      this.store.feed.ratings.padding_bottom = 0;
+      this.store.feed.ratings.scroll_position = 0;
+      this.store.feed.ratings.observer_current_index = 0;
     },
   },
 };
