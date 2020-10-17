@@ -62,7 +62,8 @@ export default {
     },
     creatorId: {
       type: Number,
-      required: true,
+      required: false,
+      default: null,
     },
     fontSize: {
       type: Number,

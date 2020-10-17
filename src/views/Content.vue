@@ -231,6 +231,78 @@
         </div>
 
         <div
+          v-if="posts.length"
+          class="posts-box"
+          :style="is_mobile ? '' : 'width: auto;'"
+        >
+          <div
+            class="category"
+            :style="
+              is_mobile
+                ? 'margin-top: 27%;'
+                : 'margin-left: 10px;font-size: 15px;margin-top: 170px;'
+            "
+          >
+            Posts
+          </div>
+
+          <div class="artists" style="padding: 8px; margin-top: 0">
+            <div
+              v-for="(item, index) in posts"
+              :key="index"
+              class="post-container"
+              @click="$router.push(item.url.replace('https://flibo.ai', ''))"
+            >
+              <div v-if="item.image_info.image" class="content-post-image">
+                <img :src="item.image_info.image" alt="post-image" />
+              </div>
+
+              <div class="content-post-title">{{ item.action_title }}</div>
+
+              <div class="content-post-meta-box">
+                <Vote
+                  style="min-width: 85px"
+                  :actionId="item.action_id"
+                  :totalVote="item.upvotes"
+                  :creatorId="store.user.id"
+                  :userVote="0"
+                />
+
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    margin-left: 24px;
+                    cursor: pointer;
+                  "
+                >
+                  <Button
+                    icon="comment"
+                    style="margin-top: -4px"
+                    buttonType="iconOnly"
+                    :size="16"
+                  />
+
+                  <p style="margin-left: 8px; font-size: 14px">
+                    {{ item.total_comments || 0 }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <Button
+              v-if="totalPosts > 10"
+              class="content-posts-show-all"
+              :style="is_mobile ? '' : 'margin-top: 112.5px'"
+              id="content-show-all"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToContentPosts"
+            />
+          </div>
+        </div>
+
+        <div
           class="friends-rating-box"
           :style="is_mobile ? '' : 'width: auto;'"
           v-if="friends_ratings.length"
@@ -460,6 +532,7 @@ import Poster from "./../components/molecular/Poster";
 import Artist from "./../components/molecular/Artist";
 import UserRating from "./../components/molecular/UserRating";
 import SharePrompt from "./../components/atomic/SharePrompt";
+import Vote from "./../components/atomic/Vote";
 
 export default {
   name: "App",
@@ -475,8 +548,8 @@ export default {
     UserRating,
     Button,
     SharePrompt,
+    Vote,
   },
-
   data() {
     return {
       is_mobile: window.screen.height > window.screen.width,
@@ -492,6 +565,8 @@ export default {
       store: this.$store.state,
       share_item: "poster",
       friends_ratings: [],
+      posts: [],
+      totalPosts: 0,
     };
   },
 
@@ -556,6 +631,8 @@ export default {
             .catch(function (error) {
               // console.log(error);
             });
+
+          self.fetchPosts();
         });
     } else {
       axios
@@ -593,6 +670,8 @@ export default {
         .catch(function (error) {
           // console.log(error);
         });
+
+      this.fetchPosts();
     }
 
     axios
@@ -642,6 +721,7 @@ export default {
       this.$store.state.content_page.crew = null;
       this.$store.state.content_page.more_by_artist = [];
       this.friends_ratings = [];
+      this.posts = [];
       axios
         .post(this.$store.state.api_host + "content_page", {
           session_id: this.$store.state.session_id,
@@ -708,6 +788,7 @@ export default {
         .catch(function (error) {
           // console.log(error);
         });
+      this.fetchPosts();
     },
     promptTapOnArtist() {
       var scroll_completion =
@@ -923,6 +1004,37 @@ export default {
     clickUser(id, name) {
       this.$router.push(
         "/profile/" + id + "/" + name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
+    },
+    fetchPosts() {
+      var self = this;
+
+      axios
+        .post(this.$store.state.api_host + "content_posts", {
+          session_id: this.$store.state.session_id,
+          content_id: this.$store.state.content_page.content_id,
+          fetched_posts: [],
+          limit: 10,
+          country:
+            self.$store.state.user.profile.country || self.store.guest_country,
+          guest_id: self.$store.state.guest_id,
+        })
+        .then(function (response) {
+          if ([200].includes(response.status)) {
+            self.posts = response.data.posts;
+            self.totalPosts = response.data.total_posts;
+          }
+        })
+        .catch(function (error) {
+          // console.log(error);
+        });
+    },
+    goToContentPosts() {
+      this.$router.push(
+        "/posts/content/" +
+          this.$store.state.content_page.content_id +
+          "/" +
+          this.content.data.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
     },
   },
@@ -1532,5 +1644,64 @@ export default {
   background-color: #fff;
   padding: 5px;
   border-radius: 50%;
+}
+.friends-rating-box {
+  position: relative;
+  margin-top: 20px;
+  background-color: #f9f9f9;
+  width: 100vw;
+  margin-left: -24px;
+  padding: 16px 24px;
+}
+.posts-box {
+  position: relative;
+  margin-top: 20px;
+  width: 100vw;
+  margin-left: -24px;
+  padding: 16px 24px;
+}
+.post-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  margin-right: 16px;
+  box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.07);
+  cursor: pointer;
+}
+.content-post-image {
+  position: relative;
+  display: flex;
+  align-self: center;
+  justify-content: center;
+  height: 125px;
+  width: 200px;
+  overflow: hidden;
+}
+.content-post-image img {
+  max-height: 100%;
+}
+.content-post-title {
+  width: calc(100% - 8px);
+  margin-left: 4px;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: normal;
+  text-align: left;
+  margin-top: 8px;
+  color: #222222;
+}
+.content-post-meta-box {
+  display: flex;
+  margin-left: 4px;
+}
+.content-posts-show-all {
+  transform: translateY(-50%);
+  margin-left: 8px;
+  margin-top: 79px;
 }
 </style>
