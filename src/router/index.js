@@ -20,6 +20,7 @@ import Watchlist from "@/views/Watchlist.vue";
 import Create from "@/views/Create.vue";
 import ActionDetails from "@/views/ActionDetails.vue";
 import Ratings from "@/views/Ratings.vue";
+import Posts from "@/views/Posts.vue";
 
 Vue.use(Router);
 
@@ -122,6 +123,11 @@ export default new Router({
       path: "/ratings/:user_id/:user_name",
       name: "Ratings",
       component: Ratings
+    },
+    {
+      path: "/posts/:type/:id/:name",
+      name: "Posts",
+      component: Posts
     }
   ]
 });

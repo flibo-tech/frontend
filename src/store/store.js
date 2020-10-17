@@ -322,6 +322,23 @@ export const store = new Vuex.Store({
         observer_current_index: 0,
         see_more_elements: [],
         element_comments: {}
+      },
+      posts: {
+        contents: [],
+        apply_filters_on_create: false,
+        type: null,
+        element_heights: {},
+        feed_list: [],
+        fetching: false,
+        fetching_incremental: false,
+        content_type_tab: ["movie", "tv"],
+        discover_type_tab: ["community", "friends", "flibo", "self"],
+        padding_top: 0,
+        padding_bottom: 0,
+        scroll_position: 0,
+        observer_current_index: 0,
+        see_more_elements: [],
+        element_comments: {}
       }
     },
     feed_filters: {

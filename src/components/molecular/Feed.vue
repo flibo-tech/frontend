@@ -7,6 +7,7 @@
       :style="is_mobile ? '' : 'top: 50px;width: 1000px;'"
     >
       <FeedFilters
+        v-if="parent != 'posts'"
         :parent="parent"
         @filter-parent="applyQuickFilters"
         @refresh-suggestions="refreshFeed(true)"
@@ -33,11 +34,15 @@
             ? 'margin-top: 200px;'
             : parent == 'search_results'
             ? 'margin-top: 105px;'
+            : parent == 'posts'
+            ? 'margin-top: 50px;'
             : 'margin-top: 140px;'
           : ['watchlist', 'ratings'].includes(parent)
           ? 'position: relative;margin-top: 225px;'
           : parent == 'search_results'
           ? 'position: relative;margin-top: 105px;'
+          : parent == 'posts'
+          ? 'position: relative;margin-top: 50px;'
           : 'position: relative;margin-top: 150px;'
       "
     >
@@ -329,6 +334,20 @@ export default {
           rating_filter: "this.$store.state.feed.ratings.rating_tab",
           element_heights: "this.$store.state.feed.ratings.element_heights",
           see_more_elements: "this.$store.state.feed.ratings.see_more_elements",
+        },
+        posts: {
+          contents: "this.$store.state.feed.posts.contents",
+          feed: "this.$store.state.feed.posts.feed_list",
+          fetching: "this.$store.state.feed.posts.fetching",
+          fetching_incremental:
+            "this.$store.state.feed.posts.fetching_incremental",
+          content_filter: "this.$store.state.feed.posts.content_type_tab",
+          discover_filters: "this.$store.state.feed.posts.discover_type_tab",
+          platform_filters: null,
+          genre_filters: null,
+          rating_filter: null,
+          element_heights: "this.$store.state.feed.posts.element_heights",
+          see_more_elements: "this.$store.state.feed.posts.see_more_elements",
         },
       },
       observer: null,

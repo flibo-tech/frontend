@@ -6,6 +6,7 @@
     <div
       v-if="
         this.$route.path.includes('/connections') ||
+        this.$route.path.includes('/posts/') ||
         this.$route.path.includes('/content') ||
         this.$route.path.includes('/about-us') ||
         this.$route.path.includes('/search-results') ||
@@ -27,6 +28,7 @@
       :class="is_mobile ? 'page-name' : 'desktop-page-name'"
       :style="
         this.$route.path.includes('/connections') ||
+        this.$route.path.includes('/posts/') ||
         this.$route.path.includes('/content') ||
         this.$route.path.includes('/about-us') ||
         this.$route.path.includes('/search-results') ||
@@ -55,6 +57,8 @@
           ? "Profile"
           : this.$route.path.includes("/connections")
           ? "Connections"
+          : this.$route.path.includes("/posts/")
+          ? "Posts"
           : this.$route.path.includes("/content/1")
           ? "Movie"
           : this.$route.path.includes("/content/2")
