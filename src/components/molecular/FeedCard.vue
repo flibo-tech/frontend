@@ -30,7 +30,7 @@
             : ''
         "
       >
-        <h1
+        <p
           v-if="
             ['request', 'suggest', 'review'].includes(content.action_type)
               ? content.action_title
@@ -39,12 +39,28 @@
               : false
           "
         >
-          {{
-            content.action_type != null
-              ? content.action_title
-              : content.content_title
-          }}
-        </h1>
+          <span style="margin-right: 8px">
+            {{
+              content.action_type != null
+                ? content.action_title
+                : content.content_title
+            }}
+          </span>
+
+          <span
+            v-if="
+              ['request', 'suggest', 'review'].includes(content.action_type)
+            "
+            class="feed-text-type"
+          >
+            {{
+              ["request", "review"].includes(content.action_type)
+                ? content.action_type
+                : "Suggestion"
+            }}
+          </span>
+        </p>
+
         <TextView
           v-if="content.description"
           :text="content.description"
@@ -370,9 +386,12 @@ export default {
 .feed-description-textbox {
   padding: 0px 16px;
 }
-.feed-description h1 {
-  font-size: 22px;
+.feed-description p {
+  font-size: 16px;
+  font-weight: bold;
   margin-bottom: 8px;
+  white-space: normal;
+  line-height: 1.5;
 }
 .spoiler-layer {
   position: absolute;
@@ -468,5 +487,27 @@ export default {
 }
 .create-comment-profile-pp {
   width: 101%;
+}
+.feed-text-type {
+  font-family: "Roboto", sans-serif;
+  border: none;
+  border-radius: 16px;
+  font-weight: normal;
+  color: white;
+  display: inline;
+  vertical-align: text-top;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 5px 10px;
+  text-transform: capitalize;
+  background-color: #88bfff;
+  -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
+  -o-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 </style>

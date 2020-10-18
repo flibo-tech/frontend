@@ -83,13 +83,6 @@
       </div>
     </div>
 
-    <div
-      v-if="['request', 'suggest', 'review'].includes(item_type)"
-      class="feed-text-type"
-    >
-      {{ ["request", "review"].includes(item_type) ? item_type : "Suggestion" }}
-    </div>
-
     <ContentPreview
       v-if="showPreview && clickedTag.type == 'content'"
       :id="clickedTag.id"
@@ -346,28 +339,5 @@ export default {
   justify-content: space-between;
   align-items: flex-start;
   padding: 0px 16px;
-}
-.feed-text-type {
-  font-family: "Roboto", sans-serif;
-  border: none;
-  border-radius: 16px;
-  margin-left: 16px;
-  color: white;
-  display: flex;
-  white-space: nowrap;
-  font-size: 12px;
-  line-height: 1.5;
-  padding: 5px 16px;
-  width: fit-content;
-  text-transform: capitalize;
-  height: fit-content;
-  background-color: #88bfff;
-  -webkit-user-select: none; /* Chrome/Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE10+ */
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 </style>

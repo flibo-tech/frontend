@@ -45,7 +45,9 @@
 
         <div v-if="ratings.length" style="margin-bottom: 16px">
           <div style="margin-bottom: 8px; font-weight: bold">
-            Some of {{ name.split(" ")[0] }}'s ratings...
+            Some of
+            {{ store.user.id == id ? "your" : name.split(" ")[0] + "'s" }}
+            ratings...
           </div>
           <div style="display: flex; overflow: scroll">
             <div

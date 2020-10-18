@@ -65,7 +65,7 @@ export default {
     },
     actionId: {
       type: Number,
-      required: true,
+      required: false,
       default: null,
     },
     parent: {
