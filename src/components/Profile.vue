@@ -23,6 +23,7 @@
       <div :class="is_mobile ? 'profile-cover' : 'desktop-profile-cover'">
         <img
           v-for="(item, index) in posters"
+          :key="'poster-' + (index + 1)"
           v-bind:class="'poster-' + (index + 1)"
           @click="
             openContent(
@@ -36,6 +37,7 @@
 
         <img
           v-for="(item, index) in covers"
+          :key="'cover-' + (index + 1)"
           v-bind:class="'cover-' + (index + 1)"
           @click="
             openContent(
@@ -482,7 +484,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 30px;
+            min-height: 31px;
             margin-bottom: 4px;
           "
         >
@@ -576,7 +578,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 30px;
+            min-height: 31px;
             margin-bottom: 4px;
           "
         >
@@ -643,6 +645,63 @@
               buttonType="secondary"
               text="Show All"
               @clicked="goToWatchlist"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-ratings" v-if="posts.length">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 31px;
+            margin-bottom: 4px;
+          "
+        >
+          <span style="font-weight: bold; font-size: 15px">
+            {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
+            posts...
+          </span>
+
+          <transition
+            appear
+            enter-active-class="animated fastFadeIn"
+            leave-active-class="animated fastFadeOut"
+          >
+            <!-- height of following button also affects min-height of parent -->
+            <Button
+              v-if="totalPosts > 10 && showAllPostsMainButton"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToPosts"
+            />
+          </transition>
+        </div>
+
+        <div style="display: flex">
+          <div
+            :class="
+              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
+            "
+            id="posts-container"
+          >
+            <PostPreview
+              v-for="(post, index) in posts"
+              :key="index"
+              style="margin-right: 16px"
+              :post="post"
+            />
+
+            <Button
+              v-if="totalPosts > 10"
+              class="show-all-button"
+              :style="is_mobile ? '' : 'margin-top: 112.5px'"
+              id="posts-show-all"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToPosts"
             />
           </div>
         </div>
@@ -834,6 +893,7 @@ import WatchedTimeline from "./WatchedTimeline";
 import Artist from "./molecular/Artist";
 import Poster from "./molecular/Poster";
 import UserRating from "./molecular/UserRating";
+import PostPreview from "./molecular/PostPreview";
 import ImageCard from "./atomic/ImageCard";
 import Button from "./atomic/Button";
 import SharePrompt from "./atomic/SharePrompt";
@@ -852,6 +912,7 @@ export default {
     UserRating,
     Button,
     SharePrompt,
+    PostPreview,
   },
   data() {
     return {
@@ -933,8 +994,12 @@ export default {
       watchlist_items: null,
       ratingsObserver: null,
       watchlistObserver: null,
+      postsObserver: null,
       showAllRatingsMainButton: true,
       showAllWatchlistMainButton: true,
+      showAllPostsMainButton: true,
+      posts: [],
+      totalPosts: 0,
     };
   },
   created() {
@@ -1058,6 +1123,8 @@ export default {
                 // console.log(error.response.status);
               }
             });
+
+          self.fetchUserPosts();
         });
     } else {
       axios
@@ -1132,6 +1199,8 @@ export default {
             // console.log(error.response.status);
           }
         });
+
+      self.fetchUserPosts();
     }
 
     axios
@@ -1271,6 +1340,8 @@ export default {
             // console.log(error.response.status);
           }
         });
+
+      self.fetchUserPosts();
 
       axios
         .post(self.$store.state.api_host + "favorite_artists", {
@@ -1499,6 +1570,14 @@ export default {
           this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
     },
+    goToPosts() {
+      this.$router.push(
+        "/posts/user/" +
+          this.user_id +
+          "/" +
+          this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
+    },
     initIntersectionObserver() {
       this.resetIntersectionObserver();
 
@@ -1522,25 +1601,45 @@ export default {
         });
       };
 
-      setTimeout(() => {
-        this.ratingsObserver = new IntersectionObserver(ratingsCallback, {
-          root: document.querySelector("#ratings-container"),
-          rootMargin: "0px",
-          threshold: 0.0,
+      const postsCallback = (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.showAllPostsMainButton = false;
+          } else {
+            this.showAllPostsMainButton = true;
+          }
         });
+      };
+
+      setTimeout(() => {
         var rateElem = document.querySelector("#rating-show-all");
         if (rateElem) {
+          this.ratingsObserver = new IntersectionObserver(ratingsCallback, {
+            root: document.querySelector("#ratings-container"),
+            rootMargin: "0px",
+            threshold: 0.0,
+          });
           this.ratingsObserver.observe(rateElem);
         }
 
-        this.watchlistObserver = new IntersectionObserver(watchlistCallback, {
-          root: document.querySelector("#watchlist-container"),
-          rootMargin: "0px",
-          threshold: 0.0,
-        });
         var watchlistElem = document.querySelector("#watchlist-show-all");
         if (watchlistElem) {
+          this.watchlistObserver = new IntersectionObserver(watchlistCallback, {
+            root: document.querySelector("#watchlist-container"),
+            rootMargin: "0px",
+            threshold: 0.0,
+          });
           this.watchlistObserver.observe(watchlistElem);
+        }
+
+        var postElem = document.querySelector("#posts-show-all");
+        if (postElem) {
+          this.postsObserver = new IntersectionObserver(postsCallback, {
+            root: document.querySelector("#posts-container"),
+            rootMargin: "0px",
+            threshold: 0.0,
+          });
+          this.postsObserver.observe(postElem);
         }
       }, 0);
     },
@@ -1553,6 +1652,43 @@ export default {
         this.watchlistObserver.disconnect();
         this.watchlistObserver = null;
       }
+      if (this.postsObserver) {
+        this.postsObserver.disconnect();
+        this.postsObserver = null;
+      }
+    },
+    fetchUserPosts() {
+      var self = this;
+      self.posts = [];
+      self.totalPosts = 0;
+
+      var userid = this.$route.params.user_id;
+      var username = this.$route.params.user_name;
+      axios
+        .post(self.$store.state.api_host + "user_posts", {
+          session_id: self.$store.state.session_id,
+          user_id: parseInt(userid),
+          user_name: username,
+          fetched_posts: [],
+          limit: 10,
+          country:
+            self.$store.state.user.profile.country || self.store.guest_country,
+          guest_id: self.$store.state.guest_id,
+        })
+        .then(function (response) {
+          if ([200].includes(response.status)) {
+            if (response.data.profile_status == "open") {
+              self.posts = response.data.posts;
+              self.totalPosts = response.data.total_posts;
+              self.$nextTick(() => {
+                self.initIntersectionObserver();
+              });
+            }
+          }
+        })
+        .catch(function (error) {
+          // console.log(error);
+        });
     },
   },
   computed: {
@@ -2126,8 +2262,7 @@ h4 {
   overflow-x: scroll;
   width: 100%;
   display: flex;
-  margin-bottom: 2%;
-  margin-top: 2%;
+  padding-top: 8px;
 }
 .desktop-ratings-container {
   overflow-x: scroll;
@@ -2644,7 +2779,7 @@ h4 {
   text-align: left;
   width: 100%;
   border-radius: 7px;
-  padding: 7px;
+  padding: 0px 7px;
 }
 .fetching-profile-message {
   position: fixed;

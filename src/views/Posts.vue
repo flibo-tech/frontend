@@ -12,7 +12,7 @@
     />
     <div v-else class="na-message">
       {{
-        store.feed.posts.type == "user" && store.user.id != userId
+        store.feed.posts.type == "user" && store.user.id != id
           ? profileClosed
             ? userName.split(" ")[0] + "'s profile is private."
             : userName.split(" ")[0] + " hasn't added any posts."
@@ -42,6 +42,7 @@ export default {
       noPostFound: false,
       id: null,
       urlName: null,
+      userName: null,
     };
   },
   created() {
@@ -94,6 +95,8 @@ export default {
     fetchPosts() {
       if (this.$store.state.feed.posts.type == "content") {
         this.fetchContentPosts();
+      } else {
+        this.fetchUserPosts();
       }
     },
     fetchContentPosts(fetchedPosts = []) {
@@ -148,6 +151,86 @@ export default {
                   self.$store.state.feed.update_dom = true;
                 });
               }
+            }
+          } else if ([204].includes(response.status)) {
+            self.noPostFound = true;
+          }
+
+          if (fetchedPosts.length) {
+            self.$store.state.feed.posts.fetching_incremental = false;
+          } else {
+            self.$store.state.feed.posts.fetching = false;
+          }
+        })
+        .catch(function (error) {
+          // console.log(error);
+          if (fetchedPosts.length) {
+            self.$store.state.feed.posts.fetching_incremental = false;
+          } else {
+            self.$store.state.feed.posts.fetching = false;
+          }
+        });
+    },
+    fetchUserPosts(fetchedPosts = []) {
+      var self = this;
+
+      if (fetchedPosts.length == 0) {
+        this.resetPostsStore();
+      }
+
+      if (fetchedPosts.length) {
+        self.$store.state.feed.posts.fetching_incremental = true;
+      } else {
+        self.$store.state.feed.posts.fetching = true;
+      }
+
+      axios
+        .post(self.$store.state.api_host + "user_posts", {
+          session_id: self.$store.state.session_id,
+          country:
+            self.$store.state.user.profile.country || self.store.guest_country,
+          guest_id: self.$store.state.guest_id,
+          user_id: self.id,
+          user_name: self.urlName,
+          fetched_posts: fetchedPosts,
+        })
+        .then((response) => {
+          if ([200].includes(response.status)) {
+            if (response.data.profile_status == "open") {
+              if (fetchedPosts.length) {
+                self.$store.state.feed.posts.contents.push(
+                  ...response.data.posts
+                );
+                if (self.$route.path.includes("/posts/")) {
+                  self.$store.state.feed_filters.apply_filters_wo_reset = true;
+                } else if (
+                  self.store.feed.posts.feed_list.length <
+                  self.$store.state.feed.defaultListSize
+                ) {
+                  self.store.feed.posts.apply_filters_on_create = true;
+                }
+              } else {
+                self.$store.state.feed.posts.contents = response.data.posts;
+                self.store.feed.posts.feed_list = self.$store.state.feed.posts.contents.slice(
+                  0,
+                  self.$store.state.feed.defaultListSize
+                );
+                if (response.data.total_posts > response.data.posts.length)
+                  self.fetchUserPosts(
+                    response.data.posts.map((post) => post.action_id)
+                  );
+
+                if (self.$route.path.includes("/posts/")) {
+                  self.$nextTick(function () {
+                    self.$store.state.feed.update_dom = true;
+                  });
+                }
+              }
+            } else {
+              self.userName =
+                response.data.user_name.slice(0, 1).toUpperCase() +
+                response.data.user_name.slice(1);
+              self.profileClosed = true;
             }
           } else if ([204].includes(response.status)) {
             self.noPostFound = true;

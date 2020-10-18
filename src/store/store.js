@@ -331,7 +331,7 @@ export const store = new Vuex.Store({
         feed_list: [],
         fetching: false,
         fetching_incremental: false,
-        content_type_tab: ["movie", "tv"],
+        content_type_tab: ["movie", "tv", "pass_check"],
         discover_type_tab: ["community", "friends", "flibo", "self"],
         padding_top: 0,
         padding_bottom: 0,

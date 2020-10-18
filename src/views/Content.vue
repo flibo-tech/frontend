@@ -247,48 +247,12 @@
           </div>
 
           <div class="artists" style="padding: 8px; margin-top: 0">
-            <div
-              v-for="(item, index) in posts"
+            <PostPreview
+              v-for="(post, index) in posts"
               :key="index"
-              class="post-container"
-              @click="$router.push(item.url.replace('https://flibo.ai', ''))"
-            >
-              <div v-if="item.image_info.image" class="content-post-image">
-                <img :src="item.image_info.image" alt="post-image" />
-              </div>
-
-              <div class="content-post-title">{{ item.action_title }}</div>
-
-              <div class="content-post-meta-box">
-                <Vote
-                  style="min-width: 85px"
-                  :actionId="item.action_id"
-                  :totalVote="item.upvotes"
-                  :creatorId="store.user.id"
-                  :userVote="0"
-                />
-
-                <div
-                  style="
-                    display: flex;
-                    align-items: center;
-                    margin-left: 24px;
-                    cursor: pointer;
-                  "
-                >
-                  <Button
-                    icon="comment"
-                    style="margin-top: -4px"
-                    buttonType="iconOnly"
-                    :size="16"
-                  />
-
-                  <p style="margin-left: 8px; font-size: 14px">
-                    {{ item.total_comments || 0 }}
-                  </p>
-                </div>
-              </div>
-            </div>
+              style="margin-right: 16px"
+              :post="post"
+            />
 
             <Button
               v-if="totalPosts > 10"
@@ -532,7 +496,7 @@ import Poster from "./../components/molecular/Poster";
 import Artist from "./../components/molecular/Artist";
 import UserRating from "./../components/molecular/UserRating";
 import SharePrompt from "./../components/atomic/SharePrompt";
-import Vote from "./../components/atomic/Vote";
+import PostPreview from "./../components/molecular/PostPreview";
 
 export default {
   name: "App",
@@ -548,7 +512,7 @@ export default {
     UserRating,
     Button,
     SharePrompt,
-    Vote,
+    PostPreview,
   },
   data() {
     return {
@@ -1659,45 +1623,6 @@ export default {
   width: 100vw;
   margin-left: -24px;
   padding: 16px 24px;
-}
-.post-container {
-  display: flex;
-  flex-direction: column;
-  min-width: 200px;
-  margin-right: 16px;
-  box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.07);
-  cursor: pointer;
-}
-.content-post-image {
-  position: relative;
-  display: flex;
-  align-self: center;
-  justify-content: center;
-  height: 125px;
-  width: 200px;
-  overflow: hidden;
-}
-.content-post-image img {
-  max-height: 100%;
-}
-.content-post-title {
-  width: calc(100% - 8px);
-  margin-left: 4px;
-  overflow: hidden;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.17;
-  letter-spacing: normal;
-  text-align: left;
-  margin-top: 8px;
-  color: #222222;
-}
-.content-post-meta-box {
-  display: flex;
-  margin-left: 4px;
 }
 .content-posts-show-all {
   transform: translateY(-50%);
