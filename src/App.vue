@@ -637,6 +637,8 @@ export default {
             if (!self.$route.query.search) {
               self.updateDeviceInfo();
             }
+            self.$store.state.notifications.notifications =
+              response.data.notifications;
           });
 
         axios

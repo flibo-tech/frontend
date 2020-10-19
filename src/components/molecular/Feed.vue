@@ -1,13 +1,12 @@
 <template>
   <div>
     <div
-      v-if="!fetching_feed"
+      v-if="!['posts', 'notifications'].includes(parent) && !fetching_feed"
       class="quick-filters-container"
       :class="{ 'quick-filters-container--hidden': !showRefreshButton }"
       :style="is_mobile ? '' : 'top: 50px;width: 1000px;'"
     >
       <FeedFilters
-        v-if="parent != 'posts'"
         :parent="parent"
         @filter-parent="applyQuickFilters"
         @refresh-suggestions="refreshFeed(true)"
@@ -36,12 +35,16 @@
             ? 'margin-top: 105px;'
             : parent == 'posts'
             ? 'margin-top: 50px;'
+            : parent == 'notifications'
+            ? 'margin-top: 50px;'
             : 'margin-top: 140px;'
           : ['watchlist', 'ratings'].includes(parent)
           ? 'position: relative;margin-top: 225px;'
           : parent == 'search_results'
           ? 'position: relative;margin-top: 105px;'
           : parent == 'posts'
+          ? 'position: relative;margin-top: 50px;'
+          : parent == 'notifications'
           ? 'position: relative;margin-top: 50px;'
           : 'position: relative;margin-top: 150px;'
       "
@@ -51,8 +54,17 @@
         :key="index"
         :class="containerTile"
         :id="containerTile + '-' + index"
-        :style="is_mobile ? '' : 'width: 100%;'"
-        :action-id="item.action_id"
+        :style="
+          parent == 'notifications'
+            ? {
+                width: is_mobile ? '100vw' : '100%;',
+                padding: '0',
+                border: 0,
+                marginBottom: '0px',
+              }
+            : { width: is_mobile ? '100vw' : '100%;' }
+        "
+        :action-id="item.action_id || item.notification_id"
       >
         <div
           v-if="
@@ -142,12 +154,19 @@
         />
 
         <FeedCard
+          v-if="parent != 'notifications'"
           :content="item"
           :parent="parent"
           @see-more="
             [updateElementHeights(), updateSeeMoreElements(item.action_id)]
           "
           @update-element-heights="updateElementHeights"
+          v-on="$listeners"
+        />
+
+        <Notification
+          v-if="parent == 'notifications'"
+          :notification="item"
           v-on="$listeners"
         />
 
@@ -237,6 +256,7 @@ import UserSuggestions from "./UserSuggestions";
 import SavePlatforms from "./SavePlatforms";
 import SharePrompt from "./../atomic/SharePrompt";
 import Button from "./../atomic/Button";
+import Notification from "./Notification";
 
 export default {
   name: "app",
@@ -247,6 +267,7 @@ export default {
     SavePlatforms,
     SharePrompt,
     Button,
+    Notification,
   },
   props: {
     parent: {
@@ -349,6 +370,20 @@ export default {
           element_heights: "this.$store.state.feed.posts.element_heights",
           see_more_elements: "this.$store.state.feed.posts.see_more_elements",
         },
+        notifications: {
+          contents: "this.$store.state.feed.notifications.contents",
+          feed: "this.$store.state.feed.notifications.feed_list",
+          fetching: "this.$store.state.feed.notifications.fetching",
+          fetching_incremental:
+            "this.$store.state.feed.notifications.fetching_incremental",
+          content_filter: null,
+          discover_filters: null,
+          platform_filters: null,
+          genre_filters: null,
+          rating_filter: null,
+          element_heights:
+            "this.$store.state.feed.notifications.element_heights",
+        },
       },
       observer: null,
       mainContainer: ".feed-cards-container",
@@ -359,8 +394,14 @@ export default {
       bottomSentinelPreviousY: this.$store.state.feed.bottomSentinelPreviousY,
       bottomSentinelPreviousRatio: this.$store.state.feed
         .bottomSentinelPreviousRatio,
-      defaultListSize: this.$store.state.feed.defaultListSize,
-      listThreshold: this.$store.state.feed.listThreshold,
+      defaultListSize:
+        this.parent == "notifications"
+          ? 50
+          : this.$store.state.feed.defaultListSize,
+      listThreshold:
+        this.parent == "notifications"
+          ? 30
+          : this.$store.state.feed.listThreshold,
       first_obervation: true,
       updating_dom: false,
       scroll: {
@@ -900,7 +941,8 @@ export default {
       var totalHeight = 0;
       for (let i = startIndex; i < endIndex; i++) {
         totalHeight += eval(this.feed_mappings[this.parent].element_heights)[
-          this.parent_feed_list[i].action_id
+          this.parent_feed_list[i].action_id ||
+            this.parent_feed_list[i].notification_id
         ];
       }
       return totalHeight;
@@ -1166,7 +1208,7 @@ export default {
           if (entry.target.id === this.containerTile + "-0") {
             this.topSentCallback(entry);
           } else if (
-            entry.target.id === `${this.containerTile}-${this.listSize - 1}`
+            entry.target.id === `${this.containerTile}-${this.listSize - 4}`
           ) {
             if (!this.stopCheck) {
               this.botSentCallback(entry);
@@ -1182,7 +1224,7 @@ export default {
           document.querySelector("#" + this.containerTile + "-0")
         );
         this.observer.observe(
-          document.querySelector(`#${this.containerTile}-${this.listSize - 1}`)
+          document.querySelector(`#${this.containerTile}-${this.listSize - 4}`)
         );
       }
     },

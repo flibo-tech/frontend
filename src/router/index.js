@@ -21,6 +21,7 @@ import Create from "@/views/Create.vue";
 import ActionDetails from "@/views/ActionDetails.vue";
 import Ratings from "@/views/Ratings.vue";
 import Posts from "@/views/Posts.vue";
+import Notifications from "@/views/Notifications.vue";
 
 Vue.use(Router);
 
@@ -128,6 +129,11 @@ export default new Router({
       path: "/posts/:type/:id/:name",
       name: "Posts",
       component: Posts
+    },
+    {
+      path: "/notifications",
+      name: "Notifications",
+      component: Notifications
     }
   ]
 });

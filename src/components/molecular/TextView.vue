@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="text-view">
+    <div class="text-view" :style="noWrap ? 'white-space: nowrap;' : ''">
       <span
         v-for="(item, index) in textArray.slice(0, previewLimitIndex)"
         :key="index"
         :style="isTag(item) ? 'font-weight: bold; cursor: pointer;' : ''"
-        @click="isTag(item) ? openPreview(item) : ''"
+        @click="!preventClick && isTag(item) ? openPreview(item) : ''"
       >
         <span v-if="isTag(item)">{{
           item
@@ -71,6 +71,16 @@ export default {
     parent: {
       type: String,
       required: true,
+    },
+    preventClick: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    noWrap: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {

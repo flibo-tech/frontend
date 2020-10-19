@@ -17,7 +17,8 @@
         this.$route.path.includes('/activity/') ||
         this.$route.path.includes('/list/') ||
         this.$route.path.includes('/ratings/') ||
-        this.$route.path.includes('/watchlist/')
+        this.$route.path.includes('/watchlist/') ||
+        this.$route.path == '/notifications'
       "
       class="go-back-button"
       :style="is_mobile ? '' : 'left: calc(50vw - 500px);'"
@@ -39,7 +40,8 @@
         this.$route.path.includes('/activity/') ||
         this.$route.path.includes('/list/') ||
         this.$route.path.includes('/ratings/') ||
-        this.$route.path.includes('/watchlist/')
+        this.$route.path.includes('/watchlist/') ||
+        this.$route.path == '/notifications'
           ? is_mobile
             ? 'left: calc(5% + 15px);'
             : 'left: calc(50vw - 500px + 30px);'
@@ -83,6 +85,8 @@
           ? "Ratings"
           : this.$route.path.includes("/activity/")
           ? "Activity"
+          : this.$route.path == "/notifications"
+          ? "Notifications"
           : ""
       }}
     </div>
@@ -94,15 +98,34 @@
       @click="$router.push('/search')"
       type="button"
     ></button>
+
+    <div
+      v-else-if="$route.path != '/notifications'"
+      class="top-bar-notification"
+      :style="is_mobile ? '' : 'right: calc(50vw - 500px);'"
+      @click="$router.push('/notifications')"
+    >
+      <Button buttonType="iconOnly" icon="notification" :size="26" />
+
+      <button
+        v-if="store.notifications.notifications"
+        class="new-notification"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import { mixin as onClickOutside } from "vue-on-click-outside";
+import Button from "./../components/atomic/Button";
 import axios from "axios";
 
 export default {
-  name: "App",
+  name: "TopBar",
+  components: {
+    Button,
+  },
+
   mixins: [onClickOutside],
   data() {
     return {
@@ -207,5 +230,25 @@ export default {
   background-repeat: no-repeat;
   background-position: center;
   z-index: 100000;
+}
+.top-bar-notification {
+  position: fixed;
+  right: 5%;
+  top: 12px;
+  transform: rotate(-30deg);
+  z-index: 100000;
+}
+.new-notification {
+  position: absolute;
+  right: -12px;
+  top: 5px;
+  height: 7px;
+  width: 7px;
+  background-image: url("./../images/red_dot.png");
+  background-color: #e9f3f8;
+  background-size: 100% 100%;
+  border: none;
+  outline: 0;
+  z-index: 10000;
 }
 </style>

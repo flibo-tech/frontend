@@ -339,6 +339,18 @@ export const store = new Vuex.Store({
         observer_current_index: 0,
         see_more_elements: [],
         element_comments: {}
+      },
+      notifications: {
+        contents: [],
+        apply_filters_on_create: false,
+        element_heights: {},
+        feed_list: [],
+        fetching: false,
+        fetching_incremental: false,
+        padding_top: 0,
+        padding_bottom: 0,
+        scroll_position: 0,
+        observer_current_index: 0
       }
     },
     feed_filters: {
@@ -511,7 +523,8 @@ export const store = new Vuex.Store({
       requests: my_store ? my_store.notifications.requests : false,
       never_seen_profile_switch: my_store
         ? my_store.notifications.never_seen_profile_switch
-        : true
+        : true,
+      notifications: 0
     },
     friends_page: {
       friends: my_store ? my_store.friends_page.friends : []
