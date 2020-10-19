@@ -141,10 +141,11 @@ export default {
                 0,
                 self.$store.state.feed.defaultListSize
               );
-              if (response.data.total_posts > response.data.posts.length)
+              if (response.data.total_posts > response.data.posts.length) {
                 self.fetchContentPosts(
                   response.data.posts.map((post) => post.action_id)
                 );
+              }
 
               if (self.$route.path.includes("/posts/")) {
                 self.$nextTick(function () {
@@ -215,10 +216,11 @@ export default {
                   0,
                   self.$store.state.feed.defaultListSize
                 );
-                if (response.data.total_posts > response.data.posts.length)
+                if (response.data.total_posts > response.data.posts.length) {
                   self.fetchUserPosts(
                     response.data.posts.map((post) => post.action_id)
                   );
+                }
 
                 if (self.$route.path.includes("/posts/")) {
                   self.$nextTick(function () {

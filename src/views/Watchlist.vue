@@ -136,10 +136,11 @@ export default {
                 if (
                   response.data.total_watchlist_items >
                   response.data.watchlist.length
-                )
+                ) {
                   self.fetchWatchlist(
                     response.data.watchlist.map((content) => content.content_id)
                   );
+                }
 
                 if (self.$route.path.includes("/watchlist/")) {
                   self.$nextTick(function () {

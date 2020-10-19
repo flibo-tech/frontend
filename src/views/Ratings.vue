@@ -175,10 +175,13 @@ export default {
                   0,
                   self.$store.state.feed.defaultListSize
                 );
-                if (response.data.total_ratings > response.data.ratings.length)
+                if (
+                  response.data.total_ratings > response.data.ratings.length
+                ) {
                   self.fetchRatings(
                     response.data.ratings.map((content) => content.content_id)
                   );
+                }
 
                 if (self.$route.path.includes("/ratings/")) {
                   self.$nextTick(function () {
