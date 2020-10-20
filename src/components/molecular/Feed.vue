@@ -78,7 +78,7 @@
           :style="
             is_mobile
               ? 'margin-bottom: 24px;'
-              : 'margin-bottom: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);'
+              : 'margin-bottom: 24px;width: 1000px;'
           "
         >
           <p style="font-weight: normal; text-align: center">
@@ -96,7 +96,7 @@
           :style="
             is_mobile
               ? 'margin-bottom: 24px; display: flex;align-items: center;justify-content: center;'
-              : 'margin-bottom: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);display: flex;align-items: center;justify-content: center;'
+              : 'margin-bottom: 24px;width: 1000px;display: flex;align-items: center;justify-content: center;'
           "
         >
           <p v-if="is_mobile" style="font-weight: normal; text-align: center">
@@ -187,9 +187,7 @@
           "
           class="user-suggestions-container"
           :style="
-            is_mobile
-              ? 'margin-top: 24px;'
-              : 'margin-top: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);'
+            is_mobile ? 'margin-top: 24px;' : 'margin-top: 24px;width: 1000px;'
           "
         >
           <p style="font-weight: normal; text-align: center">
