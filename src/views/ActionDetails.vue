@@ -12,7 +12,11 @@
     </div>
   </div>
 
-  <div v-else-if="!badRequest" class="action-details-container" id="action-details-container">
+  <div
+    v-else-if="!badRequest"
+    class="action-details-container"
+    id="action-details-container"
+  >
     <FeedCard
       v-if="data != null"
       :content="data"
@@ -75,10 +79,22 @@
         @reply="reply"
         v-for="(comment, index) in data.comments"
         :key="index"
+        :id="'comment-' + index"
         :currentComment="comment"
         :isChild="false"
         :parent="actionType + '_details'"
+        @add-fetched-comments="addFetchedComments"
+        v-on="$listeners"
       />
+    </div>
+
+    <div class="fetching-comments" v-if="fetchingComments">
+      <div class="sk-folding-cube">
+        <div class="sk-cube1 sk-cube"></div>
+        <div class="sk-cube2 sk-cube"></div>
+        <div class="sk-cube4 sk-cube"></div>
+        <div class="sk-cube3 sk-cube"></div>
+      </div>
     </div>
 
     <ContentPreview
@@ -91,9 +107,7 @@
     />
   </div>
 
-  <div v-else class="na-message">
-    No such page exists.
-  </div>
+  <div v-else class="na-message">No such page exists.</div>
 </template>
 
 <script>
@@ -121,7 +135,10 @@ export default {
         title: null,
         id: null,
       },
-      badRequest: false
+      badRequest: false,
+      fetchingComments: false,
+      commentObserver: null,
+      keepFetchingComments: true,
     };
   },
   created() {
@@ -165,10 +182,15 @@ export default {
             .then((response) => {
               self.data = response.data;
               self.fetching = false;
+              self.$nextTick(() => {
+                if (self.data.comments.length == 15) {
+                  self.initIntersectionObserver();
+                }
+              });
             })
             .catch(function (error) {
               if (error.response.status == 400) {
-                self.badRequest = true
+                self.badRequest = true;
               }
               self.fetching = false;
               // console.log(error);
@@ -188,11 +210,16 @@ export default {
         .then((response) => {
           self.data = response.data;
           self.fetching = false;
+          self.$nextTick(() => {
+            if (self.data.comments.length == 15) {
+              self.initIntersectionObserver();
+            }
+          });
         })
         .catch(function (error) {
           if (error.response.status == 400) {
-                self.badRequest = true
-              }
+            self.badRequest = true;
+          }
           self.fetching = false;
           // console.log(error);
         });
@@ -206,6 +233,88 @@ export default {
       this.previewDetails.id = id;
       this.previewDetails.title = title;
       this.previewDetails.show = true;
+    },
+    fetchComments() {
+      if (this.keepFetchingComments) {
+        this.fetchingComments = true;
+        axios
+          .post(this.$store.state.api_host + "fetch_comments", {
+            session_id: this.$store.state.session_id,
+            guest_id: this.$store.state.guest_id,
+            action_id: this.data.action_id,
+            parent_reaction_id: null,
+            fetched_comment_ids: this.data.comments.map(
+              (item) => item.reaction_id
+            ),
+          })
+          .then((response) => {
+            if (response.status == 200) {
+              this.data.comments.push(...response.data.comments);
+              this.$nextTick(() => {
+                this.initIntersectionObserver();
+              });
+              this.fetchingComments = false;
+            } else if (response.status == 204) {
+              this.keepFetchingComments = false;
+              this.resetIntersectionObserver();
+              this.fetchingComments = false;
+            }
+          })
+          .catch((error) => {
+            // console.log(error);
+            if ([401, 419].includes(error.response.status)) {
+              window.location =
+                this.$store.state.login_host +
+                "logout?session_id=" +
+                this.$store.state.session_id;
+              this.$store.state.session_id = null;
+              this.$emit("logging-out");
+              this.fetchingComments = false;
+            } else {
+              // console.log(error.response.status);
+            }
+          });
+      }
+    },
+    addFetchedComments(fetchedComments) {
+      let subCommentReactionId = fetchedComments[0].parent_reaction_id;
+      if (subCommentReactionId) {
+        this.data.comments.forEach((parentComment) => {
+          if (subCommentReactionId === parentComment.reaction_id) {
+            parentComment.comments.unshift(...fetchedComments);
+          }
+        });
+      }
+    },
+    initIntersectionObserver() {
+      this.resetIntersectionObserver();
+
+      const commentCallback = (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.fetchComments();
+          }
+        });
+      };
+
+      setTimeout(() => {
+        var elem = document.querySelector(
+          `#comment-${this.data.comments.length - 4}`
+        );
+        if (elem) {
+          this.commentObserver = new IntersectionObserver(commentCallback, {
+            rootMargin: "0px",
+            threshold: 0.0,
+          });
+          this.commentObserver.observe(elem);
+        }
+      }, 0);
+    },
+    resetIntersectionObserver() {
+      if (this.commentObserver) {
+        this.commentObserver.disconnect();
+        this.commentObserver = null;
+      }
     },
   },
 };
@@ -373,5 +482,16 @@ export default {
   font-family: "Roboto", sans-serif;
   text-align: center;
   cursor: none;
+}
+.comments-container-more {
+  cursor: pointer;
+  font-size: 12px;
+  color: #8e8e8e;
+}
+.fetching-comments {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 95%;
 }
 </style>

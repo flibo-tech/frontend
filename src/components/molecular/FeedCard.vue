@@ -214,7 +214,12 @@
       :style="
         RegExp(/^.*_details$/).test(parent)
           ? { position: 'fixed', bottom: 0, padding: '8px 16px 4px 16px' }
-          : { position: 'relative', marginTop: '16px', padding: '0px 16px' }
+          : {
+              position: 'relative',
+              marginTop: '16px',
+              padding: '0px 16px',
+              alignSelf: 'self-start',
+            }
       "
     >
       <div class="create-comment-profile-cropper">

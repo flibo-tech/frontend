@@ -1,6 +1,6 @@
 <template>
   <div class="comment-comp-container">
-    <div class="comment-comp-view">
+    <div>
       <div class="comment-comp-current">
         <img
           @click="showPreview = true"
@@ -8,12 +8,13 @@
           :src="currentComment.creator_picture"
         />
         <div class="comment-comp-content">
+          <!-- comment content -->
           <p>
             <strong @click="showPreview = true">{{
               currentComment.creator_name
             }}</strong>
             <TextView
-              class="custom"
+              class="comment-comp-textview"
               v-if="currentComment.comment"
               :text="currentComment.comment"
               :parent="parent + '__comment' + (isChild ? '__child' : '')"
@@ -21,6 +22,7 @@
             />
           </p>
 
+          <!-- reaction section -->
           <div class="comment-comp-reaction">
             <TimeSince :timestamp="currentComment.created_at" :short="true" />
             <Vote
@@ -36,40 +38,50 @@
             />
             <p class="comment-comp-reply" @click="reply">Reply</p>
           </div>
+
+          <!-- show replies section -->
           <div
-            @click="[(showMore = true), fetchComments()]"
-            class="comment-comp-more"
             v-if="
-              currentComment.total_comments > fetchedCommentsIds.length &&
-              currentComment.total_comments &&
-              statusCode != 204
+              (currentComment.total_comments > currentComment.comments.length &&
+                showRepliesHeader) ||
+              (!showComments && currentComment.total_comments > 0)
             "
+            @click="fetchComments"
+            class="comment-comp-more"
           >
             <div
               v-if="!fetchingData"
               class="comment-comp-horizontal-divider"
             ></div>
-            <p
-              v-if="
-                (fetchedCommentsIds.length == 0 || !showMore) && !fetchingData
-              "
-            >
-              {{ currentComment.total_comments }}
-              replies
+            <p v-if="!fetchingData && !showComments">
+              View {{ currentComment.total_comments }}
+              {{ currentComment.total_comments > 1 ? "replies" : "reply" }}
             </p>
-            <p v-if="fetchedCommentsIds.length > 0 && !fetchingData">
-              previous
-              {{ currentComment.total_comments - fetchedCommentsIds.length }}
-              replies
+            <p v-if="!fetchingData && showComments">
+              View
+              {{
+                currentComment.total_comments - currentComment.comments.length
+              }}
+              {{
+                currentComment.total_comments - currentComment.comments.length >
+                1
+                  ? "replies"
+                  : "reply"
+              }}
             </p>
-            <p class="comment-comp-loading" v-if="fetchingData">Loading...</p>
+            <p v-if="fetchingData" class="comment-comp-loading">Loading...</p>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- sub comments section -->
     <transition name="comment">
-      <div v-if="showMore && subComments" class="comment-comp-sub-comment">
-        <div @click="resetValues" class="comment-comp-divider-container">
+      <div v-if="showComments" class="comment-comp-sub-comment">
+        <div
+          @click="[(showComments = false), (showRepliesHeader = true)]"
+          class="comment-comp-divider-container"
+        >
           <div class="comment-comp-vertical-divider"></div>
         </div>
         <div>
@@ -79,8 +91,9 @@
               :currentComment="comment"
               :isChild="true"
               :parent="parent"
-              v-for="comment in subComments.slice().reverse()"
+              v-for="comment in currentComment.comments.slice()"
               :key="comment.reaction_id"
+              v-on="$listeners"
             />
           </transition-group>
         </div>
@@ -103,6 +116,7 @@ import UserPreview from "./UserPreview";
 import TextView from "./TextView";
 import Vote from "./../atomic/Vote";
 import TimeSince from "./../atomic/TimeSince";
+
 export default {
   name: "Comment",
   components: { TextView, Vote, UserPreview, TimeSince },
@@ -123,43 +137,44 @@ export default {
   },
   data() {
     return {
-      showMore: false,
       showPreview: false,
-      subComments: [],
-      fetchedCommentsIds: [],
+      showComments: false,
+      showRepliesHeader: true,
       fetchingData: false,
-      statusCode: null,
     };
   },
   mounted() {
-    if (Object.keys(this.currentComment.comments).length) {
-      this.subComments = this.currentComment.comments;
-      this.subComments.forEach((comment) => {
-        this.fetchedCommentsIds.push(comment.reaction_id);
-      });
-      this.showMore = true;
+    if (this.currentComment.comments) {
+      this.showComments = true;
     }
   },
   methods: {
     fetchComments() {
+      if (
+        (!this.showComments && this.currentComment.comments.length > 0) ||
+        !this.showRepliesHeader
+      ) {
+        this.showComments = true;
+        return;
+      }
+      this.showComments = true;
       this.fetchingData = true;
       axios
         .post(this.$store.state.api_host + "fetch_comments", {
           session_id: this.$store.state.session_id,
-          guest_id: null,
+          guest_id: this.$store.state.guest_id,
           action_id: this.currentComment.action_id,
           parent_reaction_id: this.currentComment.reaction_id,
-          fetched_comment_ids: this.fetchedCommentsIds,
+          fetched_comment_ids: this.currentComment.comments.map(
+            (item) => item.reaction_id
+          ),
         })
         .then((response) => {
           if (response.status == 200) {
-            response.data.comments.forEach((comment) => {
-              this.fetchedCommentsIds.push(comment.reaction_id);
-              this.subComments.push(comment);
-            });
+            this.$emit("add-fetched-comments", response.data.comments);
             this.fetchingData = false;
           } else if (response.status == 204) {
-            this.statusCode = response.status;
+            this.showRepliesHeader = false;
             this.fetchingData = false;
           }
         })
@@ -201,12 +216,6 @@ export default {
     },
     totalVoteHandler(currentTotalVote) {
       this.currentComment.upvotes = currentTotalVote;
-    },
-    resetValues() {
-      this.showMore = false;
-      this.subComments = [];
-      this.fetchedCommentsIds = [];
-      this.statusCode = null;
     },
   },
 };
@@ -265,7 +274,7 @@ export default {
   font-size: 12px;
 }
 
-.custom {
+.comment-comp-textview {
   display: inline;
 }
 
@@ -293,7 +302,7 @@ export default {
 }
 .comment-enter,
 .comment-leave-to {
-  transform: translateX(30px);
+  transform: translateX(15px);
   opacity: 0;
 }
 
@@ -339,7 +348,7 @@ export default {
 }
 .solo-comments-enter,
 .solo-comments-leave-to {
-  transform: translateX(30px);
+  transform: translateX(15px);
   opacity: 0;
 }
 .comment-comp-container {
