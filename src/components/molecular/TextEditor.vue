@@ -69,6 +69,7 @@
               buttonType="textOnly"
               text="Post"
               :state="content ? true : false"
+              @clicked="postComment"
             />
           </transition>
         </div>
@@ -100,6 +101,7 @@ import CharacterCounter from "./../atomic/CharacterCounter";
 import ToolTip from "./../atomic/ToolTip";
 import Button from "./../atomic/Button";
 import TagSuggestions from "./TagSuggestions";
+import axios from "axios";
 
 export default {
   name: "TextEditor",
@@ -116,6 +118,11 @@ export default {
     },
     actionId: {
       type: Number,
+      required: false,
+      default: null,
+    },
+    replyInfo: {
+      type: Object,
       required: false,
       default: null,
     },
@@ -255,7 +262,7 @@ export default {
   watch: {
     content: function (val) {
       if (!this.preventContentWatch) {
-        this.getCaretIndex();
+        this.updateCaretIndex();
         if (this.content) {
           this.addEmoji(val);
         }
@@ -280,7 +287,7 @@ export default {
           }
           this.store.create.processedContent = this.processedContent;
         } else if (
-          ["watchlist", "ratings", "search_results", "home"].includes(
+          ["watchlist", "ratings", "search_results", "home", "posts"].includes(
             this.grandParent
           )
         ) {
@@ -296,6 +303,18 @@ export default {
     },
     actionId: function (val) {
       this.restoreEditor(true);
+    },
+    replyInfo: function (val) {
+      if (val) {
+        this.restoreEditor();
+        this.content = "@";
+        this.caretIndex = 1;
+        this.addHighlight({
+          subject_id: val.creator_id,
+          subject: val.creator_name,
+          subject_type: "user",
+        });
+      }
     },
   },
   methods: {
@@ -364,7 +383,7 @@ export default {
         }
       }
     },
-    getCaretIndex() {
+    updateCaretIndex() {
       setTimeout(() => {
         var elem = this.$refs["inputField-" + this.actionId];
         this.caretIndex = elem ? elem.selectionEnd : 0;
@@ -429,7 +448,7 @@ export default {
 
       if (this.parent == "comment") {
         if (
-          ["watchlist", "ratings", "search_results", "home"].includes(
+          ["watchlist", "ratings", "search_results", "home", "posts"].includes(
             this.grandParent
           ) &&
           this.prevHeight != element.scrollHeight
@@ -610,6 +629,72 @@ export default {
         setTimeout(() => {
           this.preventContentWatch = false;
         }, 0);
+      }
+    },
+    postComment() {
+      if (this.content) {
+        const spoiler = this.store.create.spoiler;
+        const processedContent = this.processedContent;
+        axios
+          .post(this.$store.state.api_host + "comment", {
+            session_id: this.$store.state.session_id,
+            action_id: this.actionId,
+            parent_reaction_id: this.replyInfo
+              ? this.replyInfo.reaction_id
+              : null,
+            comment: this.processedContent,
+            spoiler: this.store.create.spoiler,
+          })
+          .then((response) => {
+            if (response.status == 200) {
+              const newComment = {
+                action_id: this.actionId,
+                comment: processedContent,
+                comments: [],
+                created_at: Date.now() / 1000,
+                creator_id: this.store.user.id,
+                creator_name: this.store.user.name,
+                creator_picture: this.store.user.picture,
+                parent_reaction_id: this.replyInfo
+                  ? this.replyInfo.reaction_id
+                  : null,
+                reaction_id: response.data.reaction_id,
+                spoiler: spoiler,
+                spoiler_remarks: null,
+                total_comments: null,
+                upvotes: null,
+                user_spoiler_remark: -1,
+                user_vote: 0,
+              };
+              this.$emit("add-new-comment", newComment);
+            }
+          });
+
+        if (
+          this.$store.state.feed[this.grandParent] &&
+          Object.keys(
+            this.$store.state.feed[this.grandParent].element_comments
+          ).includes(JSON.stringify(this.actionId))
+        ) {
+          delete this.$store.state.feed[this.grandParent].element_comments[
+            this.actionId
+          ];
+        }
+
+        this.restoreEditor(
+          ["watchlist", "ratings", "search_results", "home", "posts"].includes(
+            this.grandParent
+          )
+        );
+        this.store.create.type = null;
+        this.store.create.content = null;
+        this.store.create.ids = [];
+        this.store.create.image = null;
+        this.store.create.processedContent = "";
+        this.store.create.spoiler = false;
+
+        var elem = this.$refs["inputField-" + this.actionId];
+        elem.blur();
       }
     },
   },

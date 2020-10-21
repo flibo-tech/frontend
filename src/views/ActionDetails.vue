@@ -21,16 +21,9 @@
       v-if="data != null"
       :content="data"
       :parent="actionType + '_details'"
-      @action-user-vote="
-        (vote) => {
-          data.user_vote = vote;
-        }
-      "
-      @action-total-vote="
-        (vote) => {
-          data.upvotes = vote;
-        }
-      "
+      :replyInfo="replyInfo"
+      @update-vote="updateVote"
+      @add-new-comment="addNewComment"
       v-on="$listeners"
     />
 
@@ -76,14 +69,15 @@
       id="comments-container"
     >
       <Comment
-        @reply="reply"
         v-for="(comment, index) in data.comments"
         :key="index"
-        :id="'comment-' + index"
+        :id="'comment-container-' + index"
         :currentComment="comment"
         :isChild="false"
         :parent="actionType + '_details'"
         @add-fetched-comments="addFetchedComments"
+        @reply="(info) => (replyInfo = info)"
+        @update-vote="updateVote"
         v-on="$listeners"
       />
     </div>
@@ -139,6 +133,7 @@ export default {
       fetchingComments: false,
       commentObserver: null,
       keepFetchingComments: true,
+      replyInfo: null,
     };
   },
   created() {
@@ -186,6 +181,7 @@ export default {
                 if (self.data.comments.length == 15) {
                   self.initIntersectionObserver();
                 }
+                self.scrollToComments();
               });
             })
             .catch(function (error) {
@@ -214,6 +210,7 @@ export default {
             if (self.data.comments.length == 15) {
               self.initIntersectionObserver();
             }
+            self.scrollToComments();
           });
         })
         .catch(function (error) {
@@ -226,8 +223,76 @@ export default {
     }
   },
   methods: {
-    reply(info) {
-      console.log(info);
+    addNewComment(newComment) {
+      this.replyInfo = null;
+
+      if (newComment.parent_reaction_id) {
+        this.data.comments.forEach((parentComment) => {
+          if (newComment.parent_reaction_id === parentComment.reaction_id) {
+            parentComment.comments.push(newComment);
+            if (parentComment.total_comments != null) {
+              parentComment.total_comments++;
+            } else {
+              parentComment.total_comments = 1;
+            }
+          }
+        });
+      } else {
+        this.data.comments.unshift(newComment);
+      }
+      if (this.data.total_comments != null) {
+        this.data.total_comments++;
+      } else {
+        this.data.total_comments = 1;
+      }
+
+      this.$nextTick(() => {
+        var element = document.getElementById(
+          "comment-" + newComment.reaction_id
+        );
+        if (element) {
+          var topbarHeight = 50;
+          var elementPosition = element.getBoundingClientRect().top;
+          var offsetPosition =
+            window.scrollY + elementPosition - topbarHeight - 10;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      });
+    },
+    updateVote(vote) {
+      if (vote.parentReactionId) {
+        for (let comment of this.data.comments) {
+          if (comment.reaction_id == vote.parentReactionId) {
+            if (vote.type == "user") {
+              comment.user_vote = vote.vote;
+            } else if (vote.type == "total") {
+              comment.upvotes = vote.vote;
+            }
+            return;
+          }
+
+          for (let subComment of comment.comments || []) {
+            if (subComment.reaction_id == vote.parentReactionId) {
+              if (vote.type == "user") {
+                subComment.user_vote = vote.vote;
+              } else if (vote.type == "total") {
+                subComment.upvotes = vote.vote;
+              }
+              return;
+            }
+          }
+        }
+      } else {
+        if (vote.type == "user") {
+          this.data.user_vote = vote.vote;
+        } else if (vote.type == "total") {
+          this.data.upvotes = vote.vote;
+        }
+      }
     },
     showPreview(id, title) {
       this.previewDetails.id = id;
@@ -299,7 +364,7 @@ export default {
 
       setTimeout(() => {
         var elem = document.querySelector(
-          `#comment-${this.data.comments.length - 4}`
+          `#comment-container-${this.data.comments.length - 4}`
         );
         if (elem) {
           this.commentObserver = new IntersectionObserver(commentCallback, {
@@ -314,6 +379,26 @@ export default {
       if (this.commentObserver) {
         this.commentObserver.disconnect();
         this.commentObserver = null;
+      }
+    },
+    scrollToComments() {
+      var element = null;
+      if (this.reactionId) {
+        element = document.getElementById("comment-" + this.reactionId);
+      } else if (this.$route.query.focusComments) {
+        element = document.getElementById("comments-container");
+      }
+
+      if (element) {
+        var topbarHeight = 50;
+        var elementPosition = element.getBoundingClientRect().top;
+        var offsetPosition =
+          window.scrollY + elementPosition - topbarHeight - 10;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
       }
     },
   },

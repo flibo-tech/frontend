@@ -161,6 +161,8 @@
             [updateElementHeights(), updateSeeMoreElements(item.action_id)]
           "
           @update-element-heights="updateElementHeights"
+          @update-vote="updateVote"
+          @add-new-comment="addNewComment"
           v-on="$listeners"
         />
 
@@ -933,6 +935,43 @@ export default {
 
       window.removeEventListener("scroll", this.watchScroll);
     },
+    addNewComment(newComment) {
+      var quickComment = newComment.creator_name + "^" + newComment.comment;
+      for (let item of this.$store.state.feed[this.parent].contents) {
+        if (item.action_id == newComment.action_id) {
+          if (item.newComments) {
+            item.newComments.push(quickComment);
+          } else {
+            item.newComments = [quickComment];
+          }
+
+          if (item.total_comments != null) {
+            item.total_comments++;
+          } else {
+            item.total_comments = 1;
+          }
+
+          return;
+        }
+      }
+
+      this.$nextTick(() => {
+        this.updateElementHeights();
+      });
+    },
+    updateVote(vote) {
+      for (let item of this.$store.state.feed[this.parent].contents) {
+        if (item.action_id == vote.actionId) {
+          if (vote.type == "user") {
+            item.user_vote = vote.vote;
+          } else if (vote.type == "total") {
+            item.upvotes = vote.vote;
+          }
+
+          return;
+        }
+      }
+    },
 
     // Functions for infinite scroll
     elementsTotalHeight(startIndex, endIndex) {
@@ -1014,6 +1053,7 @@ export default {
     getNumFromStyle: (numStr) => Number(numStr.substring(0, numStr.length - 2)),
 
     adjustPaddings(firstIndex, isScrollDown, isEndCase = false) {
+      this.updateElementHeights();
       const container = document.querySelector(this.mainContainer);
 
       const currentPaddingTop = this.getNumFromStyle(

@@ -9,7 +9,7 @@
         { minWidth: '24px' },
       ]"
       xmlns="http://www.w3.org/2000/svg"
-      height="30"
+      height="24"
       viewBox="0 0 24 24"
       width="24"
     >
@@ -75,7 +75,6 @@ export default {
     return {
       localTotalVote: this.totalVote,
       localUserVote: this.userVote,
-      creatorIdMatch: this.creatorId === this.$store.state.user.id,
     };
   },
   computed: {
@@ -90,6 +89,9 @@ export default {
         }
         return this.localTotalVote || 0;
       } else return this.kFormatter(this.localTotalVote);
+    },
+    creatorIdMatch() {
+      return this.creatorId === this.$store.state.user.id;
     },
   },
   watch: {
@@ -151,12 +153,21 @@ export default {
       }
       this.submitVote(this.localUserVote);
     },
+    emitVote(type, vote) {
+      this.$emit("update-vote", {
+        actionId: this.actionId,
+        parentReactionId: this.parentReactionId,
+        type: type,
+        vote: vote,
+      });
+    },
     submitVote() {
       var prevUserVote = this.userVote;
       var prevTotalVote = this.totalVote;
 
-      this.$emit("update-user-vote", this.localUserVote);
-      this.$emit("update-total-vote", this.localTotalVote);
+      this.emitVote("user", this.localUserVote);
+      this.emitVote("total", this.localTotalVote);
+
       axios
         .post(this.$store.state.api_host + "vote", {
           session_id: this.$store.state.session_id,
@@ -169,14 +180,14 @@ export default {
             // console.log(response);
           }
           if (response.status != 200) {
-            this.$emit("update-user-vote", prevUserVote);
-            this.$emit("update-total-vote", prevTotalVote);
+            this.emitVote("user", prevUserVote);
+            this.emitVote("total", prevTotalVote);
           }
         })
         .catch((error) => {
-          this.$emit("update-user-vote", prevUserVote);
-          this.$emit("update-total-vote", prevTotalVote);
-          // console.log(error);
+          this.emitVote("user", prevUserVote);
+          this.emitVote("total", prevTotalVote);
+          console.log(error);
           if (
             [401, 419].includes(error.response.status) &&
             this.$store.state.session_id

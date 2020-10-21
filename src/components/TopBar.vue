@@ -100,7 +100,7 @@
     ></button>
 
     <div
-      v-else-if="$route.path != '/notifications'"
+      v-else-if="!['/notifications', '/connections'].includes($route.path)"
       class="top-bar-notification"
       :style="is_mobile ? '' : 'right: calc(50vw - 500px);'"
       @click="$router.push('/notifications')"

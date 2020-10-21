@@ -16,7 +16,11 @@
         <span v-else v-html="item"></span>
       </span>
 
-      <span class="text-view-see-more" v-if="showSeeMore" @click="seeMore">
+      <span
+        class="text-view-see-more"
+        v-if="showSeeMore"
+        @click="!preventClick ? seeMore() : ''"
+      >
         ... more
       </span>
     </div>
@@ -82,6 +86,11 @@ export default {
       required: false,
       default: false,
     },
+    previewLimit: {
+      type: Number,
+      required: false,
+      default: 200,
+    },
   },
   data() {
     return {
@@ -93,9 +102,9 @@ export default {
         id: null,
       },
       showPreview: false,
-      previewLimit: 200,
       previewLimitIndex: 0,
       showSeeMore: false,
+      lockSeeMore: false,
     };
   },
   computed: {
@@ -107,47 +116,55 @@ export default {
       var itemText = "";
       var len = 0;
       var output = [];
-      for (const [index, item] of splitArr.entries()) {
-        if (this.isTag(item)) {
-          itemText = item
-            .split(/\]\s*\(/)[0]
-            .slice(1)
-            .trim();
-          if (len + itemText.length <= this.previewLimit) {
-            len = len + itemText.length;
-            output.push(item);
-            this.previewLimitIndex = index + 1;
+
+      if (!this.lockSeeMore) {
+        for (const [index, item] of splitArr.entries()) {
+          if (this.isTag(item)) {
+            itemText = item
+              .split(/\]\s*\(/)[0]
+              .slice(1)
+              .trim();
+            if (len + itemText.length <= this.previewLimit) {
+              len = len + itemText.length;
+              output.push(item);
+              this.previewLimitIndex = index + 1;
+            } else {
+              output.push(...splitArr.slice(index));
+              this.previewLimitIndex = index;
+              this.showSeeMore = true;
+              break;
+            }
           } else {
-            output.push(...splitArr.slice(index));
-            this.previewLimitIndex = index;
-            this.showSeeMore = true;
-            break;
-          }
-        } else {
-          if (len + item.length <= this.previewLimit) {
-            len = len + item.length;
-            output.push(item);
-            this.previewLimitIndex = index + 1;
-          } else {
-            var splitIndex = [...item.matchAll(new RegExp(" ", "gi"))]
-              .map((item) => item.index)
-              .filter((item) => item <= this.previewLimit - len)
-              .slice(-1)[0];
-            output.push(...[item.slice(0, splitIndex), item.slice(splitIndex)]);
-            output.push(...splitArr.slice(index + 1));
-            this.previewLimitIndex = index + 1;
-            this.showSeeMore = true;
-            break;
+            if (len + item.length <= this.previewLimit) {
+              len = len + item.length;
+              output.push(item);
+              this.previewLimitIndex = index + 1;
+            } else {
+              var splitIndex = [...item.matchAll(new RegExp(" ", "gi"))]
+                .map((item) => item.index)
+                .filter((item) => item <= this.previewLimit - len)
+                .slice(-1)[0];
+              output.push(
+                ...[item.slice(0, splitIndex), item.slice(splitIndex)]
+              );
+              output.push(...splitArr.slice(index + 1));
+              this.previewLimitIndex = index + 1;
+              this.showSeeMore = true;
+              break;
+            }
           }
         }
+      } else {
+        output = splitArr;
       }
 
       if (
-        this.$store.state.feed[this.parent] &&
-        this.$store.state.feed[this.parent].see_more_elements &&
-        this.$store.state.feed[this.parent].see_more_elements.includes(
-          this.actionId
-        )
+        (this.$store.state.feed[this.parent] &&
+          this.$store.state.feed[this.parent].see_more_elements &&
+          this.$store.state.feed[this.parent].see_more_elements.includes(
+            this.actionId
+          )) ||
+        this.lockSeeMore
       ) {
         this.previewLimitIndex = output.length;
       }
@@ -157,6 +174,13 @@ export default {
       }
 
       return output;
+    },
+  },
+  watch: {
+    actionId: function (val) {
+      this.previewLimitIndex = 0;
+      this.showSeeMore = false;
+      this.lockSeeMore = false;
     },
   },
   methods: {
@@ -180,6 +204,7 @@ export default {
     },
     seeMore() {
       this.previewLimitIndex = this.textArray.length;
+      this.lockSeeMore = true;
       this.showSeeMore = false;
       this.$nextTick(() => {
         this.$emit("see-more");

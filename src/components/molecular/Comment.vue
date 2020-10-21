@@ -1,6 +1,6 @@
 <template>
   <div class="comment-comp-container">
-    <div>
+    <div :id="'comment-' + currentComment.reaction_id">
       <div class="comment-comp-current">
         <img
           @click="showPreview = true"
@@ -33,8 +33,7 @@
               :creatorId="currentComment.creator_id"
               :userVote="currentComment.user_vote"
               :fontSize="12"
-              v-on:updateUserVote="voteHandler"
-              v-on:updateTotalVote="totalVoteHandler"
+              v-on="$listeners"
             />
             <p class="comment-comp-reply" @click="reply">Reply</p>
           </div>
@@ -58,7 +57,7 @@
               {{ currentComment.total_comments > 1 ? "replies" : "reply" }}
             </p>
             <p v-if="!fetchingData && showComments">
-              View
+              View previous
               {{
                 currentComment.total_comments - currentComment.comments.length
               }}
@@ -87,7 +86,6 @@
         <div>
           <transition-group name="solo-comments">
             <Comment
-              @reply="forward"
               :currentComment="comment"
               :isChild="true"
               :parent="parent"
@@ -144,9 +142,19 @@ export default {
     };
   },
   mounted() {
-    if (this.currentComment.comments) {
+    if (this.currentComment.comments.length) {
       this.showComments = true;
     }
+  },
+  watch: {
+    currentComment: {
+      handler(val) {
+        if (val.comments.length) {
+          this.showComments = true;
+        }
+      },
+      deep: true,
+    },
   },
   methods: {
     fetchComments() {
@@ -208,15 +216,6 @@ export default {
         });
       }
     },
-    forward(subCommentReply) {
-      this.$emit("reply", subCommentReply);
-    },
-    voteHandler(currentUserVote) {
-      this.currentComment.user_vote = currentUserVote;
-    },
-    totalVoteHandler(currentTotalVote) {
-      this.currentComment.upvotes = currentTotalVote;
-    },
   },
 };
 </script>
@@ -248,7 +247,6 @@ export default {
 }
 
 .comment-comp-vote {
-  margin: 0.5em;
   min-width: 85px;
 }
 
@@ -263,6 +261,7 @@ export default {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+  margin-top: 4px;
 }
 
 .comment-comp-reaction * {
@@ -282,6 +281,7 @@ export default {
   cursor: pointer;
   display: flex;
   align-items: center;
+  margin-top: 1em;
 }
 
 .comment-comp-more p {

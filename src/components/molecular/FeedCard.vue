@@ -162,16 +162,6 @@
         :creatorId="content.creator_id"
         :userVote="content.user_vote"
         v-on="$listeners"
-        @update-user-vote="
-          (vote) => {
-            $emit('action-user-vote', vote);
-          }
-        "
-        @update-total-vote="
-          (vote) => {
-            $emit('action-total-vote', vote);
-          }
-        "
       />
 
       <div
@@ -209,6 +199,46 @@
     </div>
 
     <div
+      v-if="onCardComments().length"
+      class="feed-card-top-comment"
+      @click="goToDetails"
+    >
+      <div
+        v-for="(item, index) in onCardComments()"
+        :key="index"
+        style="margin-top: 4px"
+      >
+        <span style="font-weight: bold; margin-right: 4px">
+          {{ item.split("^")[0] }}
+        </span>
+
+        <TextView
+          style="display: inline"
+          :text="item.split('^')[1]"
+          parent="top_comment"
+          :preventClick="true"
+          :previewLimit="80"
+        />
+      </div>
+    </div>
+
+    <div
+      v-if="
+        ['watchlist', 'ratings', 'search_results', 'home', 'posts'].includes(
+          parent
+        ) &&
+        content.total_comments &&
+        content.total_comments > onCardComments().length
+      "
+      class="feed-card-view-all-comments"
+      @click="goToDetails"
+    >
+      View {{ content.total_comments > 1 ? "all" : "" }}
+      {{ content.total_comments }}
+      {{ content.total_comments > 1 ? "comments" : "comment" }}
+    </div>
+
+    <div
       class="create-comment-container"
       :id="'create-comment-container-' + content.action_id"
       :style="
@@ -236,6 +266,7 @@
         parent="comment"
         :grandParent="parent"
         :actionId="content.action_id"
+        :replyInfo="replyInfo"
         v-on="$listeners"
       />
     </div>
@@ -291,6 +322,11 @@ export default {
     parent: {
       type: String,
       required: true,
+    },
+    replyInfo: {
+      type: Object,
+      required: false,
+      default: null,
     },
   },
   data() {
@@ -353,7 +389,9 @@ export default {
     },
     goToDetails() {
       this.$emit("leave-feed");
-      this.$router.push(this.content.url.replace("https://flibo.ai", ""));
+      this.$router.push(
+        this.content.url.replace("https://flibo.ai", "") + "?focusComments=true"
+      );
     },
     goToPlatform(link, content_id, traffic_origin) {
       this.$emit("leave-feed");
@@ -365,6 +403,17 @@ export default {
         traffic_origin: this.parent + "__" + traffic_origin,
       };
       this.$emit("update-api-counter", activity);
+    },
+    onCardComments() {
+      var output = [];
+      if (this.content.top_comment) {
+        output.push(this.content.top_comment);
+      }
+      if (this.content.newComments && this.content.newComments.length) {
+        output.push(...this.content.newComments);
+      }
+
+      return output;
     },
   },
 };
@@ -447,7 +496,7 @@ export default {
   justify-content: flex-start;
   width: 100%;
   padding: 0px 16px;
-  margin-top: 24px;
+  margin-top: 30px;
 }
 .feed-card-platform-cropper {
   width: 45px;
@@ -514,5 +563,38 @@ export default {
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
+}
+.feed-card-top-comment {
+  width: 100%;
+  padding: 0 16px;
+  margin-top: 12px;
+  color: #333333;
+  font-size: 14px;
+  white-space: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.5;
+  letter-spacing: normal;
+  font-family: "Roboto", sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+.feed-card-view-all-comments {
+  width: 100%;
+  padding: 0 16px;
+  margin-top: 4px;
+  font-size: 14px;
+  display: inline;
+  white-space: normal;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: normal;
+  color: #8e8e8e;
+  font-family: "Roboto", sans-serif;
+  text-align: left;
+  cursor: pointer;
 }
 </style>
