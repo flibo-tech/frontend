@@ -36,8 +36,13 @@
       :src="imageURL"
       :style="
         iconCircle
-          ? { width: size + 'px', display: 'initial', margin: margin }
-          : { width: size + 'px' }
+          ? {
+              width: size + 'px',
+              height: size + 'px',
+              display: 'initial',
+              margin: margin,
+            }
+          : { width: size + 'px', height: size + 'px' }
       "
     />
     <div
@@ -82,7 +87,7 @@ export default {
       default: false,
     },
     size: {
-      // applicable when iconCircle is true
+      // applicable when iconCircle is true OR iconOnly
       type: Number,
       required: false,
       default: 18,

@@ -271,20 +271,23 @@ export default {
           this.textboxLimit = this.content.length;
         }
         if (this.parent == "post") {
-          var newIds = [];
-          for (let content in this.highlightWords) {
-            if (
-              this.highlightWords[content].subject_type == "content" &&
-              !this.store.create.ids.includes(
-                this.highlightWords[content].subject_id
-              )
-            ) {
-              newIds.push(this.highlightWords[content].subject_id);
+          if (["request"].includes(this.store.create.type)) {
+            var newIds = [];
+            for (let content in this.highlightWords) {
+              if (
+                this.highlightWords[content].subject_type == "content" &&
+                !this.store.create.ids.includes(
+                  this.highlightWords[content].subject_id
+                )
+              ) {
+                newIds.push(this.highlightWords[content].subject_id);
+              }
+            }
+            if (newIds.length) {
+              this.store.create.ids.push(...newIds);
             }
           }
-          if (newIds.length) {
-            this.store.create.ids.push(...newIds);
-          }
+
           this.store.create.processedContent = this.processedContent;
         } else if (
           ["watchlist", "ratings", "search_results", "home", "posts"].includes(

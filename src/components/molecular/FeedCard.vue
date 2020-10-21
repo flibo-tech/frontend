@@ -208,7 +208,13 @@
         :key="index"
         style="margin-top: 4px"
       >
-        <span style="font-weight: bold; margin-right: 4px">
+        <span
+          style="
+            font-weight: bold;
+            margin-right: 4px;
+            text-transform: capitalize;
+          "
+        >
           {{ item.split("^")[0] }}
         </span>
 

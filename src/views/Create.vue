@@ -186,6 +186,11 @@ export default {
       showCounter: false,
     };
   },
+  beforeCreate() {
+    if (this.$store.state.create.type == null) {
+      window.history.back();
+    }
+  },
   created() {
     this.store.create.processedContent = "";
     this.store.create.spoiler = false;

@@ -275,11 +275,11 @@
             class="category"
             :style="
               is_mobile
-                ? 'margin-top: 19%;'
+                ? 'margin-top: 23%;'
                 : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
             "
           >
-            Friends
+            Connections
           </div>
           <div class="artists" style="padding: 0px 10px; margin-top: 0">
             <div
@@ -310,7 +310,7 @@
                 :image="friend.picture"
                 :width="55"
                 :height="70"
-                :spacing="14"
+                :spacing="10"
                 :scale="true"
                 v-on="$listeners"
               />
@@ -331,7 +331,7 @@
             class="category"
             :style="
               is_mobile
-                ? ''
+                ? 'margin-top: 24%'
                 : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
             "
             v-if="content.crew.directed_by.length"
@@ -1602,7 +1602,8 @@ export default {
 }
 .friend-rating-icon {
   position: absolute;
-  margin-top: 70px;
+  top: 70px;
+  left: 27.5px;
   transform: translate(-50%, -50%);
   z-index: 1;
   background-color: #fff;

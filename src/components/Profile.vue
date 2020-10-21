@@ -2001,6 +2001,7 @@ export default {
 h4 {
   font-size: 23px;
   color: #333333;
+  text-transform: capitalize;
 }
 .update-profile-status {
   position: fixed;
@@ -2667,6 +2668,7 @@ h4 {
   color: #333333;
 }
 .profile-connections {
+  position: relative;
   text-align: center;
   font-size: 15px;
   width: 85px;
@@ -2760,8 +2762,8 @@ h4 {
 }
 .profile-connections-notification {
   position: absolute;
-  margin-left: 35px;
-  margin-top: -25px;
+  right: -10px;
+  top: 0px;
   height: 7px;
   width: 7px;
   background-image: url("./../images/red_dot.png");
