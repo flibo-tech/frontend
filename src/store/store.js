@@ -594,6 +594,10 @@ export const store = new Vuex.Store({
         ? my_store.create.never_tapped_spoiler
         : true
     },
-    letNavAutoHide: true
+    letNavAutoHide: true,
+    window: {
+      width: null,
+      height: null
+    }
   }
 });

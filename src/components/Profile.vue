@@ -690,7 +690,7 @@
             <PostPreview
               v-for="(post, index) in posts"
               :key="index"
-              style="margin-right: 16px"
+              style="margin-right: 16px; margin-bottom: 8px"
               :post="post"
             />
 

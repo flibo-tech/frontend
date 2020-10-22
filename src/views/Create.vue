@@ -255,7 +255,11 @@ export default {
       const spaceUnavailable = this.$refs.titleInput.getBoundingClientRect()
         .bottom;
       this.$refs.boxBelowTitle.style.minHeight =
-        "calc(100vh - " + spaceUnavailable + "px - 24px)";
+        "calc(" +
+        this.store.window.height +
+        "px - " +
+        spaceUnavailable +
+        "px - 24px)";
     },
     post() {
       var self = this;

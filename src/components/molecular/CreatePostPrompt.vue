@@ -37,6 +37,7 @@
     <transition name="input">
       <div v-if="selectedType === 'review' || selectedType === 'suggest'">
         <input
+          @focus="focusInput"
           class="create-prompt-input"
           ref="searchContent"
           placeholder="Search a movie / show"
@@ -105,6 +106,11 @@ export default {
     },
     setSearchString() {
       this.searchString = this.$refs.searchContent.value;
+    },
+    focusInput() {
+      setTimeout(() => {
+        this.$refs.searchContent.scrollIntoView();
+      }, 100);
     },
   },
 };

@@ -117,5 +117,6 @@ export default {
 .content-post-meta-box {
   display: flex;
   margin-left: 4px;
+  margin-top: 4px;
 }
 </style>

@@ -273,6 +273,10 @@ export default {
 
   created() {
     var self = this;
+
+    this.store.window.width = window.innerWidth;
+    this.store.window.height = window.innerHeight;
+
     var route_session_id = this.$route.query.id;
     var is_webview = this.$route.query.webview;
     var store_session_id = this.$store.state.session_id;

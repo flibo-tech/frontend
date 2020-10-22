@@ -130,7 +130,9 @@ export default {
         this.$refs.flickity.on(
           "staticClick",
           (event, pointer, cellElement, cellIndex) => {
-            this.store.create.includeImage = !this.store.create.includeImage;
+            setTimeout(() => {
+              this.store.create.includeImage = !this.store.create.includeImage;
+            }, 0);
           }
         );
 

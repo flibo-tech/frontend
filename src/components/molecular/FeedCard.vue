@@ -290,7 +290,7 @@
       v-if="share_prompt"
       :parent="parent"
       :url="content.url"
-      :image="content.image_info.image"
+      :image="content.image_info ? content.image_info.image : null"
       :actionId="content.action_id"
       @close-share-prompt="share_prompt = false"
       v-on="$listeners"

@@ -575,6 +575,7 @@ export default {
 }
 .fetching-comments {
   position: relative;
+  top: 30px;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
   width: 95%;

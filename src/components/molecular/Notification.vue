@@ -66,10 +66,15 @@ export default {
   },
   methods: {
     openNotification() {
-      this.$emit("mark-notification-seen", {
-        notification_id: this.notification.notification_id,
-        status: "in_app_notification_tapped",
-      });
+      if (
+        this.notification.tapped_on == null ||
+        this.notification.tapped_on == "in_app_notification_seen"
+      ) {
+        this.$emit("mark-notification-seen", {
+          notification_id: this.notification.notification_id,
+          status: "in_app_notification_tapped",
+        });
+      }
       this.$router.push(this.notification.url.replace("https://flibo.ai", ""));
     },
   },

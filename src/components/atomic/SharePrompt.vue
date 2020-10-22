@@ -16,7 +16,7 @@
           <div class="prompt-img-wrapper">
             <img
               :src="item.replace('/original/', '/w500/')"
-              onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
+              onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/other/flibo-share.jpg';"
               alt="share-image"
             />
           </div>
@@ -24,7 +24,11 @@
       </flickity>
 
       <Button
-        v-if="parent == 'profile' && profileId == store.user.id && !fetching"
+        v-if="
+          ['profile', 'ratings'].includes(parent) &&
+          profileId == store.user.id &&
+          !fetching
+        "
         class="share-profile-refresh-collage"
         buttonType="secondary"
         text="Try Another"
@@ -40,7 +44,10 @@
         </div>
 
         <div
-          v-if="parent == 'profile' && profileId == store.user.id"
+          v-if="
+            ['profile', 'ratings'].includes(parent) &&
+            profileId == store.user.id
+          "
           class="share-profile-message"
         >
           Preparing collage for your taste...
@@ -56,7 +63,7 @@
       <div
         v-if="
           store.user.profile.profile_status != 'public' &&
-          ['ratings', 'watchlist'].includes(this.parent) &&
+          ['watchlist'].includes(this.parent) &&
           this.profileId == this.store.user.id
         "
         style="text-align: left; margin-bottom: 16px"
@@ -226,12 +233,14 @@ export default {
     if (this.parent == "content") {
       this.fetchContentImages();
     } else if (
-      this.parent == "profile" &&
+      ["profile", "ratings"].includes(this.parent) &&
       this.profileId == this.store.user.id
     ) {
       this.fetchProfileCollage();
     } else {
-      this.selectedImage = this.image;
+      this.selectedImage = this.image
+        ? this.image.replace("/original/", "/w500/")
+        : this.image;
     }
   },
   computed: {
@@ -241,7 +250,7 @@ export default {
       } else if (this.parent == "content") {
         return this.contentImages;
       } else if (
-        this.parent == "profile" &&
+        ["profile", "ratings"].includes(this.parent) &&
         this.profileId == this.store.user.id
       ) {
         return [this.selectedImage];
@@ -263,7 +272,10 @@ export default {
         .then(function (response) {
           if (response.status == 200) {
             self.contentImages = response.data.images;
-            self.selectedImage = self.contentImages[0];
+            self.selectedImage = self.contentImages[0].replace(
+              "/original/",
+              "/w500/"
+            );
             self.$nextTick(function () {
               self.addClickEventListener();
             });
@@ -322,7 +334,10 @@ export default {
     addClickEventListener() {
       setTimeout(() => {
         this.$refs.flickity.on("change", (index) => {
-          this.selectedImage = this.images[index];
+          this.selectedImage = this.images[index].replace(
+            "/original/",
+            "/w500/"
+          );
         });
       }, 0);
     },
@@ -372,14 +387,23 @@ export default {
       }
 
       if (this.store.is_webview) {
-        Android.shareCollage(this.selectedImage, this.url);
+        Android.shareCollage(
+          this.selectedImage
+            ? this.selectedImage
+            : "https://flibo-images.s3-us-west-2.amazonaws.com/other/flibo-share.jpg",
+          this.url
+        );
       } else {
         var quote = null;
-        if (this.parent == "profile" && this.profileId == this.store.user.id) {
+        if (
+          ["profile", "ratings"].includes(this.parent) &&
+          this.profileId == this.store.user.id
+        ) {
           quote =
-            "Checkout my profile, hope you find something great to watch :)";
+            "Checkout my profile, hope you find something great to watch :) " +
+            this.url;
         } else if (this.parent == "content") {
-          quote = "Checkout " + this.contentTitle + ".";
+          quote = "Checkout " + this.contentTitle + " at " + this.url + ".";
         } else {
           quote = this.url;
         }
@@ -387,7 +411,9 @@ export default {
         window.open(
           "http://www.facebook.com/sharer.php?u=" +
             encodeURIComponent(
-              this.selectedImage ? this.selectedImage : this.url
+              this.selectedImage
+                ? this.selectedImage
+                : "https://flibo-images.s3-us-west-2.amazonaws.com/other/flibo-share.jpg"
             ) +
             "&quote=" +
             encodeURIComponent(quote) +
