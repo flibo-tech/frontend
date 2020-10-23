@@ -29,7 +29,7 @@
       :class="mainContainer.replace('.', '')"
       :style="
         is_mobile
-          ? ['watchlist', 'ratings'].includes(parent)
+          ? ['watchlist', 'ratings', 'suggestions'].includes(parent)
             ? 'margin-top: 200px;'
             : parent == 'search_results'
             ? 'margin-top: 85px;'
@@ -38,7 +38,7 @@
             : parent == 'notifications'
             ? 'margin-top: 50px;'
             : 'margin-top: 140px;'
-          : ['watchlist', 'ratings'].includes(parent)
+          : ['watchlist', 'ratings', 'suggestions'].includes(parent)
           ? 'position: relative;margin-top: 225px;'
           : parent == 'search_results'
           ? 'position: relative;margin-top: 85px;'
@@ -62,7 +62,7 @@
                 border: 0,
                 marginBottom: '0px',
               }
-            : parent == 'search_results'
+            : ['search_results', 'suggestions'].includes(parent)
             ? {
                 padding: '16px 0',
               }
@@ -390,6 +390,22 @@ export default {
           rating_filter: null,
           element_heights:
             "this.$store.state.feed.notifications.element_heights",
+        },
+        suggestions: {
+          contents: "this.$store.state.feed.suggestions.contents",
+          feed: "this.$store.state.feed.suggestions.feed_list",
+          fetching: "this.$store.state.feed.suggestions.fetching",
+          fetching_incremental:
+            "this.$store.state.feed.suggestions.fetching_incremental",
+          content_filter: "this.$store.state.feed.suggestions.content_type_tab",
+          discover_filters:
+            "this.$store.state.feed.suggestions.discover_type_tab",
+          platform_filters: "this.$store.state.feed.suggestions.platforms",
+          genre_filters: "this.$store.state.feed.suggestions.genres",
+          rating_filter: null,
+          element_heights: "this.$store.state.feed.suggestions.element_heights",
+          see_more_elements:
+            "this.$store.state.feed.suggestions.see_more_elements",
         },
       },
       observer: null,
@@ -1272,15 +1288,25 @@ export default {
       this.observer = new IntersectionObserver(callback, options);
       if (this.listSize) {
         this.stopCheck = false;
-        this.observer.observe(
-          document.querySelector("#" + this.containerTile + "-0")
+
+        var firstElem = document.querySelector("#" + this.containerTile + "-0");
+        if (firstElem) {
+          this.observer.observe(firstElem);
+        }
+
+        var thirdLastElem = document.querySelector(
+          `#${this.containerTile}-${this.listSize - 4}`
         );
-        this.observer.observe(
-          document.querySelector(`#${this.containerTile}-${this.listSize - 4}`)
+        if (thirdLastElem) {
+          this.observer.observe(thirdLastElem);
+        }
+
+        var lastElem = document.querySelector(
+          `#${this.containerTile}-${this.listSize - 1}`
         );
-        this.observer.observe(
-          document.querySelector(`#${this.containerTile}-${this.listSize - 1}`)
-        );
+        if (lastElem) {
+          this.observer.observe(lastElem);
+        }
       }
     },
   },

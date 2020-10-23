@@ -351,6 +351,23 @@ export const store = new Vuex.Store({
         padding_bottom: 0,
         scroll_position: 0,
         observer_current_index: 0
+      },
+      suggestions: {
+        contents: [],
+        apply_filters_on_create: false,
+        element_heights: {},
+        feed_list: [],
+        fetching: false,
+        fetching_incremental: false,
+        content_type_tab: ["movie", "tv"],
+        discover_type_tab: ["flibo"],
+        platforms: [],
+        genres: [],
+        padding_top: 0,
+        padding_bottom: 0,
+        scroll_position: 0,
+        observer_current_index: 0,
+        see_more_elements: []
       }
     },
     feed_filters: {

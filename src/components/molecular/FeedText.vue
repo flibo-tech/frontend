@@ -7,15 +7,22 @@
       <div
         class="info-profile-cropper"
         :style="
-          user_id != null
+          feed_type == 'flibo'
+            ? 'border-radius: 0;'
+            : user_id != null
             ? 'cursor: pointer;-webkit-tap-highlight-color: rgba(0,0,0,0);-webkit-tap-highlight-color: transparent;'
             : ''
         "
         v-if="feed_type"
-        @click="openPreview(user_name, 'user', user_id)"
+        @click="user_id != -1 ? openPreview(user_name, 'user', user_id) : ''"
       >
         <img
           class="info-profile-pp"
+          :style="
+            feed_type == 'flibo'
+              ? 'margin-left: -3px; width: 35px; margin-top: -3px'
+              : ''
+          "
           :src="user_picture"
           onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
         />
@@ -25,13 +32,19 @@
         <p class="info-text" :style="is_mobile ? '' : 'font-size: 15px;'">
           <span
             class="info-text-clickable"
-            style="text-transform: capitalize"
-            @click="openPreview(user_name, 'user', user_id)"
+            :style="
+              feed_type == 'flibo'
+                ? 'cursor: auto; text-transform: capitalize'
+                : 'text-transform: capitalize'
+            "
+            @click="
+              user_id != -1 ? openPreview(user_name, 'user', user_id) : ''
+            "
           >
             {{ user_id == store.user.id ? "You" : user_name }}
           </span>
 
-          <span v-if="feed_type == 'flibo'"> recommends you </span>
+          <span v-if="feed_type == 'flibo'"> recommends </span>
 
           <span v-if="item_type == 'rating'">
             {{
@@ -77,6 +90,8 @@
           <span v-if="item_type == 'watch_later'"> to watchlist </span>
 
           <span v-if="item_type == 'suggest'"> to everyone </span>
+
+          <span v-if="feed_type == 'flibo'"> to you </span>
         </p>
 
         <TimeSince :timestamp="created_at" />
@@ -127,7 +142,8 @@ export default {
     },
     item_type: {
       type: String,
-      required: true,
+      required: false,
+      default: null,
     },
     other_user_rating: {
       type: Number,

@@ -59,10 +59,12 @@ export default {
         home: "this.$store.state.feed_filters.filters_applied.home",
         watchlist: "this.$store.state.feed.watchlist",
         ratings: "this.$store.state.feed.ratings",
+        suggestions: "this.$store.state.feed.suggestions",
       },
       contents: {
         watchlist: "this.$store.state.feed.watchlist.contents",
         ratings: "this.$store.state.feed.ratings.contents",
+        suggestions: "this.$store.state.feed.suggestions.contents",
       },
       store: this.$store.state,
       just_created: true,
@@ -72,7 +74,9 @@ export default {
     quick_platforms() {
       if (this.parent == "home") {
         return this.user_platforms;
-      } else if (["watchlist", "ratings"].includes(this.parent)) {
+      } else if (
+        ["watchlist", "ratings", "suggestions"].includes(this.parent)
+      ) {
         return this.contents_platforms;
       }
     },

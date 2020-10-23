@@ -62,10 +62,12 @@ export default {
       quick_filters_mapping: {
         watchlist: "this.$store.state.feed.watchlist",
         ratings: "this.$store.state.feed.ratings",
+        suggestions: "this.$store.state.feed.suggestions",
       },
       contents: {
         watchlist: "this.$store.state.feed.watchlist.contents",
         ratings: "this.$store.state.feed.ratings.contents",
+        suggestions: "this.$store.state.feed.suggestions.contents",
       },
       store: this.$store.state,
       just_created: true,

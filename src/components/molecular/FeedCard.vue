@@ -37,6 +37,8 @@
           v-if="
             ['request', 'suggest', 'review'].includes(content.action_type)
               ? content.action_title
+              : content.feed_type == 'flibo'
+              ? false
               : content.action_type == null
               ? true
               : false
@@ -114,7 +116,8 @@
       v-if="content.image_info && content.image_info.image"
       class="feed-card-image"
       :style="
-        content.feed_type == 'search_result' && whereToWatchOptions
+        ['search_result', 'flibo'].includes(content.feed_type) &&
+        whereToWatchOptions
           ? is_mobile
             ? 'margin-bottom: 20px;'
             : 'margin-bottom: 20px; align-self: flex-start; padding: 0px 16px;'
@@ -182,7 +185,7 @@
     </div>
 
     <div
-      v-if="content.feed_type != 'search_result'"
+      v-if="!['search_result', 'flibo'].includes(content.feed_type)"
       class="feed-card-actions-container"
       :style="
         content.image_info == null ||
@@ -267,9 +270,7 @@
 
     <div
       v-if="
-        ['watchlist', 'ratings', 'search_results', 'home', 'posts'].includes(
-          parent
-        ) &&
+        ['watchlist', 'ratings', 'home', 'posts'].includes(parent) &&
         content.total_comments &&
         content.total_comments > onCardComments().length
       "
@@ -282,7 +283,7 @@
     </div>
 
     <div
-      v-if="content.feed_type != 'search_result'"
+      v-if="!['search_result', 'flibo'].includes(content.feed_type)"
       class="create-comment-container"
       :id="'create-comment-container-' + content.action_id"
       :style="

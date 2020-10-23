@@ -22,6 +22,7 @@ import ActionDetails from "@/views/ActionDetails.vue";
 import Ratings from "@/views/Ratings.vue";
 import Posts from "@/views/Posts.vue";
 import Notifications from "@/views/Notifications.vue";
+import Suggestions from "@/views/Suggestions.vue";
 
 Vue.use(Router);
 
@@ -134,6 +135,11 @@ export default new Router({
       path: "/notifications",
       name: "Notifications",
       component: Notifications
+    },
+    {
+      path: "/suggestions",
+      name: "Suggestions",
+      component: Suggestions
     }
   ]
 });

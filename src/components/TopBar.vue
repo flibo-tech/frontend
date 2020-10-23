@@ -18,7 +18,8 @@
         this.$route.path.includes('/list/') ||
         this.$route.path.includes('/ratings/') ||
         this.$route.path.includes('/watchlist/') ||
-        this.$route.path == '/notifications'
+        this.$route.path == '/notifications' ||
+        this.$route.path == '/suggestions'
       "
       class="go-back-button"
       :style="is_mobile ? '' : 'left: calc(50vw - 500px);'"
@@ -41,7 +42,8 @@
         this.$route.path.includes('/list/') ||
         this.$route.path.includes('/ratings/') ||
         this.$route.path.includes('/watchlist/') ||
-        this.$route.path == '/notifications'
+        this.$route.path == '/notifications' ||
+        this.$route.path == '/suggestions'
           ? is_mobile
             ? 'left: calc(5% + 15px);'
             : 'left: calc(50vw - 500px + 30px);'
@@ -87,6 +89,8 @@
           ? "Activity"
           : this.$route.path == "/notifications"
           ? "Notifications"
+          : this.$route.path == "/suggestions"
+          ? "Suggestions"
           : ""
       }}
     </div>

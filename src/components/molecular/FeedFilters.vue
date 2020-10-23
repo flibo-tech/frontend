@@ -16,7 +16,11 @@
         />
 
         <SuggestionFilter
-          v-if="!['search_results', 'watchlist', 'ratings'].includes(parent)"
+          v-if="
+            !['search_results', 'watchlist', 'ratings', 'suggestions'].includes(
+              parent
+            )
+          "
           class="suggestion-filter"
           :style="
             parent == 'home'
@@ -54,7 +58,7 @@
     </div>
 
     <GenreFilter
-      v-if="['watchlist', 'ratings'].includes(parent)"
+      v-if="['watchlist', 'ratings', 'suggestions'].includes(parent)"
       class="genre-filter"
       :parent="parent"
       v-on="$listeners"
