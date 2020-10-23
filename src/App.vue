@@ -1423,10 +1423,17 @@ export default {
           this.feed_mappings[info.parent].discover_filters != null &&
           !info.skip_suggestions_filter
         ) {
-          eval(
-            this.feed_mappings[info.parent].discover_filters +
-              ' = ["community", "friends", "flibo"]'
-          );
+          if (info.parent == "search_results") {
+            eval(
+              this.feed_mappings[info.parent].discover_filters +
+                ' = ["community", "friends", "flibo", "search_result"]'
+            );
+          } else {
+            eval(
+              this.feed_mappings[info.parent].discover_filters +
+                ' = ["community", "friends", "flibo"]'
+            );
+          }
         } else if (
           this.feed_mappings[info.parent].discover_filters != null &&
           info.skip_suggestions_filter

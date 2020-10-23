@@ -32,7 +32,7 @@
           ? ['watchlist', 'ratings'].includes(parent)
             ? 'margin-top: 200px;'
             : parent == 'search_results'
-            ? 'margin-top: 105px;'
+            ? 'margin-top: 85px;'
             : parent == 'posts'
             ? 'margin-top: 50px;'
             : parent == 'notifications'
@@ -41,7 +41,7 @@
           : ['watchlist', 'ratings'].includes(parent)
           ? 'position: relative;margin-top: 225px;'
           : parent == 'search_results'
-          ? 'position: relative;margin-top: 105px;'
+          ? 'position: relative;margin-top: 85px;'
           : parent == 'posts'
           ? 'position: relative;margin-top: 50px;'
           : parent == 'notifications'
@@ -62,9 +62,13 @@
                 border: 0,
                 marginBottom: '0px',
               }
+            : parent == 'search_results'
+            ? {
+                padding: '16px 0',
+              }
             : { width: is_mobile ? '100vw' : '100%;' }
         "
-        :action-id="item.action_id || item.notification_id"
+        :action-id="item.action_id || item.notification_id || item.content_id"
       >
         <div
           v-if="
@@ -158,7 +162,10 @@
           :content="item"
           :parent="parent"
           @see-more="
-            [updateElementHeights(), updateSeeMoreElements(item.action_id)]
+            [
+              updateElementHeights(),
+              updateSeeMoreElements(item.action_id || item.content_id),
+            ]
           "
           @update-element-heights="updateElementHeights"
           @update-vote="updateVote"
@@ -979,7 +986,8 @@ export default {
       for (let i = startIndex; i < endIndex; i++) {
         totalHeight += eval(this.feed_mappings[this.parent].element_heights)[
           this.parent_feed_list[i].action_id ||
-            this.parent_feed_list[i].notification_id
+            this.parent_feed_list[i].notification_id ||
+            this.parent_feed_list[i].content_id
         ];
       }
       return totalHeight;
@@ -1251,6 +1259,12 @@ export default {
             if (!this.stopCheck) {
               this.botSentCallback(entry);
             }
+          } else if (
+            entry.target.id === `${this.containerTile}-${this.listSize - 1}`
+          ) {
+            if (!this.stopCheck) {
+              this.botSentCallback(entry);
+            }
           }
         });
       };
@@ -1263,6 +1277,9 @@ export default {
         );
         this.observer.observe(
           document.querySelector(`#${this.containerTile}-${this.listSize - 4}`)
+        );
+        this.observer.observe(
+          document.querySelector(`#${this.containerTile}-${this.listSize - 1}`)
         );
       }
     },

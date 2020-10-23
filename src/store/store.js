@@ -482,9 +482,7 @@ export const store = new Vuex.Store({
       last_fetch_time: my_store
         ? my_store.discover_filters.last_fetch_time
         : 1000000000000,
-      discover_type_tab: my_store
-        ? my_store.discover_filters.discover_type_tab
-        : ["community", "friends", "flibo"]
+      discover_type_tab: ["community", "friends", "flibo", "search_result"]
     },
     watchlist: my_store ? my_store.watchlist : [],
     watchlist_filters: {

@@ -353,6 +353,18 @@ export default {
         this.store.discover_filters.is_string_query = true;
         this.$router.push("/search-results");
         this.$store.state.discover_filters.fetching_filtered = true;
+
+        var reset_info = {
+          parent: "search_results",
+          filters: true,
+          skip_suggestions_filter: false,
+          scroll: true,
+          paddings: true,
+          observer_current_index: true,
+          element_heights: true,
+        };
+        this.$emit("reset-feed-page", reset_info);
+
         var self = this;
         axios
           .post(self.$store.state.api_host + "search_query", {
@@ -788,7 +800,12 @@ export default {
                   response.data.more_contents;
                 self.$store.state.scroll_positions.discover.filter = 0;
                 self.$store.state.discover_filters.last_fetch_time = Date.now();
-                self.fetchRemainingResults();
+                if (
+                  self.$store.state.discover_filters.more_filtered_content
+                    .length
+                ) {
+                  self.fetchRemainingResults();
+                }
               }
             } else if ([204].includes(response.status)) {
               if (self.$route.path == "/search-results") {
@@ -822,10 +839,9 @@ export default {
       this.store.discover_filters.fetching_filter_incremental = true;
       var self = this;
       axios
-        .post(self.$store.state.api_host + "get_incremental_feed_contents", {
+        .post(self.$store.state.api_host + "get_filtered_contents", {
           session_id: self.$store.state.session_id,
-          more_contents:
-            self.$store.state.discover_filters.more_filtered_content,
+          content_ids: self.$store.state.discover_filters.more_filtered_content,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
         })
@@ -840,7 +856,8 @@ export default {
               if (self.$route.path == "/search-results") {
                 self.$store.state.feed_filters.apply_filters_wo_reset = true;
               } else if (
-                self.$store.state.feed.search_results.feed_list.length < 25
+                self.$store.state.feed.search_results.feed_list.length <
+                self.$store.state.feed.defaultListSize
               ) {
                 self.store.feed.search_results.apply_filters_on_create = true;
               }

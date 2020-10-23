@@ -3,7 +3,7 @@
     class="feed-card-container"
     :style="is_mobile ? '' : 'grid-template-columns: 16px 200px 48px 1fr 16px;'"
   >
-    <div class="feed-card-text">
+    <div class="feed-card-text" v-if="content.feed_type != 'search_result'">
       <FeedText
         :user_id="content.creator_id"
         :user_name="content.creator_name"
@@ -20,7 +20,10 @@
       />
     </div>
 
-    <div class="feed-description">
+    <div
+      class="feed-description"
+      :style="content.feed_type == 'search_result' ? 'margin-top: 0px;' : ''"
+    >
       <div
         class="feed-description-textbox"
         ref="feedDescription"
@@ -38,10 +41,18 @@
               ? true
               : false
           "
+          @click="
+            content.feed_type == 'search_result'
+              ? showPreview(content.content_id, content.content_title)
+              : ''
+          "
+          :style="
+            content.feed_type == 'search_result' ? 'cursor: pointer;' : ''
+          "
         >
           <span style="margin-right: 8px">
             {{
-              content.action_type != null
+              content.action_title != null
                 ? content.action_title
                 : content.content_title
             }}
@@ -64,7 +75,7 @@
         <TextView
           v-if="content.description"
           :text="content.description"
-          :actionId="content.action_id"
+          :actionId="content.action_id || content.content_id"
           :parent="parent"
           v-on="$listeners"
         />
@@ -83,9 +94,34 @@
     </div>
 
     <div
+      v-if="content.imdb_score || content.tomato_meter"
+      class="feed-card-rating-info"
+    >
+      <ContentMetaBlock
+        style="margin-right: 8px"
+        v-if="content.imdb_score"
+        :text="'IMDb ' + content.imdb_score"
+      />
+
+      <ContentMetaBlock
+        style="margin-right: 8px"
+        v-if="content.tomato_meter"
+        :text="'Tomatometer ' + content.tomato_meter"
+      />
+    </div>
+
+    <div
       v-if="content.image_info && content.image_info.image"
       class="feed-card-image"
-      :style="is_mobile ? '' : 'align-self: flex-start; padding: 0px 16px;'"
+      :style="
+        content.feed_type == 'search_result' && whereToWatchOptions
+          ? is_mobile
+            ? 'margin-bottom: 20px;'
+            : 'margin-bottom: 20px; align-self: flex-start; padding: 0px 16px;'
+          : is_mobile
+          ? ''
+          : 'align-self: flex-start; padding: 0px 16px;'
+      "
     >
       <img
         :src="content.image_info.image"
@@ -146,6 +182,7 @@
     </div>
 
     <div
+      v-if="content.feed_type != 'search_result'"
       class="feed-card-actions-container"
       :style="
         content.image_info == null ||
@@ -245,6 +282,7 @@
     </div>
 
     <div
+      v-if="content.feed_type != 'search_result'"
       class="create-comment-container"
       :id="'create-comment-container-' + content.action_id"
       :style="
@@ -277,6 +315,8 @@
       />
     </div>
 
+    <div v-else />
+
     <ContentPreview
       v-if="previewDetails.show"
       :id="previewDetails.id"
@@ -307,6 +347,7 @@ import Vote from "./../atomic/Vote";
 import SharePrompt from "./../atomic/SharePrompt";
 import Button from "./../atomic/Button";
 import TextEditor from "./TextEditor";
+import ContentMetaBlock from "./../atomic/ContentMetaBlock";
 
 export default {
   name: "App",
@@ -319,6 +360,7 @@ export default {
     SharePrompt,
     Button,
     TextEditor,
+    ContentMetaBlock,
   },
   props: {
     content: {
@@ -602,5 +644,12 @@ export default {
   font-family: "Roboto", sans-serif;
   text-align: left;
   cursor: pointer;
+}
+.feed-card-rating-info {
+  display: flex;
+  width: 100%;
+  margin-top: 8px;
+  padding: 0 16px;
+  justify-content: flex-start;
 }
 </style>

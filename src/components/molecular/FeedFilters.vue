@@ -1,15 +1,22 @@
 <template>
-  <div class="feed-filters-container">
+  <div
+    class="feed-filters-container"
+    :style="
+      parent == 'search_results'
+        ? 'display: flex; justify-content: center;'
+        : ''
+    "
+  >
     <div style="overflow-x: scroll">
       <div class="feed-filters-top-row">
         <ContentFilter
-          class="content-filter"
+          :class="parent != 'search_results' ? 'content-filter' : ''"
           :parent="parent"
           v-on="$listeners"
         />
 
         <SuggestionFilter
-          v-if="!['watchlist', 'ratings'].includes(parent)"
+          v-if="!['search_results', 'watchlist', 'ratings'].includes(parent)"
           class="suggestion-filter"
           :style="
             parent == 'home'
