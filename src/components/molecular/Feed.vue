@@ -148,7 +148,7 @@
 
         <SavePlatforms
           v-if="
-            parent == 'home' &&
+            ['home', 'suggestions'].includes(parent) &&
             store.user.profile.platforms == null &&
             currentIndex == 0 &&
             index == 0

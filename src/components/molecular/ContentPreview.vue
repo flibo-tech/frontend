@@ -288,7 +288,9 @@ export default {
                     }
                   )
                   .then(function (response) {
-                    self.$store.state.notifications.suggestions = true;
+                    if (response.data.notify) {
+                      self.$store.state.notifications.notifications = 1;
+                    }
                   });
               }
             }

@@ -22,7 +22,18 @@ export default {
     };
   },
   created() {
-    if (this.$store.state.feed.suggestions.contents.length == 0) {
+    if (
+      this.$store.state.feed.suggestions.contents.length == 0 ||
+      this.$route.query.refresh ||
+      this.$store.state.suggestions.refresh_feed
+    ) {
+      if (this.$route.query.refresh) {
+        let query = Object.assign({}, this.$route.query);
+        delete query.refresh;
+        this.$router.replace({ query });
+      }
+      this.$store.state.suggestions.refresh_feed = false;
+
       this.fetchSuggestions();
     }
   },

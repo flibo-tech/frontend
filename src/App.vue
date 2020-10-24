@@ -204,9 +204,6 @@ export default {
     router_path: function () {
       return this.$route.path;
     },
-    refreshFeed() {
-      return this.$store.state.suggestions.refresh_feed;
-    },
   },
 
   watch: {
@@ -244,28 +241,6 @@ export default {
           path.startsWith("/content/")
         ) {
           this.$store.state.content_page.rerender = true;
-        }
-      },
-    },
-    refreshFeed: {
-      handler: function (refresh) {
-        if (refresh) {
-          var self = this;
-
-          var reset_info = {
-            parent: "home",
-            filters: true,
-            skip_suggestions_filter: false,
-            scroll: true,
-            paddings: true,
-            observer_current_index: true,
-            element_heights: true,
-          };
-          self.resetFeedPage(reset_info);
-
-          self.refreshDiscoverPage();
-
-          self.$store.state.suggestions.refresh_feed = false;
         }
       },
     },
@@ -1326,7 +1301,9 @@ export default {
                   }
                 )
                 .then(function (response) {
-                  self.$store.state.notifications.suggestions = true;
+                  if (response.data.notify) {
+                    self.$store.state.notifications.notifications = 1;
+                  }
                 });
             }
           }

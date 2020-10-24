@@ -29,7 +29,10 @@ export default {
     };
   },
   created() {
-    if (this.$store.state.feed.notifications.contents.length == 0) {
+    if (
+      this.$store.state.feed.notifications.contents.length == 0 ||
+      this.store.notifications.notifications
+    ) {
       this.fetchNotifications();
     }
   },
@@ -60,10 +63,7 @@ export default {
               );
               if (self.$route.path == "/notifications") {
                 self.$store.state.feed_filters.apply_filters_wo_reset = true;
-              } else if (
-                self.store.feed.notifications.feed_list.length <
-                self.$store.state.feed.defaultListSize
-              ) {
+              } else if (self.store.feed.notifications.feed_list.length < 50) {
                 self.store.feed.notifications.apply_filters_on_create = true;
               }
               self.markNotificationsSeen();

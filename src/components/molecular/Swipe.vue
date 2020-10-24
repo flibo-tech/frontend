@@ -416,7 +416,9 @@ export default {
                     if (self.$route.path == "/onboarding") {
                       self.$store.state.suggestions.refresh_feed = true;
                     } else {
-                      self.$store.state.notifications.suggestions = true;
+                      if (response.data.notify) {
+                        self.$store.state.notifications.notifications = 1;
+                      }
                     }
                   });
               }
