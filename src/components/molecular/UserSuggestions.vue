@@ -1,15 +1,9 @@
 <template>
   <div
     class="user-suggestions-container"
-    :style="
-      is_mobile
-        ? ''
-        : 'width: 950px;margin-left: 50%;transform: translateX(-50%);'
-    "
+    :style="is_mobile ? '' : 'width: 950px;'"
   >
-    <p>
-      Suggested for you
-    </p>
+    <p>Suggested for you</p>
 
     <div class="user-suggestions">
       <SuggestedUser

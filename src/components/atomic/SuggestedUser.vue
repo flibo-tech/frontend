@@ -5,6 +5,7 @@
         @clicked="goToProfile"
         :name="userName"
         :image="image"
+        :imgOnError="true"
         :width="90"
         :height="115"
         :fontSize="14"

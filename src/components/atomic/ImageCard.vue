@@ -4,7 +4,15 @@
       class="image-container"
       :style="{ width: width + 'px', height: height + 'px' }"
     >
-      <img :src="image" :style="scale ? 'transform: scale(1.5);' : ''" />
+      <img
+        :src="image"
+        :style="scale ? 'transform: scale(1.5);' : ''"
+        :onerror="
+          imgOnError
+            ? 'this.onerror=null;this.src=\'https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png\''
+            : ''
+        "
+      />
     </div>
     <div class="text-container" :style="customStyleTextContainer">
       <p :style="customStyleText">
@@ -73,6 +81,11 @@ export default {
     fontWeight: {
       type: String,
       default: "700",
+      require: false,
+    },
+    imgOnError: {
+      type: Boolean,
+      default: false,
       require: false,
     },
   },
