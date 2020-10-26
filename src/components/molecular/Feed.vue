@@ -7,6 +7,7 @@
       :style="is_mobile ? '' : 'top: 50px;width: 1000px;'"
     >
       <FeedFilters
+        v-if="parent != 'home'"
         :parent="parent"
         @filter-parent="applyQuickFilters"
         @refresh-suggestions="refreshFeed(true)"
@@ -37,7 +38,7 @@
             ? 'margin-top: 50px;'
             : parent == 'notifications'
             ? 'margin-top: 50px;'
-            : 'margin-top: 140px;'
+            : 'margin-top: 100px;'
           : ['watchlist', 'ratings', 'suggestions'].includes(parent)
           ? 'position: relative;margin-top: 225px;'
           : parent == 'search_results'
@@ -46,7 +47,7 @@
           ? 'position: relative;margin-top: 50px;'
           : parent == 'notifications'
           ? 'position: relative;margin-top: 50px;'
-          : 'position: relative;margin-top: 150px;'
+          : 'position: relative;margin-top: 100px;'
       "
     >
       <div
@@ -62,7 +63,8 @@
                 border: 0,
                 marginBottom: '0px',
               }
-            : ['search_results', 'suggestions'].includes(parent)
+            : ['search_results', 'suggestions'].includes(parent) ||
+              (item.feed_type && item.feed_type == 'flibo')
             ? {
                 padding: '16px 0',
               }
@@ -153,7 +155,7 @@
             currentIndex == 0 &&
             index == 0
           "
-          @refresh-suggestions="refreshFeed(true)"
+          @refresh-suggestions="refreshFeed(parent == 'suggestions')"
           v-on="$listeners"
         />
 
@@ -196,7 +198,9 @@
           "
           class="user-suggestions-container"
           :style="
-            is_mobile ? 'margin-top: 24px;' : 'margin-top: 24px;width: 1000px;'
+            is_mobile
+              ? 'margin-top: 8px; margin-bottom: -16px;'
+              : 'margin-top: 8px; margin-bottom: -16px; width: 1000px;'
           "
         >
           <p style="font-weight: normal; text-align: center">
@@ -309,10 +313,9 @@ export default {
             "this.$store.state.suggestions.fetching_feed_incremental",
           content_filter: "this.$store.state.suggestions.content_type_tab",
           discover_filters: "this.$store.state.suggestions.discover_type_tab",
-          platform_filters:
-            "this.$store.state.feed_filters.filters_applied.home.platforms",
+          platform_filters: null,
           genre_filters: null,
-          rating_filter: null,
+          rating_filter: "this.$store.state.feed.home.rating_tab",
           element_heights: "this.$store.state.feed.home.element_heights",
           see_more_elements: "this.$store.state.feed.home.see_more_elements",
         },
@@ -400,8 +403,8 @@ export default {
           content_filter: "this.$store.state.feed.suggestions.content_type_tab",
           discover_filters:
             "this.$store.state.feed.suggestions.discover_type_tab",
-          platform_filters: "this.$store.state.feed.suggestions.platforms",
-          genre_filters: "this.$store.state.feed.suggestions.genres",
+          platform_filters: null,
+          genre_filters: null,
           rating_filter: null,
           element_heights: "this.$store.state.feed.suggestions.element_heights",
           see_more_elements:
@@ -960,7 +963,7 @@ export default {
     },
     addNewComment(newComment) {
       var quickComment = newComment.creator_name + "^" + newComment.comment;
-      for (let item of this.$store.state.feed[this.parent].contents) {
+      for (let item of eval(this.feed_mappings[this.parent].contents)) {
         if (item.action_id == newComment.action_id) {
           if (item.newComments) {
             item.newComments.push(quickComment);
@@ -983,7 +986,7 @@ export default {
       });
     },
     updateVote(vote) {
-      for (let item of this.$store.state.feed[this.parent].contents) {
+      for (let item of eval(this.feed_mappings[this.parent].contents)) {
         if (item.action_id == vote.actionId) {
           if (vote.type == "user") {
             item.user_vote = vote.vote;

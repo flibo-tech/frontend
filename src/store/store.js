@@ -217,14 +217,14 @@ export const store = new Vuex.Store({
       rate_counter: my_store ? my_store.suggestions.rate_counter : [],
       rate_counter_all: my_store ? my_store.suggestions.rate_counter_all : 0,
       suggestions_ready_message_seen: true,
-      contents: my_store ? my_store.suggestions.contents : [],
+      contents: [],
       more_contents: my_store ? my_store.suggestions.more_contents : [],
       discover_type_tab: my_store
         ? my_store.suggestions.discover_type_tab
         : ["community", "friends", "flibo"],
       content_type_tab: my_store
         ? my_store.suggestions.content_type_tab
-        : ["movie", "tv"],
+        : ["movie", "tv", "pass_check"],
       last_fetch_time: my_store
         ? my_store.suggestions.last_fetch_time
         : 1000000000000,
@@ -238,7 +238,7 @@ export const store = new Vuex.Store({
         : false,
       users_suggestions: my_store ? my_store.suggestions.users_suggestions : [],
       notify: false,
-      feed_list: my_store ? my_store.suggestions.feed_list : [],
+      feed_list: [],
       observer_current_index: my_store
         ? my_store.suggestions.observer_current_index
         : 0,
@@ -264,6 +264,7 @@ export const store = new Vuex.Store({
         observer_current_index: my_store
           ? my_store.feed.home.observer_current_index
           : 0,
+        rating_tab: [1, 2, 3, "pass_check"],
         see_more_elements: [],
         element_comments: {}
       },
@@ -350,7 +351,7 @@ export const store = new Vuex.Store({
         padding_top: 0,
         padding_bottom: 0,
         scroll_position: 0,
-        observer_current_index: 0
+        observer_current_index: 0,
       },
       suggestions: {
         contents: [],
@@ -367,7 +368,8 @@ export const store = new Vuex.Store({
         padding_bottom: 0,
         scroll_position: 0,
         observer_current_index: 0,
-        see_more_elements: []
+        see_more_elements: [],
+        element_comments: {}
       }
     },
     feed_filters: {

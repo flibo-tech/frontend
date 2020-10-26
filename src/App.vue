@@ -794,39 +794,81 @@ export default {
     loggingOut() {
       this.logging_out = true;
     },
-    refreshDiscoverPage() {
+    refreshDiscoverPage(fetched_items = []) {
       var self = this;
-      self.$store.state.suggestions.fetching_suggestions = true;
+
+      var reset_info = {
+        parent: "home",
+        filters: true,
+        skip_suggestions_filter: false,
+        scroll: true,
+        paddings: true,
+        observer_current_index: true,
+        element_heights: true,
+      };
+      self.resetFeedPage(reset_info);
+
+      if (fetched_items.length) {
+        self.store.suggestions.fetching_feed_incremental = true;
+      } else {
+        self.$store.state.suggestions.fetching_suggestions = true;
+      }
+
       self.$store.state.notifications.suggestions = false;
 
       axios
         .post(self.$store.state.api_host + "flibo_feed", {
           session_id: self.$store.state.session_id,
           country: self.$store.state.user.profile.country,
+          fetched_items: fetched_items,
         })
         .then(function (response) {
           if ([200].includes(response.status)) {
-            self.$store.state.suggestions.contents = response.data.contents;
-            self.store.suggestions.feed_list = self.store.suggestions.contents.slice(
-              0,
-              self.$store.state.feed.defaultListSize
-            );
-            self.$store.state.suggestions.more_contents =
-              response.data.more_contents;
-            self.fetchRemaining();
+            if (fetched_items.length) {
+              self.$store.state.suggestions.contents.push(
+                ...response.data.contents
+              );
+              if (self.$route.path == "/discover") {
+                self.$store.state.feed_filters.apply_filters_wo_reset = true;
+              } else if (
+                self.$store.state.suggestions.feed_list.length <
+                self.$store.state.feed.defaultListSize
+              ) {
+                self.store.feed.home.apply_filters_on_create = true;
+              }
+            } else {
+              self.$store.state.suggestions.contents = response.data.contents;
+              self.store.suggestions.feed_list = self.store.suggestions.contents.slice(
+                0,
+                self.$store.state.feed.defaultListSize
+              );
 
-            if (self.$route.path == "/discover") {
-              self.$nextTick(function () {
-                self.$store.state.feed.update_dom = true;
-              });
+              self.refreshDiscoverPage(
+                response.data.contents.map((item) => item.action_id)
+              );
+
+              if (self.$route.path == "/discover") {
+                self.$nextTick(function () {
+                  self.$store.state.feed.update_dom = true;
+                });
+              }
             }
-          } else {
-            // console.log(response.status);
           }
-          self.$store.state.suggestions.fetching_suggestions = false;
+
+          if (fetched_items.length) {
+            self.store.suggestions.fetching_feed_incremental = false;
+          } else {
+            self.$store.state.suggestions.fetching_suggestions = false;
+          }
         })
         .catch(function (error) {
           // console.log(error);
+          if (fetched_items.length) {
+            self.store.suggestions.fetching_feed_incremental = false;
+          } else {
+            self.$store.state.suggestions.fetching_suggestions = false;
+          }
+
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -837,7 +879,6 @@ export default {
           } else {
             // console.log(error.response.status);
           }
-          self.$store.state.suggestions.fetching_suggestions = false;
         });
 
       axios
@@ -1149,49 +1190,6 @@ export default {
           }
         });
     },
-    fetchRemaining() {
-      var self = this;
-      if (self.$store.state.suggestions.more_contents.length) {
-        self.store.suggestions.fetching_feed_incremental = true;
-
-        axios
-          .post(self.$store.state.api_host + "get_incremental_feed_contents", {
-            session_id: self.$store.state.session_id,
-            more_contents: self.$store.state.suggestions.more_contents.slice(),
-            country: self.$store.state.user.profile.country,
-          })
-          .then(function (response) {
-            if ([200].includes(response.status)) {
-              self.$store.state.suggestions.contents.push(
-                ...response.data.contents
-              );
-              if (self.$route.path == "/discover") {
-                self.$store.state.feed_filters.apply_filters_wo_reset = true;
-              } else if (self.$store.state.suggestions.feed_list.length < 25) {
-                self.store.feed.home.apply_filters_on_create = true;
-              }
-
-              self.$store.state.suggestions.more_contents = [];
-            } else {
-              // console.log(response.status);
-            }
-            self.store.suggestions.fetching_feed_incremental = false;
-          })
-          .catch(function (error) {
-            self.store.suggestions.fetching_feed_incremental = false;
-            if ([401, 419].includes(error.response.status)) {
-              window.location =
-                self.$store.state.login_host +
-                "logout?session_id=" +
-                self.$store.state.session_id;
-              self.$store.state.session_id = null;
-              self.logging_out = true;
-            } else {
-              // console.log(error.response.status);
-            }
-          });
-      }
-    },
     openContentPage(info) {
       this.$store.state.content_page.more_by_artist = null;
       this.$store.state.content_page.artist = null;
@@ -1390,10 +1388,17 @@ export default {
     resetFeedPage(info) {
       if (info.filters) {
         if (this.feed_mappings[info.parent].content_filter != null) {
-          eval(
-            this.feed_mappings[info.parent].content_filter +
-              ' = ["movie", "tv"]'
-          );
+          if (info.parent == "home") {
+            eval(
+              this.feed_mappings[info.parent].content_filter +
+                ' = ["movie", "tv", "pass_check"]'
+            );
+          } else {
+            eval(
+              this.feed_mappings[info.parent].content_filter +
+                ' = ["movie", "tv"]'
+            );
+          }
         }
 
         if (
