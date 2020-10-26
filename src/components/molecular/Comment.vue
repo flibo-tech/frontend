@@ -9,18 +9,36 @@
         />
         <div class="comment-comp-content">
           <!-- comment content -->
-          <p>
+          <div style="position: relative; margin: 0">
             <strong @click="showPreview = true">{{
               currentComment.creator_name
             }}</strong>
             <TextView
               class="comment-comp-textview"
+              ref="commentContent"
+              :style="
+                isSpoiler &&
+                showSpoilerAlert &&
+                currentComment.creator_id != store.user.id
+                  ? 'filter: blur(5px); background-color: rgba(0, 0, 0, 0.4);'
+                  : ''
+              "
               v-if="currentComment.comment"
               :text="currentComment.comment"
               :parent="parent + '__comment' + (isChild ? '__child' : '')"
               v-on="$listeners"
             />
-          </p>
+
+            <div
+              class="comment-spoiler-layer"
+              v-if="
+                isSpoiler &&
+                showSpoilerAlert &&
+                currentComment.creator_id != store.user.id
+              "
+              @click="alterSpoilerAlert"
+            />
+          </div>
 
           <!-- reaction section -->
           <div class="comment-comp-reaction">
@@ -139,12 +157,19 @@ export default {
       showComments: false,
       showRepliesHeader: true,
       fetchingData: false,
+      showSpoilerAlert: true,
+      store: this.$store.state,
     };
   },
   mounted() {
     if (this.currentComment.comments.length) {
       this.showComments = true;
     }
+  },
+  computed: {
+    isSpoiler() {
+      return this.currentComment.spoiler;
+    },
   },
   watch: {
     currentComment: {
@@ -157,6 +182,11 @@ export default {
     },
   },
   methods: {
+    alterSpoilerAlert() {
+      this.$refs.commentContent.$el.style.filter = "none";
+      this.$refs.commentContent.$el.style.backgroundColor = "transparent";
+      this.showSpoilerAlert = false;
+    },
     fetchComments() {
       if (
         (!this.showComments && this.currentComment.comments.length > 0) ||
@@ -242,10 +272,6 @@ export default {
   flex-flow: column nowrap;
 }
 
-.comment-comp-content p {
-  margin: 0;
-}
-
 .comment-comp-vote {
   min-width: 85px;
 }
@@ -318,7 +344,7 @@ export default {
   justify-content: stretch;
 }
 
-.comment-comp-content > p > strong {
+.comment-comp-content strong {
   font-size: 14px;
   cursor: pointer;
   margin-right: 0.6em;
@@ -353,5 +379,14 @@ export default {
 }
 .comment-comp-container {
   text-align: left;
+}
+.comment-spoiler-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  cursor: pointer;
 }
 </style>
