@@ -159,6 +159,8 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
 }
 .suggested-reason {
   margin-top: 3px;

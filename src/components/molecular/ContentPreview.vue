@@ -275,7 +275,7 @@ export default {
             if (index == -1) {
               self.$store.state.suggestions.rate_counter.push(self.id);
               if (
-                self.$store.state.suggestions.rate_counter.length !=
+                self.$store.state.suggestions.rate_counter.length ==
                 self.$store.state.suggestions.calc_after
               ) {
                 self.$store.state.suggestions.rate_counter = [];
