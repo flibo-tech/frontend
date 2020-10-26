@@ -16,6 +16,21 @@
       <div class="refresh-feed" v-if="parent == 'home'" @click="refreshFeed">
         Refresh
       </div>
+
+      <div
+        v-if="parent == 'home'"
+        class="only-suggestions"
+        @click="$router.push('/suggestions')"
+      >
+        <Button buttonType="textOnly" text="Only Suggestions" />
+
+        <Button
+          icon="grey_arrow"
+          buttonType="iconOnly"
+          :size="14"
+          style="margin-left: 4px; margin-top: 1px"
+        />
+      </div>
     </div>
 
     <div v-if="hide_feed" class="cover-to-hide-initial-scroll" />
@@ -177,7 +192,7 @@
         />
 
         <UserSuggestions
-          style="margin-top: 24px"
+          style="margin-top: 24px; margin-bottom: -16px"
           v-if="
             parent == 'home' &&
             store.suggestions.users_suggestions.length &&
@@ -1364,6 +1379,13 @@ export default {
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
+}
+.only-suggestions {
+  position: absolute;
+  display: flex;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 .feed-cards-container {
   width: 100%;
