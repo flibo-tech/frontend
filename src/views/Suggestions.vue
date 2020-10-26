@@ -1,6 +1,11 @@
 <template>
   <div class="feed-container">
-    <Feed v-if="!noSuggestionFound" parent="suggestions" v-on="$listeners" />
+    <Feed
+      v-if="!noSuggestionFound"
+      parent="suggestions"
+      @refresh-suggestions="refreshFeeds"
+      v-on="$listeners"
+    />
     <div v-else class="na-message">No suggestions found.</div>
   </div>
 </template>
@@ -19,9 +24,18 @@ export default {
       is_mobile: window.screen.height > window.screen.width,
       store: this.$store.state,
       noSuggestionFound: false,
+      latestFirst: false,
     };
   },
   created() {
+    if (this.$route.query.latest) {
+      let query = Object.assign({}, this.$route.query);
+      delete query.latest;
+      this.$router.replace({ query });
+
+      this.latestFirst = true;
+    }
+
     if (
       this.$store.state.feed.suggestions.contents.length == 0 ||
       this.$route.query.refresh ||
@@ -38,6 +52,22 @@ export default {
     }
   },
   methods: {
+    refreshFeeds() {
+      this.fetchSuggestions();
+
+      var reset_info = {
+        parent: "home",
+        filters: true,
+        skip_suggestions_filter: false,
+        scroll: true,
+        paddings: true,
+        observer_current_index: true,
+        element_heights: true,
+      };
+      this.$emit("reset-feed-page", reset_info);
+
+      this.$emit("refresh-feed");
+    },
     fetchSuggestions(fetchedSuggestions = []) {
       var self = this;
 
@@ -55,6 +85,7 @@ export default {
         .post(self.$store.state.api_host + "suggestions", {
           session_id: self.$store.state.session_id,
           fetched_suggestions: fetchedSuggestions,
+          latest_first: this.latestFirst,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
         })

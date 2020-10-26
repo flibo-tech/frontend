@@ -10,15 +10,10 @@
         v-if="parent != 'home'"
         :parent="parent"
         @filter-parent="applyQuickFilters"
-        @refresh-suggestions="refreshFeed(true)"
         v-on="$listeners"
       />
 
-      <div
-        class="refresh-feed"
-        v-if="parent == 'home'"
-        @click="refreshFeed(false)"
-      >
+      <div class="refresh-feed" v-if="parent == 'home'" @click="refreshFeed">
         Refresh
       </div>
     </div>
@@ -155,7 +150,7 @@
             currentIndex == 0 &&
             index == 0
           "
-          @refresh-suggestions="refreshFeed(parent == 'suggestions')"
+          @refresh-suggestions="refreshFeed"
           v-on="$listeners"
         />
 
@@ -454,8 +449,11 @@ export default {
       self.parent == "home" &&
       self.store.suggestions.discover_while_onboarding
     ) {
-      self.applyQuickFilters();
       self.store.suggestions.discover_while_onboarding = false;
+      setTimeout(() => {
+        this.$router.push("/suggestions?refresh=true");
+        this.refreshFeed();
+      }, 0);
     } else if (this.listSize || this.contentsCount) {
       this.$nextTick(function () {
         setTimeout(function () {
@@ -863,28 +861,32 @@ export default {
         );
       }
     },
-    refreshFeed(refreshSuggestions) {
+    refreshFeed() {
       this.hide_feed = true;
 
-      this.observer.disconnect();
-      this.observer = null;
+      if (this.observer) {
+        this.observer.disconnect();
+        this.observer = null;
+      }
 
       this.scroll.paddingTop = 0;
       this.scroll.paddingBottom = 0;
       this.scroll.scrollPosition = 0;
 
-      var reset_info = {
-        parent: this.parent,
-        filters: true,
-        skip_suggestions_filter: refreshSuggestions,
-        scroll: true,
-        paddings: true,
-        observer_current_index: true,
-        element_heights: true,
-      };
-      this.$emit("reset-feed-page", reset_info);
+      if (this.parent != "suggestions") {
+        var reset_info = {
+          parent: this.parent,
+          filters: true,
+          skip_suggestions_filter: false,
+          scroll: true,
+          paddings: true,
+          observer_current_index: true,
+          element_heights: true,
+        };
+        this.$emit("reset-feed-page", reset_info);
 
-      this.$emit("refresh-feed");
+        this.$emit("refresh-feed");
+      }
     },
     watchScroll() {
       var self = this;

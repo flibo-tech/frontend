@@ -101,14 +101,7 @@ export default {
             : this.parent + "_feed",
       });
 
-      if (
-        this.$store.state.notifications.suggestions &&
-        this.parent == "home"
-      ) {
-        this.$emit("refresh-suggestions");
-      } else {
-        this.$emit("filter-parent");
-      }
+      this.$emit("filter-parent");
     },
   },
 };
