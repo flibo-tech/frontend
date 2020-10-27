@@ -15,24 +15,6 @@
           v-on="$listeners"
         />
 
-        <SuggestionFilter
-          v-if="
-            !['search_results', 'watchlist', 'ratings', 'suggestions'].includes(
-              parent
-            )
-          "
-          class="suggestion-filter"
-          :style="
-            parent == 'home'
-              ? store.notifications.suggestions
-                ? 'border-right: 1px solid #dfe1e5; padding-right: 15px;'
-                : 'border-right: 1px solid #dfe1e5; padding-right: 8px;'
-              : ''
-          "
-          :parent="parent"
-          v-on="$listeners"
-        />
-
         <RatingFilter
           v-if="['ratings'].includes(parent)"
           class="rating-filter"
@@ -68,7 +50,6 @@
 
 <script>
 import ContentFilter from "./../atomic/ContentFilter";
-import SuggestionFilter from "./../atomic/SuggestionFilter";
 import PlatformFilter from "./../atomic/PlatformFilter";
 import GenreFilter from "./../atomic/GenreFilter";
 import RatingFilter from "./../atomic/RatingFilter";
@@ -77,7 +58,6 @@ export default {
   name: "app",
   components: {
     ContentFilter,
-    SuggestionFilter,
     PlatformFilter,
     GenreFilter,
     RatingFilter,
