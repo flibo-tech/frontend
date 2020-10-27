@@ -1434,6 +1434,10 @@ export default {
         }
       }
 
+      if (info.parent == "home") {
+        eval("this.$store.state.feed." + info.parent + ".seenElements = []");
+      }
+
       if (info.scroll) {
         eval("this.$store.state.feed." + info.parent + ".scroll_position = 0");
       }

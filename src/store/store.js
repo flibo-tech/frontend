@@ -266,7 +266,8 @@ export const store = new Vuex.Store({
           : 0,
         rating_tab: [1, 2, 3, "pass_check"],
         see_more_elements: [],
-        element_comments: {}
+        element_comments: {},
+        seenElements: []
       },
       search_results: {
         apply_filters_on_create: false,

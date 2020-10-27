@@ -278,6 +278,7 @@ import SavePlatforms from "./SavePlatforms";
 import SharePrompt from "./../atomic/SharePrompt";
 import Button from "./../atomic/Button";
 import Notification from "./Notification";
+import axios from "axios";
 
 export default {
   name: "app",
@@ -1015,6 +1016,40 @@ export default {
         }
       }
     },
+    updateSeenList(entry) {
+      if (entry.intersectionRatio == 1) {
+        var elemId = parseInt(entry.target.id.split("-").pop());
+
+        var elem = null;
+        var actionId;
+        var actionIds = [];
+        for (let i = elemId - 4; i <= elemId; i++) {
+          elem = document.querySelector(`#${this.containerTile}-${i}`);
+          if (elem) {
+            actionId = parseInt(elem.getAttribute("action-id"));
+            if (
+              !eval(
+                "this.$store.state.feed." + this.parent + ".seenElements"
+              ).includes(actionId)
+            ) {
+              eval(
+                "this.$store.state.feed." +
+                  this.parent +
+                  ".seenElements.push(actionId)"
+              );
+              actionIds.push(actionId);
+            }
+          }
+        }
+
+        if (actionIds.length) {
+          axios.post(this.$store.state.api_host + "mark_posts_as_seen", {
+            session_id: this.$store.state.session_id,
+            action_ids: actionIds,
+          });
+        }
+      }
+    },
 
     // Functions for infinite scroll
     elementsTotalHeight(startIndex, endIndex) {
@@ -1282,11 +1317,15 @@ export default {
     initIntersectionObserver() {
       const options = {
         rootMargin: "0px",
-        threshold: 0.0,
+        threshold: [0, 1],
       };
 
       const callback = (entries) => {
         entries.forEach((entry) => {
+          if (this.parent == "home") {
+            this.updateSeenList(entry);
+          }
+
           if (entry.target.id === this.containerTile + "-0") {
             this.topSentCallback(entry);
           } else if (
@@ -1326,6 +1365,18 @@ export default {
         );
         if (lastElem) {
           this.observer.observe(lastElem);
+        }
+
+        var elem = null;
+        if (this.parent == "home") {
+          for (let i = 0; i < this.listSize; i += 5) {
+            if (![0, this.listSize - 4, this.listSize - 1].includes(i)) {
+              elem = document.querySelector(`#${this.containerTile}-${i}`);
+              if (elem) {
+                this.observer.observe(elem);
+              }
+            }
+          }
         }
       }
     },
