@@ -70,7 +70,7 @@
               style="margin-left: 16px"
               buttonType="textOnly"
               text="Post"
-              :state="content ? true : false"
+              :fontColor="content ? '#7352ff' : null"
               @clicked="postComment"
             />
           </transition>

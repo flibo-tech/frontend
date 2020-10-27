@@ -21,13 +21,7 @@
   >
     <p
       v-if="buttonType != 'iconOnly' && !buttonClickedBool"
-      :style="
-        buttonType == 'primary' && capitalize
-          ? 'text-transform: uppercase;'
-          : buttonType == 'textOnly' && state
-          ? 'color: #7352ff'
-          : ''
-      "
+      :style="textCustomStyle"
     >
       {{ text }}
     </p>
@@ -114,6 +108,21 @@ export default {
       required: false,
       default: false,
     },
+    fontSize: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    fontColor: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    padding: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   data() {
     return {
@@ -143,6 +152,17 @@ export default {
         buttonClass = this.disabled ? "iconOnly disabled" : "iconOnly";
       }
       return buttonClass;
+    },
+    textCustomStyle() {
+      return {
+        textTransform:
+          this.buttonType == "primary" && this.capitalize
+            ? "uppercase"
+            : "inherit",
+        fontSize: this.fontSize ? this.fontSize + "px" : "inherit",
+        color: this.fontColor ? this.fontColor : "inherit",
+        padding: this.padding ? this.padding : "initial",
+      };
     },
     imageURL() {
       if (this.state) {

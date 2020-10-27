@@ -24,31 +24,41 @@
       class="reset-prompted-box"
       v-if="resetRatingsBanner && store.user.id == userId"
     >
-      <p style="font-size: 20px; white-space: nowrap; margin-bottom: 24px">
+      <p style="font-size: 16px; white-space: nowrap; margin-bottom: 24px">
         Reset all your ratings?
       </p>
 
       <div
         style="
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
           align-items: center;
           width: 50%;
         "
       >
-        <Button
-          buttonType="secondary"
-          text="Cancel"
-          @clicked="resetRatingsBanner = false"
-        />
+        <div>
+          <Button
+            buttonType="textOnly"
+            text="Cancel"
+            :fontSize="16"
+            fontColor="#000"
+            padding="0px 48px"
+            @clicked="resetRatingsBanner = false"
+          />
+        </div>
 
-        <Button
-          buttonType="primary"
-          text="Reset"
-          :capitalize="false"
-          :loading="true"
-          @clicked="resetRatings"
-        />
+        <div style="border-left: solid 1px #919090">
+          <Button
+            buttonType="textOnly"
+            text="Reset"
+            :capitalize="false"
+            :loading="true"
+            :fontSize="16"
+            fontColor="#000"
+            padding="0px 48px"
+            @clicked="resetRatings"
+          />
+        </div>
       </div>
     </div>
 
