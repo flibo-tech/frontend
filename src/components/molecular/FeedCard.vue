@@ -312,6 +312,7 @@
         :grandParent="parent"
         :actionId="content.action_id"
         :replyInfo="replyInfo"
+        :cardType="content.action_type"
         v-on="$listeners"
       />
     </div>

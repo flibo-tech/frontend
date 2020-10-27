@@ -40,7 +40,7 @@
           class="action-details-contents-discussed-poster"
         >
           <Poster
-            :containerWidth="is_mobile ? 100 : 125"
+            :containerWidth="is_mobile ? 105 : 125"
             :contentId="item.content_id"
             :image="item.poster"
             :title="item.title"

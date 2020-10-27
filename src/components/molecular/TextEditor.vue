@@ -15,6 +15,8 @@
         :placeholder="
           parent === 'post'
             ? 'Express yourself. Tag friends, movies, artists using @...'
+            : cardType && cardType == 'request'
+            ? 'Suggest something...'
             : 'Add a comment...'
         "
       ></textarea>
@@ -112,6 +114,11 @@ export default {
       required: true,
     },
     grandParent: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    cardType: {
       type: String,
       required: false,
       default: null,
