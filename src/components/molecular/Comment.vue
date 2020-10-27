@@ -262,8 +262,8 @@ export default {
   cursor: pointer;
   margin-right: 0.7em;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
 }
 
 .comment-comp-content {
@@ -287,7 +287,6 @@ export default {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  margin-top: 4px;
 }
 
 .comment-comp-reaction * {
@@ -353,7 +352,7 @@ export default {
   cursor: pointer;
   display: flex;
   justify-content: center;
-  flex: 0 0 40px;
+  flex: 0 0 30px;
   margin-right: 0.6em;
 }
 
