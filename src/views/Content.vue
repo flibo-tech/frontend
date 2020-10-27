@@ -1135,7 +1135,8 @@ export default {
   margin-left: 4px;
   background-image: url("./../images/plus.svg");
   background-color: #ffffff;
-  background-size: 100% 100%;
+  background-size: 150%;
+  background-position: center;
   padding: 0;
   border: none;
   outline: 0;
