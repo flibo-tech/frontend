@@ -642,7 +642,6 @@ export default {
 
         self.timeout = setInterval(function () {
           self.updateProfile();
-          self.updateFriendsPage();
         }, 2 * 60 * 1000);
       }
     } else if (this.is_signup_page) {
@@ -731,8 +730,6 @@ export default {
       var self = this;
       var new_friends = [];
       var index;
-      var friends_notification = false;
-      var requests_notification = false;
       axios
         .post(this.$store.state.api_host + "get_friends", {
           session_id: this.$store.state.session_id,
@@ -746,7 +743,6 @@ export default {
                 if (new_friends[user].friend_type == "friend") {
                   index = current_friends.indexOf(new_friends[user].friend_id);
                   if (index == -1) {
-                    friends_notification = true;
                     new_friends[user].highlight = true;
                   } else {
                     new_friends[user].highlight = false;
@@ -758,7 +754,6 @@ export default {
                 if (new_friends[user].friend_type == "unapproved") {
                   index = current_requests.indexOf(new_friends[user].friend_id);
                   if (index == -1) {
-                    requests_notification = true;
                     new_friends[user].highlight = true;
                   } else {
                     new_friends[user].highlight = false;
@@ -768,12 +763,6 @@ export default {
             }
 
             self.$store.state.friends_page.friends = new_friends;
-            if (friends_notification) {
-              self.$store.state.notifications.friends = true;
-            }
-            if (requests_notification) {
-              self.$store.state.notifications.requests = true;
-            }
           } else if ([204].includes(response.status)) {
             self.$store.state.friends_page.friends = [];
           }

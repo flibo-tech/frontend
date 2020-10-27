@@ -24,23 +24,6 @@
           v-bind:class="{ active: isDiscover && !promptPost }"
           @click="GoToDiscover"
         >
-          <transition
-            appear
-            :enter-active-class="
-              store.suggestions.rate_counter_all > 25
-                ? 'animated fadeIn'
-                : 'animated fadeIn'
-            "
-            leave-active-class="animated fadeOut"
-          >
-            <button
-              v-if="
-                isSuggNotification && store.suggestions.rate_counter_all >= 25
-              "
-              class="nav-suggestions-notification"
-              :style="is_mobile ? '' : 'right: 70px;'"
-            />
-          </transition>
           <span class="home-text"> Home </span>
         </div>
 
@@ -80,11 +63,6 @@
               onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
             />
           </div>
-          <button
-            v-if="store.notifications.friends | store.notifications.requests"
-            class="nav-suggestions-notification"
-            :style="is_mobile ? '' : 'right: 56px;'"
-          />
           <span class="profile-text"> Profile </span>
         </div>
       </nav>
@@ -382,18 +360,6 @@ h3 {
 }
 button {
   margin-left: 10px;
-}
-.nav-suggestions-notification {
-  position: absolute;
-  top: 12px;
-  right: 18%;
-  height: 7px;
-  width: 7px;
-  background-image: url("./../images/red_dot.png");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  border: none;
-  outline: 0;
 }
 .main-navigation {
   position: fixed;

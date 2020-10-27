@@ -163,12 +163,6 @@
           <span style="font-size: 22px; position: relative">
             {{ store.friends_page.friends.length }}
           </span>
-
-          <button
-            v-if="store.notifications.friends | store.notifications.requests"
-            class="profile-connections-notification"
-            :style="is_mobile ? '' : 'margin-left: 41px;'"
-          />
         </div>
 
         <div
@@ -2608,19 +2602,6 @@ h4 {
   color: #333333;
   font-family: "Roboto", sans-serif;
 }
-.profile-show-switch {
-  position: absolute;
-  right: 0px;
-  margin-top: 0px;
-  height: 7px;
-  width: 7px;
-  background-image: url("./../images/red_dot.png");
-  background-color: #e9f3f8;
-  background-size: 100% 100%;
-  border: none;
-  outline: 0;
-  z-index: 10000;
-}
 .profile-details {
   position: relative;
   display: flex;
@@ -2759,19 +2740,6 @@ h4 {
   line-height: 1.17;
   letter-spacing: normal;
   color: #333333;
-}
-.profile-connections-notification {
-  position: absolute;
-  right: -10px;
-  top: 0px;
-  height: 7px;
-  width: 7px;
-  background-image: url("./../images/red_dot.png");
-  background-color: #e9f3f8;
-  background-size: 100% 100%;
-  border: none;
-  outline: 0;
-  z-index: 9999;
 }
 .profile-ratings {
   position: relative;

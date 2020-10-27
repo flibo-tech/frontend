@@ -16,25 +16,12 @@
         @click="switchConnectionsTab('Friends')"
       >
         Connections
-
-        <button
-          v-if="store.notifications.friends"
-          class="new-connections-notification"
-          :style="is_mobile ? '' : 'right: 185px;margin-top: 2px;'"
-          style="right: 20%;"
-        />
       </a>
       <a
         :class="[tab_name === 'Requests' ? 'is-active' : '']"
         @click="switchConnectionsTab('Requests')"
       >
         Requests
-
-        <button
-          v-if="store.notifications.requests"
-          class="new-connections-notification"
-          :style="is_mobile ? '' : 'right: 185px;margin-top: 2px;'"
-        />
       </a>
     </div>
 
@@ -54,7 +41,7 @@
         class="friend-container"
       >
         <ImageCard
-          style="justify-content: flex-start;"
+          style="justify-content: flex-start"
           @clicked="clickUser(item.friend_id, item.name)"
           :name="item.name"
           :image="item.picture"
@@ -114,7 +101,7 @@
           class="friend-container"
         >
           <ImageCard
-            style="justify-content: flex-start;"
+            style="justify-content: flex-start"
             @clicked="clickUser(item.friend_id, item.name)"
             :name="item.name"
             :image="item.picture"
@@ -211,9 +198,7 @@
             {{ prompt.user_name }}
           </div>
 
-          <p>
-            Remove connection?
-          </p>
+          <p>Remove connection?</p>
 
           <div
             class="prompted-buttons"
@@ -267,8 +252,6 @@ export default {
   created() {
     this.$emit("update-friends");
     this.$store.state.current_path = "/connections";
-    var self = this;
-    setTimeout(self.vanishFriendsNotification, 1500);
   },
   methods: {
     clickUser(id, name) {
@@ -403,18 +386,8 @@ export default {
       this.prompt.user_picture = user_picture;
       this.prompt.if_prompt = true;
     },
-    vanishFriendsNotification() {
-      this.store.notifications.friends = false;
-    },
-    vanishRequestsNotification() {
-      this.store.notifications.requests = false;
-    },
     switchConnectionsTab(tab) {
       this.tab_name = tab;
-      var self = this;
-      if (tab == "Requests") {
-        setTimeout(self.vanishRequestsNotification, 1500);
-      }
     },
   },
 };
@@ -648,19 +621,6 @@ export default {
   position: relative;
   display: flex;
   margin-left: 16px;
-}
-.new-connections-notification {
-  position: absolute;
-  right: 23%;
-  margin-top: 0px;
-  height: 7px;
-  width: 7px;
-  background-image: url("./../images/red_dot.png");
-  background-color: #e9f3f8;
-  background-size: 100% 100%;
-  border: none;
-  outline: 0;
-  z-index: 10000;
 }
 .connections-search-icon {
   position: fixed;
