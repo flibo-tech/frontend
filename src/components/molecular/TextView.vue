@@ -13,7 +13,7 @@
             .slice(1)
             .trim()
         }}</span>
-        <span v-else v-html="item"></span>
+        <span v-else style="white-space: break-spaces" v-html="item"></span>
       </span>
 
       <span

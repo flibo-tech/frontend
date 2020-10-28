@@ -691,11 +691,7 @@ export default {
           ];
         }
 
-        this.restoreEditor(
-          ["watchlist", "ratings", "search_results", "home", "posts"].includes(
-            this.grandParent
-          )
-        );
+        this.restoreEditor(true);
         this.store.create.type = null;
         this.store.create.content = null;
         this.store.create.ids = [];
