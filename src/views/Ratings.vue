@@ -33,7 +33,7 @@
           display: flex;
           justify-content: center;
           align-items: center;
-          width: 50%;
+          width: 100%;
         "
       >
         <div>
@@ -53,8 +53,9 @@
             text="Reset"
             :capitalize="false"
             :loading="true"
+            loaderColor="#f54029"
             :fontSize="16"
-            fontColor="#000"
+            fontColor="#f54029"
             padding="0px 48px"
             @clicked="resetRatings"
           />

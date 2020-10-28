@@ -42,7 +42,7 @@
     <div
       v-if="buttonClickedBool && loading"
       class="loader"
-      :style="iconCircle ? { width: '30px', height: '30px' } : {}"
+      :style="loaderCustomStyle"
     ></div>
   </div>
 </template>
@@ -123,6 +123,11 @@ export default {
       required: false,
       default: null,
     },
+    loaderColor: {
+      type: String,
+      required: false,
+      default: "#000000",
+    },
   },
   data() {
     return {
@@ -162,6 +167,13 @@ export default {
         fontSize: this.fontSize ? this.fontSize + "px" : "inherit",
         color: this.fontColor ? this.fontColor : "inherit",
         padding: this.padding ? this.padding : "initial",
+      };
+    },
+    loaderCustomStyle() {
+      return {
+        width: this.iconCircle ? "30px" : "16px",
+        height: this.iconCircle ? "30px" : "16px",
+        borderTop: "2px solid " + this.loaderColor,
       };
     },
     imageURL() {
@@ -295,10 +307,7 @@ button:focus {
 .loader {
   margin: auto;
   border: 2px solid #ffffff;
-  border-top: 2px solid #000000;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
   animation: spin 1s linear infinite;
 }
 @keyframes spin {
