@@ -44,7 +44,8 @@
 
             <span v-if="feed_type == 'flibo'"> recommends </span>
 
-            <span v-if="item_type == 'rating'">
+            <span v-if="['rating', 'old_rating'].includes(item_type)">
+              <span v-if="item_type == 'old_rating'">had</span>
               {{
                 other_user_rating == 2
                   ? "liked"
@@ -55,6 +56,8 @@
             </span>
 
             <span v-if="item_type == 'watch_later'"> added </span>
+
+            <span v-if="item_type == 'old_watch_later'"> had added </span>
 
             <span v-if="item_type == 'suggest'"> suggested </span>
 
@@ -85,7 +88,9 @@
               {{ content_title }}
             </span>
 
-            <span v-if="item_type == 'watch_later'"> to watchlist </span>
+            <span v-if="['watch_later', 'old_watch_later'].includes(item_type)">
+              to watchlist
+            </span>
 
             <span v-if="item_type == 'suggest'"> to everyone </span>
 
