@@ -2,93 +2,107 @@
   <div class="comment-comp-container">
     <div :id="'comment-' + currentComment.reaction_id">
       <div class="comment-comp-current">
-        <img
-          @click="showPreview = true"
-          class="comment-comp-profile"
-          :src="currentComment.creator_picture"
-        />
-        <div class="comment-comp-content">
-          <!-- comment content -->
-          <div style="position: relative; margin: 0">
-            <strong @click="showPreview = true">{{
-              currentComment.creator_name
-            }}</strong>
-            <TextView
-              class="comment-comp-textview"
-              ref="commentContent"
-              :style="
-                isSpoiler &&
-                showSpoilerAlert &&
-                currentComment.creator_id != store.user.id
-                  ? 'filter: blur(5px); background-color: rgba(0, 0, 0, 0.4);'
-                  : ''
-              "
-              v-if="currentComment.comment"
-              :text="currentComment.comment"
-              :parent="parent + '__comment' + (isChild ? '__child' : '')"
-              v-on="$listeners"
-            />
+        <div style="display: flex; justify-content: flex-start">
+          <img
+            @click="showPreview = true"
+            class="comment-comp-profile"
+            :src="currentComment.creator_picture"
+          />
 
+          <div class="comment-comp-content">
+            <!-- comment content -->
+            <div style="position: relative; margin: 0">
+              <strong @click="showPreview = true">{{
+                currentComment.creator_name
+              }}</strong>
+              <TextView
+                class="comment-comp-textview"
+                ref="commentContent"
+                :style="
+                  isSpoiler &&
+                  showSpoilerAlert &&
+                  currentComment.creator_id != store.user.id
+                    ? 'filter: blur(5px); background-color: rgba(0, 0, 0, 0.4);'
+                    : ''
+                "
+                v-if="currentComment.comment"
+                :text="currentComment.comment"
+                :parent="parent + '__comment' + (isChild ? '__child' : '')"
+                v-on="$listeners"
+              />
+
+              <div
+                class="comment-spoiler-layer"
+                v-if="
+                  isSpoiler &&
+                  showSpoilerAlert &&
+                  currentComment.creator_id != store.user.id
+                "
+                @click="alterSpoilerAlert"
+              />
+            </div>
+
+            <!-- reaction section -->
+            <div class="comment-comp-reaction">
+              <TimeSince :timestamp="currentComment.created_at" :short="true" />
+              <Vote
+                class="comment-comp-vote"
+                :actionId="currentComment.action_id"
+                :parentReactionId="currentComment.reaction_id"
+                :totalVote="currentComment.upvotes"
+                :creatorId="currentComment.creator_id"
+                :userVote="currentComment.user_vote"
+                :fontSize="12"
+                v-on="$listeners"
+              />
+              <p class="comment-comp-reply" @click="reply">Reply</p>
+            </div>
+
+            <!-- show replies section -->
             <div
-              class="comment-spoiler-layer"
               v-if="
-                isSpoiler &&
-                showSpoilerAlert &&
-                currentComment.creator_id != store.user.id
+                (currentComment.total_comments >
+                  currentComment.comments.length &&
+                  showRepliesHeader) ||
+                (!showComments && currentComment.total_comments > 0)
               "
-              @click="alterSpoilerAlert"
-            />
-          </div>
-
-          <!-- reaction section -->
-          <div class="comment-comp-reaction">
-            <TimeSince :timestamp="currentComment.created_at" :short="true" />
-            <Vote
-              class="comment-comp-vote"
-              :actionId="currentComment.action_id"
-              :parentReactionId="currentComment.reaction_id"
-              :totalVote="currentComment.upvotes"
-              :creatorId="currentComment.creator_id"
-              :userVote="currentComment.user_vote"
-              :fontSize="12"
-              v-on="$listeners"
-            />
-            <p class="comment-comp-reply" @click="reply">Reply</p>
-          </div>
-
-          <!-- show replies section -->
-          <div
-            v-if="
-              (currentComment.total_comments > currentComment.comments.length &&
-                showRepliesHeader) ||
-              (!showComments && currentComment.total_comments > 0)
-            "
-            @click="fetchComments"
-            class="comment-comp-more"
-          >
-            <div
-              v-if="!fetchingData"
-              class="comment-comp-horizontal-divider"
-            ></div>
-            <p v-if="!fetchingData && !showComments">
-              View {{ currentComment.total_comments }}
-              {{ currentComment.total_comments > 1 ? "replies" : "reply" }}
-            </p>
-            <p v-if="!fetchingData && showComments">
-              View previous
-              {{
-                currentComment.total_comments - currentComment.comments.length
-              }}
-              {{
-                currentComment.total_comments - currentComment.comments.length >
-                1
-                  ? "replies"
-                  : "reply"
-              }}
-            </p>
-            <p v-if="fetchingData" class="comment-comp-loading">Loading...</p>
+              @click="fetchComments"
+              class="comment-comp-more"
+            >
+              <div
+                v-if="!fetchingData"
+                class="comment-comp-horizontal-divider"
+              ></div>
+              <p v-if="!fetchingData && !showComments">
+                View {{ currentComment.total_comments }}
+                {{ currentComment.total_comments > 1 ? "replies" : "reply" }}
+              </p>
+              <p v-if="!fetchingData && showComments">
+                View previous
+                {{
+                  currentComment.total_comments - currentComment.comments.length
+                }}
+                {{
+                  currentComment.total_comments -
+                    currentComment.comments.length >
+                  1
+                    ? "replies"
+                    : "reply"
+                }}
+              </p>
+              <p v-if="fetchingData" class="comment-comp-loading">Loading...</p>
+            </div>
           </div>
         </div>
+
+        <Button
+          v-if="currentComment.creator_id == store.user.id"
+          style="margin-left: 8px; margin-top: 6px"
+          icon="more"
+          buttonType="iconOnly"
+          :size="20"
+          @clicked="showOptions = true"
+        />
       </div>
     </div>
 
@@ -115,12 +129,23 @@
         </div>
       </div>
     </transition>
+
     <UserPreview
       v-if="showPreview"
       :id="currentComment.creator_id"
       :name="currentComment.creator_name"
       :parent="parent + '__comment' + (isChild ? '__child' : '')"
       @close-preview="showPreview = false"
+      v-on="$listeners"
+    />
+
+    <MoreOptions
+      v-if="showOptions"
+      :actionId="currentComment.action_id"
+      :parentReactionId="currentComment.parent_reaction_id"
+      :reactionId="currentComment.reaction_id"
+      parent="comment"
+      @close-more-options="showOptions = false"
       v-on="$listeners"
     />
   </div>
@@ -130,12 +155,14 @@
 import axios from "axios";
 import UserPreview from "./UserPreview";
 import TextView from "./TextView";
+import MoreOptions from "./MoreOptions";
 import Vote from "./../atomic/Vote";
 import TimeSince from "./../atomic/TimeSince";
+import Button from "./../atomic/Button";
 
 export default {
   name: "Comment",
-  components: { TextView, Vote, UserPreview, TimeSince },
+  components: { TextView, Vote, UserPreview, TimeSince, Button, MoreOptions },
   props: {
     currentComment: {
       type: Object,
@@ -159,6 +186,7 @@ export default {
       fetchingData: false,
       showSpoilerAlert: true,
       store: this.$store.state,
+      showOptions: false,
     };
   },
   mounted() {
@@ -279,7 +307,8 @@ export default {
 .comment-comp-current {
   display: flex;
   flex-flow: row nowrap;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 1em;
 }
 

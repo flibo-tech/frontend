@@ -8,6 +8,7 @@
         :user_id="content.creator_id"
         :user_name="content.creator_name"
         :user_picture="content.creator_picture"
+        :actionId="content.action_id"
         :item_type="content.action_type"
         :other_user_rating="content.creator_rating"
         :type="content.type"
@@ -62,7 +63,8 @@
 
           <span
             v-if="
-              ['request', 'suggest', 'review'].includes(content.action_type)
+              ['request', 'suggest', 'review'].includes(content.action_type) &&
+              !RegExp(/^.*_details$/).test(parent)
             "
             class="feed-text-type"
           >
@@ -597,7 +599,7 @@ export default {
   border: none;
   border-radius: 16px;
   font-weight: normal;
-  color: white;
+  color: #666;
   display: inline;
   vertical-align: text-top;
   white-space: nowrap;
@@ -605,7 +607,7 @@ export default {
   line-height: 1.5;
   padding: 5px 10px;
   text-transform: capitalize;
-  background-color: #88bfff;
+  background-color: #dcdcdc;
   -webkit-user-select: none; /* Chrome/Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+ */

@@ -24,6 +24,7 @@
       :replyInfo="replyInfo"
       @update-vote="updateVote"
       @add-new-comment="addNewComment"
+      @delete-item="deleteItem"
       v-on="$listeners"
     />
 
@@ -78,6 +79,7 @@
         @add-fetched-comments="addFetchedComments"
         @reply="(info) => (replyInfo = info)"
         @update-vote="updateVote"
+        @delete-comment="deleteComment"
         v-on="$listeners"
       />
     </div>
@@ -399,6 +401,42 @@ export default {
           top: offsetPosition,
           behavior: "smooth",
         });
+      }
+    },
+    deleteItem() {
+      if (window.history.length <= 2) {
+        this.$router.push("/discover");
+      } else {
+        window.history.back();
+      }
+    },
+    deleteComment(comment) {
+      if (comment.parentReactionId) {
+        for (let [index, item] of this.data.comments.entries()) {
+          if (item.reaction_id == comment.parentReactionId) {
+            for (let [childIndex, childItem] of this.data.comments[
+              index
+            ].comments.entries()) {
+              if (childItem.reaction_id == comment.reactionId) {
+                this.data.comments[index].comments.splice(childIndex, 1);
+
+                this.data.comments[index].total_comments--;
+                this.data.total_comments--;
+
+                return;
+              }
+            }
+          }
+        }
+      } else {
+        for (let [index, item] of this.data.comments.entries()) {
+          if (item.reaction_id == comment.reactionId) {
+            this.data.total_comments -= (item.total_comments || 0) + 1;
+            this.data.comments.splice(index, 1);
+
+            return;
+          }
+        }
       }
     },
   },

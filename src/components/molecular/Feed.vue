@@ -148,7 +148,8 @@
             padding: 0px 16px;
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 8px;
+            margin-bottom: 16px;
+            margin-top: -8px;
           "
         >
           <Button
@@ -182,6 +183,7 @@
           @update-element-heights="updateElementHeights"
           @update-vote="updateVote"
           @add-new-comment="addNewComment"
+          @delete-item="deleteItem"
           v-on="$listeners"
         />
 
@@ -995,13 +997,13 @@ export default {
             item.total_comments = 1;
           }
 
+          this.$nextTick(() => {
+            this.updateElementHeights();
+          });
+
           return;
         }
       }
-
-      this.$nextTick(() => {
-        this.updateElementHeights();
-      });
     },
     updateVote(vote) {
       for (let item of eval(this.feed_mappings[this.parent].contents)) {
@@ -1011,6 +1013,27 @@ export default {
           } else if (vote.type == "total") {
             item.upvotes = vote.vote;
           }
+
+          return;
+        }
+      }
+    },
+    deleteItem(card) {
+      for (let [index, item] of eval(
+        this.feed_mappings[this.parent].contents
+      ).entries()) {
+        if (item.action_id == card.actionId) {
+          eval(this.feed_mappings[this.parent].contents + ".splice(index, 1)");
+
+          this.recycleDOM(
+            eval(
+              "this.$store.state.feed." +
+                this.parent +
+                ".observer_current_index"
+            ),
+            true
+          );
+          this.updateElementHeights();
 
           return;
         }
@@ -1121,11 +1144,43 @@ export default {
       return firstIndex;
     },
 
-    recycleDOM(firstIndex) {
-      const output = [];
+    recycleDOM(firstIndex, isAfterDelete = false) {
+      var output = [];
       for (let i = 0; i < this.listSize; i++) {
         output.push(this.parent_feed_list[i + firstIndex]);
       }
+
+      if (isAfterDelete) {
+        output = output.filter((item) => item);
+
+        if (firstIndex > 0 && output.length < this.listSize) {
+          output = [];
+          eval(
+            "this.$store.state.feed." +
+              this.parent +
+              ".observer_current_index = this.$store.state.feed." +
+              this.parent +
+              ".observer_current_index - 1"
+          );
+
+          const container = document.querySelector(this.mainContainer);
+          const currentPaddingTop = this.getNumFromStyle(
+            container.style.paddingTop
+          );
+          container.style.paddingTop =
+            currentPaddingTop -
+            eval(this.feed_mappings[this.parent].element_heights)[
+              this.parent_feed_list[firstIndex - 1].action_id
+            ] +
+            "px";
+
+          for (let i = 0; i < this.listSize; i++) {
+            output.push(this.parent_feed_list[i + firstIndex - 1]);
+          }
+          output = output.filter((item) => item);
+        }
+      }
+
       eval(this.feed_mappings[this.parent].feed + " = output.slice()");
     },
 
