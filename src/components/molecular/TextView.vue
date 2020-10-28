@@ -13,7 +13,11 @@
             .slice(1)
             .trim()
         }}</span>
-        <span v-else style="white-space: break-spaces" v-html="item"></span>
+        <span
+          v-else
+          :style="noWrap ? '' : 'white-space: break-spaces'"
+          v-html="item"
+        ></span>
       </span>
 
       <span
@@ -110,12 +114,13 @@ export default {
   computed: {
     textArray() {
       var splitArr = this.text
-        ? this.text.split(/(\[.+?\]\((?:content|artist|user),\s*\d+\))/)
+        ? this.text.split(/(\[.+?\]\((?:content|artist|user),\s*\d+\)|\n)/)
         : [];
 
       var itemText = "";
       var len = 0;
       var output = [];
+      var lineBreaks = 0;
 
       if (!this.lockSeeMore) {
         for (const [index, item] of splitArr.entries()) {
@@ -126,6 +131,17 @@ export default {
               .trim();
             if (len + itemText.length <= this.previewLimit) {
               len = len + itemText.length;
+              output.push(item);
+              this.previewLimitIndex = index + 1;
+            } else {
+              output.push(...splitArr.slice(index));
+              this.previewLimitIndex = index;
+              this.showSeeMore = true;
+              break;
+            }
+          } else if (item == "\n") {
+            lineBreaks++;
+            if (lineBreaks < 5) {
               output.push(item);
               this.previewLimitIndex = index + 1;
             } else {
