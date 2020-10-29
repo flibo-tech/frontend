@@ -416,8 +416,8 @@ export default {
           content_filter: "this.$store.state.feed.suggestions.content_type_tab",
           discover_filters:
             "this.$store.state.feed.suggestions.discover_type_tab",
-          platform_filters: null,
-          genre_filters: null,
+          platform_filters: "this.$store.state.feed.suggestions.platforms",
+          genre_filters: "this.$store.state.feed.suggestions.genres",
           rating_filter: null,
           element_heights: "this.$store.state.feed.suggestions.element_heights",
           see_more_elements:
