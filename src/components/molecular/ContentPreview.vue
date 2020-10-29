@@ -54,7 +54,7 @@
                 :src="
                   'https://www.youtube.com/embed/' +
                   metaInfo.youtube_trailer_id +
-                  '?autoplay=1&rel=0&controls=0&modestbranding=1'
+                  '?autoplay=1&rel=0&modestbranding=1'
                 "
                 frameborder="0"
                 allowfullscreen
@@ -720,10 +720,8 @@ export default {
   }
 }
 .content-preview-youtube-player {
-  width: 1000%;
+  width: 100%;
   height: 35vh;
-  left: calc(-500%);
-  transform: translate(5%);
   position: absolute;
 }
 .content-preview-iframe-container {

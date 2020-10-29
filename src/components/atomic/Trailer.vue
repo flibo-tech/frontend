@@ -50,7 +50,7 @@
               :src="
                 'https://www.youtube.com/embed/' +
                 trailerId +
-                '?autoplay=1&rel=0&controls=0&modestbranding=1'
+                '?autoplay=1&rel=0&modestbranding=1'
               "
               frameborder="0"
               allowfullscreen
@@ -271,10 +271,9 @@ export default {
   }
 }
 .youtube-player-iframe {
-  width: 1000%;
+  width: 100%;
   height: 35vh;
-  left: calc(-500%);
-  transform: translate(5%);
+  left: 0;
   position: absolute;
 }
 .youtube-player-iframe-box {
