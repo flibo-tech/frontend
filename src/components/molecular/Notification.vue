@@ -75,7 +75,11 @@ export default {
           status: "in_app_notification_tapped",
         });
       }
-      this.$router.push(this.notification.url.replace("https://flibo.ai", ""));
+      this.$router.push(
+        this.notification.url
+          .replace("https://yzal-dev.flibo.ai", "")
+          .replace("https://flibo.ai", "")
+      );
     },
   },
 };

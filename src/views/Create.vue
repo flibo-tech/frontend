@@ -1,6 +1,10 @@
 <template>
   <div>
-    <div class="create-header" :style="is_mobile ? '' : 'width: 1000px;'">
+    <div
+      class="create-header"
+      :style="is_mobile ? '' : 'width: 1000px;'"
+      ref="createHeader"
+    >
       <div class="left-box">
         <div class="create-go-back-button" @click="goBack"></div>
 
@@ -252,14 +256,14 @@ export default {
       this.resizeContainer();
     },
     resizeContainer() {
-      const spaceUnavailable = this.$refs.titleInput.getBoundingClientRect()
-        .bottom;
+      const spaceUnavailable =
+        this.$refs.titleInput.getBoundingClientRect().height +
+        this.$refs.createHeader.getBoundingClientRect().height +
+        32 +
+        24;
+
       this.$refs.boxBelowTitle.style.minHeight =
-        "calc(" +
-        this.store.window.height +
-        "px - " +
-        spaceUnavailable +
-        "px - 24px)";
+        "calc(" + this.store.window.height + "px - " + spaceUnavailable + "px)";
     },
     post() {
       var self = this;
@@ -270,7 +274,8 @@ export default {
           text: this.store.create.processedContent,
           title: this.title,
           contents: null,
-          privacy: this.postPrivacy,
+          privacy:
+            this.postPrivacy == "connections" ? "friends" : this.postPrivacy,
           image:
             this.store.create.includeImage && this.store.create.image
               ? this.store.create.image.replace("/original/", "/w500/")
