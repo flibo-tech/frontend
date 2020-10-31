@@ -442,7 +442,9 @@ export default {
     goToDetails() {
       this.$emit("leave-feed");
       this.$router.push(
-        this.content.url.replace("https://flibo.ai", "") + "?focusComments=true"
+        this.content.url
+          .replace("https://yzal-dev.flibo.ai", "")
+          .replace("https://flibo.ai", "") + "?focusComments=true"
       );
     },
     goToPlatform(link, content_id, traffic_origin) {

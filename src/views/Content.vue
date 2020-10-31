@@ -474,7 +474,7 @@
     <SharePrompt
       v-if="prompt_content_share"
       parent="content"
-      :url="'https://flibo.ai' + $route.fullPath"
+      :url="'https://' + store.hostName + $route.fullPath"
       :contentId="store.content_page.content_id"
       :contentTitle="content.data.title"
       @close-share-prompt="prompt_content_share = false"

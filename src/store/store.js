@@ -609,6 +609,7 @@ export const store = new Vuex.Store({
     window: {
       width: null,
       height: null
-    }
+    },
+    hostName: window.location.hostname
   }
 });

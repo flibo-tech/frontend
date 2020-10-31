@@ -870,7 +870,7 @@
     <SharePrompt
       v-if="share_profile_banner"
       parent="profile"
-      :url="'https://flibo.ai' + $route.fullPath"
+      :url="'https://' + store.hostName + $route.fullPath"
       :profileId="parseInt(user_id)"
       @close-share-prompt="share_profile_banner = false"
       @update-profile="updateProfileStatus('public')"

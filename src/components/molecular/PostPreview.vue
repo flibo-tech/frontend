@@ -1,7 +1,13 @@
 <template>
   <div
     class="post-container"
-    @click="$router.push(post.url.replace('https://flibo.ai', ''))"
+    @click="
+      $router.push(
+        post.url
+          .replace('https://yzal-dev.flibo.ai', '')
+          .replace('https://flibo.ai', '')
+      )
+    "
   >
     <div
       v-if="post.image_info && post.image_info.image"

@@ -264,7 +264,7 @@
     <SharePrompt
       v-if="share_prompt"
       :parent="parent"
-      :url="'https://flibo.ai' + $route.fullPath"
+      :url="'https://' + store.hostName + $route.fullPath"
       :profileId="parseInt($route.params.user_id)"
       @close-share-prompt="share_prompt = false"
       v-on="$listeners"
