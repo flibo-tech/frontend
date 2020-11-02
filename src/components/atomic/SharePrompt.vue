@@ -100,7 +100,7 @@
           <div class="share-prompt-profile-cropper">
             <img
               class="share-prompt-pp"
-              :src="store.user.picture"
+              :src="store.user.picture || ''"
               onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
             />
           </div>
@@ -119,7 +119,11 @@
             buttonType="primary"
             :capitalize="false"
             text="Suggest"
-            @clicked="createPost('suggest')"
+            @clicked="
+              store.session_id
+                ? createPost('suggest')
+                : (store.prompt_signup = true)
+            "
           />
 
           <Button
@@ -127,7 +131,11 @@
             buttonType="primary"
             :capitalize="false"
             text="Review"
-            @clicked="createPost('review')"
+            @clicked="
+              store.session_id
+                ? createPost('review')
+                : (store.prompt_signup = true)
+            "
           />
         </div>
       </div>
@@ -287,16 +295,6 @@ export default {
         .catch(function (error) {
           self.fetching = false;
           console.log(error);
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
-          }
         });
     },
     fetchProfileCollage() {
@@ -632,7 +630,7 @@ export default {
 .external-share-box p {
   font-size: 13px;
   text-align: left;
-  word-break: break-word;
+  word-break: break-all;
 }
 .share-prompt-profile-cropper {
   height: 35px;
