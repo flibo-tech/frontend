@@ -20,34 +20,54 @@
     >
       <nav v-if="this.$store.state.session_id">
         <div
-          class="main-icon discover"
+          class="main-icon"
           v-bind:class="{ active: isDiscover && !promptPost }"
           @click="GoToDiscover"
         >
+          <img
+            class="discover"
+            :src="require('./../images/home-icon.svg')"
+            alt="home-icon"
+          />
           <span class="home-text"> Home </span>
         </div>
 
         <div
-          class="main-icon search"
+          class="main-icon"
           v-bind:class="{ active: isSearch && !promptPost }"
           @click="GoToSearch"
         >
+          <img
+            class="search"
+            :src="require('./../images/search-icon.svg')"
+            alt="search-icon"
+          />
           <span class="search-text"> Search </span>
         </div>
 
         <div
-          class="main-icon post"
+          class="main-icon"
           v-bind:class="{ active: promptPost }"
           @click="promptPost = true"
         >
+          <img
+            class="post"
+            :src="require('./../images/plus.svg')"
+            alt="post-icon"
+          />
           <span class="search-text"> Post </span>
         </div>
 
         <div
-          class="main-icon rate"
+          class="main-icon"
           v-bind:class="{ active: isRate && !promptPost }"
           @click="GoToRate"
         >
+          <img
+            class="rate"
+            :src="require('./../images/heart.svg')"
+            alt="rate-icon"
+          />
           <span class="rate-text"> Rate </span>
         </div>
 
@@ -109,12 +129,6 @@ export default {
   components: {
     CreatePostPrompt,
   },
-  props: {
-    active: {
-      type: Boolean,
-      required: false,
-    },
-  },
   data() {
     return {
       is_mobile: window.screen.height > window.screen.width,
@@ -124,7 +138,6 @@ export default {
       isRate: false,
       isSearch: false,
       isDiscover: false,
-      isWatchlist: false,
       isProfile: false,
       is_policy_page: false,
       promptPost: false,
@@ -145,12 +158,6 @@ export default {
       this.isDiscover = false;
     }
 
-    if (this.$route.path == "/watchlist") {
-      this.isWatchlist = true;
-    } else {
-      this.isWatchlist = false;
-    }
-
     if (this.$route.path == "/more") {
       this.isProfile = true;
     } else {
@@ -164,22 +171,8 @@ export default {
     }
   },
   computed: {
-    my_active: function () {
-      return this.active;
-    },
-    isSuggNotification: function () {
-      return this.$store.state.notifications.suggestions;
-    },
     router_path: function () {
       return this.$route.path;
-    },
-    discover_type_tab_string() {
-      return JSON.stringify(
-        this.$store.state.suggestions.discover_type_tab
-      ).replace(/['"]+/g, "");
-    },
-    toggle_search() {
-      return this.$store.state.toggle_search;
     },
   },
   watch: {
@@ -195,12 +188,6 @@ export default {
           this.isDiscover = true;
         } else {
           this.isDiscover = false;
-        }
-
-        if (path == "/watchlist") {
-          this.isWatchlist = true;
-        } else {
-          this.isWatchlist = false;
         }
 
         if (
@@ -237,7 +224,6 @@ export default {
       this.isRate = true;
       this.isSearch = false;
       this.isDiscover = false;
-      this.isWatchlist = false;
       this.isProfile = false;
     },
     GoToDiscover() {
@@ -245,18 +231,8 @@ export default {
       this.isRate = false;
       this.isSearch = false;
       this.isDiscover = true;
-      this.isWatchlist = false;
       this.isProfile = false;
       this.$emit("update-api-counter", { api: "home_button" });
-    },
-    GoToWatchlist() {
-      this.$router.push("/watchlist");
-      this.isRate = false;
-      this.isSearch = false;
-      this.isDiscover = false;
-      this.isWatchlist = true;
-      this.isProfile = false;
-      this.$emit("update-api-counter", { api: "watchlist" });
     },
     GoToUserProfile() {
       this.$router.push(
@@ -268,7 +244,6 @@ export default {
       this.isRate = false;
       this.isSearch = false;
       this.isDiscover = false;
-      this.isWatchlist = false;
       this.isProfile = true;
       this.$emit("update-api-counter", { api: "profile" });
     },
@@ -277,7 +252,6 @@ export default {
       this.isRate = false;
       this.isSearch = true;
       this.isDiscover = false;
-      this.isWatchlist = false;
       this.isProfile = false;
     },
     onScroll() {
@@ -328,14 +302,13 @@ export default {
   border-bottom: 2px solid rgb(143, 179, 245);
 }
 .pp-cropper {
-  width: 35px;
-  height: 35px;
+  width: 32px;
+  height: 32px;
   top: 0px;
   margin: 0 auto;
   position: relative;
   overflow: hidden;
   border-radius: 50%;
-  border: 0.5px solid #f3f3f3;
   z-index: 2;
 }
 .profile-picture {
@@ -379,162 +352,78 @@ button {
 }
 .main-navigation nav {
   display: flex;
+  align-items: stretch;
+  justify-content: space-around;
   height: 55px;
 }
 .main-icon {
-  flex-grow: 1;
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly;
+  align-items: center;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
   cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
+  width: 50px;
 }
-.main-icon.notification::before {
-  display: inline-block;
-  content: "";
-  position: absolute;
-  top: 12px;
-  right: 18%;
-  width: 7px;
-  height: 7px;
-  background-color: #f1300e;
-  border-radius: 20px;
+.main-icon .rate {
+  width: 31px;
 }
-.main-icon.rate {
-  background-image: url("./../images/heart.svg");
-  background-size: 31px;
-  top: -8px;
-}
-.main-icon.rate.active span {
+.main-icon.active span {
   font-weight: 900;
   color: black;
 }
-.main-icon.search {
-  background-image: url("./../images/search-icon.svg");
-  background-size: 28px;
-  top: -8px;
+.main-icon .search {
+  width: 28px;
 }
-.main-icon.search.active span {
-  font-weight: 900;
-  color: black;
+.main-icon .post {
+  width: 31px;
 }
-.main-icon.post {
-  background-image: url("./../images/plus.svg");
-  background-size: 31px;
-  top: -8px;
-}
-.main-icon.post.active span {
-  font-weight: 900;
-  color: black;
-}
-.main-icon.discover {
-  background-image: url("./../images/home-icon.svg");
-  background-size: 28px;
-  top: -8px;
-}
-.main-icon.discover.active span {
-  font-weight: 900;
-  color: black;
-}
-.main-icon.watchlist {
-  background-image: url("./../images/watchlist-icon.svg");
-  background-size: 24px;
-  top: -8px;
-}
-.main-icon.watchlist.active span {
-  font-weight: 900;
-  color: black;
-}
-.main-icon.profile {
-  width: 0%;
-  top: -8px;
-}
-.main-icon.profile.active span {
-  font-weight: 900;
-  color: black;
-}
-.search-page {
-  position: fixed;
-  top: 0%;
-  width: 100%;
-  height: 100vh;
-  background-color: #fffffffa;
-  z-index: 10000;
-}
-.search-page .search-box {
-  width: 260%;
+.main-icon .discover {
+  width: 28px;
 }
 .home-text {
-  position: absolute;
-  bottom: -6px;
   width: 100%;
   font-size: 11px;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
-  line-height: 1.36;
+  line-height: 1;
   letter-spacing: normal;
   text-align: center;
   color: #575757;
 }
 .search-text {
-  position: absolute;
-  bottom: -6px;
   width: 100%;
   font-size: 11px;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
-  line-height: 1.36;
+  line-height: 1;
   letter-spacing: normal;
   text-align: center;
   color: #575757;
 }
 .rate-text {
-  position: absolute;
-  bottom: -6px;
   width: 100%;
   font-size: 11px;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
-  line-height: 1.36;
-  letter-spacing: normal;
-  text-align: center;
-  color: #575757;
-}
-.watchlist-text {
-  position: absolute;
-  bottom: -6px;
-  width: 100%;
-  font-size: 11px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.36;
+  line-height: 1;
   letter-spacing: normal;
   text-align: center;
   color: #575757;
 }
 .profile-text {
-  position: absolute;
-  bottom: -6px;
   width: 100%;
   font-size: 11px;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
-  line-height: 1.36;
+  line-height: 1;
   letter-spacing: normal;
   text-align: center;
   color: #575757;
