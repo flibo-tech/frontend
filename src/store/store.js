@@ -560,9 +560,14 @@ export const store = new Vuex.Store({
     },
     countries: my_store ? my_store.countries : [],
     quotes: [
+      "\"Hope is a good thing, maybe the best of things. And no good thing ever dies.\"",
+      "\"No matter what anybody tells you, words and ideas can change the world.\"",
       "\"The world moves for love. It kneels before it in awe.\"",
+      "\"I figure life's a gift, and I don't intend on wasting it.\"",
       "\"I'm not a smart man, but I know what love is.\"",
       "\"I never look back. It distracts from the now.\"",
+      "\"It's not who you are underneath, it's what you do that defines you.\"",
+      "\"The past can hurt. But the way I see it, you can either run from it or learn from it.\"",
       "\"It's hard to stay mad when there's so much beauty in the world.\"",
       "\"We accept the love we think we deserve.\"",
       "\"The past is just a story we tell ourselves.\"",
@@ -571,10 +576,12 @@ export const store = new Vuex.Store({
       "\"Our lives are defined by opportunities. Even the ones we miss.\"",
       "\"Just keep swimming.\"",
       "\"I don't want to survive. I want to live.\"",
+      "\"It's only after we've lost everything that we're free to do anything.\"",
       "\"All those moments will be lost in time… like tears in rain.\"",
       "\"Get busy living, or get busy dying.\"",
       "\"Hope. It is the only thing stronger than fear.\"",
-      "\"Let's just allow ourselves to be whatever it is we are.\""
+      "\"Life is like a box of chocolates, you never know what you're gonna get.\"",
+      "\"Let's just allow ourselves to be whatever it is we are.\"",
     ],
     country_mappings: {
       AU: "Australia",

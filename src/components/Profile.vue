@@ -12,7 +12,7 @@
       </div>
       <br />
       <div class="quote-font">
-        {{ store.quotes[Math.floor(Math.random() * 15)] }}
+        {{ store.quotes[Math.floor(Math.random() * 22)] }}
       </div>
     </div>
 
@@ -199,11 +199,7 @@
             @click="openProfileMore = false"
           />
           <div class="profile-more-options" v-if="openProfileMore">
-            <div
-              class="profile-more-option"
-              style="margin-top: 10px"
-              @click="$router.push('/settings')"
-            >
+            <div class="profile-more-option" @click="$router.push('/settings')">
               <div :style="profile_more_settings" />
               <span class="profile-more-option-text">
                 Country & Platforms
@@ -212,7 +208,7 @@
 
             <div
               class="profile-more-option"
-              style="margin-top: 5px"
+              style="margin-top: 16px"
               @click="goToAboutUs"
             >
               <div class="profile-more-about-us" />
@@ -221,7 +217,7 @@
 
             <div
               class="profile-more-option"
-              style="margin-bottom: 1px"
+              style="margin-top: 8px"
               @click="logOut"
             >
               <div class="profile-more-logout" />
@@ -2693,29 +2689,22 @@ h4 {
   max-height: 50vh;
   background-color: #ffffff;
   border-radius: 7px;
-  padding: 10px 10px 10px 5px;
+  padding: 16px;
   z-index: 100001;
   white-space: nowrap;
 }
 .profile-more-option {
   position: relative;
   display: flex;
+  align-items: center;
   text-align: left;
-  margin-left: 10px;
   cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 .profile-more-about-us {
   position: relative;
-  width: 50px;
-  height: 50px;
-  background-image: url("./../images/flibo-logo-dark.svg");
+  width: 45px;
+  height: 45px;
+  background-image: url("./../images/flibo-logo-color-no-padding.svg");
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
@@ -2731,8 +2720,7 @@ h4 {
 }
 .profile-more-option-text {
   position: relative;
-  margin-left: 15px;
-  margin-top: 15px;
+  margin-left: 10px;
   font-size: 17px;
   font-weight: bold;
   font-stretch: normal;

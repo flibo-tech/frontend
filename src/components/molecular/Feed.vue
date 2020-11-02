@@ -248,7 +248,7 @@
       </div>
       <br />
       <div class="quote-font">
-        {{ store.quotes[Math.floor(Math.random() * 15)] }}
+        {{ store.quotes[Math.floor(Math.random() * 22)] }}
       </div>
     </div>
 
