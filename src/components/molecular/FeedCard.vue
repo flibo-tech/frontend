@@ -93,7 +93,7 @@
         @click="alterSpoilerAlert"
       >
         <h2>SPOILER</h2>
-        <p>It may have spoilers. Tap to see.</p>
+        <p style="font-weight: normal">It may have spoilers. Tap to see.</p>
       </div>
     </div>
 

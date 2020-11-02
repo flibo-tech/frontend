@@ -1480,17 +1480,6 @@ export default {
   -webkit-tap-highlight-color: transparent;
 }
 
-.flibo-logo-desktop {
-  position: fixed;
-  display: block;
-  width: 150px;
-  height: 80px;
-  top: 0%;
-  background-image: url("./images/flibo-logo-dark.svg");
-  background-size: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-}
 .browser-alert {
   font-family: "Open Sans", sans-serif;
   text-align: center;

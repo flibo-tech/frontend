@@ -206,16 +206,6 @@ export default {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.flibo-logo {
-  position: fixed;
-  display: block;
-  right: 5%;
-  width: 90px;
-  height: 50px;
-  background-image: url("./../images/flibo-logo-dark.svg");
-  background-position: center;
-  background-repeat: no-repeat;
-}
 .top-bar-search-icon {
   position: fixed;
   display: block;

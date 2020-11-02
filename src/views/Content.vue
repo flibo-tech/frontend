@@ -84,6 +84,7 @@
                     ? 'watchlist-true'
                     : 'watchlist-false',
                 ]"
+                :style="is_mobile ? '' : 'background-position: center;'"
               />
             </div>
           </div>
@@ -1136,7 +1137,7 @@ export default {
   background-image: url("./../images/plus.svg");
   background-color: #ffffff;
   background-size: 150%;
-  background-position: center;
+  background-position: 54% 57%;
   padding: 0;
   border: none;
   outline: 0;

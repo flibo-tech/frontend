@@ -66,7 +66,6 @@ export default {
               } else if (self.store.feed.notifications.feed_list.length < 50) {
                 self.store.feed.notifications.apply_filters_on_create = true;
               }
-              self.markNotificationsSeen();
             } else {
               self.$store.state.feed.notifications.contents =
                 response.data.notifications;
@@ -96,6 +95,7 @@ export default {
 
           if (fetchedNotifications.length) {
             self.$store.state.feed.notifications.fetching_incremental = false;
+            self.markNotificationsSeen();
           } else {
             self.$store.state.feed.notifications.fetching = false;
           }

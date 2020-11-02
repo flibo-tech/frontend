@@ -12,20 +12,8 @@
       </div>
 
       <div v-else>
-        <div class="content-preview-info-name">
-          <span
-            style="
-              cursor: pointer;
-              -webkit-user-select: none;
-              -moz-user-select: none;
-              -ms-user-select: none;
-              -o-user-select: none;
-              user-select: none;
-              -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-              -webkit-tap-highlight-color: transparent;
-            "
-            @click="openContent"
-          >
+        <div class="content-preview-info-name" @click="openContent">
+          <span>
             {{ name }}
           </span>
 
@@ -82,6 +70,7 @@
                   ? 'content-preview-watchlist-true'
                   : 'content-preview-watchlist-false',
               ]"
+              :style="is_mobile ? '' : 'background-position: center;'"
             />
           </div>
         </div>
@@ -542,6 +531,7 @@ export default {
   letter-spacing: normal;
   text-align: left;
   color: #333333;
+  cursor: pointer;
 }
 .content-preview-info-ratings {
   width: 100%;
@@ -679,7 +669,7 @@ export default {
   background-image: url("./../../images/plus.svg");
   background-color: #ffffff;
   background-size: 150%;
-  background-position: center;
+  background-position: 54% 57%;
   padding: 0;
   border: none;
   outline: 0;
