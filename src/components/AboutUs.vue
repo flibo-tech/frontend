@@ -130,7 +130,7 @@ export default {
   width: 50%;
   margin-left: 25%;
   height: 80px;
-  background-image: url("./../images/flibo-logo-dark.svg");
+  background-image: url("./../images/flibo-logo-with-text-color.svg");
   background-size: 100%;
   background-position: center;
   background-repeat: no-repeat;

@@ -16,7 +16,15 @@
         :style="is_mobile ? 'top: 25vh;width: 85vw;' : ''"
         v-if="store.prompt_signup"
       >
-        <p style="font-size: 18px">Personalize your streaming world with us</p>
+        <img
+          style="width: 100px"
+          :src="require('./../images/flibo-logo-with-text-color.svg')"
+          alt="flibo-logo"
+        />
+
+        <p style="font-size: 18px; margin-top: 16px; text-align: left">
+          Personalize your streaming world with us
+        </p>
 
         <div class="signup-google" @click="goToGoogleLogin">
           <div class="signup-google-button" />
