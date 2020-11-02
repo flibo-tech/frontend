@@ -60,7 +60,7 @@
       <textarea
         ref="titleBox"
         placeholder="An interesting title"
-        maxlength="100"
+        maxlength="75"
         v-model="title"
         rows="1"
         @focus="showCounter = true"
@@ -70,7 +70,7 @@
       <transition name="counter-animation">
         <CharacterCounter
           v-if="showCounter"
-          :limit="100"
+          :limit="75"
           :count="title ? title.length : 0"
           :radius="10"
           :width="3"

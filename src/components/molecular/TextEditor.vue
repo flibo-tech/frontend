@@ -169,7 +169,7 @@ export default {
   },
   computed: {
     characterLimit() {
-      return parent === "post" ? 500 : 500;
+      return parent === "post" ? 350 : 350;
     },
     processedContent() {
       let text = this.content;
