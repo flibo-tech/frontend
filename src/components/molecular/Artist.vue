@@ -148,7 +148,6 @@ export default {
           console.log(error);
         });
 
-      self.$store.state.content_page.never_tapped_any_artist = false;
       if (
         self.$store.state.session_id &&
         self.$store.state.content_page.never_tapped_any_artist &&
@@ -179,6 +178,7 @@ export default {
             }
           });
       }
+      self.$store.state.content_page.never_tapped_any_artist = false;
     },
   },
   computed: {

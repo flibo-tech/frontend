@@ -156,7 +156,7 @@ export default {
 .suggested-user-box {
   width: 130px;
   min-width: 130px;
-  margin-right: 24px;
+  margin-right: 8px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

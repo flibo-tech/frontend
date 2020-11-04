@@ -447,6 +447,7 @@ export default {
 .action-details-container {
   margin-top: 66px;
   padding-bottom: 56px;
+  overflow-x: hidden;
 }
 .action-details-contents-discussed-container {
   margin-top: 16px;

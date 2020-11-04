@@ -5,11 +5,10 @@
         @paste.prevent
         @focus="focusTextArea"
         @blur="unfocusTextArea"
-        @keyup="removeSearch"
         :style="parent === 'post' ? {} : { 'font-size': '14px' }"
-        :maxlength="textboxLimit"
         :rows="parent === 'post' ? 7 : 1"
-        v-model="content"
+        :value="content"
+        @input="updateContent"
         :ref="'inputField-' + actionId"
         :id="'inputField-' + actionId"
         :placeholder="
@@ -85,12 +84,13 @@
         parent != 'comment'
           ? is_mobile
             ? 'top: 0; height: calc(' + caretLocationY + 'px - 18px - 4px);'
-            : 'width: 65vw;max-height: 350px;'
+            : 'top: calc(' +
+              caretLocationY +
+              'px + 8px); left: calc(50vw - 500px + 24px); width: 65vw;max-height: 350px;'
           : customStyle
       "
       v-if="searchString"
       :searchString="searchString"
-      topMargin="calc(37.5vh - 22.5px - 40px)"
       searchType="all"
       v-on:clicked="addHighlight"
     />
@@ -328,6 +328,21 @@ export default {
     },
   },
   methods: {
+    updateContent(e) {
+      var text = this.textboxLimit
+        ? e.target.value.slice(0, this.textboxLimit)
+        : e.target.value;
+
+      if (text.length < this.oldInput.length) {
+        this.textboxLimit = null;
+        this.content = text;
+        this.removeSearch();
+      } else {
+        this.$refs["inputField-" + this.actionId].value = text;
+        this.content = text;
+        this.oldInput = text;
+      }
+    },
     focusTextArea() {
       if (this.$store.state.session_id) {
         if (this.parent == "comment") {
@@ -487,79 +502,73 @@ export default {
     removeSearch() {
       var elem = this.$refs["inputField-" + this.actionId];
       var newInput = elem.value;
-      if (newInput.length < this.oldInput.length) {
-        this.caretIndex = elem.selectionEnd;
-        var lastChar = this.oldInput.slice(
-          this.caretIndex,
-          this.caretIndex + 1
-        );
 
-        let lastWord = null;
-        let highlight = Object.keys(this.highlightWords);
-        const getLastWord = (words) => {
-          let n = words.split(" ");
-          let end = n[n.length - 1];
-          for (let i = 0; i <= highlight.length; i++) {
-            if (end.includes("@")) {
-              end = "@" + end.split("@").pop();
-              if (end + lastChar === "@" + highlight[i]) {
-                return end;
-              }
+      this.caretIndex = elem.selectionEnd;
+      var lastChar = this.oldInput.slice(this.caretIndex, this.caretIndex + 1);
+
+      let lastWord = null;
+      let highlight = Object.keys(this.highlightWords);
+      const getLastWord = (words) => {
+        let n = words.split(" ");
+        let end = n[n.length - 1];
+        for (let i = 0; i <= highlight.length; i++) {
+          if (end.includes("@")) {
+            end = "@" + end.split("@").pop();
+            if (end + lastChar === "@" + highlight[i]) {
+              return end;
             }
           }
-          return;
-        };
-        let contentSlice = this.content.slice(0, this.caretIndex);
-        lastWord = getLastWord(contentSlice);
-
-        var removedTag = null;
-        if (lastWord) {
-          if (
-            (this.content.match(new RegExp(lastWord, "g")) || []).length == 1
-          ) {
-            removedTag = this.highlightWords[lastWord.slice(1) + lastChar];
-            delete this.highlightWords[lastWord.slice(1) + lastChar];
-          }
-
-          contentSlice = contentSlice.replace(new RegExp(lastWord + "$"), "");
-          this.content = contentSlice + this.content.slice(this.caretIndex);
-
-          var self = this;
-          setTimeout(function () {
-            elem.selectionStart = contentSlice.length;
-            elem.selectionEnd = contentSlice.length;
-            self.oldInput = elem.value;
-
-            if (
-              self.parent == "post" &&
-              removedTag &&
-              removedTag.subject_type == "content" &&
-              removedTag.subject_id !=
-                (self.store.create.content
-                  ? self.store.create.content.subject_id
-                  : null)
-            ) {
-              self.store.create.ids = self.store.create.ids.filter(
-                (id) => id != removedTag.subject_id
-              );
-            }
-          }, 0);
-        } else {
-          this.oldInput = elem.value;
         }
+        return;
+      };
+      let contentSlice = this.content.slice(0, this.caretIndex);
+      lastWord = getLastWord(contentSlice);
+
+      var removedTag = null;
+      if (lastWord) {
+        if ((this.content.match(new RegExp(lastWord, "g")) || []).length == 1) {
+          removedTag = this.highlightWords[lastWord.slice(1) + lastChar];
+          delete this.highlightWords[lastWord.slice(1) + lastChar];
+        }
+
+        contentSlice = contentSlice.replace(new RegExp(lastWord + "$"), "");
+        this.content = contentSlice + this.content.slice(this.caretIndex);
+
+        var self = this;
+        setTimeout(function () {
+          elem.selectionStart = contentSlice.length;
+          elem.selectionEnd = contentSlice.length;
+          self.oldInput = elem.value;
+
+          if (
+            self.parent == "post" &&
+            removedTag &&
+            removedTag.subject_type == "content" &&
+            removedTag.subject_id !=
+              (self.store.create.content
+                ? self.store.create.content.subject_id
+                : null)
+          ) {
+            self.store.create.ids = self.store.create.ids.filter(
+              (id) => id != removedTag.subject_id
+            );
+          }
+        }, 0);
       } else {
         this.oldInput = elem.value;
       }
     },
     emojiUnicode(emoji) {
-      var comp;
+      var comp = null;
       if (emoji.length === 1) {
         comp = emoji.charCodeAt(0);
       }
-      comp =
-        (emoji.charCodeAt(0) - 0xd800) * 0x400 +
-        (emoji.charCodeAt(1) - 0xdc00) +
-        0x10000;
+      if (!comp) {
+        comp =
+          (emoji.charCodeAt(0) - 0xd800) * 0x400 +
+          (emoji.charCodeAt(1) - 0xdc00) +
+          0x10000;
+      }
       if (comp < 0) {
         comp = emoji.charCodeAt(0);
       }
@@ -590,6 +599,7 @@ export default {
         processedWord + " "
       );
 
+      this.textboxLimit = null;
       this.content = contentSlice + this.content.slice(this.caretIndex);
 
       this.letUnfocus = false;

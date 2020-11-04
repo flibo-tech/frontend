@@ -16,7 +16,7 @@
         </h2>
 
         <h2 v-if="artistData && artistData.length == 0">
-          Oops...could not find any more content.
+          Oops...could not find any movies or shows.
         </h2>
 
         <Button
@@ -97,7 +97,13 @@ export default {
           this.$store.state.guest_country,
         guest_id: this.$store.state.guest_id,
       })
-      .then((response) => (this.artistData = response.data.contents))
+      .then((response) => {
+        if ([200].includes(response.status)) {
+          this.artistData = response.data.contents;
+        } else if ([204].includes(response.status)) {
+          this.artistData = [];
+        }
+      })
       .catch(function (error) {
         console.log(error);
       });
@@ -165,6 +171,7 @@ export default {
   font-weight: 300;
   font-size: 16px;
   text-align: left;
+  white-space: normal;
 }
 .artist-preview-header span {
   font-weight: 900;

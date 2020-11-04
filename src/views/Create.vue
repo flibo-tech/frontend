@@ -60,8 +60,8 @@
       <textarea
         ref="titleBox"
         placeholder="An interesting title"
-        maxlength="75"
-        v-model="title"
+        :value="title"
+        @input="updateTitle"
         rows="1"
         @focus="showCounter = true"
         @blur="showCounter = false"
@@ -247,6 +247,12 @@ export default {
     },
   },
   methods: {
+    updateTitle(e) {
+      var text = e.target.value.slice(0, 75);
+
+      this.$refs.titleBox.value = text;
+      this.title = text;
+    },
     goBack() {
       window.history.back();
     },

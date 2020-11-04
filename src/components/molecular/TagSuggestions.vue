@@ -158,6 +158,7 @@ export default {
   overflow-x: hidden;
   padding: 8px;
   border: 1px solid rgba(155, 155, 155, 0.25);
+  cursor: pointer;
 }
 .tag-suggestion {
   margin-bottom: 8px;

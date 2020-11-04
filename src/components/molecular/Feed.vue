@@ -674,9 +674,8 @@ export default {
     },
     feed_list: {
       handler(param) {
-        var self = this;
-        this.$nextTick(function () {
-          self.updateElementHeights();
+        this.$nextTick(() => {
+          this.updateElementHeights();
         });
       },
     },

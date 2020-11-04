@@ -552,7 +552,7 @@
             <Button
               v-if="rating_items > 10"
               class="show-all-button"
-              :style="is_mobile ? '' : 'margin-top: 112.5px'"
+              :style="is_mobile ? '' : 'margin-top: 85px'"
               id="rating-show-all"
               buttonType="secondary"
               text="Show All"
@@ -700,8 +700,8 @@
       <div
         :style="
           is_mobile
-            ? 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;'
-            : 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;margin-top: 15px;'
+            ? 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;margin-top: 16px;'
+            : 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;margin-top: 16px;'
         "
         v-if="friends.length"
       >

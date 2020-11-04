@@ -115,7 +115,7 @@
         >
           <div class="comment-comp-vertical-divider"></div>
         </div>
-        <div>
+        <div style="flex: 1">
           <transition-group name="solo-comments">
             <Comment
               :currentComment="comment"

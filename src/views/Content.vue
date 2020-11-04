@@ -258,7 +258,7 @@
             <Button
               v-if="totalPosts > 10"
               class="content-posts-show-all"
-              :style="is_mobile ? '' : 'margin-top: 112.5px'"
+              :style="is_mobile ? '' : 'margin-top: 85px'"
               id="content-show-all"
               buttonType="secondary"
               text="Show All"

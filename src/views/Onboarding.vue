@@ -50,7 +50,7 @@
         buttonType="textOnly"
         text="SKIP, I'll Rate Later"
         class="onboarding-rating-skip"
-        v-on:clicked="startDiscovering(false)"
+        v-on:clicked="skipRating"
       />
     </div>
 
@@ -227,6 +227,22 @@ export default {
         this.$store.state.suggestions.discover_type_tab = ["flibo"];
         this.$store.state.suggestions.discover_while_onboarding = true;
       }
+      this.$router.push("/discover");
+    },
+    skipRating() {
+      var reset_info = {
+        parent: "home",
+        filters: true,
+        skip_suggestions_filter: false,
+        scroll: true,
+        paddings: true,
+        observer_current_index: true,
+        element_heights: true,
+      };
+      this.$emit("reset-feed-page", reset_info);
+
+      this.$emit("refresh-feed");
+
       this.$router.push("/discover");
     },
     updateApiCounter(activity) {

@@ -3,7 +3,7 @@
     <br />
     <span
       class="about-us-flibo-logo"
-      :style="is_mobile ? '' : 'width: 35%;margin-left: 32.5%;height: 100px;'"
+      :style="is_mobile ? '' : 'width: 35%;margin-left: 32.5%;height: 150px;'"
     ></span>
     <br />
 

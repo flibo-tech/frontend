@@ -493,6 +493,7 @@ export default {
 }
 .feed-description-textbox {
   padding: 0px 16px;
+  max-width: 1000px;
 }
 .feed-description p {
   font-size: 16px;
@@ -506,6 +507,7 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -532,8 +534,7 @@ export default {
   margin-top: 16px;
 }
 .feed-card-image img {
-  max-width: 100%;
-  max-height: 250px;
+  height: 250px;
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
