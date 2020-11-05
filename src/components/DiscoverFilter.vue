@@ -19,9 +19,7 @@
     </p>
 
     <div class="discoverfilter-tab-filter-box" v-if="false">
-      <p>
-        Filter
-      </p>
+      <p>Filter</p>
       <label
         v-for="tab in filters_meta.tabs"
         class="discoverfilter-tab-checkbox"
@@ -41,9 +39,7 @@
       class="discoverfilter-platform-filter-box"
       :style="store.session_id == null ? 'margin-top: 15px;' : ''"
     >
-      <p>
-        Available On
-      </p>
+      <p>Available On</p>
       <div class="discoverfilter-platforms-container">
         <label
           v-for="platform in filters_meta.platforms"
@@ -66,10 +62,8 @@
       </div>
     </div>
 
-    <div class="discoverfilter-genre-filter-box" style="margin-top: 30px;">
-      <p>
-        Genre
-      </p>
+    <div class="discoverfilter-genre-filter-box" style="margin-top: 30px">
+      <p>Genre</p>
       <div class="discoverfilter-genres-container">
         <label
           v-for="genre in filters_meta.genres"
@@ -95,10 +89,8 @@
       </div>
     </div>
 
-    <div class="discoverfilter-genre-filter-box" style="margin-top: 30px;">
-      <p>
-        Language
-      </p>
+    <div class="discoverfilter-genre-filter-box" style="margin-top: 30px">
+      <p>Language</p>
       <div class="discoverfilter-genres-container">
         <label
           v-for="language in filters_meta.languages"
@@ -126,11 +118,9 @@
 
     <div
       class="discoverfilter-genre-filter-box"
-      style="margin-top: 30px;text-align: left;"
+      style="margin-top: 30px; text-align: left"
     >
-      <p>
-        Awards
-      </p>
+      <p>Awards</p>
 
       <div class="discoverfilter-genres-container">
         <label
@@ -199,16 +189,14 @@
       </div>
       <div class="discoverfilter-imdb-rating-endpoints">
         1
-        <span style="float:right;">
-          10
-        </span>
+        <span style="float: right"> 10 </span>
       </div>
       <div class="discoverfilter-imdb-scale-grids">
         <div v-for="index in 10" class="discoverfilter-imdb-scale-grid" />
       </div>
     </div>
 
-    <div class="discoverfilter-imdb-filter-box" style="margin-top: 30px;">
+    <div class="discoverfilter-imdb-filter-box" style="margin-top: 30px">
       <p>
         Max Runtime -
         <span>
@@ -229,9 +217,7 @@
       </div>
       <div class="discoverfilter-imdb-rating-endpoints">
         10 min
-        <span style="float:right;">
-          3 hrs
-        </span>
+        <span style="float: right"> 3 hrs </span>
       </div>
       <div class="discoverfilter-imdb-scale-grids">
         <div v-for="index in 10" class="discoverfilter-imdb-scale-grid" />
@@ -239,11 +225,9 @@
     </div>
 
     <div class="discoverfilter-artist-filter-box" id="artist_filter_box">
-      <p>
-        Artists
-      </p>
+      <p>Artists</p>
 
-      <div style="text-align: left;">
+      <div style="text-align: left">
         <input
           type="text"
           class="discoverfilter-search-box"
@@ -288,13 +272,11 @@
           v-if="search_result_ids.length"
           @click="fetchMoreArtists"
         >
-          <div class="see-more-artists">
-            See More
-          </div>
+          <div class="see-more-artists">See More</div>
         </div>
       </div>
 
-      <div v-if="is_searching" class="filter-artists" style="height: 168px;">
+      <div v-if="is_searching" class="filter-artists" style="height: 168px">
         <div class="sk-folding-cube">
           <div class="sk-cube1 sk-cube"></div>
           <div class="sk-cube2 sk-cube"></div>
@@ -306,7 +288,7 @@
       <div
         v-if="no_artist_message"
         class="filter-artists"
-        style="height: 168px;"
+        style="height: 168px"
       >
         <br />
         No such artist found !
@@ -364,10 +346,8 @@
       </span>
     </div>
 
-    <div class="discoverfilter-genre-filter-box" style="margin-top: 20px;">
-      <p>
-        Release Year
-      </p>
+    <div class="discoverfilter-genre-filter-box" style="margin-top: 20px">
+      <p>Release Year</p>
       <div class="discoverfilter-genres-container">
         <label
           v-for="decade in filters_meta.decades"
@@ -428,7 +408,7 @@ export default {
       no_tag_message: false,
       filters_meta: this.$store.state.discover_filters.filters_meta,
       filters_applied: this.$store.state.discover_filters.filters_applied,
-      filters_temp: this.$store.state.discover_filters.filters_temp
+      filters_temp: this.$store.state.discover_filters.filters_temp,
     };
   },
   created() {
@@ -461,7 +441,7 @@ export default {
     this.filters_meta.artists = temp_list.slice();
   },
   computed: {
-    awards_list: function() {
+    awards_list: function () {
       var all_awards = Array.from(
         new Set(
           this.filters_meta.awards.movie.concat(this.filters_meta.awards.tv)
@@ -475,7 +455,7 @@ export default {
       all_awards.push("Other");
       return all_awards;
     },
-    temp_applied_filter_diff: function() {
+    temp_applied_filter_diff: function () {
       if (
         (this.filters_temp.artists.length == 0) &
         (this.filters_temp.genres.length == 0) &
@@ -493,7 +473,7 @@ export default {
         return false;
       }
     },
-    readableRuntime: function() {
+    readableRuntime: function () {
       var hours = Math.floor(this.filters_temp.runtime / 60);
       var minutes = this.filters_temp.runtime % 60;
       if (hours == 3) {
@@ -512,7 +492,7 @@ export default {
       } else {
         return minutes + (minutes > 1 ? " mins" : " min");
       }
-    }
+    },
   },
   methods: {
     close() {
@@ -531,7 +511,7 @@ export default {
     searchArtist() {
       var self = this;
       clearTimeout(self.timeout);
-      self.timeout = setTimeout(function() {
+      self.timeout = setTimeout(function () {
         self.search_string = document.getElementById("search_string").value;
         if (self.search_string) {
           self.is_searching = true;
@@ -542,9 +522,9 @@ export default {
               session_id: self.$store.state.session_id,
               string: self.search_string,
               search_type: "artist",
-              guest_id: self.$store.state.guest_id
+              guest_id: self.$store.state.guest_id,
             })
-            .then(function(response) {
+            .then(function (response) {
               if (response.status == 200) {
                 var artist_ids = [];
                 var artist;
@@ -566,13 +546,13 @@ export default {
 
                 if (self.search_result.length == 0) {
                   self.no_artist_message = true;
-                  setTimeout(function() {
+                  setTimeout(function () {
                     self.no_artist_message = false;
                   }, 1300);
                 }
               } else if (response.status == 204) {
                 self.no_artist_message = true;
-                setTimeout(function() {
+                setTimeout(function () {
                   self.no_artist_message = false;
                 }, 1300);
               } else {
@@ -580,7 +560,7 @@ export default {
               }
               self.is_searching = false;
             })
-            .catch(function(error) {
+            .catch(function (error) {
               // console.log(error);
               if ([401, 419].includes(error.response.status)) {
                 window.location =
@@ -613,7 +593,7 @@ export default {
     searchTag() {
       var self = this;
       clearTimeout(self.timeout);
-      self.timeout = setTimeout(function() {
+      self.timeout = setTimeout(function () {
         self.search_string = document.getElementById("search_string").value;
         if (self.search_string) {
           self.search_result = [];
@@ -622,9 +602,9 @@ export default {
               session_id: self.$store.state.session_id,
               string: self.search_string,
               search_type: "tag",
-              guest_id: self.$store.state.guest_id
+              guest_id: self.$store.state.guest_id,
             })
-            .then(function(response) {
+            .then(function (response) {
               if (response.status == 200) {
                 var tag_ids = [];
                 var tag;
@@ -643,20 +623,20 @@ export default {
 
                 if (self.search_result.length == 0) {
                   self.no_tag_message = true;
-                  setTimeout(function() {
+                  setTimeout(function () {
                     self.no_tag_message = false;
                   }, 1300);
                 }
               } else if (response.status == 204) {
                 self.no_tag_message = true;
-                setTimeout(function() {
+                setTimeout(function () {
                   self.no_tag_message = false;
                 }, 1300);
               } else {
                 // console.log(response.status);
               }
             })
-            .catch(function(error) {
+            .catch(function (error) {
               // console.log(error);
               if ([401, 419].includes(error.response.status)) {
                 window.location =
@@ -696,9 +676,9 @@ export default {
       axios
         .post(self.$store.state.api_host + "get_searched_contents", {
           session_id: self.$store.state.session_id,
-          content_search_ids: self.search_result_ids.slice(0, 10)
+          content_search_ids: self.search_result_ids.slice(0, 10),
         })
-        .then(function(response) {
+        .then(function (response) {
           if ([200].includes(response.status)) {
             self.search_result.push(...response.data.contents);
             self.search_result_ids.splice(0, 10);
@@ -706,7 +686,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function(error) {
+        .catch(function (error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -735,8 +715,8 @@ export default {
       this.filters_temp.runtime = "180";
       this.filters_temp.languages = [];
       this.filters_temp.tab = "All";
-    }
-  }
+    },
+  },
 };
 </script>
 

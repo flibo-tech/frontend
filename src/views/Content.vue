@@ -1,13 +1,5 @@
 <template>
   <div id="content" class="content-box">
-    <button
-      class="content-search-icon"
-      v-if="store.session_id == null"
-      :style="is_mobile ? '' : 'right: calc(50vw - 500px);'"
-      @click="$router.push('/search')"
-      type="button"
-    ></button>
-
     <div v-if="!loading && content.data != null">
       <div class="content-cover">
         <ContentCoverLandscape
@@ -16,13 +8,6 @@
         />
 
         <ContentCoverPortrait v-else :imageUrl="content.data.poster" />
-
-        <div
-          class="content-share-icon"
-          id="content-share-icon"
-          v-if="store.is_webview == 'true'"
-          @click="prompt_content_share = true"
-        />
 
         <Trailer
           v-if="showTrailorIcon"
@@ -45,9 +30,23 @@
 
       <div class="content-below-cover">
         <div class="title">
-          <p style="position: relative; font-weight: bold; font-size: 24px">
-            {{ content.data.title }}
-          </p>
+          <div style="display: flex">
+            <p style="position: relative; font-weight: bold; font-size: 24px">
+              {{ content.data.title }}
+            </p>
+
+            <Button
+              style="
+                transform: rotate(22deg);
+                margin-top: -4px;
+                margin-left: 16px;
+              "
+              icon="send_outline"
+              buttonType="iconOnly"
+              :size="25"
+              @clicked="prompt_content_share = true"
+            />
+          </div>
 
           <p
             style="color: #676767; font-size: 14px; font-weight: normal"
@@ -85,6 +84,7 @@
                     ? 'watchlist-true'
                     : 'watchlist-false',
                 ]"
+                :style="is_mobile ? '' : 'background-position: center;'"
               />
             </div>
           </div>
@@ -232,6 +232,42 @@
         </div>
 
         <div
+          v-if="posts.length"
+          class="posts-box"
+          :style="is_mobile ? '' : 'width: auto;'"
+        >
+          <div
+            class="category"
+            :style="
+              is_mobile
+                ? 'margin-top: 27%;'
+                : 'margin-left: 10px;font-size: 15px;margin-top: 170px;'
+            "
+          >
+            Posts
+          </div>
+
+          <div class="artists" style="padding: 8px; margin-top: 0">
+            <PostPreview
+              v-for="(post, index) in posts"
+              :key="index"
+              style="margin-right: 16px"
+              :post="post"
+            />
+
+            <Button
+              v-if="totalPosts > 10"
+              class="content-posts-show-all"
+              :style="is_mobile ? '' : 'margin-top: 85px'"
+              id="content-show-all"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToContentPosts"
+            />
+          </div>
+        </div>
+
+        <div
           class="friends-rating-box"
           :style="is_mobile ? '' : 'width: auto;'"
           v-if="friends_ratings.length"
@@ -240,11 +276,11 @@
             class="category"
             :style="
               is_mobile
-                ? 'margin-top: 19%;'
+                ? 'margin-top: 23%;'
                 : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
             "
           >
-            Friends
+            Connections
           </div>
           <div class="artists" style="padding: 0px 10px; margin-top: 0">
             <div
@@ -253,7 +289,7 @@
               class="artists-container"
               @click="clickUser(friend.user_id, friend.name)"
             >
-              <!-- margins in class friend-rating-icon are dependent on following Person component's size -->
+              <!-- margins in class friend-rating-icon are dependent on following ImageCard component's size -->
               <Button
                 class="friend-rating-icon"
                 style="background-color: #fff"
@@ -270,12 +306,12 @@
                 :disabled="true"
               />
 
-              <Person
+              <ImageCard
                 :name="friend.name"
                 :image="friend.picture"
                 :width="55"
                 :height="70"
-                :spacing="14"
+                :spacing="10"
                 :scale="true"
                 v-on="$listeners"
               />
@@ -296,7 +332,7 @@
             class="category"
             :style="
               is_mobile
-                ? ''
+                ? 'margin-top: 24%'
                 : 'margin-left: 10px;font-size: 15px;margin-top: 145px;'
             "
             v-if="content.crew.directed_by.length"
@@ -436,50 +472,15 @@
       </div>
     </div>
 
-    <transition
-      appear
-      enter-active-class="animated fadeIn"
-      leave-active-class="animated fadeOut"
-    >
-      <div>
-        <div
-          v-if="prompt_content_share"
-          class="black-background"
-          @click="prompt_content_share = false"
-        />
-
-        <div class="prompted-content-box" v-if="prompt_content_share">
-          <img
-            :src="content.data[share_item]"
-            style="max-width: 80vw; max-height: 45vh"
-          />
-
-          <label
-            v-for="(tab, index) in ['poster', 'cover']"
-            :key="index"
-            class="content-share-tab-checkbox"
-          >
-            <input
-              type="radio"
-              v-bind:value="tab"
-              v-model="share_item"
-              class="content-share-tab-checkbox-input"
-            />
-            <span class="content-share-tab-checkmark-abled" />
-            <span class="content-share-tab-checkmark-text">{{ tab }}</span>
-          </label>
-
-          <div class="prompted-content-buttons">
-            <input
-              type="button"
-              class="prompted-content-android-share-button"
-              @click="promptContentAndroidShareIntent"
-              value="Share"
-            />
-          </div>
-        </div>
-      </div>
-    </transition>
+    <SharePrompt
+      v-if="prompt_content_share"
+      parent="content"
+      :url="'https://' + store.hostName + $route.fullPath"
+      :contentId="store.content_page.content_id"
+      :contentTitle="content.data.title"
+      @close-share-prompt="prompt_content_share = false"
+      v-on="$listeners"
+    />
   </div>
 </template>
 
@@ -490,11 +491,13 @@ import ContentCoverLandscape from "./../components/atomic/ContentCoverLandscape"
 import ContentCoverPortrait from "./../components/atomic/ContentCoverPortrait";
 import Trailer from "./../components/atomic/Trailer";
 import ContentMetaBlock from "./../components/atomic/ContentMetaBlock";
-import Person from "./../components/atomic/Person";
+import ImageCard from "./../components/atomic/ImageCard";
 import Button from "./../components/atomic/Button";
 import Poster from "./../components/molecular/Poster";
 import Artist from "./../components/molecular/Artist";
 import UserRating from "./../components/molecular/UserRating";
+import SharePrompt from "./../components/atomic/SharePrompt";
+import PostPreview from "./../components/molecular/PostPreview";
 
 export default {
   name: "App",
@@ -504,13 +507,14 @@ export default {
     ContentCoverPortrait,
     Trailer,
     ContentMetaBlock,
-    Person,
+    ImageCard,
     Poster,
     Artist,
     UserRating,
     Button,
+    SharePrompt,
+    PostPreview,
   },
-
   data() {
     return {
       is_mobile: window.screen.height > window.screen.width,
@@ -526,6 +530,8 @@ export default {
       store: this.$store.state,
       share_item: "poster",
       friends_ratings: [],
+      posts: [],
+      totalPosts: 0,
     };
   },
 
@@ -590,6 +596,8 @@ export default {
             .catch(function (error) {
               // console.log(error);
             });
+
+          self.fetchPosts();
         });
     } else {
       axios
@@ -627,6 +635,8 @@ export default {
         .catch(function (error) {
           // console.log(error);
         });
+
+      this.fetchPosts();
     }
 
     axios
@@ -676,6 +686,7 @@ export default {
       this.$store.state.content_page.crew = null;
       this.$store.state.content_page.more_by_artist = [];
       this.friends_ratings = [];
+      this.posts = [];
       axios
         .post(this.$store.state.api_host + "content_page", {
           session_id: this.$store.state.session_id,
@@ -742,16 +753,7 @@ export default {
         .catch(function (error) {
           // console.log(error);
         });
-    },
-    promptContentAndroidShareIntent() {
-      this.$emit("update-api-counter", {
-        api: "share_content_" + this.share_item,
-        content_id: this.content.content_id,
-      });
-      Android.shareCollage(
-        this.content.data[this.share_item],
-        window.location.href
-      );
+      this.fetchPosts();
     },
     promptTapOnArtist() {
       var scroll_completion =
@@ -801,6 +803,7 @@ export default {
             session_id: this.$store.state.session_id,
             content_id: this.$store.state.content_page.content_id,
             status: prev_state ? false : true,
+            privacy: this.$store.state.user.profile.profile_status || "public",
           })
           .then(function (response) {
             if (response.status == 200) {
@@ -870,6 +873,7 @@ export default {
             session_id: this.$store.state.session_id,
             content_ids: [this.content.content_id],
             rating: user_rating,
+            privacy: this.$store.state.user.profile.profile_status || "public",
           })
           .then(function (response) {
             var index = self.$store.state.suggestions.rate_counter.indexOf(
@@ -893,7 +897,9 @@ export default {
                     }
                   )
                   .then(function (response) {
-                    self.$store.state.notifications.suggestions = true;
+                    if (response.data.notify) {
+                      self.$store.state.notifications.notifications = 1;
+                    }
                   });
               }
             }
@@ -965,6 +971,37 @@ export default {
     clickUser(id, name) {
       this.$router.push(
         "/profile/" + id + "/" + name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
+    },
+    fetchPosts() {
+      var self = this;
+
+      axios
+        .post(this.$store.state.api_host + "content_posts", {
+          session_id: this.$store.state.session_id,
+          content_id: this.$store.state.content_page.content_id,
+          fetched_posts: [],
+          limit: 10,
+          country:
+            self.$store.state.user.profile.country || self.store.guest_country,
+          guest_id: self.$store.state.guest_id,
+        })
+        .then(function (response) {
+          if ([200].includes(response.status)) {
+            self.posts = response.data.posts;
+            self.totalPosts = response.data.total_posts;
+          }
+        })
+        .catch(function (error) {
+          // console.log(error);
+        });
+    },
+    goToContentPosts() {
+      this.$router.push(
+        "/posts/content/" +
+          this.$store.state.content_page.content_id +
+          "/" +
+          this.content.data.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
     },
   },
@@ -1099,7 +1136,8 @@ export default {
   margin-left: 4px;
   background-image: url("./../images/plus.svg");
   background-color: #ffffff;
-  background-size: 100% 100%;
+  background-size: 150%;
+  background-position: 54% 57%;
   padding: 0;
   border: none;
   outline: 0;
@@ -1304,22 +1342,6 @@ export default {
   letter-spacing: normal;
   text-align: center;
   color: #ffffff;
-}
-.content-share-icon {
-  position: absolute;
-  right: 20px;
-  top: 20px;
-  width: 8vw;
-  height: 8vw;
-  background-image: url("./../images/share-icon.svg");
-  background-color: #ffffffb7;
-  background-size: 75% 75%;
-  background-repeat: no-repeat;
-  background-position: 0.75vw;
-  border: none;
-  outline: 0;
-  z-index: 1;
-  border-radius: 50%;
 }
 .prompted-content-box {
   position: fixed;
@@ -1566,25 +1588,6 @@ export default {
   z-index: 100001;
   border-radius: 50%;
 }
-.content-search-icon {
-  position: fixed;
-  display: block;
-  right: 0;
-  top: 0;
-  height: 50px;
-  width: 50px;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  background-image: url("./../images/search-icon.svg");
-  background-size: 50% 50%;
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 100000;
-}
 
 .user-rating-watchlist-container {
   position: relative;
@@ -1596,18 +1599,39 @@ export default {
 .friends-rating-box {
   position: relative;
   margin-top: 20px;
-  background-color: #eeeeee;
+  background-color: #f9f9f9;
   width: 100vw;
   margin-left: -24px;
   padding: 16px 24px;
 }
 .friend-rating-icon {
   position: absolute;
-  margin-top: 70px;
+  top: 70px;
+  left: 27.5px;
   transform: translate(-50%, -50%);
   z-index: 1;
   background-color: #fff;
   padding: 5px;
   border-radius: 50%;
+}
+.friends-rating-box {
+  position: relative;
+  margin-top: 20px;
+  background-color: #f9f9f9;
+  width: 100vw;
+  margin-left: -24px;
+  padding: 16px 24px;
+}
+.posts-box {
+  position: relative;
+  margin-top: 20px;
+  width: 100vw;
+  margin-left: -24px;
+  padding: 16px 24px;
+}
+.content-posts-show-all {
+  transform: translateY(-50%);
+  margin-left: 8px;
+  margin-top: 79px;
 }
 </style>

@@ -21,6 +21,7 @@
 
     <Button
       buttonType="primary"
+      :big="true"
       class="onboarding-start-rating"
       text="Start Rating"
       v-on:clicked="startRating"
@@ -43,15 +44,13 @@
         v-on:clicked="open_instructions = true"
       />
 
-      <h2 class="onboarding-rating-header">
-        Rate
-      </h2>
+      <h2 class="onboarding-rating-header">Rate</h2>
 
       <Button
         buttonType="textOnly"
         text="SKIP, I'll Rate Later"
         class="onboarding-rating-skip"
-        v-on:clicked="startDiscovering(false)"
+        v-on:clicked="skipRating"
       />
     </div>
 
@@ -68,7 +67,7 @@
             store.suggestions.rate_counter_all > 9
               ? "" + store.suggestions.rate_counter_all
               : "0" + store.suggestions.rate_counter_all
-          }}<span style="font-weight: normal;">/{{ ratingThreshold }}</span>
+          }}<span style="font-weight: normal">/{{ ratingThreshold }}</span>
         </h2>
       </div>
       <Swipe
@@ -97,7 +96,7 @@
 
     <p class="onboarding-success-text">
       You’ve rated
-      <span style="font-weight: 700; color: #a2d194;"
+      <span style="font-weight: 700; color: #a2d194"
         >{{ ratingThreshold }} movies and shows</span
       >
       so far. Now FLIBO has started collecting suggestions for you. The more you
@@ -106,6 +105,7 @@
 
     <Button
       buttonType="primary"
+      :big="true"
       class="onboarding-lets-discover"
       text="Let's Discover"
       v-on:clicked="startDiscovering(true)"
@@ -229,6 +229,22 @@ export default {
       }
       this.$router.push("/discover");
     },
+    skipRating() {
+      var reset_info = {
+        parent: "home",
+        filters: true,
+        skip_suggestions_filter: false,
+        scroll: true,
+        paddings: true,
+        observer_current_index: true,
+        element_heights: true,
+      };
+      this.$emit("reset-feed-page", reset_info);
+
+      this.$emit("refresh-feed");
+
+      this.$router.push("/discover");
+    },
     updateApiCounter(activity) {
       this.$emit("update-api-counter", activity);
     },
@@ -242,7 +258,7 @@ export default {
 .instructions-container {
   display: grid;
   grid-template-columns: 24px auto 24px;
-  grid-template-rows: 16px auto 32px auto 16px auto 1fr 48px 32px;
+  grid-template-rows: 16px auto 32px auto 16px auto 1fr auto 32px;
   height: var(--window_height);
   background-color: #272431;
   justify-items: center;

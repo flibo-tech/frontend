@@ -17,6 +17,12 @@ import Onboarding from "@/views/Onboarding.vue";
 import Home from "@/views/Home.vue";
 import SearchResults from "@/views/SearchResults.vue";
 import Watchlist from "@/views/Watchlist.vue";
+import Create from "@/views/Create.vue";
+import ActionDetails from "@/views/ActionDetails.vue";
+import Ratings from "@/views/Ratings.vue";
+import Posts from "@/views/Posts.vue";
+import Notifications from "@/views/Notifications.vue";
+import Suggestions from "@/views/Suggestions.vue";
 
 Vue.use(Router);
 
@@ -44,7 +50,7 @@ export default new Router({
       component: Home
     },
     {
-      path: "/watchlist",
+      path: "/watchlist/:user_id/:user_name",
       name: "Watchlist",
       component: Watchlist
     },
@@ -103,6 +109,37 @@ export default new Router({
       path: "/onboarding",
       name: "Onboarding",
       component: Onboarding
+    },
+    {
+      path: "/create",
+      name: "Create",
+      component: Create
+    },
+    {
+      path:
+        "/:actionType(review|request|suggest|activity|list)/:actionId(\\d+)/:urlText([a-z0-9\\-]+)(/comment/)?:reactionId(\\d+)?",
+      name: "ActionDetails",
+      component: ActionDetails
+    },
+    {
+      path: "/ratings/:user_id/:user_name",
+      name: "Ratings",
+      component: Ratings
+    },
+    {
+      path: "/posts/:type/:id/:name",
+      name: "Posts",
+      component: Posts
+    },
+    {
+      path: "/notifications",
+      name: "Notifications",
+      component: Notifications
+    },
+    {
+      path: "/suggestions",
+      name: "Suggestions",
+      component: Suggestions
     }
   ]
 });

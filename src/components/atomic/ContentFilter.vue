@@ -39,7 +39,9 @@ export default {
       store_mappings: {
         home: "this.$store.state.suggestions.content_type_tab",
         search_results: "this.$store.state.discover_filters.content_type_tab",
-        watchlist: "this.$store.state.watchlist_filters.content_type_tab",
+        watchlist: "this.$store.state.feed.watchlist.content_type_tab",
+        ratings: "this.$store.state.feed.ratings.content_type_tab",
+        suggestions: "this.$store.state.feed.suggestions.content_type_tab",
       },
     };
   },

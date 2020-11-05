@@ -1,7 +1,7 @@
 <template>
   <div class="main-container">
     <div @click="quickView">
-      <Person :image="image" :width="width" :height="height" :name="name" />
+      <ImageCard :image="image" :width="width" :height="height" :name="name" />
     </div>
 
     <div
@@ -11,16 +11,23 @@
     >
       <div class="view-header">
         <h2 v-if="!artistData">
-          Fetching more content by
+          Fetching {{ skipContentId != -1 ? "more " : "movies & shows" }} by
           <span>{{ name.split(" ")[0] }}...</span>
         </h2>
 
-        <h2 v-if="artistData && artistData.length > 1">
-          More by
+        <h2
+          style="width: 94%; overflow: hidden"
+          v-if="artistData && artistData.length > (skipContentId != -1 ? 1 : 0)"
+        >
+          {{ skipContentId != -1 ? "More" : "Movies & shows" }} by
           <span>{{ name.split(" ")[0] }}...</span>
         </h2>
 
-        <h2 v-if="artistData && artistData.length == 1">
+        <h2
+          v-if="
+            artistData && artistData.length == (skipContentId != -1 ? 1 : 0)
+          "
+        >
           Oops...could not find any more content.
         </h2>
 
@@ -32,17 +39,20 @@
         />
       </div>
 
-      <div class="poster-container" v-if="artistData && artistData.length > 1">
+      <div
+        class="poster-container"
+        v-if="artistData && artistData.length > (skipContentId != -1 ? 1 : 0)"
+      >
         <Poster
-          v-for="movie in filteredMovies"
-          :key="movie.index"
+          v-for="(content, index) in filteredContents"
+          :key="index"
           class="poster"
           :containerWidth="125"
-          :contentId="movie.content_id"
-          :image="movie.poster"
-          :title="movie.title"
+          :contentId="content.content_id"
+          :image="content.poster"
+          :title="content.title"
           :showTrailer="false"
-          :whereToWatch="movie.where_to_watch"
+          :whereToWatch="content.where_to_watch"
           :userPlatforms="
             store.user.id ? store.user.profile.platforms || [''] : ['']
           "
@@ -64,7 +74,7 @@
 
 <script>
 import axios from "axios";
-import Person from "./../atomic/Person";
+import ImageCard from "./../atomic/ImageCard";
 import Poster from "./Poster";
 import Button from "./../atomic/Button";
 
@@ -105,7 +115,7 @@ export default {
       required: true,
     },
   },
-  components: { Person, Poster, Button },
+  components: { ImageCard, Poster, Button },
   data() {
     return {
       store: this.$store.state,
@@ -133,17 +143,11 @@ export default {
             this.$store.state.guest_country,
           guest_id: this.$store.state.guest_id,
         })
-        .then(
-          (response) => (
-            (this.artistData = response.data.contents),
-            (self.fetching_more = false)
-          )
-        )
+        .then((response) => (this.artistData = response.data.contents))
         .catch(function (error) {
           console.log(error);
         });
 
-      self.$store.state.content_page.never_tapped_any_artist = false;
       if (
         self.$store.state.session_id &&
         self.$store.state.content_page.never_tapped_any_artist &&
@@ -174,10 +178,11 @@ export default {
             }
           });
       }
+      self.$store.state.content_page.never_tapped_any_artist = false;
     },
   },
   computed: {
-    filteredMovies() {
+    filteredContents() {
       return this.artistData.filter(
         (el) => el.content_id != this.skipContentId
       );
@@ -253,10 +258,10 @@ export default {
   animation: 0.2s ease-out 0s 1 load;
 }
 
-h2 {
+.view-header h2 {
   font-weight: 300;
 }
-span {
+.view-header span {
   font-weight: 900;
 }
 </style>

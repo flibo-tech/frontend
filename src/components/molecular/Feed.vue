@@ -1,24 +1,35 @@
 <template>
   <div>
     <div
-      v-if="!fetching_feed"
+      v-if="!['posts', 'notifications'].includes(parent) && !fetching_feed"
       class="quick-filters-container"
       :class="{ 'quick-filters-container--hidden': !showRefreshButton }"
       :style="is_mobile ? '' : 'top: 50px;width: 1000px;'"
     >
       <FeedFilters
+        v-if="parent != 'home'"
         :parent="parent"
         @filter-parent="applyQuickFilters"
-        @refresh-suggestions="refreshFeed(true)"
         v-on="$listeners"
       />
 
-      <div
-        class="refresh-feed"
-        v-if="parent == 'home'"
-        @click="refreshFeed(false)"
-      >
+      <div class="refresh-feed" v-if="parent == 'home'" @click="refreshFeed">
         Refresh
+      </div>
+
+      <div
+        v-if="parent == 'home'"
+        class="only-suggestions"
+        @click="$router.push('/suggestions')"
+      >
+        <Button buttonType="textOnly" text="Only Suggestions" />
+
+        <Button
+          icon="grey_arrow"
+          buttonType="iconOnly"
+          :size="14"
+          style="margin-left: 4px; margin-top: 1px"
+        />
       </div>
     </div>
 
@@ -29,16 +40,24 @@
       :class="mainContainer.replace('.', '')"
       :style="
         is_mobile
-          ? parent == 'watchlist'
+          ? ['watchlist', 'ratings', 'suggestions'].includes(parent)
             ? 'margin-top: 200px;'
             : parent == 'search_results'
-            ? 'margin-top: 105px;'
-            : 'margin-top: 140px;'
-          : parent == 'watchlist'
+            ? 'margin-top: 85px;'
+            : parent == 'posts'
+            ? 'margin-top: 50px;'
+            : parent == 'notifications'
+            ? 'margin-top: 50px;'
+            : 'margin-top: 100px;'
+          : ['watchlist', 'ratings', 'suggestions'].includes(parent)
           ? 'position: relative;margin-top: 225px;'
           : parent == 'search_results'
-          ? 'position: relative;margin-top: 105px;'
-          : 'position: relative;margin-top: 150px;'
+          ? 'position: relative;margin-top: 85px;'
+          : parent == 'posts'
+          ? 'position: relative;margin-top: 50px;'
+          : parent == 'notifications'
+          ? 'position: relative;margin-top: 50px;'
+          : 'position: relative;margin-top: 100px;'
       "
     >
       <div
@@ -46,8 +65,22 @@
         :key="index"
         :class="containerTile"
         :id="containerTile + '-' + index"
-        :style="is_mobile ? '' : 'width: 100%;'"
-        :content-id="item.content_id"
+        :style="
+          parent == 'notifications'
+            ? {
+                width: is_mobile ? '100vw' : '100%;',
+                padding: '0',
+                border: 0,
+                marginBottom: '0px',
+              }
+            : ['search_results', 'suggestions'].includes(parent) ||
+              (item.feed_type && item.feed_type == 'flibo')
+            ? {
+                padding: '16px 0',
+              }
+            : { width: is_mobile ? '100vw' : '100%;' }
+        "
+        :action-id="item.action_id || item.notification_id || item.content_id"
       >
         <div
           v-if="
@@ -61,7 +94,7 @@
           :style="
             is_mobile
               ? 'margin-bottom: 24px;'
-              : 'margin-bottom: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);'
+              : 'margin-bottom: 24px;width: 1000px;'
           "
         >
           <p style="font-weight: normal; text-align: center">
@@ -71,39 +104,97 @@
 
         <div
           v-if="
-            is_mobile &&
-            parent == 'watchlist' &&
-            store.session_id != null &&
+            ['watchlist', 'ratings'].includes(parent) &&
             currentIndex == 0 &&
             index == 0
           "
           class="user-suggestions-container"
           :style="
             is_mobile
-              ? 'margin-bottom: 24px;'
-              : 'margin-bottom: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);'
+              ? 'margin-bottom: 24px; display: flex;align-items: center;justify-content: center;'
+              : 'margin-bottom: 24px;width: 1000px;display: flex;align-items: center;justify-content: center;'
           "
         >
-          <p style="font-weight: normal; text-align: center">
-            Access your watchlist on desktop at flibo.ai
+          <p v-if="is_mobile" style="font-weight: normal; text-align: center">
+            Access
+            {{ userType == "self" ? "your" : userName.split(" ")[0] + "'s" }}
+            {{ parent }} on desktop at flibo.ai
           </p>
+
+          <p v-else style="font-weight: normal; text-align: center">
+            Share
+            {{ userType == "self" ? "your" : userName.split(" ")[0] + "'s" }}
+            {{ parent }} with others
+          </p>
+
+          <Button
+            style="transform: rotate(22deg); margin-left: 16px"
+            icon="send_outline"
+            buttonType="iconOnly"
+            :size="25"
+            @clicked="share_prompt = true"
+          />
+        </div>
+
+        <div
+          v-if="
+            parent == 'ratings' &&
+            userType == 'self' &&
+            store.session_id != null &&
+            currentIndex == 0 &&
+            index == 0
+          "
+          style="
+            padding: 0px 16px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+            margin-top: -8px;
+          "
+        >
+          <Button
+            buttonType="secondary"
+            text="Reset Ratings"
+            @clicked="$emit('prompt-reset-ratings')"
+          />
         </div>
 
         <SavePlatforms
           v-if="
-            parent == 'home' &&
+            ['home', 'suggestions'].includes(parent) &&
             store.user.profile.platforms == null &&
             currentIndex == 0 &&
             index == 0
           "
-          @refresh-suggestions="refreshFeed(true)"
+          @refresh-suggestions="refreshFeed"
           v-on="$listeners"
         />
 
-        <FeedCard :content="item" :parent="parent" v-on="$listeners" />
+        <FeedCard
+          v-if="parent != 'notifications'"
+          :content="item"
+          :parent="parent"
+          @see-more="
+            [
+              updateElementHeights(),
+              updateSeeMoreElements(item.action_id || item.content_id),
+            ]
+          "
+          @update-element-heights="updateElementHeights"
+          @update-vote="updateVote"
+          @add-new-comment="addNewComment"
+          @delete-item="deleteItem"
+          v-on="$listeners"
+        />
+
+        <Notification
+          v-if="parent == 'notifications'"
+          :notification="item"
+          v-on="$listeners"
+        />
 
         <UserSuggestions
-          style="margin-top: 24px"
+          style="margin-top: 24px; margin-bottom: -16px"
           v-if="
             parent == 'home' &&
             store.suggestions.users_suggestions.length &&
@@ -120,8 +211,8 @@
           class="user-suggestions-container"
           :style="
             is_mobile
-              ? 'margin-top: 24px;'
-              : 'margin-top: 24px;width: 950px;margin-left: 50%;transform: translateX(-50%);'
+              ? 'margin-top: 8px; margin-bottom: -16px;'
+              : 'margin-top: 8px; margin-bottom: -16px; width: 1000px;'
           "
         >
           <p style="font-weight: normal; text-align: center">
@@ -169,6 +260,15 @@
         <div class="sk-cube3 sk-cube"></div>
       </div>
     </div>
+
+    <SharePrompt
+      v-if="share_prompt"
+      :parent="parent"
+      :url="'https://' + store.hostName + $route.fullPath"
+      :profileId="parseInt($route.params.user_id)"
+      @close-share-prompt="share_prompt = false"
+      v-on="$listeners"
+    />
   </div>
 </template>
 
@@ -177,6 +277,10 @@ import FeedFilters from "./FeedFilters";
 import FeedCard from "./FeedCard";
 import UserSuggestions from "./UserSuggestions";
 import SavePlatforms from "./SavePlatforms";
+import SharePrompt from "./../atomic/SharePrompt";
+import Button from "./../atomic/Button";
+import Notification from "./Notification";
+import axios from "axios";
 
 export default {
   name: "app",
@@ -185,11 +289,24 @@ export default {
     FeedCard,
     UserSuggestions,
     SavePlatforms,
+    SharePrompt,
+    Button,
+    Notification,
   },
   props: {
     parent: {
       type: String,
       required: true,
+    },
+    userType: {
+      type: String,
+      required: false,
+      default: "self",
+    },
+    userName: {
+      type: String,
+      required: false,
+      default: null,
     },
   },
   data() {
@@ -199,6 +316,7 @@ export default {
       store: this.$store.state,
       showRefreshButton: true,
       is_string_query: false,
+      share_prompt: false,
       feed_mappings: {
         home: {
           contents: "this.$store.state.suggestions.contents",
@@ -208,10 +326,11 @@ export default {
             "this.$store.state.suggestions.fetching_feed_incremental",
           content_filter: "this.$store.state.suggestions.content_type_tab",
           discover_filters: "this.$store.state.suggestions.discover_type_tab",
-          platform_filters:
-            "this.$store.state.feed_filters.filters_applied.home.platforms",
+          platform_filters: null,
           genre_filters: null,
+          rating_filter: "this.$store.state.feed.home.rating_tab",
           element_heights: "this.$store.state.feed.home.element_heights",
+          see_more_elements: "this.$store.state.feed.home.see_more_elements",
         },
         search_results: {
           contents: "this.$store.state.discover_filters.filtered_content",
@@ -224,22 +343,85 @@ export default {
             "this.$store.state.discover_filters.discover_type_tab",
           platform_filters: null,
           genre_filters: null,
+          rating_filter: null,
           element_heights:
             "this.$store.state.feed.search_results.element_heights",
+          see_more_elements:
+            "this.$store.state.feed.search_results.see_more_elements",
         },
         watchlist: {
-          contents: "this.$store.state.watchlist",
+          contents: "this.$store.state.feed.watchlist.contents",
           feed: "this.$store.state.feed.watchlist.feed_list",
           fetching: "this.$store.state.feed.watchlist.fetching",
-          fetching_incremental: "false",
-          content_filter:
-            "this.$store.state.watchlist_filters.content_type_tab",
-          discover_filters: null,
-          platform_filters:
-            "this.$store.state.feed_filters.filters_applied.watchlist.platforms",
-          genre_filters:
-            "this.$store.state.feed_filters.filters_applied.watchlist.genres",
+          fetching_incremental:
+            "this.$store.state.feed.watchlist.fetching_incremental",
+          content_filter: "this.$store.state.feed.watchlist.content_type_tab",
+          discover_filters:
+            "this.$store.state.feed.watchlist.discover_type_tab",
+          platform_filters: "this.$store.state.feed.watchlist.platforms",
+          genre_filters: "this.$store.state.feed.watchlist.genres",
+          rating_filter: null,
           element_heights: "this.$store.state.feed.watchlist.element_heights",
+          see_more_elements:
+            "this.$store.state.feed.watchlist.see_more_elements",
+        },
+        ratings: {
+          contents: "this.$store.state.feed.ratings.contents",
+          feed: "this.$store.state.feed.ratings.feed_list",
+          fetching: "this.$store.state.feed.ratings.fetching",
+          fetching_incremental:
+            "this.$store.state.feed.ratings.fetching_incremental",
+          content_filter: "this.$store.state.feed.ratings.content_type_tab",
+          discover_filters: "this.$store.state.feed.ratings.discover_type_tab",
+          platform_filters: "this.$store.state.feed.ratings.platforms",
+          genre_filters: "this.$store.state.feed.ratings.genres",
+          rating_filter: "this.$store.state.feed.ratings.rating_tab",
+          element_heights: "this.$store.state.feed.ratings.element_heights",
+          see_more_elements: "this.$store.state.feed.ratings.see_more_elements",
+        },
+        posts: {
+          contents: "this.$store.state.feed.posts.contents",
+          feed: "this.$store.state.feed.posts.feed_list",
+          fetching: "this.$store.state.feed.posts.fetching",
+          fetching_incremental:
+            "this.$store.state.feed.posts.fetching_incremental",
+          content_filter: "this.$store.state.feed.posts.content_type_tab",
+          discover_filters: "this.$store.state.feed.posts.discover_type_tab",
+          platform_filters: null,
+          genre_filters: null,
+          rating_filter: null,
+          element_heights: "this.$store.state.feed.posts.element_heights",
+          see_more_elements: "this.$store.state.feed.posts.see_more_elements",
+        },
+        notifications: {
+          contents: "this.$store.state.feed.notifications.contents",
+          feed: "this.$store.state.feed.notifications.feed_list",
+          fetching: "this.$store.state.feed.notifications.fetching",
+          fetching_incremental:
+            "this.$store.state.feed.notifications.fetching_incremental",
+          content_filter: null,
+          discover_filters: null,
+          platform_filters: null,
+          genre_filters: null,
+          rating_filter: null,
+          element_heights:
+            "this.$store.state.feed.notifications.element_heights",
+        },
+        suggestions: {
+          contents: "this.$store.state.feed.suggestions.contents",
+          feed: "this.$store.state.feed.suggestions.feed_list",
+          fetching: "this.$store.state.feed.suggestions.fetching",
+          fetching_incremental:
+            "this.$store.state.feed.suggestions.fetching_incremental",
+          content_filter: "this.$store.state.feed.suggestions.content_type_tab",
+          discover_filters:
+            "this.$store.state.feed.suggestions.discover_type_tab",
+          platform_filters: "this.$store.state.feed.suggestions.platforms",
+          genre_filters: "this.$store.state.feed.suggestions.genres",
+          rating_filter: null,
+          element_heights: "this.$store.state.feed.suggestions.element_heights",
+          see_more_elements:
+            "this.$store.state.feed.suggestions.see_more_elements",
         },
       },
       observer: null,
@@ -251,8 +433,14 @@ export default {
       bottomSentinelPreviousY: this.$store.state.feed.bottomSentinelPreviousY,
       bottomSentinelPreviousRatio: this.$store.state.feed
         .bottomSentinelPreviousRatio,
-      defaultListSize: this.$store.state.feed.defaultListSize,
-      listThreshold: this.$store.state.feed.listThreshold,
+      defaultListSize:
+        this.parent == "notifications"
+          ? 50
+          : this.$store.state.feed.defaultListSize,
+      listThreshold:
+        this.parent == "notifications"
+          ? 30
+          : this.$store.state.feed.listThreshold,
       first_obervation: true,
       updating_dom: false,
       scroll: {
@@ -279,8 +467,11 @@ export default {
       self.parent == "home" &&
       self.store.suggestions.discover_while_onboarding
     ) {
-      self.applyQuickFilters();
       self.store.suggestions.discover_while_onboarding = false;
+      setTimeout(() => {
+        this.$router.push("/suggestions?refresh=true");
+        this.refreshFeed();
+      }, 0);
     } else if (this.listSize || this.contentsCount) {
       this.$nextTick(function () {
         setTimeout(function () {
@@ -293,7 +484,6 @@ export default {
             self.updating_dom = true;
 
             if (
-              self.parent == "watchlist" ||
               eval(
                 "self.store.feed." + self.parent + ".apply_filters_on_create"
               )
@@ -385,6 +575,12 @@ export default {
         var content_type_tab = ["pass_check"];
       }
 
+      if (this.feed_mappings[this.parent].rating_filter != null) {
+        var rating_tab = eval(this.feed_mappings[this.parent].rating_filter);
+      } else {
+        var rating_tab = ["pass_check"];
+      }
+
       if (this.feed_mappings[this.parent].discover_filters != null) {
         var discover_type_tab = eval(
           this.feed_mappings[this.parent].discover_filters
@@ -425,6 +621,9 @@ export default {
           content_type_tab.includes(
             feed_contents[feed_item].type || "pass_check"
           ) &&
+          rating_tab.includes(
+            feed_contents[feed_item].creator_rating || "pass_check"
+          ) &&
           discover_type_tab.includes(
             feed_contents[feed_item].feed_type || "pass_check"
           ) &&
@@ -438,6 +637,7 @@ export default {
           output_list.push(feed_contents[feed_item]);
         }
       }
+
       return output_list;
     },
   },
@@ -474,9 +674,8 @@ export default {
     },
     feed_list: {
       handler(param) {
-        var self = this;
-        this.$nextTick(function () {
-          self.updateElementHeights();
+        this.$nextTick(() => {
+          this.updateElementHeights();
         });
       },
     },
@@ -503,17 +702,19 @@ export default {
       }
 
       for (let j = 0; j < self.listSize; j++) {
+        var elem = document.querySelector(`#${self.containerTile}-${j}`);
         dom_elem_heights[
-          document
-            .querySelector(`#${self.containerTile}-${j}`)
-            .getAttribute("content-id")
-        ] = document
-          .querySelector(`#${self.containerTile}-${j}`)
-          .getBoundingClientRect().height;
+          elem.getAttribute("action-id")
+        ] = elem.getBoundingClientRect().height;
       }
 
       eval(
         self.feed_mappings[self.parent].element_heights + " = dom_elem_heights"
+      );
+    },
+    updateSeeMoreElements(actionId) {
+      eval(
+        this.feed_mappings[this.parent].see_more_elements + ".push(actionId)"
       );
     },
     updatePadding() {
@@ -609,9 +810,14 @@ export default {
         var platform_count = 0;
         for (platform in filtered_platforms) {
           if (
-            JSON.stringify(feed_contents[feed_item].where_to_watch).includes(
-              filtered_platforms[platform]
-            )
+            JSON.stringify(
+              feed_contents[feed_item].image_info &&
+                feed_contents[feed_item].image_info.where_to_watch
+                ? feed_contents[feed_item].image_info.where_to_watch
+                : feed_contents[feed_item].where_to_watch
+                ? feed_contents[feed_item].where_to_watch
+                : null
+            ).includes(filtered_platforms[platform])
           ) {
             platform_count++;
           }
@@ -657,57 +863,47 @@ export default {
         this.observer.disconnect();
         this.observer = null;
 
-        if (this.parent == "watchlist") {
-          eval(
-            this.feed_mappings[this.parent].feed +
-              " = this.parent_feed_list.slice(this.currentIndex, this.currentIndex + this.defaultListSize)"
-          );
-        } else {
-          eval(
-            this.feed_mappings[this.parent].feed +
-              " = this.parent_feed_list.slice(0, this.defaultListSize)"
-          );
-        }
+        eval(
+          this.feed_mappings[this.parent].feed +
+            " = this.parent_feed_list.slice(0, this.defaultListSize)"
+        );
 
         this.$nextTick(function () {
           self.initIntersectionObserver();
         });
       } else {
-        if (this.parent == "watchlist") {
-          eval(
-            this.feed_mappings[this.parent].feed +
-              " = this.parent_feed_list.slice(this.currentIndex, this.currentIndex + this.defaultListSize)"
-          );
-        } else {
-          eval(
-            this.feed_mappings[this.parent].feed +
-              " = this.parent_feed_list.slice(0, this.defaultListSize)"
-          );
-        }
+        eval(
+          this.feed_mappings[this.parent].feed +
+            " = this.parent_feed_list.slice(0, this.defaultListSize)"
+        );
       }
     },
-    refreshFeed(refreshSuggestions) {
+    refreshFeed() {
       this.hide_feed = true;
 
-      this.observer.disconnect();
-      this.observer = null;
+      if (this.observer) {
+        this.observer.disconnect();
+        this.observer = null;
+      }
 
       this.scroll.paddingTop = 0;
       this.scroll.paddingBottom = 0;
       this.scroll.scrollPosition = 0;
 
-      var reset_info = {
-        parent: this.parent,
-        filters: true,
-        skip_suggestions_filter: refreshSuggestions,
-        scroll: true,
-        paddings: true,
-        observer_current_index: true,
-        element_heights: true,
-      };
-      this.$emit("reset-feed-page", reset_info);
+      if (this.parent != "suggestions") {
+        var reset_info = {
+          parent: this.parent,
+          filters: true,
+          skip_suggestions_filter: false,
+          scroll: true,
+          paddings: true,
+          observer_current_index: true,
+          element_heights: true,
+        };
+        this.$emit("reset-feed-page", reset_info);
 
-      this.$emit("refresh-feed");
+        this.$emit("refresh-feed");
+      }
     },
     watchScroll() {
       var self = this;
@@ -732,10 +928,15 @@ export default {
       if (Math.abs(currentScrollPosition - self.lastScrollPosition) < 0) {
         return;
       }
-      self.showRefreshButton = currentScrollPosition < self.lastScrollPosition;
-      self.lastScrollPosition = currentScrollPosition;
-      if ([NaN, 0, 1].includes(scroll_completion)) {
-        setTimeout((self.showRefreshButton = true), 0);
+      if (self.store.letNavAutoHide) {
+        self.showRefreshButton =
+          currentScrollPosition < self.lastScrollPosition;
+        self.lastScrollPosition = currentScrollPosition;
+        if ([NaN, 0, 1].includes(scroll_completion)) {
+          setTimeout((self.showRefreshButton = true), 0);
+        }
+      } else {
+        self.showRefreshButton = false;
       }
 
       if (!this.scroll.updating) {
@@ -779,13 +980,107 @@ export default {
 
       window.removeEventListener("scroll", this.watchScroll);
     },
+    addNewComment(newComment) {
+      var quickComment = newComment.creator_name + "^" + newComment.comment;
+      for (let item of eval(this.feed_mappings[this.parent].contents)) {
+        if (item.action_id == newComment.action_id) {
+          if (item.newComments) {
+            item.newComments.push(quickComment);
+          } else {
+            item.newComments = [quickComment];
+          }
+
+          if (item.total_comments != null) {
+            item.total_comments++;
+          } else {
+            item.total_comments = 1;
+          }
+
+          this.$nextTick(() => {
+            this.updateElementHeights();
+          });
+
+          return;
+        }
+      }
+    },
+    updateVote(vote) {
+      for (let item of eval(this.feed_mappings[this.parent].contents)) {
+        if (item.action_id == vote.actionId) {
+          if (vote.type == "user") {
+            item.user_vote = vote.vote;
+          } else if (vote.type == "total") {
+            item.upvotes = vote.vote;
+          }
+
+          return;
+        }
+      }
+    },
+    deleteItem(card) {
+      for (let [index, item] of eval(
+        this.feed_mappings[this.parent].contents
+      ).entries()) {
+        if (item.action_id == card.actionId) {
+          eval(this.feed_mappings[this.parent].contents + ".splice(index, 1)");
+
+          this.recycleDOM(
+            eval(
+              "this.$store.state.feed." +
+                this.parent +
+                ".observer_current_index"
+            ),
+            true
+          );
+          this.updateElementHeights();
+
+          return;
+        }
+      }
+    },
+    updateSeenList(entry) {
+      if (entry.intersectionRatio == 1) {
+        var elemId = parseInt(entry.target.id.split("-").pop());
+
+        var elem = null;
+        var actionId;
+        var actionIds = [];
+        for (let i = elemId - 4; i <= elemId; i++) {
+          elem = document.querySelector(`#${this.containerTile}-${i}`);
+          if (elem) {
+            actionId = parseInt(elem.getAttribute("action-id"));
+            if (
+              !eval(
+                "this.$store.state.feed." + this.parent + ".seenElements"
+              ).includes(actionId)
+            ) {
+              eval(
+                "this.$store.state.feed." +
+                  this.parent +
+                  ".seenElements.push(actionId)"
+              );
+              actionIds.push(actionId);
+            }
+          }
+        }
+
+        if (actionIds.length) {
+          axios.post(this.$store.state.api_host + "mark_posts_as_seen", {
+            session_id: this.$store.state.session_id,
+            action_ids: actionIds,
+          });
+        }
+      }
+    },
 
     // Functions for infinite scroll
     elementsTotalHeight(startIndex, endIndex) {
       var totalHeight = 0;
       for (let i = startIndex; i < endIndex; i++) {
         totalHeight += eval(this.feed_mappings[this.parent].element_heights)[
-          this.parent_feed_list[i].content_id
+          this.parent_feed_list[i].action_id ||
+            this.parent_feed_list[i].notification_id ||
+            this.parent_feed_list[i].content_id
         ];
       }
       return totalHeight;
@@ -848,17 +1143,50 @@ export default {
       return firstIndex;
     },
 
-    recycleDOM(firstIndex) {
-      const output = [];
+    recycleDOM(firstIndex, isAfterDelete = false) {
+      var output = [];
       for (let i = 0; i < this.listSize; i++) {
         output.push(this.parent_feed_list[i + firstIndex]);
       }
+
+      if (isAfterDelete) {
+        output = output.filter((item) => item);
+
+        if (firstIndex > 0 && output.length < this.listSize) {
+          output = [];
+          eval(
+            "this.$store.state.feed." +
+              this.parent +
+              ".observer_current_index = this.$store.state.feed." +
+              this.parent +
+              ".observer_current_index - 1"
+          );
+
+          const container = document.querySelector(this.mainContainer);
+          const currentPaddingTop = this.getNumFromStyle(
+            container.style.paddingTop
+          );
+          container.style.paddingTop =
+            currentPaddingTop -
+            eval(this.feed_mappings[this.parent].element_heights)[
+              this.parent_feed_list[firstIndex - 1].action_id
+            ] +
+            "px";
+
+          for (let i = 0; i < this.listSize; i++) {
+            output.push(this.parent_feed_list[i + firstIndex - 1]);
+          }
+          output = output.filter((item) => item);
+        }
+      }
+
       eval(this.feed_mappings[this.parent].feed + " = output.slice()");
     },
 
     getNumFromStyle: (numStr) => Number(numStr.substring(0, numStr.length - 2)),
 
     adjustPaddings(firstIndex, isScrollDown, isEndCase = false) {
+      this.updateElementHeights();
       const container = document.querySelector(this.mainContainer);
 
       const currentPaddingTop = this.getNumFromStyle(
@@ -1043,13 +1371,23 @@ export default {
     initIntersectionObserver() {
       const options = {
         rootMargin: "0px",
-        threshold: 0.0,
+        threshold: [0, 1],
       };
 
       const callback = (entries) => {
         entries.forEach((entry) => {
+          if (this.parent == "home") {
+            this.updateSeenList(entry);
+          }
+
           if (entry.target.id === this.containerTile + "-0") {
             this.topSentCallback(entry);
+          } else if (
+            entry.target.id === `${this.containerTile}-${this.listSize - 4}`
+          ) {
+            if (!this.stopCheck) {
+              this.botSentCallback(entry);
+            }
           } else if (
             entry.target.id === `${this.containerTile}-${this.listSize - 1}`
           ) {
@@ -1063,12 +1401,37 @@ export default {
       this.observer = new IntersectionObserver(callback, options);
       if (this.listSize) {
         this.stopCheck = false;
-        this.observer.observe(
-          document.querySelector("#" + this.containerTile + "-0")
+
+        var firstElem = document.querySelector("#" + this.containerTile + "-0");
+        if (firstElem) {
+          this.observer.observe(firstElem);
+        }
+
+        var thirdLastElem = document.querySelector(
+          `#${this.containerTile}-${this.listSize - 4}`
         );
-        this.observer.observe(
-          document.querySelector(`#${this.containerTile}-${this.listSize - 1}`)
+        if (thirdLastElem) {
+          this.observer.observe(thirdLastElem);
+        }
+
+        var lastElem = document.querySelector(
+          `#${this.containerTile}-${this.listSize - 1}`
         );
+        if (lastElem) {
+          this.observer.observe(lastElem);
+        }
+
+        var elem = null;
+        if (this.parent == "home") {
+          for (let i = 0; i < this.listSize; i += 5) {
+            if (![0, this.listSize - 4, this.listSize - 1].includes(i)) {
+              elem = document.querySelector(`#${this.containerTile}-${i}`);
+              if (elem) {
+                this.observer.observe(elem);
+              }
+            }
+          }
+        }
       }
     },
   },
@@ -1122,6 +1485,13 @@ export default {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
+.only-suggestions {
+  position: absolute;
+  display: flex;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
 .feed-cards-container {
   width: 100%;
   display: inline-grid;
@@ -1135,7 +1505,8 @@ export default {
   width: 100vw;
   vertical-align: top;
   text-align: left;
-  padding: 15px 0px;
+  padding-top: 24px;
+  padding-bottom: 4px;
   border-bottom: 10px solid #f8f8f8;
 }
 .fetching-feed {

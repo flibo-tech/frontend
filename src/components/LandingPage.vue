@@ -83,9 +83,7 @@
       />
       <div :class="is_mobile ? 'issue-text-1' : 'desktop-issue-text-1'">
         You have Netflix or Prime subscription but
-        <span style="font-weight: bold;">
-          can't decide
-        </span>
+        <span style="font-weight: bold"> can't decide </span>
         what to watch?
       </div>
     </div>
@@ -112,9 +110,7 @@
       :class="is_mobile ? 'landing-page-footer' : 'desktop-landing-page-footer'"
     >
       <div :class="is_mobile ? 'footer-text' : 'desktop-footer-text'">
-        <h1>
-          TRY FLIBO
-        </h1>
+        <h1>TRY FLIBO</h1>
 
         <p>
           Rate Movies & TV Series to experience personalized discovery across
@@ -139,9 +135,7 @@
           />
         </div>
 
-        <p>
-          & many more platforms
-        </p>
+        <p>& many more platforms</p>
 
         <iframe
           src="https://d2txrzi4o7g0yi.cloudfront.net/"
@@ -168,9 +162,7 @@
               : 'landing-page-desktop-google-play-icon'
           "
         />
-        <span>
-          Google Play
-        </span>
+        <span> Google Play </span>
       </div>
 
       <div
@@ -185,16 +177,14 @@
               : 'landing-page-desktop-ios-icon'
           "
         />
-        <span>
-          iOS (M-Site)
-        </span>
+        <span> iOS (M-Site) </span>
       </div>
     </div>
 
-    <div style="background-color: #f2f2f2;text-align: center;padding: 10px;">
+    <div style="background-color: #f2f2f2; text-align: center; padding: 10px">
       <a
         href="/privacy-policy"
-        style="font-family: 'Open Sans', sans-serif;color: #333;"
+        style="font-family: 'Open Sans', sans-serif; color: #333"
       >
         Privacy Policy
       </a>
@@ -219,8 +209,8 @@ export default {
   props: {
     is_mobile: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
   methods: {
     goToGoogleLogin() {
@@ -235,8 +225,8 @@ export default {
       } else {
         window.open(app_location);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -255,8 +245,8 @@ export default {
   width: 80px;
   height: 80px;
   top: 3px;
-  left: 5px;
-  background-image: url("./../images/flibo-logo-white.svg");
+  left: 10px;
+  background-image: url("./../images/flibo-logo-with-text-white.svg");
   background-position: center;
   background-size: 100%;
   background-repeat: no-repeat;
@@ -442,8 +432,8 @@ export default {
   width: 150px;
   height: 150px;
   top: -17px;
-  left: 5px;
-  background-image: url("./../images/flibo-logo-white.svg");
+  left: 20px;
+  background-image: url("./../images/flibo-logo-with-text-white.svg");
   background-position: center;
   background-size: 100%;
   background-repeat: no-repeat;

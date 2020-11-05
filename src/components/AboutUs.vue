@@ -3,7 +3,7 @@
     <br />
     <span
       class="about-us-flibo-logo"
-      :style="is_mobile ? '' : 'width: 35%;margin-left: 32.5%;height: 100px;'"
+      :style="is_mobile ? '' : 'width: 35%;margin-left: 32.5%;height: 150px;'"
     ></span>
     <br />
 
@@ -14,19 +14,21 @@
         it FLIBO, a film library.
       </p>
       <br />
-      <p style="font-size:0.9rem;">
+      <p style="font-size: 0.9rem">
         Hangout with us at facebook to help us serve you better -
         <a
           href="https://www.facebook.com/groups/flibo.community/"
           target="_blank"
-          style="font-weight: bold;"
+          style="font-weight: bold"
         >
-          Join FLIBO Community
+          Join FLIBO at Facebook
         </a>
       </p>
     </div>
 
     <textarea
+      @focus="showTmdb = false"
+      @blur="showTmdb = true"
       placeholder="You can drop a message as well, just type in & hit that submit button..."
       class="input-message-box"
       id="user_message"
@@ -50,13 +52,12 @@
       }}
     </button>
 
-    <!-- <div class="tmdb-container">
-        <div class="tmdb-logo">
-        </div>
-        <span class="tmdb-disclaimer">
-            This product uses the TMDb API but is not endorsed or certified by TMDb.
-        </span>
-      </div> -->
+    <div class="tmdb-container" v-if="showTmdb">
+      <div class="tmdb-logo"></div>
+      <span class="tmdb-disclaimer">
+        This product uses the TMDb API but is not endorsed or certified by TMDb.
+      </span>
+    </div>
   </div>
 </template>
 
@@ -70,7 +71,8 @@ export default {
       is_mobile: window.screen.height > window.screen.width,
       submitting: false,
       submitted: false,
-      store: this.$store.state
+      store: this.$store.state,
+      showTmdb: true,
     };
   },
   created() {
@@ -85,9 +87,9 @@ export default {
         axios
           .post(self.$store.state.api_host + "submit_message", {
             session_id: self.$store.state.session_id,
-            message: message
+            message: message,
           })
-          .then(function(response) {
+          .then(function (response) {
             if ([200].includes(response.status)) {
               self.submitted = true;
               self.submitting = false;
@@ -95,7 +97,7 @@ export default {
               // console.log(response.status);
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             // console.log(error);
             if ([401, 419].includes(error.response.status)) {
               window.location =
@@ -109,18 +111,18 @@ export default {
             }
           });
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .about-us-container {
   position: relative;
-  width: 95%;
+  width: 100%;
   height: 95vh;
   top: 60px;
-  left: 2.5%;
+  padding: 0 16px;
 }
 .about-us-flibo-logo {
   position: relative;
@@ -128,14 +130,13 @@ export default {
   width: 50%;
   margin-left: 25%;
   height: 80px;
-  background-image: url("./../images/flibo-logo-dark.svg");
+  background-image: url("./../images/flibo-logo-with-text-color.svg");
   background-size: 100%;
   background-position: center;
   background-repeat: no-repeat;
 }
 .about-us-text {
-  width: 95%;
-  margin-left: 2.5%;
+  width: 100%;
   margin-top: 5%;
   color: #8a8888;
   line-height: 1.175;
@@ -146,7 +147,7 @@ p {
 }
 .input-message-box {
   margin-top: 5%;
-  width: 95%;
+  width: 100%;
   height: 15vh;
   border: none;
   background-color: #f7f7f7;
@@ -178,27 +179,24 @@ p {
   -webkit-tap-highlight-color: transparent;
 }
 .tmdb-container {
-  width: 95%;
-  position: absolute;
-  top: 70vh;
+  position: fixed;
+  bottom: 65px;
+  width: calc(100% - 32px);
+  display: flex;
+  align-items: center;
   text-align: left;
-  bottom: 9%;
 }
 .tmdb-logo {
   position: relative;
-  left: 4.875%;
-  width: 25vw;
-  height: 10vw;
-  background-image: url("https://www.themoviedb.org/assets/2/v4/logos/powered-by-rectangle-blue-61ce76f69ce1e4f68a6031d975df16cc184d5f04fa7f9f58ae6412646f2481c1.svg");
+  width: 100px;
+  height: 43px;
+  background-image: url("https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg");
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
 }
 .tmdb-disclaimer {
-  position: absolute;
-  margin-left: calc(4.875% + 25vw + 5px);
-  margin-top: calc(-10vw + 5px);
-  font-size: 3vw;
-  width: 65vw;
+  margin-left: 16px;
+  font-size: 14px;
 }
 </style>

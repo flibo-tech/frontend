@@ -83,48 +83,55 @@
             :style="
               parent == 'search_page'
                 ? is_mobile
-                  ? 'width: 55px;height: 82.5px;'
-                  : 'width: 80px;height: 120px;'
+                  ? 'width: 55px;min-width: 55px;height: 82.5px;'
+                  : 'width: 80px;min-width: 80px;height: 120px;'
                 : ''
             "
           >
             <img v-bind:src="content.image" class="filter-content-pic" />
           </div>
 
-          <div
-            class="filter-content-name"
-            :style="
-              parent == 'search_page'
-                ? is_mobile
-                  ? 'margin-left: 65px;margin-top: -70px;font-size: 15px;'
-                  : 'margin-left: 100px;margin-top: -95px;font-size: 16px;'
-                : ''
-            "
-            @click="clickContent(content)"
-          >
-            {{ content.subject }}
-          </div>
+          <div class="title-rating-container">
+            <div
+              class="filter-content-name"
+              :style="
+                parent == 'search_page'
+                  ? is_mobile
+                    ? 'font-size: 15px;'
+                    : 'font-size: 16px;'
+                  : ''
+              "
+              @click="clickContent(content)"
+            >
+              {{ content.subject }}
+            </div>
 
-          <UserRating
-            class="search-user-rating-container"
-            :style="
-              is_mobile
-                ? ''
-                : 'margin-left: 100px;margin-top: -55px;padding-bottom: 31px;'
-            "
-            v-if="parent == 'search_page'"
-            :rating="content.rating"
-            :iconSize="25"
-            @update-rating="
-              (userRating) => {
-                submitRating(
-                  content.subject_id,
-                  userRating,
-                  content.rating,
-                  index
-                );
-              }
-            "
+            <div style="display: flex">
+              <UserRating
+                class="search-user-rating-container"
+                v-if="parent == 'search_page'"
+                :rating="content.rating"
+                :iconSize="25"
+                @update-rating="
+                  (userRating) => {
+                    submitRating(
+                      content.subject_id,
+                      userRating,
+                      content.rating,
+                      index
+                    );
+                  }
+                "
+              />
+              <div
+                style="width: 100%; margin-left: 8px; cursor: pointer"
+                @click="clickContent(content)"
+              />
+            </div>
+          </div>
+          <div
+            style="width: 100%; cursor: pointer"
+            @click="clickContent(content)"
           />
         </div>
         <div
@@ -132,9 +139,7 @@
           v-if="content_search_ids.length"
           @click="fetchMoreContent"
         >
-          <div class="see-more-contents">
-            See More
-          </div>
+          <div class="see-more-contents">See More</div>
         </div>
       </div>
 
@@ -144,7 +149,7 @@
       >
         <div
           class="sk-folding-cube"
-          style="transform: translateY(-200%) rotateZ(45deg);"
+          style="transform: translateY(-200%) rotateZ(45deg)"
         >
           <div class="sk-cube1 sk-cube"></div>
           <div class="sk-cube2 sk-cube"></div>
@@ -154,9 +159,7 @@
       </div>
 
       <div v-if="no_content_found" class="no-content-box">
-        <div class="no-content-found">
-          No such content found !
-        </div>
+        <div class="no-content-found">No such content found !</div>
       </div>
     </div>
 
@@ -172,14 +175,14 @@
         class="user-items"
         v-if="user_search_result.length && parent != 'profile'"
       >
-        <Person
+        <ImageCard
           v-for="(user, index) in user_search_result"
           :key="index"
           class="filter-users-container"
           :style="
             is_mobile
-              ? 'justify-content: flex-start;'
-              : 'justify-content: flex-start;margin-top: 0px;padding: 7px;'
+              ? 'justify-content: flex-start;min-width: 100%;cursor: pointer;'
+              : 'justify-content: flex-start;min-width: 100%;margin-top: 0px;padding: 7px;cursor: pointer;'
           "
           @clicked="clickUser(user)"
           :name="user.name"
@@ -196,9 +199,7 @@
           v-if="user_ids.length"
           @click="fetchMoreUsers"
         >
-          <div class="see-more-users">
-            See More
-          </div>
+          <div class="see-more-users">See More</div>
         </div>
       </div>
 
@@ -210,7 +211,7 @@
       >
         <div
           class="sk-folding-cube"
-          style="transform: translateY(-200%) rotateZ(45deg);"
+          style="transform: translateY(-200%) rotateZ(45deg)"
         >
           <div class="sk-cube1 sk-cube"></div>
           <div class="sk-cube2 sk-cube"></div>
@@ -220,9 +221,7 @@
       </div>
 
       <div v-if="no_user_found" class="no-content-box">
-        <div class="no-content-found">
-          No such user found !
-        </div>
+        <div class="no-content-found">No such user found !</div>
       </div>
     </div>
 
@@ -243,7 +242,7 @@ const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
 import DiscoverFilter from "./DiscoverFilter";
 import UserRating from "./molecular/UserRating";
-import Person from "./atomic/Person";
+import ImageCard from "./atomic/ImageCard";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -251,7 +250,7 @@ export default {
   components: {
     DiscoverFilter,
     UserRating,
-    Person,
+    ImageCard,
   },
   mixins: [onClickOutside],
   data() {
@@ -354,6 +353,18 @@ export default {
         this.store.discover_filters.is_string_query = true;
         this.$router.push("/search-results");
         this.$store.state.discover_filters.fetching_filtered = true;
+
+        var reset_info = {
+          parent: "search_results",
+          filters: true,
+          skip_suggestions_filter: false,
+          scroll: true,
+          paddings: true,
+          observer_current_index: true,
+          element_heights: true,
+        };
+        this.$emit("reset-feed-page", reset_info);
+
         var self = this;
         axios
           .post(self.$store.state.api_host + "search_query", {
@@ -410,6 +421,11 @@ export default {
             self.$store.state.discover_filters.fetching_filtered = false;
           });
       }
+    }
+  },
+  mounted() {
+    if (!this.is_mobile) {
+      document.getElementById(this.parent + "_search_string").focus();
     }
   },
   methods: {
@@ -610,6 +626,7 @@ export default {
             session_id: this.$store.state.session_id,
             content_ids: [content_id],
             rating: user_rating,
+            privacy: this.$store.state.user.profile.profile_status || "public",
           })
           .then(function (response) {
             var index = self.$store.state.suggestions.rate_counter.indexOf(
@@ -631,7 +648,9 @@ export default {
                     }
                   )
                   .then(function (response) {
-                    self.$store.state.notifications.suggestions = true;
+                    if (response.data.notify) {
+                      self.$store.state.notifications.notifications = 1;
+                    }
                   });
               }
             }
@@ -783,7 +802,12 @@ export default {
                   response.data.more_contents;
                 self.$store.state.scroll_positions.discover.filter = 0;
                 self.$store.state.discover_filters.last_fetch_time = Date.now();
-                self.fetchRemainingResults();
+                if (
+                  self.$store.state.discover_filters.more_filtered_content
+                    .length
+                ) {
+                  self.fetchRemainingResults();
+                }
               }
             } else if ([204].includes(response.status)) {
               if (self.$route.path == "/search-results") {
@@ -817,26 +841,28 @@ export default {
       this.store.discover_filters.fetching_filter_incremental = true;
       var self = this;
       axios
-        .post(self.$store.state.api_host + "get_incremental_feed_contents", {
+        .post(self.$store.state.api_host + "get_filtered_contents", {
           session_id: self.$store.state.session_id,
-          more_contents:
-            self.$store.state.discover_filters.more_filtered_content,
+          content_ids: self.$store.state.discover_filters.more_filtered_content,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
         })
         .then(function (response) {
           if ([200].includes(response.status)) {
-            self.$store.state.discover_filters.filtered_content.push(
-              ...response.data.contents
-            );
-            self.$store.state.discover_filters.more_filtered_content = [];
+            if (self.$route.path != "/search") {
+              self.$store.state.discover_filters.filtered_content.push(
+                ...response.data.contents
+              );
+              self.$store.state.discover_filters.more_filtered_content = [];
 
-            if (self.$route.path == "/search-results") {
-              self.$store.state.feed_filters.apply_filters_wo_reset = true;
-            } else if (
-              self.$store.state.feed.search_results.feed_list.length < 25
-            ) {
-              self.store.feed.search_results.apply_filters_on_create = true;
+              if (self.$route.path == "/search-results") {
+                self.$store.state.feed_filters.apply_filters_wo_reset = true;
+              } else if (
+                self.$store.state.feed.search_results.feed_list.length <
+                self.$store.state.feed.defaultListSize
+              ) {
+                self.store.feed.search_results.apply_filters_on_create = true;
+              }
             }
           } else {
             // console.log(response.status);
@@ -957,12 +983,13 @@ export default {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
+.title-rating-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 16px;
+  justify-content: space-evenly;
+}
 .filter-content-name {
-  margin-left: 50px;
-  margin-top: -39px;
-  position: absolute;
-  width: fit-content;
-  max-width: 80%;
   font-size: calc(11px + 0.5vw);
   font-style: normal;
   font-stretch: normal;
@@ -980,13 +1007,12 @@ export default {
   -webkit-tap-highlight-color: transparent;
 }
 .filter-contents-container {
-  position: relative;
-  vertical-align: top;
-  text-align: center;
-  border-bottom: 1px solid #f3f3f3;
+  display: flex;
+  width: 100%;
+  overflow: scroll;
   background-color: #ffffff;
   z-index: 10000;
-  padding: 5px;
+  padding: 8px 5px;
 }
 .no-content-box {
   margin-top: calc(50vh - 100.5px);
@@ -1054,10 +1080,9 @@ export default {
   position: relative;
   vertical-align: top;
   text-align: center;
-  border-bottom: 1px solid #f3f3f3;
   background-color: #ffffff;
   z-index: 10000;
-  padding: 5px;
+  padding: 8px 5px;
 }
 .no-user {
   width: 77%;
@@ -1093,12 +1118,9 @@ export default {
 .user-items {
 }
 .search-user-rating-container {
-  position: relative;
   width: 115px;
-  margin-left: 65px;
-  margin-top: -37px;
+  min-width: 115px;
   text-align: left;
-  padding-bottom: 9px;
   background-color: #ffffff;
 }
 .search-type-tabs {

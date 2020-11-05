@@ -1,10 +1,11 @@
 <template>
   <div class="suggested-user-box">
     <div>
-      <Person
+      <ImageCard
         @clicked="goToProfile"
         :name="userName"
         :image="image"
+        :imgOnError="true"
         :width="90"
         :height="115"
         :fontSize="14"
@@ -37,12 +38,12 @@
 
 <script>
 import axios from "axios";
-import Person from "./Person";
+import ImageCard from "./ImageCard";
 
 export default {
   name: "App",
   components: {
-    Person,
+    ImageCard,
   },
   props: {
     userId: {
@@ -155,10 +156,12 @@ export default {
 .suggested-user-box {
   width: 130px;
   min-width: 130px;
-  margin-right: 24px;
+  margin-right: 8px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
 }
 .suggested-reason {
   margin-top: 3px;

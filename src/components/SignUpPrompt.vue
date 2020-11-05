@@ -16,7 +16,13 @@
         :style="is_mobile ? 'top: 25vh;width: 85vw;' : ''"
         v-if="store.prompt_signup"
       >
-        <p style="font-size: 18px;">
+        <img
+          style="width: 100px"
+          :src="require('./../images/flibo-logo-with-text-color.svg')"
+          alt="flibo-logo"
+        />
+
+        <p style="font-size: 18px; margin-top: 16px; text-align: left">
           Personalize your streaming world with us
         </p>
 
@@ -27,7 +33,7 @@
 
         <div class="signup-facebook" @click="goToFacebookLogin">
           <div class="signup-facebook-button" />
-          <p style="color: #ffffff;">Continue with Facebook</p>
+          <p style="color: #ffffff">Continue with Facebook</p>
         </div>
 
         <br />
@@ -59,7 +65,7 @@ export default {
   data() {
     return {
       is_mobile: window.screen.height > window.screen.width,
-      store: this.$store.state
+      store: this.$store.state,
     };
   },
   methods: {
@@ -71,8 +77,8 @@ export default {
     },
     goToApp(app_location) {
       window.open(app_location);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -92,7 +98,7 @@ export default {
   display: table;
   top: 0%;
   left: 0%;
-  z-index: 1000000;
+  z-index: 10000000;
 }
 .signup-prompted-box {
   position: fixed;
@@ -102,7 +108,7 @@ export default {
   transform: translateX(-50%);
   border-radius: 7px;
   padding: 20px;
-  z-index: 1000001;
+  z-index: 10000001;
 }
 .signup-google {
   position: relative;

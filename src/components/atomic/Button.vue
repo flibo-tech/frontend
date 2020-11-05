@@ -1,80 +1,181 @@
 <template>
-  <button
-    :class="checkType"
+  <div
+    :class="customClass"
+    ref="buttonContainer"
     @click="
       $emit('clicked');
       buttonClicked();
     "
-    :disabled="disabled"
+    :style="
+      iconCircle
+        ? {
+            'background-color': disabled ? '#E4E4E4' : '#7352ff',
+            width: size * 2 + 'px',
+            height: size * 2 + 'px',
+            'border-radius': '50%',
+          }
+        : buttonType == 'primary' && big
+        ? 'padding: 16px 32px;'
+        : {}
+    "
   >
-    <p v-if="buttonType != 'iconOnly' && !buttonClickedBool">{{ text }}</p>
+    <p
+      v-if="buttonType != 'iconOnly' && !buttonClickedBool"
+      :style="textCustomStyle"
+    >
+      {{ text }}
+    </p>
     <img
       v-if="buttonType === 'iconOnly' && !buttonClickedBool"
       :src="imageURL"
-      :style="{ width: size + 'px' }"
+      :style="
+        iconCircle
+          ? {
+              width: size + 'px',
+              height: size + 'px',
+              display: 'initial',
+              margin: margin,
+            }
+          : { width: size + 'px', height: size + 'px' }
+      "
     />
-    <div v-if="buttonClickedBool && loading" class="loader"></div>
-  </button>
+    <div
+      v-if="buttonClickedBool && loading"
+      class="loader"
+      :style="loaderCustomStyle"
+    ></div>
+  </div>
 </template>
 
 <script>
 export default {
   name: "Button",
-
   props: {
     text: {
       type: String,
+      required: false,
       default: null,
     },
     icon: {
       type: String,
+      required: false,
       default: null,
     },
     buttonType: {
       type: String,
       required: true,
-      default: "primary",
     },
     loading: {
       type: Boolean,
+      required: false,
       default: false,
     },
     disabled: {
       type: Boolean,
+      required: false,
       default: false,
     },
     state: {
       type: Boolean,
+      required: false,
       default: false,
     },
     size: {
+      // applicable when iconCircle is true OR iconOnly
       type: Number,
       required: false,
       default: 18,
     },
+    iconCircle: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    margin: {
+      type: String,
+      required: false,
+      default: "0",
+    },
+    capitalize: {
+      // applicable when buttonType is primary
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    big: {
+      // applicable when buttonType is primary
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    fontSize: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    fontColor: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    padding: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    loaderColor: {
+      type: String,
+      required: false,
+      default: "#000000",
+    },
   },
-
   data() {
     return {
       buttonClickedBool: false,
     };
   },
-
+  mounted() {
+    if (
+      this.loading &&
+      ["primary", "secondary", "textOnly"].includes(this.buttonType)
+    ) {
+      var elem = this.$refs.buttonContainer.getBoundingClientRect();
+      this.$refs.buttonContainer.style.width = elem.width + "px";
+      this.$refs.buttonContainer.style.height = elem.height + "px";
+    }
+  },
   computed: {
-    checkType() {
+    customClass() {
       let buttonClass = "";
       if (this.buttonType === "primary") {
-        buttonClass = "primary";
+        buttonClass = this.disabled ? "primary disabled" : "primary";
       } else if (this.buttonType === "secondary") {
-        buttonClass = "secondary";
+        buttonClass = this.disabled ? "secondary disabled" : "secondary";
       } else if (this.buttonType === "textOnly") {
-        buttonClass = "textOnly";
+        buttonClass = this.disabled ? "textOnly disabled" : "textOnly";
       } else if (this.buttonType === "iconOnly") {
-        buttonClass = "iconOnly";
+        buttonClass = this.disabled ? "iconOnly disabled" : "iconOnly";
       }
       return buttonClass;
     },
-
+    textCustomStyle() {
+      return {
+        textTransform:
+          this.buttonType == "primary" && this.capitalize
+            ? "uppercase"
+            : "inherit",
+        fontSize: this.fontSize ? this.fontSize + "px" : "inherit",
+        color: this.fontColor ? this.fontColor : "inherit",
+        padding: this.padding ? this.padding : "initial",
+      };
+    },
+    loaderCustomStyle() {
+      return {
+        width: this.iconCircle ? "30px" : "16px",
+        height: this.iconCircle ? "30px" : "16px",
+        borderTop: "2px solid " + this.loaderColor,
+      };
+    },
     imageURL() {
       if (this.state) {
         return require("./../../assets/icons/" + this.icon + "_true" + ".svg");
@@ -82,7 +183,6 @@ export default {
       return require("./../../assets/icons/" + this.icon + ".svg");
     },
   },
-
   methods: {
     buttonClicked() {
       if (this.loading) {
@@ -98,19 +198,19 @@ $border-radius: 5px;
 $primary-color: #7352ff;
 $secondary-color: #212121;
 $textOnly-color: #adadad;
-
-button {
-  font-family: "Roboto", sans-serif;
-  font-weight: medium;
-}
 .primary {
+  font-family: "Roboto", sans-serif;
+  font-weight: normal;
   border: none;
   border-radius: $border-radius;
-  width: 100%;
-  height: 48px;
   color: white;
+  display: flex;
+  white-space: nowrap;
   font-size: 14px;
-  min-width: 100px;
+  line-height: 1.5;
+  padding: 5px 8px;
+  width: fit-content;
+  height: fit-content;
   background-color: $primary-color;
   transition-property: background-color;
   transition-timing-function: ease-out;
@@ -127,24 +227,18 @@ button {
 .primary:active {
   background-color: #3c20b8;
 }
-.primary:disabled {
-  cursor: inherit;
-  background-color: rgb(220, 220, 220);
-  color: rgb(178, 178, 178);
-}
-.primary p {
-  text-transform: uppercase;
-}
-
 .secondary {
   font-family: "Roboto", sans-serif;
-  font-weight: medium;
-  border: 2px solid $secondary-color;
+  font-weight: normal;
+  border: 1px solid #777777;
   border-radius: $border-radius;
   font-size: 14px;
-  min-width: 100px;
-  width: 100%;
-  height: 48px;
+  display: flex;
+  line-height: 1.5;
+  white-space: nowrap;
+  width: fit-content;
+  height: fit-content;
+  padding: 4px 8px;
   background-color: #fff;
   color: $secondary-color;
   cursor: pointer;
@@ -156,18 +250,22 @@ button {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.secondary:disabled {
+.disabled {
   cursor: auto;
-  color: white;
-  border-color: rgb(36, 36, 36);
-  background-color: grey;
+  border-color: transparent;
+  background-color: rgb(220, 220, 220);
+  color: rgb(170, 170, 170);
 }
-
 .textOnly {
+  font-family: "Roboto", sans-serif;
+  font-weight: normal;
   border: none;
   border-radius: $border-radius;
+  display: flex;
   background-color: Transparent;
   font-size: 13px;
+  align-self: center;
+  white-space: nowrap;
   color: $textOnly-color;
   cursor: pointer;
   transition-property: color;
@@ -182,11 +280,13 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 .textOnly:disabled {
-  cursor: inherit;
+  cursor: auto;
   color: rgb(54, 54, 54);
 }
-
 .iconOnly {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -198,27 +298,18 @@ button {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.iconOnly:disabled {
-  cursor: auto;
-}
 .iconOnly img {
   display: block;
 }
-
 button:focus {
   outline: none;
 }
-
 .loader {
   margin: auto;
   border: 2px solid #ffffff;
-  border-top: 2px solid #000000;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
   animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
   0% {
     transform: rotate(0deg);

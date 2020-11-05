@@ -21,7 +21,8 @@
         !this.is_search_page &&
         !this.is_user_search_page &&
         !this.is_onboarding &&
-        !this.is_landing_page
+        !this.is_landing_page &&
+        !this.is_create_page
       "
     />
 
@@ -38,24 +39,12 @@
     />
 
     <MainNavigation
-      v-if="!this.is_onboarding && !this.is_landing_page"
+      v-if="
+        !this.is_onboarding && !this.is_landing_page && !this.is_create_page
+      "
       @update-api-counter="updateApiCounter"
     />
   </div>
-
-  <!-- <div v-else-if="(this.$store.state.session_id && !this.is_mobile)
-                  ||
-                  (!this.$store.state.session_id && this.is_content_page && !this.is_mobile)
-                  ||
-                  (!this.$store.state.session_id && this.is_profile_page && !this.is_mobile)" class="browser-alert"> -->
-  <!-- <div class="flibo-logo-desktop"/> -->
-  <!-- <h1>
-      Currently FLIBO works only on mobile browsers.
-    </h1>
-    <h1>
-      Please switch to a mobile device to use FLIBO.
-    </h1> -->
-  <!-- </div> -->
 
   <LandingPage
     v-else-if="
@@ -63,6 +52,10 @@
       !this.logging_out &&
       !this.is_signup_page &&
       !this.is_content_page &&
+      !this.is_activity_page &&
+      !this.is_ratings_page &&
+      !this.is_posts_page &&
+      !this.is_watchlist_page &&
       !this.is_search_page &&
       !this.is_search_results_page &&
       !this.is_profile_page &&
@@ -80,6 +73,10 @@
     v-else-if="
       this.is_signup_page |
         this.is_content_page |
+        this.is_activity_page |
+        this.is_ratings_page |
+        this.is_posts_page |
+        this.is_watchlist_page |
         this.is_profile_page |
         this.is_search_page |
         this.is_search_results_page |
@@ -139,6 +136,10 @@ export default {
       is_landing_page: false,
       is_signup_page: false,
       is_content_page: false,
+      is_activity_page: false,
+      is_ratings_page: false,
+      is_posts_page: false,
+      is_watchlist_page: false,
       is_profile_page: false,
       is_search_page: false,
       is_search_results_page: false,
@@ -146,6 +147,7 @@ export default {
       is_policy_page: false,
       is_alert_page: false,
       is_onboarding: false,
+      is_create_page: false,
       store: this.$store.state,
       ip_info: {
         ip: null,
@@ -178,15 +180,21 @@ export default {
           genre_filters: null,
         },
         watchlist: {
-          contents: "this.$store.state.watchlist",
+          contents: "this.$store.state.feed.watchlist.contents",
           feed: "this.$store.state.feed.watchlist.feed_list",
-          content_filter:
-            "this.$store.state.watchlist_filters.content_type_tab",
-          discover_filters: null,
-          platform_filters:
-            "this.$store.state.feed_filters.filters_applied.watchlist.platforms",
-          genre_filters:
-            "this.$store.state.feed_filters.filters_applied.watchlist.genres",
+          content_filter: "this.$store.state.feed.watchlist.content_type_tab",
+          discover_filters:
+            "this.$store.state.feed.watchlist.discover_type_tab",
+          platform_filters: "this.$store.state.feed.watchlist.platforms",
+          genre_filters: "this.$store.state.feed.watchlist.genres",
+        },
+        ratings: {
+          contents: "this.$store.state.feed.ratings.contents",
+          feed: "this.$store.state.feed.ratings.feed_list",
+          content_filter: "this.$store.state.feed.ratings.content_type_tab",
+          discover_filters: "this.$store.state.feed.ratings.discover_type_tab",
+          platform_filters: "this.$store.state.feed.ratings.platforms",
+          genre_filters: "this.$store.state.feed.ratings.genres",
         },
       },
     };
@@ -198,9 +206,6 @@ export default {
     },
     router_path: function () {
       return this.$route.path;
-    },
-    refreshFeed() {
-      return this.$store.state.suggestions.refresh_feed;
     },
   },
 
@@ -215,9 +220,19 @@ export default {
       handler: function (path) {
         this.is_signup_page = path.startsWith("/signup");
         this.is_content_page = path.startsWith("/content/");
+        this.is_activity_page =
+          path.startsWith("/review/") ||
+          path.startsWith("/request/") ||
+          path.startsWith("/suggest/") ||
+          path.startsWith("/activity/") ||
+          path.startsWith("/list/");
         this.is_profile_page = path.startsWith("/profile/");
+        this.is_ratings_page = path.startsWith("/ratings/");
+        this.is_posts_page = path.startsWith("/posts/");
+        this.is_watchlist_page = path.startsWith("/watchlist/");
         this.is_landing_page = path == "/";
         this.is_search_page = path == "/search";
+        this.is_create_page = path == "/create";
         this.is_search_results_page = path == "/search-results";
         this.is_user_search_page = path == "/search-users";
         this.is_policy_page = path == "/privacy-policy";
@@ -233,41 +248,33 @@ export default {
         }
       },
     },
-    refreshFeed: {
-      handler: function (refresh) {
-        if (refresh) {
-          var self = this;
-
-          var reset_info = {
-            parent: "home",
-            filters: true,
-            skip_suggestions_filter: false,
-            scroll: true,
-            paddings: true,
-            observer_current_index: true,
-            element_heights: true,
-          };
-          self.resetFeedPage(reset_info);
-
-          self.refreshDiscoverPage();
-
-          self.$store.state.suggestions.refresh_feed = false;
-        }
-      },
-    },
   },
 
   created() {
     var self = this;
+
+    this.store.window.width = window.innerWidth;
+    this.store.window.height = window.innerHeight;
+
     var route_session_id = this.$route.query.id;
     var is_webview = this.$route.query.webview;
     var store_session_id = this.$store.state.session_id;
     var current_path = this.$route.path;
     this.is_signup_page = current_path.startsWith("/signup");
     this.is_content_page = current_path.startsWith("/content/");
+    this.is_activity_page =
+      current_path.startsWith("/review/") ||
+      current_path.startsWith("/request/") ||
+      current_path.startsWith("/suggest/") ||
+      current_path.startsWith("/activity/") ||
+      current_path.startsWith("/list/");
     this.is_profile_page = current_path.startsWith("/profile/");
+    this.is_ratings_page = current_path.startsWith("/ratings/");
+    this.is_posts_page = current_path.startsWith("/posts/");
+    this.is_watchlist_page = current_path.startsWith("/watchlist/");
     this.is_landing_page = current_path == "/";
     this.is_search_page = current_path == "/search";
+    this.is_create_page = current_path == "/create";
     this.is_search_results_page = current_path == "/search-results";
     this.is_user_search_page = current_path == "/search-users";
     this.is_policy_page = current_path == "/privacy-policy";
@@ -277,12 +284,16 @@ export default {
 
     if (!route_session_id && !store_session_id && !this.is_signup_page) {
       if (
-        current_path.startsWith("/content/") |
-        current_path.startsWith("/profile/") |
-        this.is_search_page |
-        this.is_search_results_page |
-        this.is_policy_page |
-        this.is_alert_page |
+        current_path.startsWith("/content/") ||
+        current_path.startsWith("/profile/") ||
+        this.is_activity_page ||
+        this.is_ratings_page ||
+        this.is_posts_page ||
+        this.is_watchlist_page ||
+        this.is_search_page ||
+        this.is_search_results_page ||
+        this.is_policy_page ||
+        this.is_alert_page ||
         this.is_blog_page
       ) {
         if (this.$store.state.guest_id == null) {
@@ -461,14 +472,13 @@ export default {
             element_heights: true,
           };
 
-          var feed_parents = ["home", "search_results", "watchlist"];
+          var feed_parents = ["home", "search_results"];
           feed_parents.forEach(function (item, index) {
             reset_info.parent = item;
             self.resetFeedPage(reset_info);
           });
 
           this.refreshDiscoverPage();
-          this.updateWatchlist(true);
 
           this.$store.state.discover_filters.filtered_content = [];
           this.$store.state.discover_filters.more_filtered_content = [];
@@ -502,6 +512,7 @@ export default {
         if (
           current_path != "/" &&
           current_path != "/onboarding" &&
+          current_path != "/create" &&
           !this.is_signup_page
         ) {
           this.$store.state.current_path = this.$route.fullPath;
@@ -581,13 +592,6 @@ export default {
               ) {
                 self.refreshDiscoverPage();
               }
-
-              if (
-                self.$store.state.watchlist.length == 0 &&
-                !self.$store.state.feed.watchlist.fetching
-              ) {
-                self.updateWatchlist(true);
-              }
             }
 
             if (
@@ -618,6 +622,8 @@ export default {
             if (!self.$route.query.search) {
               self.updateDeviceInfo();
             }
+            self.$store.state.notifications.notifications =
+              response.data.notifications;
           });
 
         axios
@@ -641,9 +647,7 @@ export default {
         }
 
         self.timeout = setInterval(function () {
-          self.updateWatchlist(false);
           self.updateProfile();
-          self.updateFriendsPage();
         }, 2 * 60 * 1000);
       }
     } else if (this.is_signup_page) {
@@ -651,49 +655,6 @@ export default {
     }
   },
   methods: {
-    updateWatchlist(on_load) {
-      if (this.router_path != "/watchlist" || on_load) {
-        var self = this;
-        self.$store.state.feed.watchlist.fetching = true;
-        axios
-          .post(self.$store.state.api_host + "watchlist", {
-            session_id: self.$store.state.session_id,
-            country: self.$store.state.user.profile.country,
-          })
-          .then(function (response) {
-            if ([200].includes(response.status)) {
-              self.$store.state.watchlist = response.data.watchlist;
-              self.$store.state.feed.watchlist.feed_list = self.$store.state.watchlist.slice(
-                0,
-                self.$store.state.feed.defaultListSize
-              );
-
-              if (self.$route.path == "/watchlist") {
-                self.$nextTick(function () {
-                  self.$store.state.feed.update_dom = true;
-                });
-              }
-            } else {
-              // console.log(response.status);
-            }
-            self.$store.state.feed.watchlist.fetching = false;
-          })
-          .catch(function (error) {
-            self.$store.state.feed.watchlist.fetching = false;
-            // console.log(error);
-            if ([401, 419].includes(error.response.status)) {
-              window.location =
-                self.$store.state.login_host +
-                "logout?session_id=" +
-                self.$store.state.session_id;
-              self.$store.state.session_id = null;
-              self.logging_out = true;
-            } else {
-              // console.log(error.response.status);
-            }
-          });
-      }
-    },
     updateProfile() {
       if (
         !this.router_path.startsWith(
@@ -719,6 +680,8 @@ export default {
                 response.data.total_watched;
               self.$store.state.user.profile.contents_rated =
                 response.data.contents_rated;
+              self.$store.state.user.profile.watchlist =
+                response.data.watchlist;
               self.$store.state.user.profile.genres = response.data.genres;
               self.$store.state.user.profile.watched_timeline =
                 response.data.rating_timeline;
@@ -773,8 +736,6 @@ export default {
       var self = this;
       var new_friends = [];
       var index;
-      var friends_notification = false;
-      var requests_notification = false;
       axios
         .post(this.$store.state.api_host + "get_friends", {
           session_id: this.$store.state.session_id,
@@ -788,7 +749,6 @@ export default {
                 if (new_friends[user].friend_type == "friend") {
                   index = current_friends.indexOf(new_friends[user].friend_id);
                   if (index == -1) {
-                    friends_notification = true;
                     new_friends[user].highlight = true;
                   } else {
                     new_friends[user].highlight = false;
@@ -800,7 +760,6 @@ export default {
                 if (new_friends[user].friend_type == "unapproved") {
                   index = current_requests.indexOf(new_friends[user].friend_id);
                   if (index == -1) {
-                    requests_notification = true;
                     new_friends[user].highlight = true;
                   } else {
                     new_friends[user].highlight = false;
@@ -810,12 +769,6 @@ export default {
             }
 
             self.$store.state.friends_page.friends = new_friends;
-            if (friends_notification) {
-              self.$store.state.notifications.friends = true;
-            }
-            if (requests_notification) {
-              self.$store.state.notifications.requests = true;
-            }
           } else if ([204].includes(response.status)) {
             self.$store.state.friends_page.friends = [];
           }
@@ -836,39 +789,81 @@ export default {
     loggingOut() {
       this.logging_out = true;
     },
-    refreshDiscoverPage() {
+    refreshDiscoverPage(fetched_items = []) {
       var self = this;
-      self.$store.state.suggestions.fetching_suggestions = true;
+
+      var reset_info = {
+        parent: "home",
+        filters: true,
+        skip_suggestions_filter: false,
+        scroll: true,
+        paddings: true,
+        observer_current_index: true,
+        element_heights: true,
+      };
+      self.resetFeedPage(reset_info);
+
+      if (fetched_items.length) {
+        self.store.suggestions.fetching_feed_incremental = true;
+      } else {
+        self.$store.state.suggestions.fetching_suggestions = true;
+      }
+
       self.$store.state.notifications.suggestions = false;
 
       axios
         .post(self.$store.state.api_host + "flibo_feed", {
           session_id: self.$store.state.session_id,
           country: self.$store.state.user.profile.country,
+          fetched_items: fetched_items,
         })
         .then(function (response) {
           if ([200].includes(response.status)) {
-            self.$store.state.suggestions.contents = response.data.contents;
-            self.store.suggestions.feed_list = self.store.suggestions.contents.slice(
-              0,
-              self.$store.state.feed.defaultListSize
-            );
-            self.$store.state.suggestions.more_contents =
-              response.data.more_contents;
-            self.fetchRemaining();
+            if (fetched_items.length) {
+              self.$store.state.suggestions.contents.push(
+                ...response.data.contents
+              );
+              if (self.$route.path == "/discover") {
+                self.$store.state.feed_filters.apply_filters_wo_reset = true;
+              } else if (
+                self.$store.state.suggestions.feed_list.length <
+                self.$store.state.feed.defaultListSize
+              ) {
+                self.store.feed.home.apply_filters_on_create = true;
+              }
+            } else {
+              self.$store.state.suggestions.contents = response.data.contents;
+              self.store.suggestions.feed_list = self.store.suggestions.contents.slice(
+                0,
+                self.$store.state.feed.defaultListSize
+              );
 
-            if (self.$route.path == "/discover") {
-              self.$nextTick(function () {
-                self.$store.state.feed.update_dom = true;
-              });
+              self.refreshDiscoverPage(
+                response.data.contents.map((item) => item.action_id)
+              );
+
+              if (self.$route.path == "/discover") {
+                self.$nextTick(function () {
+                  self.$store.state.feed.update_dom = true;
+                });
+              }
             }
-          } else {
-            // console.log(response.status);
           }
-          self.$store.state.suggestions.fetching_suggestions = false;
+
+          if (fetched_items.length) {
+            self.store.suggestions.fetching_feed_incremental = false;
+          } else {
+            self.$store.state.suggestions.fetching_suggestions = false;
+          }
         })
         .catch(function (error) {
           // console.log(error);
+          if (fetched_items.length) {
+            self.store.suggestions.fetching_feed_incremental = false;
+          } else {
+            self.$store.state.suggestions.fetching_suggestions = false;
+          }
+
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -879,7 +874,6 @@ export default {
           } else {
             // console.log(error.response.status);
           }
-          self.$store.state.suggestions.fetching_suggestions = false;
         });
 
       axios
@@ -917,6 +911,15 @@ export default {
           content_id: Object.keys(activity).includes("content_id")
             ? activity.content_id
             : null,
+          profile_id: Object.keys(activity).includes("profile_id")
+            ? activity.profile_id
+            : null,
+          action_id: Object.keys(activity).includes("action_id")
+            ? activity.action_id
+            : null,
+          reaction_id: Object.keys(activity).includes("reaction_id")
+            ? activity.reaction_id
+            : null,
           rating: Object.keys(activity).includes("rating")
             ? activity.rating
             : null,
@@ -932,7 +935,10 @@ export default {
             : null,
         })
         .then(function (response) {
-          if (Object.keys(activity).includes("url")) {
+          if (
+            activity.api == "outbound_traffic" &&
+            Object.keys(activity).includes("url")
+          ) {
             window.open(activity.url);
           }
           if ([200].includes(response.status)) {
@@ -941,7 +947,10 @@ export default {
           }
         })
         .catch(function (error) {
-          if (Object.keys(activity).includes("url")) {
+          if (
+            activity.api == "outbound_traffic" &&
+            Object.keys(activity).includes("url")
+          ) {
             window.open(activity.url);
           }
           // console.log(error);
@@ -1176,47 +1185,6 @@ export default {
           }
         });
     },
-    fetchRemaining() {
-      var self = this;
-      self.store.suggestions.fetching_feed_incremental = true;
-
-      axios
-        .post(self.$store.state.api_host + "get_incremental_feed_contents", {
-          session_id: self.$store.state.session_id,
-          more_contents: self.$store.state.suggestions.more_contents.slice(),
-          country: self.$store.state.user.profile.country,
-        })
-        .then(function (response) {
-          if ([200].includes(response.status)) {
-            self.$store.state.suggestions.contents.push(
-              ...response.data.contents
-            );
-            if (self.$route.path == "/discover") {
-              self.$store.state.feed_filters.apply_filters_wo_reset = true;
-            } else if (self.$store.state.suggestions.feed_list.length < 25) {
-              self.store.feed.home.apply_filters_on_create = true;
-            }
-
-            self.$store.state.suggestions.more_contents = [];
-          } else {
-            // console.log(response.status);
-          }
-          self.store.suggestions.fetching_feed_incremental = false;
-        })
-        .catch(function (error) {
-          self.store.suggestions.fetching_feed_incremental = false;
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.logging_out = true;
-          } else {
-            // console.log(error.response.status);
-          }
-        });
-    },
     openContentPage(info) {
       this.$store.state.content_page.more_by_artist = null;
       this.$store.state.content_page.artist = null;
@@ -1305,6 +1273,7 @@ export default {
           session_id: this.$store.state.session_id,
           content_ids: [info.content_id],
           rating: info.user_rating,
+          privacy: this.$store.state.user.profile.profile_status || "public",
         })
         .then(function (response) {
           var index = self.$store.state.suggestions.rate_counter.indexOf(
@@ -1325,7 +1294,9 @@ export default {
                   }
                 )
                 .then(function (response) {
-                  self.$store.state.notifications.suggestions = true;
+                  if (response.data.notify) {
+                    self.$store.state.notifications.notifications = 1;
+                  }
                 });
             }
           }
@@ -1376,10 +1347,11 @@ export default {
           session_id: this.$store.state.session_id,
           content_id: info.content_id,
           status: info.watch_later ? false : true,
+          privacy: this.$store.state.user.profile.profile_status || "public",
         })
         .then(function (response) {
           if (response.status == 200) {
-            self.updateWatchlist(false);
+            // console.log(response.status);
           } else {
             // console.log(response.status);
           }
@@ -1411,20 +1383,34 @@ export default {
     resetFeedPage(info) {
       if (info.filters) {
         if (this.feed_mappings[info.parent].content_filter != null) {
-          eval(
-            this.feed_mappings[info.parent].content_filter +
-              ' = ["movie", "tv"]'
-          );
+          if (info.parent == "home") {
+            eval(
+              this.feed_mappings[info.parent].content_filter +
+                ' = ["movie", "tv", "pass_check"]'
+            );
+          } else {
+            eval(
+              this.feed_mappings[info.parent].content_filter +
+                ' = ["movie", "tv"]'
+            );
+          }
         }
 
         if (
           this.feed_mappings[info.parent].discover_filters != null &&
           !info.skip_suggestions_filter
         ) {
-          eval(
-            this.feed_mappings[info.parent].discover_filters +
-              ' = ["community", "friends", "flibo"]'
-          );
+          if (info.parent == "search_results") {
+            eval(
+              this.feed_mappings[info.parent].discover_filters +
+                ' = ["community", "friends", "flibo", "search_result"]'
+            );
+          } else {
+            eval(
+              this.feed_mappings[info.parent].discover_filters +
+                ' = ["community", "friends", "flibo"]'
+            );
+          }
         } else if (
           this.feed_mappings[info.parent].discover_filters != null &&
           info.skip_suggestions_filter
@@ -1441,6 +1427,10 @@ export default {
         if (this.feed_mappings[info.parent].genre_filters != null) {
           eval(this.feed_mappings[info.parent].genre_filters + " = []");
         }
+      }
+
+      if (info.parent == "home") {
+        eval("this.$store.state.feed." + info.parent + ".seenElements = []");
       }
 
       if (info.scroll) {
@@ -1462,6 +1452,12 @@ export default {
 
       if (info.element_heights) {
         eval("this.$store.state.feed." + info.parent + ".element_heights = {}");
+        eval(
+          "this.$store.state.feed." + info.parent + ".see_more_elements = []"
+        );
+        eval(
+          "this.$store.state.feed." + info.parent + ".element_comments = {}"
+        );
       }
     },
   },
@@ -1480,17 +1476,16 @@ export default {
   text-align: center;
 }
 
-.flibo-logo-desktop {
-  position: fixed;
-  display: block;
-  width: 150px;
-  height: 80px;
-  top: 0%;
-  background-image: url("./images/flibo-logo-dark.svg");
-  background-size: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
+
 .browser-alert {
   font-family: "Open Sans", sans-serif;
   text-align: center;

@@ -13,8 +13,8 @@
       class="no-card-message"
       v-if="
         store.rate.fetching_cards &&
-          !store.rate.visible_cards.length &&
-          is_mobile
+        !store.rate.visible_cards.length &&
+        is_mobile
       "
     >
       <div class="sk-folding-cube">
@@ -39,7 +39,7 @@ import axios from "axios";
 export default {
   name: "App",
   components: {
-    Swipe
+    Swipe,
   },
   data() {
     return {
@@ -58,7 +58,7 @@ export default {
           )) /
           2,
       store: this.$store.state,
-      tapOpenInstruction: false
+      tapOpenInstruction: false,
     };
   },
   created() {
@@ -66,9 +66,9 @@ export default {
     var self = this;
     axios
       .post(self.$store.state.api_host + "counts", {
-        session_id: self.$store.state.session_id
+        session_id: self.$store.state.session_id,
       })
-      .then(function(response) {
+      .then(function (response) {
         self.$store.state.suggestions.rate_counter_all =
           response.data.contents_rated;
         if (response.data.contents_rated < 25) {
@@ -88,8 +88,8 @@ export default {
     },
     updateApiCounter(activity) {
       this.$emit("update-api-counter", activity);
-    }
-  }
+    },
+  },
 };
 </script>
 

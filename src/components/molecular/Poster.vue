@@ -10,7 +10,7 @@
           class="poster"
           :style="'height: ' + 1.5 * containerWidth + 'px;'"
           alt="poster"
-          @click="openContent"
+          @click="openContentOnClick ? openContent() : $emit('clicked')"
         />
 
         <Trailer
@@ -125,6 +125,11 @@ export default {
       required: false,
       default: 1,
     },
+    openContentOnClick: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
 
   data() {
@@ -206,6 +211,7 @@ export default {
   grid-template-columns: 100%;
   grid-template-rows: 1fr 1fr;
   justify-items: center;
+  padding-bottom: 3px;
 }
 .poster {
   grid-row-start: 1;

@@ -1,23 +1,23 @@
 <template>
-  <div class="feed-filters-container">
-    <div style="overflow-x: scroll;">
+  <div
+    class="feed-filters-container"
+    :style="
+      parent == 'search_results'
+        ? 'display: flex; justify-content: center;'
+        : ''
+    "
+  >
+    <div style="overflow-x: scroll">
       <div class="feed-filters-top-row">
         <ContentFilter
-          class="content-filter"
+          :class="parent != 'search_results' ? 'content-filter' : ''"
           :parent="parent"
           v-on="$listeners"
         />
 
-        <SuggestionFilter
-          v-if="parent != 'watchlist'"
-          class="suggestion-filter"
-          :style="
-            parent == 'home'
-              ? store.notifications.suggestions
-                ? 'border-right: 1px solid #dfe1e5; padding-right: 15px;'
-                : 'border-right: 1px solid #dfe1e5; padding-right: 8px;'
-              : ''
-          "
+        <RatingFilter
+          v-if="['ratings'].includes(parent)"
+          class="rating-filter"
           :parent="parent"
           v-on="$listeners"
         />
@@ -25,7 +25,6 @@
         <PlatformFilter
           v-if="parent != 'search_results'"
           class="platform-filter"
-          :style="parent == 'watchlist' ? 'grid-column-start: 3;' : ''"
           :parent="parent"
           v-on="$listeners"
         />
@@ -41,9 +40,9 @@
     </div>
 
     <GenreFilter
-      v-if="parent == 'watchlist'"
+      v-if="['watchlist', 'ratings', 'suggestions'].includes(parent)"
       class="genre-filter"
-      parent="watchlist"
+      :parent="parent"
       v-on="$listeners"
     />
   </div>
@@ -51,17 +50,17 @@
 
 <script>
 import ContentFilter from "./../atomic/ContentFilter";
-import SuggestionFilter from "./../atomic/SuggestionFilter";
 import PlatformFilter from "./../atomic/PlatformFilter";
 import GenreFilter from "./../atomic/GenreFilter";
+import RatingFilter from "./../atomic/RatingFilter";
 
 export default {
   name: "app",
   components: {
     ContentFilter,
-    SuggestionFilter,
     PlatformFilter,
     GenreFilter,
+    RatingFilter,
   },
   props: {
     parent: {
@@ -89,30 +88,19 @@ export default {
   position: relative;
 }
 .feed-filters-top-row {
-  display: grid;
-  grid-template-columns: auto 8px auto 8px auto 8px auto;
-  grid-template-rows: auto;
+  display: flex;
   justify-items: center;
   width: fit-content;
   align-items: center;
 }
 .content-filter {
-  grid-row-start: 1;
-  grid-column-start: 1;
   border-right: 1px solid #dfe1e5;
   padding-right: 3px;
 }
-.suggestion-filter {
-  grid-row-start: 1;
-  grid-column-start: 3;
-}
-.platform-filter {
-  grid-row-start: 1;
-  grid-column-start: 5;
-}
-.more-filters {
-  grid-row-start: 1;
-  grid-column-start: 7;
+.rating-filter {
+  border-right: 1px solid #dfe1e5;
+  padding-right: 3px;
+  margin-left: 8px;
 }
 .more-filters-icon {
   height: 34px;

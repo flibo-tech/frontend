@@ -11,7 +11,7 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_ao == "undefined") {
+    if (typeof my_store.unused_key_au == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       localStorage.clear();
@@ -40,7 +40,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_ao: my_store ? my_store.unused_key_ao : true,
+    unused_key_au: my_store ? my_store.unused_key_au : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -63,6 +63,7 @@ export const store = new Vuex.Store({
               }
             },
         contents_rated: my_store ? my_store.user.profile.contents_rated : [],
+        watchlist: my_store ? my_store.user.profile.watchlist : [],
         genres: my_store
           ? my_store.user.profile.genres
           : {
@@ -127,7 +128,7 @@ export const store = new Vuex.Store({
       never_tapped_any_artist: my_store
         ? my_store.content_page.never_tapped_any_artist
         : true,
-      rerender: my_store ? my_store.content_page.rerender : false
+      rerender: false
     },
     click_coordinate_x: null,
     click_coordinate_y: null,
@@ -216,14 +217,14 @@ export const store = new Vuex.Store({
       rate_counter: my_store ? my_store.suggestions.rate_counter : [],
       rate_counter_all: my_store ? my_store.suggestions.rate_counter_all : 0,
       suggestions_ready_message_seen: true,
-      contents: my_store ? my_store.suggestions.contents : [],
+      contents: [],
       more_contents: my_store ? my_store.suggestions.more_contents : [],
       discover_type_tab: my_store
         ? my_store.suggestions.discover_type_tab
         : ["community", "friends", "flibo"],
       content_type_tab: my_store
         ? my_store.suggestions.content_type_tab
-        : ["movie", "tv"],
+        : ["movie", "tv", "pass_check"],
       last_fetch_time: my_store
         ? my_store.suggestions.last_fetch_time
         : 1000000000000,
@@ -237,7 +238,7 @@ export const store = new Vuex.Store({
         : false,
       users_suggestions: my_store ? my_store.suggestions.users_suggestions : [],
       notify: false,
-      feed_list: my_store ? my_store.suggestions.feed_list : [],
+      feed_list: [],
       observer_current_index: my_store
         ? my_store.suggestions.observer_current_index
         : 0,
@@ -262,7 +263,11 @@ export const store = new Vuex.Store({
         scroll_position: my_store ? my_store.feed.home.scroll_position : 0,
         observer_current_index: my_store
           ? my_store.feed.home.observer_current_index
-          : 0
+          : 0,
+        rating_tab: [1, 2, 3, "pass_check"],
+        see_more_elements: [],
+        element_comments: {},
+        seenElements: []
       },
       search_results: {
         apply_filters_on_create: false,
@@ -279,21 +284,93 @@ export const store = new Vuex.Store({
           : 0,
         observer_current_index: my_store
           ? my_store.feed.search_results.observer_current_index
-          : 0
+          : 0,
+        see_more_elements: [],
+        element_comments: {}
       },
       watchlist: {
+        contents: [],
         apply_filters_on_create: false,
-        element_heights: my_store
-          ? my_store.feed.watchlist.element_heights
-          : {},
-        feed_list: my_store ? my_store.feed.watchlist.feed_list : [],
-        fetching: my_store ? my_store.feed.watchlist.fetching : false,
-        padding_top: my_store ? my_store.feed.watchlist.padding_top : 0,
-        padding_bottom: my_store ? my_store.feed.watchlist.padding_bottom : 0,
-        scroll_position: my_store ? my_store.feed.watchlist.scroll_position : 0,
-        observer_current_index: my_store
-          ? my_store.feed.watchlist.observer_current_index
-          : 0
+        element_heights: {},
+        feed_list: [],
+        fetching: false,
+        fetching_incremental: false,
+        content_type_tab: ["movie", "tv"],
+        discover_type_tab: ["community", "friends", "flibo", "self"],
+        platforms: [],
+        genres: [],
+        padding_top: 0,
+        padding_bottom: 0,
+        scroll_position: 0,
+        observer_current_index: 0,
+        see_more_elements: [],
+        element_comments: {}
+      },
+      ratings: {
+        contents: [],
+        apply_filters_on_create: false,
+        element_heights: {},
+        feed_list: [],
+        fetching: false,
+        fetching_incremental: false,
+        content_type_tab: ["movie", "tv"],
+        discover_type_tab: ["community", "friends", "flibo", "self"],
+        rating_tab: [1, 2, 3],
+        platforms: [],
+        genres: [],
+        padding_top: 0,
+        padding_bottom: 0,
+        scroll_position: 0,
+        observer_current_index: 0,
+        see_more_elements: [],
+        element_comments: {}
+      },
+      posts: {
+        contents: [],
+        apply_filters_on_create: false,
+        type: null,
+        element_heights: {},
+        feed_list: [],
+        fetching: false,
+        fetching_incremental: false,
+        content_type_tab: ["movie", "tv", "pass_check"],
+        discover_type_tab: ["community", "friends", "flibo", "self"],
+        padding_top: 0,
+        padding_bottom: 0,
+        scroll_position: 0,
+        observer_current_index: 0,
+        see_more_elements: [],
+        element_comments: {}
+      },
+      notifications: {
+        contents: [],
+        apply_filters_on_create: false,
+        element_heights: {},
+        feed_list: [],
+        fetching: false,
+        fetching_incremental: false,
+        padding_top: 0,
+        padding_bottom: 0,
+        scroll_position: 0,
+        observer_current_index: 0,
+      },
+      suggestions: {
+        contents: [],
+        apply_filters_on_create: false,
+        element_heights: {},
+        feed_list: [],
+        fetching: false,
+        fetching_incremental: false,
+        content_type_tab: ["movie", "tv"],
+        discover_type_tab: ["flibo"],
+        platforms: [],
+        genres: [],
+        padding_top: 0,
+        padding_bottom: 0,
+        scroll_position: 0,
+        observer_current_index: 0,
+        see_more_elements: [],
+        element_comments: {}
       }
     },
     feed_filters: {
@@ -425,9 +502,7 @@ export const store = new Vuex.Store({
       last_fetch_time: my_store
         ? my_store.discover_filters.last_fetch_time
         : 1000000000000,
-      discover_type_tab: my_store
-        ? my_store.discover_filters.discover_type_tab
-        : ["community", "friends", "flibo"]
+      discover_type_tab: ["community", "friends", "flibo", "search_result"]
     },
     watchlist: my_store ? my_store.watchlist : [],
     watchlist_filters: {
@@ -466,7 +541,8 @@ export const store = new Vuex.Store({
       requests: my_store ? my_store.notifications.requests : false,
       never_seen_profile_switch: my_store
         ? my_store.notifications.never_seen_profile_switch
-        : true
+        : true,
+      notifications: 0
     },
     friends_page: {
       friends: my_store ? my_store.friends_page.friends : []
@@ -484,28 +560,28 @@ export const store = new Vuex.Store({
     },
     countries: my_store ? my_store.countries : [],
     quotes: [
-      "Wash your hands regularly.",
-      "Don't touch your face.",
-      "Don't wear a mask unless you’re sick.",
-      "Wear a mask if you're sick.",
-      "Don't travel if you have a fever.",
-      "Practice social distancing.",
-      "Do not propagate hostility against Asians.",
-      "Do seek help early if you have a fever.",
-      "Cough into the crook of your elbow.",
-      "Stay home. Save lives.",
-      "Don't believe everything on the internet.",
-      "Be at an arm's length from a sick person.",
-      "Avoid international travel.",
-      "Avoid handshakes & hugs.",
-      "Avoid self medication such as antibiotics.",
-      "Drink warm liquids.",
-      "Work from home if possible.",
-      "Do not stockpile on masks.",
-      "Don't spread rumours or panic.",
-      "This too shall pass.",
-      "Don't worry, be happy.",
-      "Everything's gonna be alright."
+      "\"Hope is a good thing, maybe the best of things. And no good thing ever dies.\"",
+      "\"No matter what anybody tells you, words and ideas can change the world.\"",
+      "\"The world moves for love. It kneels before it in awe.\"",
+      "\"I figure life's a gift, and I don't intend on wasting it.\"",
+      "\"I'm not a smart man, but I know what love is.\"",
+      "\"I never look back. It distracts from the now.\"",
+      "\"It's not who you are underneath, it's what you do that defines you.\"",
+      "\"The past can hurt. But the way I see it, you can either run from it or learn from it.\"",
+      "\"It's hard to stay mad when there's so much beauty in the world.\"",
+      "\"We accept the love we think we deserve.\"",
+      "\"The past is just a story we tell ourselves.\"",
+      "\"You mustn't be afraid to dream a little bigger, darling.\"",
+      "\"Every passing minute is another chance to turn it all around.\"",
+      "\"Our lives are defined by opportunities. Even the ones we miss.\"",
+      "\"Just keep swimming.\"",
+      "\"I don't want to survive. I want to live.\"",
+      "\"It's only after we've lost everything that we're free to do anything.\"",
+      "\"All those moments will be lost in time… like tears in rain.\"",
+      "\"Get busy living, or get busy dying.\"",
+      "\"Hope. It is the only thing stronger than fear.\"",
+      "\"Life is like a box of chocolates, you never know what you're gonna get.\"",
+      "\"Let's just allow ourselves to be whatever it is we are.\"",
     ],
     country_mappings: {
       AU: "Australia",
@@ -523,6 +599,24 @@ export const store = new Vuex.Store({
       ES: "Spain",
       GB: "United Kingdom",
       US: "United States"
-    }
+    },
+    create: {
+      type: null,
+      content: null,
+      ids: [],
+      image: null,
+      includeImage: my_store ? my_store.create.includeImage : false,
+      processedContent: "",
+      spoiler: false,
+      never_tapped_spoiler: my_store
+        ? my_store.create.never_tapped_spoiler
+        : true
+    },
+    letNavAutoHide: true,
+    window: {
+      width: null,
+      height: null
+    },
+    hostName: window.location.hostname
   }
 });

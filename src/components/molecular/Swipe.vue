@@ -76,9 +76,7 @@
     </div>
 
     <div v-if="!is_mobile" class="browser-swipe-alert">
-      <h1>
-        Rating functionality for desktop is being developed.
-      </h1>
+      <h1>Rating functionality for desktop is being developed.</h1>
       <h1>
         To use 'Swipe to Rate' feature, please use our
         <a
@@ -393,6 +391,7 @@ export default {
             session_id: this.$store.state.session_id,
             content_ids: [last_content_id],
             rating: 0,
+            privacy: this.$store.state.user.profile.profile_status || "public",
           })
           .then(function (response) {
             var index = self.$store.state.suggestions.rate_counter.indexOf(
@@ -417,7 +416,9 @@ export default {
                     if (self.$route.path == "/onboarding") {
                       self.$store.state.suggestions.refresh_feed = true;
                     } else {
-                      self.$store.state.notifications.suggestions = true;
+                      if (response.data.notify) {
+                        self.$store.state.notifications.notifications = 1;
+                      }
                     }
                   });
               }

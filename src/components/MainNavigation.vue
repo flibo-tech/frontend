@@ -10,60 +10,70 @@
           : 'width: 1000px;left: calc(50vw - 500px);box-shadow: black 0px -7px 8px -10px;display: flex;align-items: center;'
       "
       :class="{ 'main-navigation--hidden': !showNavbar }"
+      v-if="
+        this.$store.state.session_id
+          ? !RegExp(/^\/(review|request|suggest|activity|list)\/.*$/).test(
+              $route.path
+            )
+          : true
+      "
     >
       <nav v-if="this.$store.state.session_id">
         <div
-          class="main-icon discover"
-          v-bind:class="{ active: isDiscover }"
+          class="main-icon"
+          v-bind:class="{ active: isDiscover && !promptPost }"
           @click="GoToDiscover"
         >
-          <transition
-            appear
-            :enter-active-class="
-              store.suggestions.rate_counter_all > 25
-                ? 'animated fadeIn'
-                : 'animated fadeIn'
-            "
-            leave-active-class="animated fadeOut"
-          >
-            <button
-              v-if="
-                isSuggNotification && store.suggestions.rate_counter_all >= 25
-              "
-              class="nav-suggestions-notification"
-              :style="is_mobile ? '' : 'right: 70px;'"
-            />
-          </transition>
+          <img
+            class="discover"
+            :src="require('./../images/home-icon.svg')"
+            alt="home-icon"
+          />
           <span class="home-text"> Home </span>
         </div>
 
         <div
-          class="main-icon search"
-          v-bind:class="{ active: isSearch }"
+          class="main-icon"
+          v-bind:class="{ active: isSearch && !promptPost }"
           @click="GoToSearch"
         >
+          <img
+            class="search"
+            :src="require('./../images/search-icon.svg')"
+            alt="search-icon"
+          />
           <span class="search-text"> Search </span>
         </div>
 
         <div
-          class="main-icon rate"
-          v-bind:class="{ active: isRate }"
+          class="main-icon"
+          v-bind:class="{ active: promptPost }"
+          @click="promptPost = true"
+        >
+          <img
+            class="post"
+            :src="require('./../images/plus.svg')"
+            alt="post-icon"
+          />
+          <span class="search-text"> Post </span>
+        </div>
+
+        <div
+          class="main-icon"
+          v-bind:class="{ active: isRate && !promptPost }"
           @click="GoToRate"
         >
+          <img
+            class="rate"
+            :src="require('./../images/heart.svg')"
+            alt="rate-icon"
+          />
           <span class="rate-text"> Rate </span>
         </div>
 
         <div
-          class="main-icon watchlist"
-          v-bind:class="{ active: isWatchlist }"
-          @click="GoToWatchlist"
-        >
-          <span class="watchlist-text"> Watchlist </span>
-        </div>
-
-        <div
           class="main-icon profile"
-          v-bind:class="{ active: isProfile }"
+          v-bind:class="{ active: isProfile && !promptPost }"
           @click="GoToUserProfile"
         >
           <div class="pp-cropper">
@@ -73,11 +83,6 @@
               onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
             />
           </div>
-          <button
-            v-if="store.notifications.friends | store.notifications.requests"
-            class="nav-suggestions-notification"
-            :style="is_mobile ? '' : 'right: 70px;'"
-          />
           <span class="profile-text"> Profile </span>
         </div>
       </nav>
@@ -106,22 +111,23 @@
         <span> iOS (M-Site) </span>
       </div>
     </div>
+
+    <CreatePostPrompt v-if="promptPost" @close="promptPost = false" />
+    <div
+      class="post-prompt-bg"
+      v-if="promptPost"
+      @click="promptPost = false"
+    ></div>
   </div>
 </template>
 
 <script>
-import SearchBar from "./SearchBar";
+import CreatePostPrompt from "./molecular/CreatePostPrompt";
 
 export default {
   name: "App",
   components: {
-    SearchBar,
-  },
-  props: {
-    active: {
-      type: Boolean,
-      required: false,
-    },
+    CreatePostPrompt,
   },
   data() {
     return {
@@ -132,9 +138,9 @@ export default {
       isRate: false,
       isSearch: false,
       isDiscover: false,
-      isWatchlist: false,
       isProfile: false,
       is_policy_page: false,
+      promptPost: false,
     };
   },
   created() {
@@ -152,12 +158,6 @@ export default {
       this.isDiscover = false;
     }
 
-    if (this.$route.path == "/watchlist") {
-      this.isWatchlist = true;
-    } else {
-      this.isWatchlist = false;
-    }
-
     if (this.$route.path == "/more") {
       this.isProfile = true;
     } else {
@@ -171,22 +171,8 @@ export default {
     }
   },
   computed: {
-    my_active: function () {
-      return this.active;
-    },
-    isSuggNotification: function () {
-      return this.$store.state.notifications.suggestions;
-    },
     router_path: function () {
       return this.$route.path;
-    },
-    discover_type_tab_string() {
-      return JSON.stringify(
-        this.$store.state.suggestions.discover_type_tab
-      ).replace(/['"]+/g, "");
-    },
-    toggle_search() {
-      return this.$store.state.toggle_search;
     },
   },
   watch: {
@@ -202,12 +188,6 @@ export default {
           this.isDiscover = true;
         } else {
           this.isDiscover = false;
-        }
-
-        if (path == "/watchlist") {
-          this.isWatchlist = true;
-        } else {
-          this.isWatchlist = false;
         }
 
         if (
@@ -244,7 +224,6 @@ export default {
       this.isRate = true;
       this.isSearch = false;
       this.isDiscover = false;
-      this.isWatchlist = false;
       this.isProfile = false;
     },
     GoToDiscover() {
@@ -252,18 +231,8 @@ export default {
       this.isRate = false;
       this.isSearch = false;
       this.isDiscover = true;
-      this.isWatchlist = false;
       this.isProfile = false;
       this.$emit("update-api-counter", { api: "home_button" });
-    },
-    GoToWatchlist() {
-      this.$router.push("/watchlist");
-      this.isRate = false;
-      this.isSearch = false;
-      this.isDiscover = false;
-      this.isWatchlist = true;
-      this.isProfile = false;
-      this.$emit("update-api-counter", { api: "watchlist" });
     },
     GoToUserProfile() {
       this.$router.push(
@@ -275,7 +244,6 @@ export default {
       this.isRate = false;
       this.isSearch = false;
       this.isDiscover = false;
-      this.isWatchlist = false;
       this.isProfile = true;
       this.$emit("update-api-counter", { api: "profile" });
     },
@@ -284,7 +252,6 @@ export default {
       this.isRate = false;
       this.isSearch = true;
       this.isDiscover = false;
-      this.isWatchlist = false;
       this.isProfile = false;
     },
     onScroll() {
@@ -298,7 +265,11 @@ export default {
       if (Math.abs(currentScrollPosition - this.lastScrollPosition) < 0) {
         return;
       }
-      this.showNavbar = currentScrollPosition < this.lastScrollPosition;
+      if (this.store.letNavAutoHide) {
+        this.showNavbar = currentScrollPosition < this.lastScrollPosition;
+      } else {
+        this.showNavbar = false;
+      }
       this.lastScrollPosition = currentScrollPosition;
     },
     getNumFromStyle: (numStr) => Number(numStr.substring(0, numStr.length - 2)),
@@ -331,14 +302,13 @@ export default {
   border-bottom: 2px solid rgb(143, 179, 245);
 }
 .pp-cropper {
-  width: 35px;
-  height: 35px;
+  width: 32px;
+  height: 32px;
   top: 0px;
   margin: 0 auto;
   position: relative;
   overflow: hidden;
   border-radius: 50%;
-  border: 0.5px solid #f3f3f3;
   z-index: 2;
 }
 .profile-picture {
@@ -364,18 +334,6 @@ h3 {
 button {
   margin-left: 10px;
 }
-.nav-suggestions-notification {
-  position: absolute;
-  top: 12px;
-  right: 18%;
-  height: 7px;
-  width: 7px;
-  background-image: url("./../images/red_dot.png");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  border: none;
-  outline: 0;
-}
 .main-navigation {
   position: fixed;
   bottom: 0;
@@ -394,153 +352,78 @@ button {
 }
 .main-navigation nav {
   display: flex;
+  align-items: stretch;
+  justify-content: space-around;
   height: 55px;
 }
 .main-icon {
-  flex-grow: 1;
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly;
+  align-items: center;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
   cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
+  width: 50px;
 }
-.main-icon.notification::before {
-  display: inline-block;
-  content: "";
-  position: absolute;
-  top: 12px;
-  right: 18%;
-  width: 7px;
-  height: 7px;
-  background-color: #f1300e;
-  border-radius: 20px;
+.main-icon .rate {
+  width: 31px;
 }
-.main-icon.rate {
-  background-image: url("./../images/heart.svg");
-  background-size: 31px;
-  top: -8px;
-}
-.main-icon.rate.active span {
+.main-icon.active span {
   font-weight: 900;
   color: black;
 }
-.main-icon.search {
-  background-image: url("./../images/search-icon.svg");
-  background-size: 28px;
-  top: -8px;
+.main-icon .search {
+  width: 28px;
 }
-.main-icon.search.active span {
-  font-weight: 900;
-  color: black;
+.main-icon .post {
+  width: 31px;
 }
-.main-icon.discover {
-  background-image: url("./../images/home-icon.svg");
-  background-size: 28px;
-  top: -8px;
-}
-.main-icon.discover.active span {
-  font-weight: 900;
-  color: black;
-}
-.main-icon.watchlist {
-  background-image: url("./../images/watchlist-icon.svg");
-  background-size: 24px;
-  top: -8px;
-}
-.main-icon.watchlist.active span {
-  font-weight: 900;
-  color: black;
-}
-.main-icon.profile {
-  width: 0%;
-  top: -8px;
-}
-.main-icon.profile.active span {
-  font-weight: 900;
-  color: black;
-}
-.search-page {
-  position: fixed;
-  top: 0%;
-  width: 100%;
-  height: 100vh;
-  background-color: #fffffffa;
-  z-index: 10000;
-}
-.search-page .search-box {
-  width: 260%;
+.main-icon .discover {
+  width: 28px;
 }
 .home-text {
-  position: absolute;
-  bottom: -6px;
   width: 100%;
   font-size: 11px;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
-  line-height: 1.36;
+  line-height: 1;
   letter-spacing: normal;
   text-align: center;
   color: #575757;
 }
 .search-text {
-  position: absolute;
-  bottom: -6px;
   width: 100%;
   font-size: 11px;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
-  line-height: 1.36;
+  line-height: 1;
   letter-spacing: normal;
   text-align: center;
   color: #575757;
 }
 .rate-text {
-  position: absolute;
-  bottom: -6px;
   width: 100%;
   font-size: 11px;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
-  line-height: 1.36;
-  letter-spacing: normal;
-  text-align: center;
-  color: #575757;
-}
-.watchlist-text {
-  position: absolute;
-  bottom: -6px;
-  width: 100%;
-  font-size: 11px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.36;
+  line-height: 1;
   letter-spacing: normal;
   text-align: center;
   color: #575757;
 }
 .profile-text {
-  position: absolute;
-  bottom: -6px;
   width: 100%;
   font-size: 11px;
   font-weight: normal;
   font-stretch: normal;
   font-style: normal;
-  line-height: 1.36;
+  line-height: 1;
   letter-spacing: normal;
   text-align: center;
   color: #575757;
@@ -701,5 +584,24 @@ button {
   line-height: 1.17;
   letter-spacing: normal;
   color: #333333;
+}
+.post-prompt-bg {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: table;
+  top: 0%;
+  left: 0%;
+  z-index: 1000000;
+  animation: 0.2s ease-out 0s 1 load;
+}
+@keyframes load {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>

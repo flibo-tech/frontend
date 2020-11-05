@@ -17,12 +17,13 @@
     </div>
 
     <div
-      style="position: relative; width: 95%; margin-left: 2.5%;"
+      style="position: relative; width: 95%; margin-left: 2.5%"
       v-if="!fetching_profile | own_profile"
     >
       <div :class="is_mobile ? 'profile-cover' : 'desktop-profile-cover'">
         <img
           v-for="(item, index) in posters"
+          :key="'poster-' + (index + 1)"
           v-bind:class="'poster-' + (index + 1)"
           @click="
             openContent(
@@ -36,6 +37,7 @@
 
         <img
           v-for="(item, index) in covers"
+          :key="'cover-' + (index + 1)"
           v-bind:class="'cover-' + (index + 1)"
           @click="
             openContent(
@@ -60,77 +62,96 @@
 
       <div
         :class="is_mobile ? 'user-name' : 'desktop-user-name'"
-        :style="own_profile ? '' : 'width: 50%;margin-left: 25%;'"
+        :style="own_profile ? '' : 'width: 90%;margin-left: 5%;'"
       >
-        <h4>
+        <h4
+          :style="
+            own_profile
+              ? 'display: flex; justify-content: center; align-items: center;'
+              : 'display: flex; flex-direction: column; justify-content: center; align-items: center;'
+          "
+        >
           {{ user_name }}
 
-          <span
-            class="share-icon"
-            v-if="own_profile"
-            @click="promptShareProfile"
-          />
-
-          <span
-            class="friendship-status"
-            v-if="['other', 'request_sent', 'friend'].includes(user_type)"
-            @click="
-              user_type == 'friend'
-                ? (prompt = true)
-                : ['request_sent'].includes(user_type)
-                ? unfriend('request_sent')
-                : ['other'].includes(user_type)
-                ? sendRequest()
-                : ''
-            "
+          <div
             :style="
-              ['other'].includes(user_type)
-                ? `color: #ffffff;
-                                                                                    background-color: #3366BB;
-                                                                                    padding: 5px;
-                                                                                    border: none;`
-                : ''
+              own_profile ? 'display: flex;' : 'display: flex; margin-top: 8px'
             "
           >
-            {{
-              user_type == "friend"
-                ? "Connection"
-                : ["request_sent"].includes(user_type)
-                ? "Requested"
-                : ["other"].includes(user_type)
-                ? "Connect"
-                : ""
-            }}
-          </span>
+            <span
+              class="friendship-status"
+              v-if="['other', 'request_sent', 'friend'].includes(user_type)"
+              @click="
+                user_type == 'friend'
+                  ? (prompt = true)
+                  : ['request_sent'].includes(user_type)
+                  ? unfriend('request_sent')
+                  : ['other'].includes(user_type)
+                  ? sendRequest()
+                  : ''
+              "
+              :style="
+                ['other'].includes(user_type)
+                  ? `color: #ffffff;
+                                                                                      background-color: #3366BB;
+                                                                                      padding: 5px;
+                                                                                      border: none;`
+                  : ''
+              "
+            >
+              {{
+                user_type == "friend"
+                  ? "Connection"
+                  : ["request_sent"].includes(user_type)
+                  ? "Requested"
+                  : ["other"].includes(user_type)
+                  ? "Connect"
+                  : ""
+              }}
+            </span>
 
-          <span
-            v-if="user_type == 'unapproved'"
-            class="approve-request"
-            @click="approveRequest"
-          >
-            Accept
-          </span>
+            <span
+              v-if="user_type == 'unapproved'"
+              class="approve-request"
+              @click="approveRequest"
+            >
+              Accept
+            </span>
 
-          <span
-            v-if="user_type == 'unapproved'"
-            class="reject-request"
-            @click="unfriend('unapproved')"
-          >
-            Reject
-          </span>
+            <span
+              v-if="user_type == 'unapproved'"
+              class="reject-request"
+              @click="unfriend('unapproved')"
+            >
+              Reject
+            </span>
+
+            <Button
+              :style="
+                own_profile
+                  ? 'transform: rotate(22deg); margin-left: 16px;'
+                  : 'transform: rotate(22deg); margin-left: 16px; margin-top: -4px;'
+              "
+              icon="send_outline"
+              buttonType="iconOnly"
+              :size="25"
+              @clicked="share_profile_banner = true"
+            />
+          </div>
         </h4>
       </div>
 
-      <div :class="is_mobile ? 'profile-details' : 'desktop-profile-details'">
+      <div
+        v-if="own_profile"
+        :class="is_mobile ? 'profile-details' : 'desktop-profile-details'"
+      >
         <div
           class="profile-status"
           v-if="own_profile"
           @click="update_profile_status = !update_profile_status"
         >
           <div :style="profile_status_icon" />
-          <div class="profile-status-title">
-            Status
-          </div>
+          <div class="profile-status-title">Status</div>
         </div>
 
         <div
@@ -139,36 +160,22 @@
           v-if="own_profile"
         >
           Connections
-          <span style="font-size: 22px; position: relative;">
+          <span style="font-size: 22px; position: relative">
             {{ store.friends_page.friends.length }}
-          </span>
-
-          <button
-            v-if="store.notifications.friends | store.notifications.requests"
-            class="profile-connections-notification"
-            :style="is_mobile ? '' : 'margin-left: 41px;'"
-          />
-        </div>
-
-        <div
-          class="profile-connections"
-          style="width: 45px; margin-left: calc(33.33% - 75.5px);"
-          @click="profile_vies_desc = !profile_vies_desc"
-          v-if="own_profile & profile_vies_desc"
-        >
-          Views
-          <span style="font-size: 22px; position: relative;">
-            {{ profile_views }}
           </span>
         </div>
 
         <div
           class="profile-views"
           @click="profile_vies_desc = !profile_vies_desc"
-          v-if="own_profile & !profile_vies_desc"
+          v-if="own_profile"
         >
-          <div class="profile-views-icon" />
-          <div class="profile-views-count">
+          <div v-if="!profile_vies_desc" class="profile-views-icon" />
+          <div style="margin-top: 7px; font-size: 15px" v-else>Views</div>
+          <div
+            class="profile-views-count"
+            :style="profile_vies_desc ? 'margin-top: 0px;' : ''"
+          >
             {{ profile_views }}
           </div>
         </div>
@@ -176,11 +183,6 @@
         <div
           class="profile-more"
           v-if="own_profile"
-          :style="
-            profile_vies_desc
-              ? 'margin-left: calc(33.33% - 70.5px - 37.5px);'
-              : ''
-          "
           @click="openProfileMore = !openProfileMore"
         />
       </div>
@@ -197,11 +199,7 @@
             @click="openProfileMore = false"
           />
           <div class="profile-more-options" v-if="openProfileMore">
-            <div
-              class="profile-more-option"
-              style="margin-top: 10px;"
-              @click="$router.push('/settings')"
-            >
+            <div class="profile-more-option" @click="$router.push('/settings')">
               <div :style="profile_more_settings" />
               <span class="profile-more-option-text">
                 Country & Platforms
@@ -210,22 +208,20 @@
 
             <div
               class="profile-more-option"
-              style="margin-top: 5px;"
+              style="margin-top: 16px"
               @click="goToAboutUs"
             >
               <div class="profile-more-about-us" />
-              <span class="profile-more-option-text">
-                About Us
-              </span>
+              <span class="profile-more-option-text"> About Us </span>
             </div>
 
             <div
               class="profile-more-option"
-              style="margin-bottom: 1px;"
+              style="margin-top: 8px"
               @click="logOut"
             >
               <div class="profile-more-logout" />
-              <span class="profile-more-option-text" style="color: #f54029;">
+              <span class="profile-more-option-text" style="color: #f54029">
                 Logout
               </span>
             </div>
@@ -307,8 +303,8 @@
             <div
               :style="
                 is_mobile
-                  ? 'text-align:left; padding:2%;font-size: 3.4vw;'
-                  : 'text-align:left; padding-bottom:10px;font-size: 15px;'
+                  ? 'text-align:left; padding:8px;font-size: 16px;'
+                  : 'text-align:left; padding-bottom:10px;font-size: 16px;'
               "
             >
               Your profile items should be visible to...
@@ -409,6 +405,17 @@
               />
               <span class="profile-status-checkmark-text">Only Me</span>
             </div>
+
+            <div
+              style="
+                font-size: 12px;
+                margin-top: 16px;
+                text-align: left;
+                padding: 8px;
+              "
+            >
+              This does not change privacy of your posts.
+            </div>
           </div>
         </div>
       </transition>
@@ -441,7 +448,7 @@
       </div>
 
       <div class="total-watched-container">
-        <span style="font-weight: bold; font-size: 15px;">
+        <span style="font-weight: bold; font-size: 15px">
           {{ own_profile ? "You have" : user_name.split(" ")[0] + " has" }}
           watched...
         </span>
@@ -449,12 +456,8 @@
         <div :class="is_mobile ? 'total-watched' : 'desktop-total-watched'">
           {{ total_watched[content_type].total }}
 
-          <span v-if="content_type == 'movie'">
-            Movies
-          </span>
-          <span v-if="content_type == 'tv'">
-            TV Series
-          </span>
+          <span v-if="content_type == 'movie'"> Movies </span>
+          <span v-if="content_type == 'tv'"> TV Series </span>
         </div>
         <div
           :class="
@@ -465,108 +468,64 @@
         </div>
       </div>
 
-      <div
-        class="profile-ratings"
-        v-if="
-          filtered_ratings(3).length |
-            filtered_ratings(2).length |
-            filtered_ratings(1).length
-        "
-      >
-        <span style="font-weight: bold; font-size: 15px;">
-          {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }} ratings...
-        </span>
-        <span
-          class="reset-ratings"
-          v-if="own_profile"
-          @click="reset_ratings_banner = !reset_ratings_banner"
+      <div class="profile-ratings" v-if="filtered_ratings.length">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 31px;
+            margin-bottom: 4px;
+          "
         >
-          Reset Ratings
-        </span>
+          <span style="font-weight: bold; font-size: 15px">
+            {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
+            ratings...
+          </span>
 
-        <div style="display: flex;" v-if="filtered_ratings(3).length">
-          <div
-            class="profile-love-true"
-            :style="
-              is_mobile
-                ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;'
-                : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'
-            "
-          />
-
-          <div
-            :class="
-              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
-            "
+          <transition
+            appear
+            enter-active-class="animated fastFadeIn"
+            leave-active-class="animated fastFadeOut"
           >
-            <div
-              v-for="(item, index) in contents_rated"
-              :key="index"
-              v-if="item.type == content_type && [3].includes(item.rating)"
-              class="ratings-item-container"
-            >
-              <Poster
-                :class="
-                  is_mobile
-                    ? 'ratings-item-poster'
-                    : 'desktop-ratings-item-poster'
-                "
-                :containerWidth="is_mobile ? 106 : 150"
-                :contentId="item.content_id"
-                :title="item.title"
-                :image="item.poster"
-                :showTrailer="false"
-                :whereToWatch="own_profile ? {} : item.where_to_watch"
-                :userPlatforms="
-                  store.user.id ? store.user.profile.platforms || [''] : ['']
-                "
-                :showName="false"
-                :parent="'profile_' + (own_profile ? 'self' : 'other')"
-                posterLocation="ratings"
-                :scalePlatformsSize="1.2"
-                v-on="$listeners"
-              />
-
-              <UserRating
-                v-if="own_profile"
-                :class="
-                  is_mobile
-                    ? 'profile-user-rating-container'
-                    : 'desktop-profile-user-rating-container'
-                "
-                :rating="item.rating"
-                :iconSize="25"
-                @update-rating="
-                  (userRating) => {
-                    submitRating(item.content_id, userRating, index);
-                  }
-                "
-              />
-            </div>
-          </div>
+            <!-- height of following button also affects min-height of parent -->
+            <Button
+              v-if="rating_items > 10 && showAllRatingsMainButton"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToRatings"
+            />
+          </transition>
         </div>
 
-        <div style="display: flex;" v-if="filtered_ratings(2).length">
-          <div
-            class="profile-thumbs-up-true"
-            :style="
-              is_mobile
-                ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;'
-                : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'
-            "
-          />
-
+        <div style="display: flex">
           <div
             :class="
               is_mobile ? 'ratings-container' : 'desktop-ratings-container'
             "
+            id="ratings-container"
           >
             <div
-              class="ratings-item-container"
-              v-for="(item, index) in contents_rated"
+              v-for="(item, index) in filtered_ratings"
               :key="index"
-              v-if="item.type == content_type && [2].includes(item.rating)"
+              class="ratings-item-container"
             >
+              <Button
+                class="profile-user-rating-icon"
+                style="background-color: #fff"
+                :icon="
+                  item.rating == 3
+                    ? 'love'
+                    : item.rating == 2
+                    ? 'thumbs_up'
+                    : 'thumbs_down'
+                "
+                buttonType="iconOnly"
+                :size="16"
+                :state="true"
+                :disabled="true"
+              />
+
               <Poster
                 :class="
                   is_mobile
@@ -578,7 +537,7 @@
                 :title="item.title"
                 :image="item.poster"
                 :showTrailer="false"
-                :whereToWatch="own_profile ? {} : item.where_to_watch"
+                :whereToWatch="item.where_to_watch"
                 :userPlatforms="
                   store.user.id ? store.user.profile.platforms || [''] : ['']
                 "
@@ -588,236 +547,151 @@
                 :scalePlatformsSize="1.2"
                 v-on="$listeners"
               />
-
-              <UserRating
-                v-if="own_profile"
-                :class="
-                  is_mobile
-                    ? 'profile-user-rating-container'
-                    : 'desktop-profile-user-rating-container'
-                "
-                :rating="item.rating"
-                :iconSize="25"
-                @update-rating="
-                  (userRating) => {
-                    submitRating(item.content_id, userRating, index);
-                  }
-                "
-              />
             </div>
-          </div>
-        </div>
 
-        <div style="display: flex;" v-if="filtered_ratings(1).length">
-          <div
-            class="profile-thumbs-down-true"
-            :style="
-              is_mobile
-                ? 'position: relative;margin-left: 0px;margin-top: 80px;background-color: #ffffff;'
-                : 'position: relative;width: 40px;height: 40px;margin-left: 0px;margin-top: 110px;background-color: #ffffff;'
-            "
-          />
-
-          <div
-            :class="
-              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
-            "
-          >
-            <div
-              v-for="(item, index) in contents_rated"
-              :key="index"
-              v-if="item.type == content_type && [1].includes(item.rating)"
-              class="ratings-item-container"
-            >
-              <Poster
-                :class="
-                  is_mobile
-                    ? 'ratings-item-poster'
-                    : 'desktop-ratings-item-poster'
-                "
-                :containerWidth="is_mobile ? 106 : 150"
-                :contentId="item.content_id"
-                :title="item.title"
-                :image="item.poster"
-                :showTrailer="false"
-                :whereToWatch="own_profile ? {} : item.where_to_watch"
-                :userPlatforms="
-                  store.user.id ? store.user.profile.platforms || [''] : ['']
-                "
-                :showName="false"
-                :parent="'profile_' + (own_profile ? 'self' : 'other')"
-                posterLocation="ratings"
-                :scalePlatformsSize="1.2"
-                v-on="$listeners"
-              />
-
-              <UserRating
-                v-if="own_profile"
-                :class="
-                  is_mobile
-                    ? 'profile-user-rating-container'
-                    : 'desktop-profile-user-rating-container'
-                "
-                :rating="item.rating"
-                :iconSize="25"
-                @update-rating="
-                  (userRating) => {
-                    submitRating(item.content_id, userRating, index);
-                  }
-                "
-              />
-            </div>
+            <Button
+              v-if="rating_items > 10"
+              class="show-all-button"
+              :style="is_mobile ? '' : 'margin-top: 85px'"
+              id="rating-show-all"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToRatings"
+            />
           </div>
         </div>
       </div>
 
-      <transition
-        appear
-        enter-active-class="animated fadeIn"
-        leave-active-class="animated fadeOut"
-      >
-        <div>
+      <div class="profile-ratings" v-if="filtered_watchlist.length">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 31px;
+            margin-bottom: 4px;
+          "
+        >
+          <span style="font-weight: bold; font-size: 15px">
+            {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
+            watchlist...
+          </span>
+
+          <transition
+            appear
+            enter-active-class="animated fastFadeIn"
+            leave-active-class="animated fastFadeOut"
+          >
+            <!-- height of following button also affects min-height of parent -->
+            <Button
+              v-if="watchlist_items > 10 && showAllWatchlistMainButton"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToWatchlist"
+            />
+          </transition>
+        </div>
+
+        <div style="display: flex">
           <div
-            v-if="reset_ratings_banner && own_profile"
-            class="black-background"
-            @click="reset_ratings_banner = false"
-          />
-
-          <div class="prompted-box" v-if="reset_ratings_banner && own_profile">
-            <p style="margin-top: 0; font-size: 20px; white-space: nowrap;">
-              Reset all your ratings?
-            </p>
-
-            <div class="profile-prompted-buttons">
-              <div
-                class="prompted-cancel-button"
-                @click="reset_ratings_banner = false"
-              >
-                Cancel
-              </div>
-              <div class="prompted-confirm-button" @click="resetRatings">
-                Reset
-              </div>
+            :class="
+              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
+            "
+            id="watchlist-container"
+          >
+            <div
+              v-for="(item, index) in filtered_watchlist"
+              :key="index"
+              class="ratings-item-container"
+            >
+              <Poster
+                :class="
+                  is_mobile
+                    ? 'ratings-item-poster'
+                    : 'desktop-ratings-item-poster'
+                "
+                :containerWidth="is_mobile ? 106 : 150"
+                :contentId="item.content_id"
+                :title="item.title"
+                :image="item.poster"
+                :showTrailer="false"
+                :whereToWatch="item.where_to_watch"
+                :userPlatforms="
+                  store.user.id ? store.user.profile.platforms || [''] : ['']
+                "
+                :showName="false"
+                :parent="'profile_' + (own_profile ? 'self' : 'other')"
+                posterLocation="ratings"
+                :scalePlatformsSize="1.2"
+                v-on="$listeners"
+              />
             </div>
+
+            <Button
+              v-if="watchlist_items > 10"
+              class="show-all-button"
+              :style="is_mobile ? '' : 'margin-top: 112.5px'"
+              id="watchlist-show-all"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToWatchlist"
+            />
           </div>
         </div>
-      </transition>
+      </div>
 
-      <transition
-        appear
-        enter-active-class="animated fadeIn"
-        leave-active-class="animated fadeOut"
-      >
-        <div>
-          <div
-            v-if="share_profile_banner && own_profile"
-            class="black-background"
-            @click="share_profile_banner = false"
-          />
+      <div class="profile-ratings" v-if="posts.length">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 31px;
+            margin-bottom: 4px;
+          "
+        >
+          <span style="font-weight: bold; font-size: 15px">
+            {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
+            posts...
+          </span>
 
-          <div
-            class="prompted-box"
-            :style="
-              collage
-                ? is_mobile
-                  ? 'top: 20vh;min-width: 75vw;'
-                  : 'top: 20vh;min-width: 25vw;'
-                : ''
-            "
-            v-if="share_profile_banner && own_profile"
+          <transition
+            appear
+            enter-active-class="animated fastFadeIn"
+            leave-active-class="animated fastFadeOut"
           >
-            <img
-              :src="collage + '?' + new Date().getTime()"
-              v-if="collage"
-              style="max-width: 80vw; max-height: 45vh;"
+            <!-- height of following button also affects min-height of parent -->
+            <Button
+              v-if="totalPosts > 10 && showAllPostsMainButton"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToPosts"
+            />
+          </transition>
+        </div>
+
+        <div style="display: flex">
+          <div
+            :class="
+              is_mobile ? 'ratings-container' : 'desktop-ratings-container'
+            "
+            id="posts-container"
+          >
+            <PostPreview
+              v-for="(post, index) in posts"
+              :key="index"
+              style="margin-right: 16px; margin-bottom: 8px"
+              :post="post"
             />
 
-            <div class="sk-folding-cube" v-if="!collage">
-              <div class="sk-cube1 sk-cube"></div>
-              <div class="sk-cube2 sk-cube"></div>
-              <div class="sk-cube4 sk-cube"></div>
-              <div class="sk-cube3 sk-cube"></div>
-            </div>
-
-            <span
-              v-if="!collage"
-              style="margin-top: 0px; width: 60vw; font-size: 16px;"
-            >
-              Preparing collage for your taste...
-              <p style="font-size: 10px;" v-if="profile_status != 'public'">
-                Your profile will become public
-              </p>
-            </span>
-
-            <div class="profile-prompted-buttons" v-if="collage">
-              <div class="prompted-cancel-button" @click="refreshCollage">
-                Try Another
-              </div>
-
-              <input
-                type="button"
-                class="prompted-android-share-button"
-                @click="promptAndroidShareIntent"
-                value="Share"
-              />
-
-              <a
-                v-if="collage && !store.is_webview"
-                :href="collage + '?' + new Date().getTime()"
-                download="flibo-collage.jpg"
-                class="collage-download-button"
-              />
-            </div>
-
-            <p
-              style="position: relative; font-size: 10px; margin-top: 55px;"
-              v-if="collage && !store.is_webview"
-            >
-              Profile URL copied, paste while posting
-            </p>
-          </div>
-        </div>
-      </transition>
-
-      <div
-        v-if="filtered_watchlist().length"
-        style="width: 100%; text-align: left; padding: 7px;"
-      >
-        <span style="font-weight: bold; font-size: 15px;">
-          {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }}
-          watchlist...
-        </span>
-
-        <div
-          :class="is_mobile ? 'ratings-container' : 'desktop-ratings-container'"
-          style="margin-left: 0; width: 100%;"
-        >
-          <div
-            v-for="(item, index) in watchlist"
-            :key="index"
-            v-if="item.type == content_type"
-            class="ratings-item-container"
-          >
-            <Poster
-              :class="
-                is_mobile
-                  ? 'ratings-item-poster'
-                  : 'desktop-ratings-item-poster'
-              "
-              :containerWidth="is_mobile ? 106 : 150"
-              :contentId="item.content_id"
-              :title="item.title"
-              :image="item.poster"
-              :showTrailer="false"
-              :whereToWatch="own_profile ? {} : item.where_to_watch"
-              :userPlatforms="
-                store.user.id ? store.user.profile.platforms || [''] : ['']
-              "
-              :showName="false"
-              :parent="'profile_' + (own_profile ? 'self' : 'other')"
-              posterLocation="ratings"
-              :scalePlatformsSize="1.2"
-              v-on="$listeners"
+            <Button
+              v-if="totalPosts > 10"
+              class="show-all-button"
+              :style="is_mobile ? '' : 'margin-top: 112.5px'"
+              id="posts-show-all"
+              buttonType="secondary"
+              text="Show All"
+              @clicked="goToPosts"
             />
           </div>
         </div>
@@ -826,8 +700,8 @@
       <div
         :style="
           is_mobile
-            ? 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;'
-            : 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;margin-top: 15px;'
+            ? 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;margin-top: 16px;'
+            : 'position: relative;font-weight: bold;font-size: 15px;white-space: nowrap;text-align: left;margin-left: 7px;margin-top: 16px;'
         "
         v-if="friends.length"
       >
@@ -846,7 +720,7 @@
           class="profile-friend-container"
           @click="clickUser(item.id, item.name)"
         >
-          <Person
+          <ImageCard
             :image="item.picture"
             :name="item.name"
             :width="is_mobile ? 55 : 75"
@@ -988,6 +862,16 @@
         />
       </div>
     </div>
+
+    <SharePrompt
+      v-if="share_profile_banner"
+      parent="profile"
+      :url="'https://' + store.hostName + $route.fullPath"
+      :profileId="parseInt(user_id)"
+      @close-share-prompt="share_profile_banner = false"
+      @update-profile="updateProfileStatus('public')"
+      v-on="$listeners"
+    />
   </div>
 </template>
 
@@ -999,7 +883,10 @@ import WatchedTimeline from "./WatchedTimeline";
 import Artist from "./molecular/Artist";
 import Poster from "./molecular/Poster";
 import UserRating from "./molecular/UserRating";
-import Person from "./atomic/Person";
+import PostPreview from "./molecular/PostPreview";
+import ImageCard from "./atomic/ImageCard";
+import Button from "./atomic/Button";
+import SharePrompt from "./atomic/SharePrompt";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -1011,8 +898,11 @@ export default {
     WatchedTimeline,
     Artist,
     Poster,
-    Person,
+    ImageCard,
     UserRating,
+    Button,
+    SharePrompt,
+    PostPreview,
   },
   data() {
     return {
@@ -1090,6 +980,16 @@ export default {
       fetching_content_by_artist: false,
       openProfileMore: false,
       collage: null,
+      rating_items: null,
+      watchlist_items: null,
+      ratingsObserver: null,
+      watchlistObserver: null,
+      postsObserver: null,
+      showAllRatingsMainButton: true,
+      showAllWatchlistMainButton: true,
+      showAllPostsMainButton: true,
+      posts: [],
+      totalPosts: 0,
     };
   },
   created() {
@@ -1108,11 +1008,17 @@ export default {
       self.posters = self.store.user.profile.posters;
       self.covers = self.store.user.profile.covers;
       self.total_watched = self.store.user.profile.total_watched;
-      self.contents_rated = self.store.user.profile.contents_rated;
+      self.contents_rated = self.userTopRatings;
+      self.watchlist = self.userTopWatchlist;
       self.genres = self.store.user.profile.genres;
       self.watched_timeline = self.store.user.profile.watched_timeline;
       self.profile_status = self.store.user.profile.profile_status;
       self.profile_views = self.store.user.profile.profile_views;
+      self.rating_items = self.store.user.profile.contents_rated.length;
+      self.watchlist_items = self.store.user.profile.watchlist.length;
+      self.$nextTick(() => {
+        self.initIntersectionObserver();
+      });
     } else {
       self.own_profile = false;
     }
@@ -1160,6 +1066,11 @@ export default {
                 self.watched_timeline = response.data.rating_timeline;
                 self.profile_status = response.data.profile_status;
                 self.profile_views = response.data.profile_views;
+                self.rating_items = response.data.rating_items;
+                self.watchlist_items = response.data.watchlist_items;
+                self.$nextTick(() => {
+                  self.initIntersectionObserver();
+                });
                 if (self.store.user.id == self.user_id) {
                   self.own_profile = true;
                 } else {
@@ -1174,6 +1085,7 @@ export default {
                     response.data.total_watched;
                   self.store.user.profile.contents_rated =
                     response.data.contents_rated;
+                  self.store.user.profile.watchlist = response.data.watchlist;
                   self.store.user.profile.genres = response.data.genres;
                   self.store.user.profile.watched_timeline =
                     response.data.rating_timeline;
@@ -1201,6 +1113,8 @@ export default {
                 // console.log(error.response.status);
               }
             });
+
+          self.fetchUserPosts();
         });
     } else {
       axios
@@ -1228,6 +1142,11 @@ export default {
             self.watched_timeline = response.data.rating_timeline;
             self.profile_status = response.data.profile_status;
             self.profile_views = response.data.profile_views;
+            self.rating_items = response.data.rating_items;
+            self.watchlist_items = response.data.watchlist_items;
+            self.$nextTick(() => {
+              self.initIntersectionObserver();
+            });
             if (self.store.user.id == self.user_id) {
               self.own_profile = true;
             } else {
@@ -1242,6 +1161,7 @@ export default {
                 response.data.total_watched;
               self.store.user.profile.contents_rated =
                 response.data.contents_rated;
+              self.store.user.profile.watchlist = response.data.watchlist;
               self.store.user.profile.genres = response.data.genres;
               self.store.user.profile.watched_timeline =
                 response.data.rating_timeline;
@@ -1269,6 +1189,8 @@ export default {
             // console.log(error.response.status);
           }
         });
+
+      self.fetchUserPosts();
     }
 
     axios
@@ -1311,75 +1233,6 @@ export default {
       };
       this.$emit("update-api-counter", activity);
     },
-    promptShareProfile() {
-      this.collage = null;
-      this.share_profile_banner = true;
-
-      var dummy = document.createElement("input");
-      document.body.appendChild(dummy);
-      dummy.value = window.location.href;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-
-      this.refreshCollage();
-    },
-    refreshCollage() {
-      this.$emit("update-api-counter", { api: "refresh_collage" });
-      this.collage = null;
-      var self = this;
-      axios
-        .post(self.$store.state.api_host + "collage", {
-          session_id: self.$store.state.session_id,
-        })
-        .then(function (response) {
-          if ([200].includes(response.status)) {
-            self.collage = response.data.collage;
-          } else {
-            // console.log(response.status);
-          }
-        })
-        .catch(function (error) {
-          // console.log(error);
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
-          }
-        });
-    },
-    copyProfileUrl() {
-      this.updateProfileStatus("public");
-      var dummy = document.createElement("input");
-      document.body.appendChild(dummy);
-      dummy.value = window.location.href;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-      this.share_profile_banner = false;
-    },
-    promptAndroidShareIntent() {
-      this.$emit("update-api-counter", { api: "share_profile" });
-      this.updateProfileStatus("public");
-
-      if (this.store.is_webview) {
-        Android.shareCollage(this.collage, window.location.href);
-      } else {
-        this.share_profile_banner = false;
-        window.open(
-          "http://www.facebook.com/sharer.php?u=" +
-            encodeURIComponent(this.collage + "?" + new Date().getTime()) +
-            "&quote=Checkout my profile, hope you find something great to watch:)",
-          "sharer",
-          "toolbar=0,status=0,width=626,height=436"
-        );
-      }
-    },
     reRender() {
       window.scrollTo(0, 0);
       this.$store.state.current_path = this.$route.path;
@@ -1397,6 +1250,7 @@ export default {
         self.covers = self.store.user.profile.covers;
         self.total_watched = self.store.user.profile.total_watched;
         self.contents_rated = self.store.user.profile.contents_rated;
+        self.watchlist = self.store.user.profile.watchlist;
         self.genres = self.store.user.profile.genres;
         self.watched_timeline = self.store.user.profile.watched_timeline;
         self.profile_status = self.store.user.profile.profile_status;
@@ -1429,6 +1283,11 @@ export default {
             self.watched_timeline = response.data.rating_timeline;
             self.profile_status = response.data.profile_status;
             self.profile_views = response.data.profile_views;
+            self.rating_items = response.data.rating_items;
+            self.watchlist_items = response.data.watchlist_items;
+            self.$nextTick(() => {
+              self.initIntersectionObserver();
+            });
             if (self.store.user.id == self.user_id) {
               self.own_profile = true;
             } else {
@@ -1443,6 +1302,7 @@ export default {
                 response.data.total_watched;
               self.store.user.profile.contents_rated =
                 response.data.contents_rated;
+              self.store.user.profile.watchlist = response.data.watchlist;
               self.store.user.profile.genres = response.data.genres;
               self.store.user.profile.watched_timeline =
                 response.data.rating_timeline;
@@ -1471,6 +1331,8 @@ export default {
           }
         });
 
+      self.fetchUserPosts();
+
       axios
         .post(self.$store.state.api_host + "favorite_artists", {
           session_id: self.$store.state.session_id,
@@ -1497,29 +1359,6 @@ export default {
             // console.log(error.response.status);
           }
         });
-    },
-    filtered_ratings(rating) {
-      var filtered = [];
-      var item;
-      for (item in this.contents_rated) {
-        if (
-          (this.contents_rated[item].rating == rating) &
-          (this.contents_rated[item].type == this.content_type)
-        ) {
-          filtered.push(this.contents_rated[item]);
-        }
-      }
-      return filtered;
-    },
-    filtered_watchlist() {
-      var filtered = [];
-      var item;
-      for (item in this.watchlist) {
-        if (this.watchlist[item].type == this.content_type) {
-          filtered.push(this.watchlist[item]);
-        }
-      }
-      return filtered;
     },
     goToAboutUs() {
       this.$router.push("/about-us");
@@ -1587,90 +1426,9 @@ export default {
           }
         });
     },
-    addContent(content) {
-      var movies = [];
-      var tv_series = [];
-      var index;
-      for (index in this.movies_these_days) {
-        movies.push(this.movies_these_days[index].subject_id);
-      }
-      for (index in this.tv_series_these_days) {
-        tv_series.push(this.tv_series_these_days[index].subject_id);
-      }
-      if (this.content_type == "movie" && /^[1]/.test(content.subject_id)) {
-        var index = movies.indexOf(content.subject_id);
-        // console.log(index);
-        if (index == -1) {
-          this.movies_these_days.push(content);
-        }
-      } else if (this.content_type == "tv" && /^[2]/.test(content.subject_id)) {
-        var index = tv_series.indexOf(content.subject_id);
-        // console.log(index);
-        if (index == -1) {
-          this.tv_series_these_days.push(content);
-        }
-      }
-      this.add_content = false;
-      this.updateProfile();
-    },
-    removeCard(index) {
-      if (this.content_type == "movie") {
-        this.movies_these_days.splice(index, 1);
-      } else {
-        this.tv_series_these_days.splice(index, 1);
-      }
-      this.updateProfile();
-    },
-    submitRating(content_id, user_rating, content_index) {
-      var self = this;
-      var prev_rating = self.contents_rated[content_index].rating;
-      self.contents_rated[content_index].rating = user_rating;
-      axios
-        .post(this.$store.state.api_host + "submit_rating", {
-          session_id: this.$store.state.session_id,
-          content_ids: [content_id],
-          rating: user_rating,
-        })
-        .then(function (response) {
-          var index = self.$store.state.suggestions.rate_counter.indexOf(
-            content_id
-          );
-          if (index == -1) {
-            self.$store.state.suggestions.rate_counter.push(content_id);
-            if (
-              self.$store.state.suggestions.rate_counter.length ==
-              self.$store.state.suggestions.calc_after
-            ) {
-              self.$store.state.suggestions.rate_counter = [];
-              axios
-                .post(
-                  self.$store.state.ai_host + "calculate_contents_to_recommend",
-                  {
-                    session_id: self.$store.state.session_id,
-                  }
-                )
-                .then(function (response) {
-                  self.$store.state.notifications.suggestions = true;
-                });
-            }
-          }
-        })
-        .catch(function (error) {
-          self.contents_rated[content_index].rating = prev_rating;
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
-          }
-        });
-    },
     updateProfileStatus(profile_status) {
       this.profile_status = profile_status;
+      this.$store.state.user.profile.profile_status = profile_status;
       this.updateProfile();
       this.update_profile_status = false;
     },
@@ -1786,44 +1544,140 @@ export default {
         "/profile/" + id + "/" + name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
     },
-    resetRatings() {
+    goToRatings() {
+      this.$router.push(
+        "/ratings/" +
+          this.user_id +
+          "/" +
+          this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
+    },
+    goToWatchlist() {
+      this.$router.push(
+        "/watchlist/" +
+          this.user_id +
+          "/" +
+          this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
+    },
+    goToPosts() {
+      this.$router.push(
+        "/posts/user/" +
+          this.user_id +
+          "/" +
+          this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+      );
+    },
+    initIntersectionObserver() {
+      this.resetIntersectionObserver();
+
+      const ratingsCallback = (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.showAllRatingsMainButton = false;
+          } else {
+            this.showAllRatingsMainButton = true;
+          }
+        });
+      };
+
+      const watchlistCallback = (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.showAllWatchlistMainButton = false;
+          } else {
+            this.showAllWatchlistMainButton = true;
+          }
+        });
+      };
+
+      const postsCallback = (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.showAllPostsMainButton = false;
+          } else {
+            this.showAllPostsMainButton = true;
+          }
+        });
+      };
+
+      setTimeout(() => {
+        var rateElem = document.querySelector("#rating-show-all");
+        if (rateElem) {
+          this.ratingsObserver = new IntersectionObserver(ratingsCallback, {
+            root: document.querySelector("#ratings-container"),
+            rootMargin: "0px",
+            threshold: 0.0,
+          });
+          this.ratingsObserver.observe(rateElem);
+        }
+
+        var watchlistElem = document.querySelector("#watchlist-show-all");
+        if (watchlistElem) {
+          this.watchlistObserver = new IntersectionObserver(watchlistCallback, {
+            root: document.querySelector("#watchlist-container"),
+            rootMargin: "0px",
+            threshold: 0.0,
+          });
+          this.watchlistObserver.observe(watchlistElem);
+        }
+
+        var postElem = document.querySelector("#posts-show-all");
+        if (postElem) {
+          this.postsObserver = new IntersectionObserver(postsCallback, {
+            root: document.querySelector("#posts-container"),
+            rootMargin: "0px",
+            threshold: 0.0,
+          });
+          this.postsObserver.observe(postElem);
+        }
+      }, 0);
+    },
+    resetIntersectionObserver() {
+      if (this.ratingsObserver) {
+        this.ratingsObserver.disconnect();
+        this.ratingsObserver = null;
+      }
+      if (this.watchlistObserver) {
+        this.watchlistObserver.disconnect();
+        this.watchlistObserver = null;
+      }
+      if (this.postsObserver) {
+        this.postsObserver.disconnect();
+        this.postsObserver = null;
+      }
+    },
+    fetchUserPosts() {
       var self = this;
+      self.posts = [];
+      self.totalPosts = 0;
+
+      var userid = this.$route.params.user_id;
+      var username = this.$route.params.user_name;
       axios
-        .post(self.$store.state.api_host + "reset_ratings", {
+        .post(self.$store.state.api_host + "user_posts", {
           session_id: self.$store.state.session_id,
+          user_id: parseInt(userid),
+          user_name: username,
+          fetched_posts: [],
+          limit: 10,
+          country:
+            self.$store.state.user.profile.country || self.store.guest_country,
+          guest_id: self.$store.state.guest_id,
         })
         .then(function (response) {
-          self.reset_ratings_banner = false;
           if ([200].includes(response.status)) {
-            self.contents_rated = [];
-            axios
-              .post(self.$store.state.api_host + "update_profile", {
-                session_id: self.$store.state.session_id,
-                suggestions_ready_message_seen: false,
-              })
-              .then(function (response) {
-                if ([200].includes(response.status)) {
-                  self.renderComponent = true;
-                  self.reRender();
-                }
+            if (response.data.profile_status == "open") {
+              self.posts = response.data.posts;
+              self.totalPosts = response.data.total_posts;
+              self.$nextTick(() => {
+                self.initIntersectionObserver();
               });
-          } else {
-            // console.log(response.status);
+            }
           }
         })
         .catch(function (error) {
-          self.reset_ratings_banner = false;
           // console.log(error);
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
-          }
         });
     },
   },
@@ -1854,7 +1708,6 @@ export default {
                 display: inline-block;
                 width: 35px;
                 height: 35px;
-                margin-top: 17px;
                 position: relative;
                 background-image: url('` +
         require(`./../images/` + this.profile_status + `.png`) +
@@ -1880,6 +1733,56 @@ export default {
                 `
       );
     },
+    filtered_ratings() {
+      var filtered = [];
+      var item;
+      for (item in this.contents_rated) {
+        if (this.contents_rated[item].type == this.content_type) {
+          filtered.push(this.contents_rated[item]);
+        }
+      }
+      return filtered;
+    },
+    filtered_watchlist() {
+      var filtered = [];
+      var item;
+      for (item in this.watchlist) {
+        if (this.watchlist[item].type == this.content_type) {
+          filtered.push(this.watchlist[item]);
+        }
+      }
+      return filtered;
+    },
+    userTopRatings() {
+      var output = [];
+      output.push(
+        ...this.store.user.profile.contents_rated
+          .filter((content) => content.type == "movie")
+          .slice(0, 10)
+      );
+      output.push(
+        ...this.store.user.profile.contents_rated
+          .filter((content) => content.type == "tv")
+          .slice(0, 10)
+      );
+
+      return output;
+    },
+    userTopWatchlist() {
+      var output = [];
+      output.push(
+        ...this.store.user.profile.watchlist
+          .filter((content) => content.type == "movie")
+          .slice(0, 10)
+      );
+      output.push(
+        ...this.store.user.profile.watchlist
+          .filter((content) => content.type == "tv")
+          .slice(0, 10)
+      );
+
+      return output;
+    },
   },
   watch: {
     router_path: {
@@ -1896,6 +1799,9 @@ export default {
         }
       },
     },
+  },
+  beforeDestroy() {
+    this.resetIntersectionObserver();
   },
 };
 </script>
@@ -2085,6 +1991,7 @@ export default {
 h4 {
   font-size: 23px;
   color: #333333;
+  text-transform: capitalize;
 }
 .update-profile-status {
   position: fixed;
@@ -2212,6 +2119,12 @@ h4 {
 .fadeOut {
   animation: fadeOut 0.6s;
 }
+.fastFadeIn {
+  animation: fadeIn 0.12s;
+}
+.fastFadeOut {
+  animation: fadeOut 0.12s;
+}
 .black-background {
   position: fixed;
   width: 100%;
@@ -2338,28 +2251,23 @@ h4 {
 }
 .ratings-container {
   overflow-x: scroll;
-  width: calc(100% - 35px);
+  width: 100%;
   display: flex;
-  margin-bottom: 2%;
-  margin-top: 2%;
-  margin-left: 10px;
+  padding-top: 8px;
 }
 .desktop-ratings-container {
   overflow-x: scroll;
-  width: calc(100% - 35px);
+  width: 100%;
   display: flex;
   margin-top: 5px;
-  margin-left: 10px;
 }
 .desktop-ratings-container::-webkit-scrollbar {
   display: none;
 }
 .ratings-item-container {
   position: relative;
-  margin-top: 1.5%;
-  margin-right: 2%;
-  margin-bottom: 2%;
-  margin-left: 2%;
+  margin-right: 8px;
+  margin-left: 8px;
   display: inline-block;
   border-radius: 7px;
 }
@@ -2376,63 +2284,6 @@ h4 {
   height: 225px;
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-user-rating-container {
-  position: relative;
-  text-align: left;
-  margin-top: 5px;
-}
-.desktop-profile-user-rating-container {
-  position: relative;
-  text-align: left;
-}
-.profile-thumbs-up-true {
-  position: relative;
-  height: 28px;
-  width: 28px;
-  left: 0%;
-  margin-top: 3px;
-  background-image: url("./../images/thumbs_up_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-thumbs-down-true {
-  position: absolute;
-  height: 28px;
-  width: 28px;
-  margin-left: 10px;
-  margin-top: 4px;
-  background-image: url("./../images/thumbs_down_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
-.profile-love-true {
-  position: absolute;
-  height: 28px;
-  width: 28px;
-  right: 0%;
-  margin-top: 3px;
-  background-image: url("./../images/love_true.svg");
-  background-color: #ffffff;
-  background-size: 100% 100%;
-  padding: 0;
-  border: none;
-  outline: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
@@ -2502,8 +2353,6 @@ h4 {
   border-radius: 5px;
 }
 .friendship-status {
-  position: absolute;
-  margin-left: 3%;
   text-align: center;
   font-size: 14px;
   color: #333333;
@@ -2535,8 +2384,6 @@ h4 {
   -webkit-tap-highlight-color: transparent;
 }
 .approve-request {
-  position: absolute;
-  margin-left: 5%;
   text-align: center;
   font-size: calc(10px + 10%);
   color: #ffffff;
@@ -2553,8 +2400,7 @@ h4 {
   -webkit-tap-highlight-color: transparent;
 }
 .reject-request {
-  position: absolute;
-  margin-left: calc(18% + 15px);
+  margin-left: 16px;
   text-align: center;
   font-size: calc(10px + 10%);
   color: #333333;
@@ -2752,22 +2598,13 @@ h4 {
   color: #333333;
   font-family: "Roboto", sans-serif;
 }
-.profile-show-switch {
-  position: absolute;
-  right: 0px;
-  margin-top: 0px;
-  height: 7px;
-  width: 7px;
-  background-image: url("./../images/red_dot.png");
-  background-color: #e9f3f8;
-  background-size: 100% 100%;
-  border: none;
-  outline: 0;
-  z-index: 10000;
-}
 .profile-details {
   position: relative;
-  display: -webkit-inline-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 16px;
+  margin-top: 16px;
   white-space: nowrap;
   text-align: left;
   width: 100%;
@@ -2775,16 +2612,17 @@ h4 {
 }
 .desktop-profile-details {
   position: relative;
-  display: -webkit-inline-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 16px;
   white-space: nowrap;
   text-align: left;
-  width: 60%;
   overflow: hidden;
   margin-top: 15px;
 }
 .profile-status {
   text-align: center;
-  margin-left: 20px;
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -2807,10 +2645,9 @@ h4 {
   color: #333333;
 }
 .profile-connections {
+  position: relative;
   text-align: center;
-  margin-left: calc(33.33% - 70.5px);
   font-size: 15px;
-  margin-top: 15px;
   width: 85px;
   white-space: initial;
   font-weight: bold;
@@ -2830,11 +2667,9 @@ h4 {
 }
 .profile-more {
   position: relative;
-  width: 85px;
-  height: 85px;
-  margin-top: 1px;
-  margin-left: calc(33.33% - 70.5px - 32.5px);
-  background-image: url("./../images/three_dots.png");
+  width: 24px;
+  height: 40px;
+  background-image: url("./../images/more-icon.svg");
   background-color: #ffffff;
   background-repeat: no-repeat;
   background-position: center;
@@ -2854,29 +2689,22 @@ h4 {
   max-height: 50vh;
   background-color: #ffffff;
   border-radius: 7px;
-  padding: 10px 10px 10px 5px;
+  padding: 16px;
   z-index: 100001;
   white-space: nowrap;
 }
 .profile-more-option {
   position: relative;
   display: flex;
+  align-items: center;
   text-align: left;
-  margin-left: 10px;
   cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
 }
 .profile-more-about-us {
   position: relative;
-  width: 50px;
-  height: 50px;
-  background-image: url("./../images/flibo-logo-dark.svg");
+  width: 45px;
+  height: 45px;
+  background-image: url("./../images/flibo-logo-color-no-padding.svg");
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
@@ -2892,8 +2720,7 @@ h4 {
 }
 .profile-more-option-text {
   position: relative;
-  margin-left: 15px;
-  margin-top: 15px;
+  margin-left: 10px;
   font-size: 17px;
   font-weight: bold;
   font-stretch: normal;
@@ -2901,19 +2728,6 @@ h4 {
   line-height: 1.17;
   letter-spacing: normal;
   color: #333333;
-}
-.profile-connections-notification {
-  position: absolute;
-  margin-left: 35px;
-  margin-top: -25px;
-  height: 7px;
-  width: 7px;
-  background-image: url("./../images/red_dot.png");
-  background-color: #e9f3f8;
-  background-size: 100% 100%;
-  border: none;
-  outline: 0;
-  z-index: 9999;
 }
 .profile-ratings {
   position: relative;
@@ -2923,7 +2737,7 @@ h4 {
   text-align: left;
   width: 100%;
   border-radius: 7px;
-  padding: 7px;
+  padding: 0px 7px;
 }
 .fetching-profile-message {
   position: fixed;
@@ -2934,8 +2748,13 @@ h4 {
 }
 .profile-views {
   position: relative;
+  width: 42px;
+  height: 61px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
   text-align: center;
-  margin-left: calc(33.33% - 70.5px);
   z-index: 1;
   cursor: pointer;
   -webkit-user-select: none;
@@ -2950,7 +2769,6 @@ h4 {
   display: inline-block;
   width: 35px;
   height: 35px;
-  margin-top: 9px;
   position: relative;
   background-image: url("./../images/eye.svg");
   background-size: 100% 100%;
@@ -3096,6 +2914,7 @@ h4 {
   height: max-content;
   justify-content: center;
   margin-bottom: 10px;
+  margin-top: 16px;
 }
 .content-type-checkbox {
   display: inline-block;
@@ -3129,5 +2948,18 @@ h4 {
   letter-spacing: normal;
   text-align: left;
   color: #333333;
+}
+.show-all-button {
+  transform: translateY(-50%);
+  margin-left: 8px;
+  margin-top: 79px;
+}
+.profile-user-rating-icon {
+  position: absolute;
+  right: -2px;
+  top: -2px;
+  z-index: 1;
+  padding: 5px;
+  border-radius: 50%;
 }
 </style>
