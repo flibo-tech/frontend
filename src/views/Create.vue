@@ -95,9 +95,17 @@
       :iconCircle="true"
       :size="40"
       margin="0px 0px 0px 7px"
-      :loading="true"
+      :loading="
+        title.length == 0 || store.create.processedContent.length == 0
+          ? false
+          : true
+      "
       :disabled="title.length == 0 || store.create.processedContent.length == 0"
-      @clicked="post"
+      @clicked="
+        title.length == 0 || store.create.processedContent.length == 0
+          ? ''
+          : post()
+      "
     />
 
     <CreatePostPrompt
