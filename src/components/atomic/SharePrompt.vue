@@ -31,7 +31,7 @@
         "
         class="share-profile-refresh-collage"
         buttonType="secondary"
-        text="Try Another"
+        :text="refreshText"
         @clicked="fetchProfileCollage"
       />
 
@@ -50,7 +50,7 @@
           "
           class="share-profile-message"
         >
-          Preparing collage for your taste...
+          Preparing instagram layout of your ratings...
           <br />
           {{
             store.user.profile.profile_status != "public"
@@ -226,6 +226,7 @@ export default {
         wrapAround: true,
         percentPosition: true,
       },
+      refreshText: "Refresh instagram layout",
     };
   },
   created() {
@@ -247,7 +248,7 @@ export default {
       this.selectedImage =
         "https://flibo-images.s3-us-west-2.amazonaws.com/user_collages/" +
         this.profileId +
-        ".png?" +
+        ".jpg?" +
         new Date().getTime();
     } else {
       this.selectedImage = this.image
@@ -303,6 +304,8 @@ export default {
     },
     fetchProfileCollage() {
       var self = this;
+
+      self.refreshText = "Try another";
       self.fetching = true;
 
       axios
