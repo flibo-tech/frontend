@@ -244,7 +244,11 @@ export default {
       ["profile", "ratings"].includes(this.parent) &&
       this.profileId == this.store.user.id
     ) {
-      this.fetchProfileCollage();
+      this.selectedImage =
+        "https://flibo-images.s3-us-west-2.amazonaws.com/user_collages/" +
+        this.profileId +
+        ".png?" +
+        new Date().getTime();
     } else {
       this.selectedImage = this.image
         ? this.image.replace("/original/", "/w500/")
