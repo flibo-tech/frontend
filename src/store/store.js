@@ -53,46 +53,26 @@ export const store = new Vuex.Store({
         total_watched: my_store
           ? my_store.user.profile.total_watched
           : {
-              movie: {
-                total: "some great",
-                time: "some good time :)"
-              },
-              tv: {
-                total: "some great",
-                time: "some good time :)"
-              }
+              movies: 0,
+              shows: 0,
+              time: "some good time :)"
             },
         contents_rated: my_store ? my_store.user.profile.contents_rated : [],
         watchlist: my_store ? my_store.user.profile.watchlist : [],
         genres: my_store
           ? my_store.user.profile.genres
           : {
-              movie: {
-                genre: [],
-                contribution: []
-              },
-              tv: {
-                genre: [],
-                contribution: []
-              }
+              genre: [],
+              contribution: []
             },
         watched_timeline: my_store
           ? my_store.user.profile.watched_timeline
           : {
-              movie: {
-                years: [],
-                liked: [],
-                disliked: [],
-                loved: [],
-                total: []
-              },
-              tv: {
-                years: [],
-                liked: [],
-                disliked: [],
-                loved: [],
-                total: []
-              }
+              years: [],
+              liked: [],
+              disliked: [],
+              loved: [],
+              total: []
             },
         profile_status: my_store
           ? my_store.user.profile.profile_status
