@@ -228,9 +228,11 @@ export default {
         this.$store.state.suggestions.discover_while_onboarding = true;
       }
 
-      axios.post(this.$store.state.api_host + "collage", {
-        session_id: this.$store.state.session_id,
-      });
+      setTimeout(() => {
+        axios.post(this.$store.state.api_host + "collage", {
+          session_id: this.$store.state.session_id,
+        });
+      }, 3000);
 
       this.$router.push("/discover");
     },
@@ -248,9 +250,11 @@ export default {
 
       this.$emit("refresh-feed");
 
-      axios.post(this.$store.state.api_host + "collage", {
-        session_id: this.$store.state.session_id,
-      });
+      setTimeout(() => {
+        axios.post(this.$store.state.api_host + "collage", {
+          session_id: this.$store.state.session_id,
+        });
+      }, 3000);
 
       this.$router.push("/discover");
     },
