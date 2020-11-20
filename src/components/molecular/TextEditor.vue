@@ -239,6 +239,7 @@ export default {
       var element = document.getElementById(
         "create-comment-container-" + this.actionId
       );
+
       if (element && element.style.position == "fixed") {
         const tagSuggestionHeight =
           "calc(" +
@@ -254,10 +255,16 @@ export default {
       } else {
         const tagSuggestionHeight =
           "calc(" +
-          window.innerHeight +
+          Math.min(
+            window.innerHeight,
+            element.getBoundingClientRect().bottom + 10
+          ) +
           "px - " +
           this.createCommentHeight +
-          "px - 50px - 8px - 8px)";
+          "px - 50px - 8px - 8px - " +
+          (this.grandParent == "home" ? 50 : 0) +
+          "px)";
+
         return (
           "position: absolute; top: -8px; transform: translateY(-100%); width: 100vw; left: 0; height: " +
           tagSuggestionHeight +

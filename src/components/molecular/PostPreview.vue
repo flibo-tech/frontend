@@ -89,7 +89,8 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-width: 200px;
+  width: 200px;
+  min-height: 175px;
   box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.07);
   cursor: pointer;
 }
