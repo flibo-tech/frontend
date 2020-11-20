@@ -67,15 +67,21 @@
         <h4
           :style="
             own_profile
-              ? 'display: flex; justify-content: center; align-items: center;'
+              ? 'display: inline; text-align: center; vertical-align: middle;'
               : 'display: flex; flex-direction: column; justify-content: center; align-items: center;'
           "
         >
-          {{ user_name }}
+          <span
+            :style="own_profile ? 'margin-right: 8px; line-height: 1.75;' : ''"
+          >
+            {{ user_name }}
+          </span>
 
           <div
             :style="
-              own_profile ? 'display: flex;' : 'display: flex; margin-top: 8px'
+              own_profile
+                ? 'display: inline-block; vertical-align: text-top;'
+                : 'display: flex; margin-top: 8px'
             "
           >
             <span
@@ -127,10 +133,19 @@
             </span>
 
             <Button
-              :style="
-                own_profile
-                  ? 'transform: rotate(22deg); margin-left: 16px;'
-                  : 'transform: rotate(22deg); margin-left: 16px; margin-top: -4px;'
+              v-if="own_profile"
+              buttonType="primary"
+              text="Share with friends"
+              :capitalize="false"
+              @clicked="share_profile_banner = true"
+            />
+
+            <Button
+              v-else
+              style="
+                transform: rotate(22deg);
+                margin-left: 16px;
+                margin-top: -4px;
               "
               icon="send_outline"
               buttonType="iconOnly"
