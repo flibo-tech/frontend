@@ -127,7 +127,10 @@
               : 'margin-bottom: 24px;width: 1000px;display: flex;align-items: center;justify-content: center;'
           "
         >
-          <p v-if="is_mobile" style="font-weight: normal; text-align: center">
+          <p
+            v-if="is_mobile && !(userType == 'self' && parent == 'ratings')"
+            style="font-weight: normal; text-align: center"
+          >
             Access
             {{ userType == "self" ? "your" : userName.split(" ")[0] + "'s" }}
             {{ parent }} on desktop at flibo.ai
@@ -136,7 +139,7 @@
           <p v-else style="font-weight: normal; text-align: center">
             Share
             {{ userType == "self" ? "your" : userName.split(" ")[0] + "'s" }}
-            {{ parent }} with others
+            {{ parent }} with friends
           </p>
 
           <Button
