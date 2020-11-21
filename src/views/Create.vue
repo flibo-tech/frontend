@@ -215,9 +215,11 @@ export default {
     this.store.create.image = null;
     this.store.create.processedContent = "";
     this.store.create.spoiler = false;
+    window.removeEventListener("resize", this.resizeContainer);
   },
   mounted() {
     this.resizeContainer();
+    window.addEventListener("resize", this.resizeContainer);
   },
   computed: {
     privacyOptions() {
@@ -277,7 +279,7 @@ export default {
         24;
 
       this.$refs.boxBelowTitle.style.minHeight =
-        "calc(" + this.store.window.height + "px - " + spaceUnavailable + "px)";
+        "calc(" + window.innerHeight + "px - " + spaceUnavailable + "px)";
     },
     post() {
       var self = this;

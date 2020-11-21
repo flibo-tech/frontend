@@ -110,7 +110,7 @@ export default {
     focusInput() {
       setTimeout(() => {
         this.$refs.searchContent.scrollIntoView();
-      }, 100);
+      }, 250);
     },
   },
 };
