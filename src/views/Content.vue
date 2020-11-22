@@ -571,10 +571,15 @@ export default {
               country: self.store.guest_country,
               guest_id: self.$store.state.guest_id,
             })
-            .then(
-              (response) =>
-                (self.$store.state.content_page.data = response.data.contents)
-            )
+            .then((response) => {
+              self.$store.state.content_page.data = response.data.contents;
+              if (
+                self.$route.query.watchLater &&
+                !self.$store.state.content_page.data.watch_later
+              ) {
+                self.addToWatchlist();
+              }
+            })
             .catch(function (error) {
               // console.log(error);
             });
@@ -609,10 +614,15 @@ export default {
             self.$store.state.user.profile.country || self.store.guest_country,
           guest_id: self.$store.state.guest_id,
         })
-        .then(
-          (response) =>
-            (self.$store.state.content_page.data = response.data.contents)
-        )
+        .then((response) => {
+          self.$store.state.content_page.data = response.data.contents;
+          if (
+            self.$route.query.watchLater &&
+            !self.$store.state.content_page.data.watch_later
+          ) {
+            self.addToWatchlist();
+          }
+        })
         .catch(function (error) {
           // console.log(error);
         });
@@ -696,10 +706,15 @@ export default {
             self.$store.state.user.profile.country || self.store.guest_country,
           guest_id: self.$store.state.guest_id,
         })
-        .then(
-          (response) =>
-            (self.$store.state.content_page.data = response.data.contents)
-        )
+        .then((response) => {
+          self.$store.state.content_page.data = response.data.contents;
+          if (
+            self.$route.query.watchLater &&
+            !self.$store.state.content_page.data.watch_later
+          ) {
+            self.addToWatchlist();
+          }
+        })
         .catch(function (error) {
           // console.log(error);
         });
