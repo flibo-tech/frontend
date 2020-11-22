@@ -87,6 +87,13 @@
             v-if="metaInfo.tomato_meter"
             :text="'Tomatometer ' + metaInfo.tomato_meter"
           />
+
+          <ContentMetaBlock
+            class="content-preview-info-rating-container"
+            v-for="(genre, index) in metaInfo.genres"
+            :key="index"
+            :text="genre"
+          />
         </div>
 
         <div
@@ -536,11 +543,14 @@ export default {
 .content-preview-info-ratings {
   width: 100%;
   margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
 }
 .content-preview-info-rating-container {
   position: relative;
   display: inline-block;
   margin-bottom: 5px;
+  margin-right: 5px;
   font-size: 14px;
   font-stretch: normal;
   font-style: normal;
