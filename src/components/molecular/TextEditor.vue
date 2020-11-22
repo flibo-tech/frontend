@@ -1,6 +1,16 @@
 <template>
   <div>
     <div class="textfield-wrapper">
+      <p
+        v-if="showLengthWarning"
+        :style="
+          'text-align: left; color: red; font-size: ' +
+          (parent === 'post' ? '16px' : '14px')
+        "
+      >
+        Text cannot be longer than {{ characterLimit }} characters
+      </p>
+
       <textarea
         @paste.prevent
         @focus="focusTextArea"
@@ -69,8 +79,8 @@
               style="margin-left: 16px"
               buttonType="textOnly"
               text="Post"
-              :fontColor="content ? '#7352ff' : null"
-              @clicked="postComment"
+              :fontColor="content && !showLengthWarning ? '#7352ff' : null"
+              @clicked="showLengthWarning ? '' : postComment()"
             />
           </transition>
         </div>
@@ -151,6 +161,7 @@ export default {
       createCommentHeight: 0,
       preventContentWatch: false,
       prevHeight: 0,
+      showLengthWarning: false,
     };
   },
   mounted() {
@@ -233,6 +244,17 @@ export default {
         plainText = plainText.replace(new RegExp("@" + key, "g"), "");
       });
       plainText = plainText.replace(/\s\s+/g, " ").trim();
+
+      var element = document.getElementById("inputField-" + this.actionId);
+      if (plainText.length > this.characterLimit) {
+        element.style.border = "solid 1px red";
+        this.showLengthWarning = true;
+        this.$emit("prevent-post", true);
+      } else {
+        element.style.border = "none";
+        this.showLengthWarning = false;
+        this.$emit("prevent-post", false);
+      }
       return plainText.length;
     },
     customStyle() {
@@ -369,13 +391,15 @@ export default {
               var element = document.getElementById(
                 "create-comment-container-" + this.actionId
               );
-              this.createCommentHeight = element.getBoundingClientRect().height;
-              if (element.style.position == "fixed") {
-                var container_element = document.getElementById(
-                  "action-details-container"
-                );
-                container_element.style.paddingBottom =
-                  this.createCommentHeight + 8 - 24 + "px";
+              if (element) {
+                this.createCommentHeight = element.getBoundingClientRect().height;
+                if (element.style.position == "fixed") {
+                  var container_element = document.getElementById(
+                    "action-details-container"
+                  );
+                  container_element.style.paddingBottom =
+                    this.createCommentHeight + 8 - 24 + "px";
+                }
               }
               this.showSpoilerTag = false;
             }

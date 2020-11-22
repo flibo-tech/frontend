@@ -70,7 +70,7 @@
       <transition name="counter-animation">
         <CharacterCounter
           v-if="showCounter"
-          :limit="75"
+          :limit="characterLimit"
           :count="title ? title.length : 0"
           :radius="10"
           :width="3"
@@ -79,7 +79,11 @@
     </div>
 
     <div class="create-box-below-title" ref="boxBelowTitle">
-      <TextEditor class="create-text-editor" parent="post" />
+      <TextEditor
+        class="create-text-editor"
+        parent="post"
+        @prevent-post="(bool) => (preventPost = bool)"
+      />
       <ImageSlider
         class="create-image-slider"
         v-if="store.create.ids.length"
@@ -96,13 +100,21 @@
       :size="40"
       margin="0px 0px 0px 7px"
       :loading="
-        title.length == 0 || store.create.processedContent.length == 0
+        title.length == 0 ||
+        store.create.processedContent.length == 0 ||
+        preventPost
           ? false
           : true
       "
-      :disabled="title.length == 0 || store.create.processedContent.length == 0"
+      :disabled="
+        title.length == 0 ||
+        store.create.processedContent.length == 0 ||
+        preventPost
+      "
       @clicked="
-        title.length == 0 || store.create.processedContent.length == 0
+        title.length == 0 ||
+        store.create.processedContent.length == 0 ||
+        preventPost
           ? ''
           : post()
       "
@@ -196,6 +208,8 @@ export default {
       promptChangeType: false,
       title: "",
       showCounter: false,
+      preventPost: false,
+      characterLimit: 75,
     };
   },
   beforeCreate() {
@@ -258,7 +272,7 @@ export default {
   },
   methods: {
     updateTitle(e) {
-      var text = e.target.value.slice(0, 75);
+      var text = e.target.value.slice(0, this.characterLimit);
 
       this.$refs.titleBox.value = text;
       this.title = text;
