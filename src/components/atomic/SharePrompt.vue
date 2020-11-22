@@ -315,6 +315,7 @@ export default {
           session_id: self.$store.state.session_id,
         })
         .then(function (response) {
+          self.$emit("update-api-counter", { api: "collage" });
           if ([200].includes(response.status)) {
             self.selectedImage =
               response.data.collage + "?" + new Date().getTime();
@@ -324,6 +325,7 @@ export default {
           self.fetching = false;
         })
         .catch(function (error) {
+          self.$emit("update-api-counter", { api: "collage" });
           self.fetching = false;
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
