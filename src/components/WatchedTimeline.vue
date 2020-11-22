@@ -6,78 +6,88 @@ export default {
   props: {
     years: {
       type: Array,
-      required: true
+      required: true,
     },
     liked: {
       type: Array,
-      required: true
+      required: true,
     },
     disliked: {
       type: Array,
-      required: true
+      required: true,
     },
     loved: {
       type: Array,
-      required: true
+      required: true,
     },
     total: {
       type: Array,
-      required: true
+      required: true,
     },
-    parent_content_type: {
-      type: String,
-      required: true
-    }
   },
   mounted() {
     this.renderLineChart();
   },
-  computed: {
-    content_type: function() {
-      return this.parent_content_type;
-    }
-  },
-  watch: {
-    content_type: {
-      handler(val) {
-        this.renderLineChart();
-      }
-    }
-  },
   methods: {
-    renderLineChart: function() {
+    renderLineChart: function () {
       this.renderChart(
         {
           labels: this.years,
           datasets: [
             {
               label: "Loved",
-              backgroundColor: "rgba(242, 107, 107, 0.5)",
-              data: this.loved
+              backgroundColor: "rgba(248, 121, 121, 0.5)",
+              data: this.loved,
             },
             {
               label: "Liked",
-              backgroundColor: "rgba(61, 167, 242, 0.5)",
-              data: this.liked
+              backgroundColor: "rgba(64, 94, 237, 0.5)",
+              data: this.liked,
             },
             {
               label: "Disliked",
               backgroundColor: "rgba(227, 225, 225, 0.5)",
-              data: this.disliked
+              data: this.disliked,
             },
             {
               label: "Total Watched",
               backgroundColor: "rgba(0, 0, 0, 0.5)",
-              data: this.total
-            }
-          ]
+              data: this.total,
+            },
+          ],
         },
         {
           responsive: true,
-          maintainAspectRatio: true
+          maintainAspectRatio: true,
+          elements: {
+            point: {
+              radius: 0,
+            },
+          },
+          scales: {
+            xAxes: [
+              {
+                gridLines: {
+                  display: false,
+                },
+                ticks: {
+                  autoSkip: true,
+                  maxRotation: 30,
+                  minRotation: 30,
+                },
+              },
+            ],
+            yAxes: [
+              {
+                gridLines: {
+                  display: false,
+                },
+              },
+            ],
+          },
         }
       );
-    }
-  }
+    },
+  },
 };
 </script>

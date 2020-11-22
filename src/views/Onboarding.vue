@@ -227,6 +227,13 @@ export default {
         this.$store.state.suggestions.discover_type_tab = ["flibo"];
         this.$store.state.suggestions.discover_while_onboarding = true;
       }
+
+      setTimeout(() => {
+        axios.post(this.$store.state.api_host + "collage", {
+          session_id: this.$store.state.session_id,
+        });
+      }, 3000);
+
       this.$router.push("/discover");
     },
     skipRating() {
@@ -242,6 +249,12 @@ export default {
       this.$emit("reset-feed-page", reset_info);
 
       this.$emit("refresh-feed");
+
+      setTimeout(() => {
+        axios.post(this.$store.state.api_host + "collage", {
+          session_id: this.$store.state.session_id,
+        });
+      }, 3000);
 
       this.$router.push("/discover");
     },

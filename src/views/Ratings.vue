@@ -261,6 +261,7 @@ export default {
           self.resetRatingsBanner = false;
           if ([200].includes(response.status)) {
             self.$store.state.user.profile.contents_rated = [];
+            self.resetRatingsStore();
             self.$router.push(
               "/profile/" +
                 self.$store.state.user.id +

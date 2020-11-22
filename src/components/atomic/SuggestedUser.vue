@@ -2,6 +2,7 @@
   <div class="suggested-user-box">
     <div>
       <ImageCard
+        style="width: 100%"
         @clicked="goToProfile"
         :name="userName"
         :image="image"

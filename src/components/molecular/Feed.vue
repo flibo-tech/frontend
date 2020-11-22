@@ -3,7 +3,10 @@
     <div
       v-if="!['posts', 'notifications'].includes(parent) && !fetching_feed"
       class="quick-filters-container"
-      :class="{ 'quick-filters-container--hidden': !showRefreshButton }"
+      :class="{
+        'quick-filters-container--hidden':
+          parent == 'home' ? false : !showRefreshButton,
+      }"
       :style="is_mobile ? '' : 'top: 50px;width: 1000px;'"
     >
       <FeedFilters
@@ -13,19 +16,28 @@
         v-on="$listeners"
       />
 
-      <div class="refresh-feed" v-if="parent == 'home'" @click="refreshFeed">
-        Refresh
-      </div>
+      <Button
+        v-if="parent == 'home'"
+        class="refresh-feed"
+        icon="refresh"
+        buttonType="iconOnly"
+        :size="24"
+        @clicked="refreshFeed"
+      />
 
       <div
         v-if="parent == 'home'"
         class="only-suggestions"
         @click="$router.push('/suggestions')"
       >
-        <Button buttonType="textOnly" text="Only Suggestions" />
+        <Button
+          buttonType="textOnly"
+          fontColor="#405EED"
+          text="FLIBO Suggestions"
+        />
 
         <Button
-          icon="grey_arrow"
+          icon="arrow"
           buttonType="iconOnly"
           :size="14"
           style="margin-left: 4px; margin-top: 1px"
@@ -48,7 +60,7 @@
             ? 'margin-top: 50px;'
             : parent == 'notifications'
             ? 'margin-top: 50px;'
-            : 'margin-top: 100px;'
+            : 'margin-top: 90px;'
           : ['watchlist', 'ratings', 'suggestions'].includes(parent)
           ? 'position: relative;margin-top: 225px;'
           : parent == 'search_results'
@@ -57,7 +69,7 @@
           ? 'position: relative;margin-top: 50px;'
           : parent == 'notifications'
           ? 'position: relative;margin-top: 50px;'
-          : 'position: relative;margin-top: 100px;'
+          : 'position: relative;margin-top: 90px;'
       "
     >
       <div
@@ -115,7 +127,10 @@
               : 'margin-bottom: 24px;width: 1000px;display: flex;align-items: center;justify-content: center;'
           "
         >
-          <p v-if="is_mobile" style="font-weight: normal; text-align: center">
+          <p
+            v-if="is_mobile && !(userType == 'self' && parent == 'ratings')"
+            style="font-weight: normal; text-align: center"
+          >
             Access
             {{ userType == "self" ? "your" : userName.split(" ")[0] + "'s" }}
             {{ parent }} on desktop at flibo.ai
@@ -124,7 +139,7 @@
           <p v-else style="font-weight: normal; text-align: center">
             Share
             {{ userType == "self" ? "your" : userName.split(" ")[0] + "'s" }}
-            {{ parent }} with others
+            {{ parent }} with friends
           </p>
 
           <Button
@@ -1462,29 +1477,6 @@ export default {
 .quick-filters-container.quick-filters-container--hidden {
   transform: translate3d(-50%, -300%, 0);
 }
-.refresh-feed {
-  position: relative;
-  cursor: pointer;
-  left: 50%;
-  width: 85px;
-  transform: translate3d(-50%, 0%, 0);
-  margin-top: 8px;
-  margin-bottom: 5px;
-  text-align: center;
-  font-size: 14px;
-  color: #ffffff;
-  background-color: #3365bb;
-  border-radius: 15px;
-  padding: 5px 15px;
-  z-index: 3;
-  -webkit-user-select: none; /* Chrome/Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE10+ */
-  -o-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-}
 .only-suggestions {
   position: absolute;
   display: flex;
@@ -1669,5 +1661,10 @@ export default {
 }
 ::-webkit-scrollbar {
   display: none;
+}
+.refresh-feed {
+  width: fit-content;
+  margin-left: 50%;
+  transform: translateX(-50%) rotate(25deg);
 }
 </style>

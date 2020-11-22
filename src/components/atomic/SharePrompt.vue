@@ -31,7 +31,7 @@
         "
         class="share-profile-refresh-collage"
         buttonType="secondary"
-        text="Try Another"
+        :text="refreshText"
         @clicked="fetchProfileCollage"
       />
 
@@ -50,7 +50,7 @@
           "
           class="share-profile-message"
         >
-          Preparing collage for your taste...
+          Preparing instagram layout of your ratings...
           <br />
           {{
             store.user.profile.profile_status != "public"
@@ -226,6 +226,7 @@ export default {
         wrapAround: true,
         percentPosition: true,
       },
+      refreshText: "Refresh instagram layout",
     };
   },
   created() {
@@ -244,7 +245,11 @@ export default {
       ["profile", "ratings"].includes(this.parent) &&
       this.profileId == this.store.user.id
     ) {
-      this.fetchProfileCollage();
+      this.selectedImage =
+        "https://flibo-images.s3-us-west-2.amazonaws.com/user_collages/" +
+        this.profileId +
+        ".jpg?" +
+        new Date().getTime();
     } else {
       this.selectedImage = this.image
         ? this.image.replace("/original/", "/w500/")
@@ -280,13 +285,15 @@ export default {
         .then(function (response) {
           if (response.status == 200) {
             self.contentImages = response.data.images;
-            self.selectedImage = self.contentImages[0].replace(
-              "/original/",
-              "/w500/"
-            );
-            self.$nextTick(function () {
-              self.addClickEventListener();
-            });
+            if (self.contentImages.length) {
+              self.selectedImage = self.contentImages[0].replace(
+                "/original/",
+                "/w500/"
+              );
+              self.$nextTick(function () {
+                self.addClickEventListener();
+              });
+            }
           } else if (response.status == 204) {
             self.contentImages = [];
           }
@@ -299,6 +306,8 @@ export default {
     },
     fetchProfileCollage() {
       var self = this;
+
+      self.refreshText = "Try another";
       self.fetching = true;
 
       axios
@@ -306,6 +315,7 @@ export default {
           session_id: self.$store.state.session_id,
         })
         .then(function (response) {
+          self.$emit("update-api-counter", { api: "collage" });
           if ([200].includes(response.status)) {
             self.selectedImage =
               response.data.collage + "?" + new Date().getTime();
@@ -315,6 +325,7 @@ export default {
           self.fetching = false;
         })
         .catch(function (error) {
+          self.$emit("update-api-counter", { api: "collage" });
           self.fetching = false;
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {

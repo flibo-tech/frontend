@@ -67,15 +67,21 @@
         <h4
           :style="
             own_profile
-              ? 'display: flex; justify-content: center; align-items: center;'
+              ? 'display: inline; text-align: center; vertical-align: middle;'
               : 'display: flex; flex-direction: column; justify-content: center; align-items: center;'
           "
         >
-          {{ user_name }}
+          <span
+            :style="own_profile ? 'margin-right: 8px; line-height: 1.75;' : ''"
+          >
+            {{ user_name }}
+          </span>
 
           <div
             :style="
-              own_profile ? 'display: flex;' : 'display: flex; margin-top: 8px'
+              own_profile
+                ? 'display: inline-block; vertical-align: text-top;'
+                : 'display: flex; margin-top: 8px'
             "
           >
             <span
@@ -127,10 +133,19 @@
             </span>
 
             <Button
-              :style="
-                own_profile
-                  ? 'transform: rotate(22deg); margin-left: 16px;'
-                  : 'transform: rotate(22deg); margin-left: 16px; margin-top: -4px;'
+              v-if="own_profile"
+              buttonType="primary"
+              text="Share with friends"
+              :capitalize="false"
+              @clicked="share_profile_banner = true"
+            />
+
+            <Button
+              v-else
+              style="
+                transform: rotate(22deg);
+                margin-left: 16px;
+                margin-top: -4px;
               "
               icon="send_outline"
               buttonType="iconOnly"
@@ -420,55 +435,38 @@
         </div>
       </transition>
 
-      <div
-        class="profile-quick-filters-content-type"
-        v-if="
-          total_watched.movie.total != 'some great' ||
-          total_watched.tv.total != 'some great'
-        "
-      >
-        <label
-          v-for="(item, index) in ['Movie', 'TV']"
-          :key="index"
-          class="content-type-checkbox"
-          :style="
-            profile_content_type_tab == item
-              ? 'background-color: #e8f0fe;border-color: #d2e3fc;'
-              : ''
-          "
-        >
-          <input
-            type="radio"
-            v-bind:value="item"
-            v-model="profile_content_type_tab"
-            class="content-type-checkbox-input"
-          />
-          <span class="content-type-checkmark-text">{{ item }}</span>
-        </label>
+      <div v-if="profile_access == 'closed'" style="margin-top: 32px">
+        {{ user_name.split(" ")[0] }}'s profile is private.
       </div>
 
-      <div class="total-watched-container">
-        <span style="font-weight: bold; font-size: 15px">
-          {{ own_profile ? "You have" : user_name.split(" ")[0] + " has" }}
-          watched...
-        </span>
+      <div class="total-watched-container" v-if="profile_access == 'open'">
+        <div class="profile-watched-box">
+          <div class="profile-content-watched" @click="goToRatings">
+            <div style="font-size: 26px; font-weight: bold">
+              {{ total_watched.movies ? total_watched.movies : 0 }}
+            </div>
 
-        <div :class="is_mobile ? 'total-watched' : 'desktop-total-watched'">
-          {{ total_watched[content_type].total }}
+            <div>Movies</div>
+          </div>
 
-          <span v-if="content_type == 'movie'"> Movies </span>
-          <span v-if="content_type == 'tv'"> TV Series </span>
+          <div class="profile-content-watched" @click="goToRatings">
+            <div style="font-size: 26px; font-weight: bold">
+              {{ total_watched.shows ? total_watched.shows : 0 }}
+            </div>
+
+            <div>Shows</div>
+          </div>
         </div>
+
         <div
-          :class="
-            is_mobile ? 'total-watched-time' : 'desktop-total-watched-time'
-          "
+          v-if="total_watched.movies || total_watched.shows"
+          style="margin-top: 16px; font-size: 12px"
         >
-          taking {{ total_watched[content_type].time }}
+          That's {{ total_watched.time }} of non-stop watch time.
         </div>
       </div>
 
-      <div class="profile-ratings" v-if="filtered_ratings.length">
+      <div class="profile-ratings" v-if="contents_rated.length">
         <div
           style="
             display: flex;
@@ -506,7 +504,7 @@
             id="ratings-container"
           >
             <div
-              v-for="(item, index) in filtered_ratings"
+              v-for="(item, index) in contents_rated"
               :key="index"
               class="ratings-item-container"
             >
@@ -562,7 +560,7 @@
         </div>
       </div>
 
-      <div class="profile-ratings" v-if="filtered_watchlist.length">
+      <div class="profile-ratings" v-if="own_profile ? true : watchlist.length">
         <div
           style="
             display: flex;
@@ -592,7 +590,7 @@
           </transition>
         </div>
 
-        <div style="display: flex">
+        <div style="display: flex" v-if="watchlist.length">
           <div
             :class="
               is_mobile ? 'ratings-container' : 'desktop-ratings-container'
@@ -600,7 +598,7 @@
             id="watchlist-container"
           >
             <div
-              v-for="(item, index) in filtered_watchlist"
+              v-for="(item, index) in watchlist"
               :key="index"
               class="ratings-item-container"
             >
@@ -637,6 +635,18 @@
               @clicked="goToWatchlist"
             />
           </div>
+        </div>
+
+        <div
+          v-else
+          style="
+            text-align: center;
+            padding: 48px;
+            font-size: 18px;
+            color: #888;
+          "
+        >
+          Your watchlist is empty.
         </div>
       </div>
 
@@ -721,7 +731,10 @@
           @click="clickUser(item.id, item.name)"
         >
           <ImageCard
-            :image="item.picture"
+            :image="
+              item.picture ||
+              'https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png'
+            "
             :name="item.name"
             :width="is_mobile ? 55 : 75"
             :height="is_mobile ? 70 : 95"
@@ -735,9 +748,9 @@
           is_mobile ? 'fav-artists-container' : 'desktop-fav-artists-container'
         "
         v-if="
-          favorite_artists[content_type].directed_by ||
-          favorite_artists[content_type].cast ||
-          favorite_artists[content_type].writing_credits
+          favoriteArtists.directed_by.length ||
+          favoriteArtists.cast.length ||
+          favoriteArtists.writing_credits.length
         "
       >
         <span
@@ -749,23 +762,19 @@
           "
         >
           {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }} favorite
-          artists are...
+          artists...
         </span>
         <div
           :class="
             is_mobile ? 'fav-artist-category' : 'desktop-fav-artist-category'
           "
-          v-if="favorite_artists[content_type].directed_by"
+          v-if="favoriteArtists.directed_by.length"
         >
           Director
         </div>
-        <div
-          class="fav-artists"
-          v-if="favorite_artists[content_type].directed_by"
-        >
+        <div class="fav-artists" v-if="favoriteArtists.directed_by.length">
           <Artist
-            v-for="(artist, index) in favorite_artists[content_type]
-              .directed_by"
+            v-for="(artist, index) in favoriteArtists.directed_by"
             :key="index"
             class="fav-catg-artists-container"
             :artistId="artist.person_id"
@@ -783,13 +792,13 @@
           :class="
             is_mobile ? 'fav-artist-category' : 'desktop-fav-artist-category'
           "
-          v-if="favorite_artists[content_type].cast"
+          v-if="favoriteArtists.cast.length"
         >
           Actor
         </div>
-        <div class="fav-artists" v-if="favorite_artists[content_type].cast">
+        <div class="fav-artists" v-if="favoriteArtists.cast.length">
           <Artist
-            v-for="(artist, index) in favorite_artists[content_type].cast"
+            v-for="(artist, index) in favoriteArtists.cast"
             :key="index"
             class="fav-catg-artists-container"
             :artistId="artist.person_id"
@@ -807,17 +816,13 @@
           :class="
             is_mobile ? 'fav-artist-category' : 'desktop-fav-artist-category'
           "
-          v-if="favorite_artists[content_type].writing_credits"
+          v-if="favoriteArtists.writing_credits.length"
         >
           Writer
         </div>
-        <div
-          class="fav-artists"
-          v-if="favorite_artists[content_type].writing_credits"
-        >
+        <div class="fav-artists" v-if="favoriteArtists.writing_credits.length">
           <Artist
-            v-for="(artist, index) in favorite_artists[content_type]
-              .writing_credits"
+            v-for="(artist, index) in favoriteArtists.writing_credits"
             :key="index"
             class="fav-catg-artists-container"
             :artistId="artist.person_id"
@@ -832,19 +837,18 @@
         </div>
       </div>
 
-      <div v-if="genres[content_type].genre.length" class="genres-container">
+      <div v-if="genres.genre.length" class="genres-container">
         {{ own_profile ? "Your" : user_name.split(" ")[0] + "'s" }} favorite
         genres...
         <GenresPie
           :class="is_mobile ? 'genres-pie' : 'desktop-genres-pie'"
-          :genres="genres[content_type].genre"
-          :contribution="genres[content_type].contribution"
-          :parent_content_type="content_type"
+          :genres="genres.genre"
+          :contribution="genres.contribution"
         />
       </div>
 
       <div
-        v-if="watched_timeline[content_type].years.length"
+        v-if="watched_timeline.total.length"
         class="watched-timeline-container"
       >
         <div>
@@ -853,12 +857,11 @@
         </div>
         <WatchedTimeline
           :class="is_mobile ? 'watched-timeline' : 'desktop-watched-timeline'"
-          :years="watched_timeline[content_type].years"
-          :liked="watched_timeline[content_type].liked"
-          :disliked="watched_timeline[content_type].disliked"
-          :loved="watched_timeline[content_type].loved"
-          :total="watched_timeline[content_type].total"
-          :parent_content_type="content_type"
+          :years="watched_timeline.years"
+          :liked="watched_timeline.liked"
+          :disliked="watched_timeline.disliked"
+          :loved="watched_timeline.loved"
+          :total="watched_timeline.total"
         />
       </div>
     </div>
@@ -908,14 +911,15 @@ export default {
     return {
       is_mobile: window.screen.height > window.screen.width,
       renderComponent: true,
-      profile_content_type_tab: "Movie",
       fetching_profile: false,
+      profile_access: "open",
       user_type: null,
       user_id: null,
       user_name: null,
       profile_picture: null,
       own_profile: null,
       tab_name: "Ratings",
+      content_type: "movie",
       rating_tab: [3],
       posters: [],
       covers: [],
@@ -927,14 +931,9 @@ export default {
       movies_these_days: [],
       tv_series_these_days: [],
       total_watched: {
-        movie: {
-          total: "some great",
-          time: "some good time :)",
-        },
-        tv: {
-          total: "some great",
-          time: "some good time :)",
-        },
+        movies: 0,
+        shows: 0,
+        time: "some good time :)",
       },
       seeking_recommendations: false,
       store: this.$store.state,
@@ -997,9 +996,17 @@ export default {
     this.$store.state.current_path = this.$route.path;
     var userid = this.$route.params.user_id;
     var username = this.$route.params.user_name;
+
     var self = this;
     self.fetching_profile = true;
     if (self.store.user.id == userid) {
+      if (this.$route.query.share) {
+        let query = Object.assign({}, this.$route.query);
+        delete query.share;
+        this.$router.replace({ query });
+        this.share_profile_banner = true;
+      }
+
       self.own_profile = true;
       self.user_type = "self";
       self.user_id = self.store.user.id;
@@ -1008,8 +1015,8 @@ export default {
       self.posters = self.store.user.profile.posters;
       self.covers = self.store.user.profile.covers;
       self.total_watched = self.store.user.profile.total_watched;
-      self.contents_rated = self.userTopRatings;
-      self.watchlist = self.userTopWatchlist;
+      self.contents_rated = self.store.user.profile.contents_rated;
+      self.watchlist = self.store.user.profile.watchlist;
       self.genres = self.store.user.profile.genres;
       self.watched_timeline = self.store.user.profile.watched_timeline;
       self.profile_status = self.store.user.profile.profile_status;
@@ -1052,6 +1059,7 @@ export default {
             })
             .then(function (response) {
               if ([200].includes(response.status)) {
+                self.profile_access = response.data.profile_access;
                 self.user_type = response.data.user_type;
                 self.user_id = response.data.user_id;
                 self.user_name = response.data.user_name;
@@ -1073,6 +1081,12 @@ export default {
                 });
                 if (self.store.user.id == self.user_id) {
                   self.own_profile = true;
+                  if (self.$route.query.share && !self.share_profile_banner) {
+                    let query = Object.assign({}, self.$route.query);
+                    delete query.share;
+                    self.$router.replace({ query });
+                    self.share_profile_banner = true;
+                  }
                 } else {
                   self.own_profile = false;
                 }
@@ -1128,6 +1142,7 @@ export default {
         })
         .then(function (response) {
           if ([200].includes(response.status)) {
+            self.profile_access = response.data.profile_access;
             self.user_type = response.data.user_type;
             self.user_id = response.data.user_id;
             self.user_name = response.data.user_name;
@@ -1149,6 +1164,12 @@ export default {
             });
             if (self.store.user.id == self.user_id) {
               self.own_profile = true;
+              if (self.$route.query.share && !self.share_profile_banner) {
+                let query = Object.assign({}, self.$route.query);
+                delete query.share;
+                self.$router.replace({ query });
+                self.share_profile_banner = true;
+              }
             } else {
               self.own_profile = false;
             }
@@ -1239,6 +1260,7 @@ export default {
       var userid = this.$route.params.user_id;
       var username = this.$route.params.user_name;
       var self = this;
+      self.profile_access = "open";
       self.fetching_profile = true;
       if (self.store.user.id == userid) {
         self.own_profile = true;
@@ -1269,6 +1291,7 @@ export default {
         })
         .then(function (response) {
           if ([200].includes(response.status)) {
+            self.profile_access = response.data.profile_access;
             self.user_type = response.data.user_type;
             self.user_id = response.data.user_id;
             self.user_name = response.data.user_name;
@@ -1688,9 +1711,6 @@ export default {
     rating_tab_string() {
       return JSON.stringify(this.rating_tab);
     },
-    content_type() {
-      return this.profile_content_type_tab.toLowerCase();
-    },
     country_flag() {
       var country;
       for (country in this.$store.state.countries) {
@@ -1733,53 +1753,72 @@ export default {
                 `
       );
     },
-    filtered_ratings() {
-      var filtered = [];
-      var item;
-      for (item in this.contents_rated) {
-        if (this.contents_rated[item].type == this.content_type) {
-          filtered.push(this.contents_rated[item]);
-        }
-      }
-      return filtered;
-    },
-    filtered_watchlist() {
-      var filtered = [];
-      var item;
-      for (item in this.watchlist) {
-        if (this.watchlist[item].type == this.content_type) {
-          filtered.push(this.watchlist[item]);
-        }
-      }
-      return filtered;
-    },
-    userTopRatings() {
-      var output = [];
-      output.push(
-        ...this.store.user.profile.contents_rated
-          .filter((content) => content.type == "movie")
-          .slice(0, 10)
-      );
-      output.push(
-        ...this.store.user.profile.contents_rated
-          .filter((content) => content.type == "tv")
-          .slice(0, 10)
-      );
+    favoriteArtists() {
+      let output = {
+        directed_by: [],
+        cast: [],
+        writing_credits: [],
+      };
 
-      return output;
-    },
-    userTopWatchlist() {
-      var output = [];
-      output.push(
-        ...this.store.user.profile.watchlist
-          .filter((content) => content.type == "movie")
-          .slice(0, 10)
-      );
-      output.push(
-        ...this.store.user.profile.watchlist
-          .filter((content) => content.type == "tv")
-          .slice(0, 10)
-      );
+      (this.favorite_artists.movie.directed_by || []).forEach((artist) => {
+        if (
+          !output.directed_by
+            .map((person) => person.person_id)
+            .includes(artist.person_id)
+        ) {
+          output.directed_by.push(artist);
+        }
+      });
+
+      (this.favorite_artists.movie.cast || []).forEach((artist) => {
+        if (
+          !output.cast
+            .map((person) => person.person_id)
+            .includes(artist.person_id)
+        ) {
+          output.cast.push(artist);
+        }
+      });
+
+      (this.favorite_artists.movie.writing_credits || []).forEach((artist) => {
+        if (
+          !output.writing_credits
+            .map((person) => person.person_id)
+            .includes(artist.person_id)
+        ) {
+          output.writing_credits.push(artist);
+        }
+      });
+
+      (this.favorite_artists.tv.directed_by || []).forEach((artist) => {
+        if (
+          !output.directed_by
+            .map((person) => person.person_id)
+            .includes(artist.person_id)
+        ) {
+          output.directed_by.push(artist);
+        }
+      });
+
+      (this.favorite_artists.tv.cast || []).forEach((artist) => {
+        if (
+          !output.cast
+            .map((person) => person.person_id)
+            .includes(artist.person_id)
+        ) {
+          output.cast.push(artist);
+        }
+      });
+
+      (this.favorite_artists.tv.writing_credits || []).forEach((artist) => {
+        if (
+          !output.writing_credits
+            .map((person) => person.person_id)
+            .includes(artist.person_id)
+        ) {
+          output.writing_credits.push(artist);
+        }
+      });
 
       return output;
     },
@@ -2138,11 +2177,13 @@ h4 {
 .total-watched-container {
   position: relative;
   color: #333333;
-  font-size: 12.5px;
-  text-align: left;
+  font-size: 15px;
+  text-align: center;
   width: 100%;
   border-radius: 7px;
-  padding: 7px;
+  padding: 16px;
+  background-color: #fafafa;
+  margin-top: 16px;
 }
 .total-watched {
   color: #333333;
@@ -2674,7 +2715,7 @@ h4 {
   background-repeat: no-repeat;
   background-position: center;
   background-size: 40%;
-  padding: 0;
+  padding: 8px;
   border: none;
   outline: 0;
   cursor: pointer;
@@ -2961,5 +3002,14 @@ h4 {
   z-index: 1;
   padding: 5px;
   border-radius: 50%;
+}
+.profile-watched-box {
+  display: flex;
+  justify-content: space-evenly;
+}
+.profile-content-watched {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

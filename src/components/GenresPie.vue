@@ -1,64 +1,63 @@
 <script>
-import { Pie } from "vue-chartjs";
+import { Doughnut } from "vue-chartjs";
+import "chartjs-plugin-labels";
 
 export default {
-  extends: Pie,
+  extends: Doughnut,
   props: {
     genres: {
       type: Array,
-      required: true
+      required: true,
     },
     contribution: {
       type: Array,
-      required: true
+      required: true,
     },
-    parent_content_type: {
-      type: String,
-      required: true
-    }
   },
   mounted() {
     this.renderPieChart();
   },
-  computed: {
-    content_type: function() {
-      return this.parent_content_type;
-    }
-  },
-  watch: {
-    content_type: {
-      handler(val) {
-        this.renderPieChart();
-      }
-    }
-  },
   methods: {
-    renderPieChart: function() {
+    renderPieChart: function () {
       this.renderChart(
         {
           labels: this.genres,
           datasets: [
             {
               backgroundColor: [
-                "#8fb3f5",
-                "#bdaef3",
-                "#e4a9e7",
-                "#ffa7d2",
-                "#ffabb9",
-                "#ffb4a1",
-                "#ffc28f",
-                "#fad287"
+                "#405EED",
+                "#5A62DC",
+                "#7566CC",
+                "#8F6ABB",
+                "#A96DAB",
+                "#C3719A",
+                "#DE758A",
+                "#F87979",
               ],
-              data: this.contribution
-            }
-          ]
+              data: this.contribution,
+            },
+          ],
         },
         {
           responsive: true,
-          maintainAspectRatio: true
+          maintainAspectRatio: true,
+          legend: false,
+          tooltips: false,
+          plugins: {
+            labels: {
+              render: "label",
+              fontSize: 12,
+              fontColor: "#333",
+              fontFamily: "'Roboto', sans-serif",
+              position: "outside",
+              arc: true,
+              textMargin: 8,
+              outsidePadding: 8,
+            },
+          },
         }
       );
-    }
-  }
+    },
+  },
 };
 </script>

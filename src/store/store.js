@@ -11,15 +11,15 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_au == "undefined") {
+    if (typeof my_store.unused_key_bf == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       localStorage.clear();
       if (temp_is_webview == "true") {
         window.location =
-          "https://flibo.ai/?id=" + temp_session_id + "&webview=true";
+          "https://flibo.ai/?id=" + temp_session_id + "&webview=true&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       } else {
-        window.location = "https://flibo.ai/?id=" + temp_session_id;
+        window.location = "https://flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       }
       my_store = JSON.parse(localStorage.getItem("my_store"));
     }
@@ -29,9 +29,9 @@ if (my_store) {
     localStorage.clear();
     if (temp_is_webview == "true") {
       window.location =
-        "https://flibo.ai/?id=" + temp_session_id + "&webview=true";
+        "https://flibo.ai/?id=" + temp_session_id + "&webview=true&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     } else {
-      window.location = "https://flibo.ai/?id=" + temp_session_id;
+      window.location = "https://flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     }
     my_store = JSON.parse(localStorage.getItem("my_store"));
   }
@@ -40,7 +40,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_au: my_store ? my_store.unused_key_au : true,
+    unused_key_bf: my_store ? my_store.unused_key_bf : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -53,46 +53,26 @@ export const store = new Vuex.Store({
         total_watched: my_store
           ? my_store.user.profile.total_watched
           : {
-              movie: {
-                total: "some great",
-                time: "some good time :)"
-              },
-              tv: {
-                total: "some great",
-                time: "some good time :)"
-              }
+              movies: 0,
+              shows: 0,
+              time: "some good time :)"
             },
         contents_rated: my_store ? my_store.user.profile.contents_rated : [],
         watchlist: my_store ? my_store.user.profile.watchlist : [],
         genres: my_store
           ? my_store.user.profile.genres
           : {
-              movie: {
-                genre: [],
-                contribution: []
-              },
-              tv: {
-                genre: [],
-                contribution: []
-              }
+              genre: [],
+              contribution: []
             },
         watched_timeline: my_store
           ? my_store.user.profile.watched_timeline
           : {
-              movie: {
-                years: [],
-                liked: [],
-                disliked: [],
-                loved: [],
-                total: []
-              },
-              tv: {
-                years: [],
-                liked: [],
-                disliked: [],
-                loved: [],
-                total: []
-              }
+              years: [],
+              liked: [],
+              disliked: [],
+              loved: [],
+              total: []
             },
         profile_status: my_store
           ? my_store.user.profile.profile_status
