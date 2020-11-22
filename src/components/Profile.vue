@@ -996,6 +996,11 @@ export default {
     this.$store.state.current_path = this.$route.path;
     var userid = this.$route.params.user_id;
     var username = this.$route.params.user_name;
+
+    if (this.$route.query.share) {
+      this.share_profile_banner = true;
+    }
+
     var self = this;
     self.fetching_profile = true;
     if (self.store.user.id == userid) {
