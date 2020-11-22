@@ -11,15 +11,15 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_bb == "undefined") {
+    if (typeof my_store.unused_key_bc == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       localStorage.clear();
       if (temp_is_webview == "true") {
         window.location =
-          "https://flibo.ai/?id=" + temp_session_id + "&webview=true";
+          "https://flibo.ai/?id=" + temp_session_id + "&webview=true&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       } else {
-        window.location = "https://flibo.ai/?id=" + temp_session_id;
+        window.location = "https://flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       }
       my_store = JSON.parse(localStorage.getItem("my_store"));
     }
@@ -29,9 +29,9 @@ if (my_store) {
     localStorage.clear();
     if (temp_is_webview == "true") {
       window.location =
-        "https://flibo.ai/?id=" + temp_session_id + "&webview=true";
+        "https://flibo.ai/?id=" + temp_session_id + "&webview=true&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     } else {
-      window.location = "https://flibo.ai/?id=" + temp_session_id;
+      window.location = "https://flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     }
     my_store = JSON.parse(localStorage.getItem("my_store"));
   }
@@ -40,7 +40,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_bb: my_store ? my_store.unused_key_bb : true,
+    unused_key_bc: my_store ? my_store.unused_key_bc : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,

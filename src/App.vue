@@ -518,7 +518,9 @@ export default {
           this.$store.state.current_path = this.$route.fullPath;
         }
 
-        if (this.$store.state.current_path) {
+        if (this.$route.query.path) {
+          this.$router.push(decodeURIComponent(this.$route.query.path));
+        } else if (this.$store.state.current_path) {
           this.$router.push(this.$store.state.current_path);
         } else {
           this.$router.push("/");
