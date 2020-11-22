@@ -997,13 +997,16 @@ export default {
     var userid = this.$route.params.user_id;
     var username = this.$route.params.user_name;
 
-    if (this.$route.query.share) {
-      this.share_profile_banner = true;
-    }
-
     var self = this;
     self.fetching_profile = true;
     if (self.store.user.id == userid) {
+      if (this.$route.query.share) {
+        let query = Object.assign({}, this.$route.query);
+        delete query.share;
+        this.$router.replace({ query });
+        this.share_profile_banner = true;
+      }
+
       self.own_profile = true;
       self.user_type = "self";
       self.user_id = self.store.user.id;
@@ -1078,6 +1081,12 @@ export default {
                 });
                 if (self.store.user.id == self.user_id) {
                   self.own_profile = true;
+                  if (self.$route.query.share && !self.share_profile_banner) {
+                    let query = Object.assign({}, self.$route.query);
+                    delete query.share;
+                    self.$router.replace({ query });
+                    self.share_profile_banner = true;
+                  }
                 } else {
                   self.own_profile = false;
                 }
@@ -1155,6 +1164,12 @@ export default {
             });
             if (self.store.user.id == self.user_id) {
               self.own_profile = true;
+              if (self.$route.query.share && !self.share_profile_banner) {
+                let query = Object.assign({}, self.$route.query);
+                delete query.share;
+                self.$router.replace({ query });
+                self.share_profile_banner = true;
+              }
             } else {
               self.own_profile = false;
             }

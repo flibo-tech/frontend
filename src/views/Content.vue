@@ -577,6 +577,9 @@ export default {
                 self.$route.query.watchLater &&
                 !self.$store.state.content_page.data.watch_later
               ) {
+                let query = Object.assign({}, self.$route.query);
+                delete query.watchLater;
+                self.$router.replace({ query });
                 self.addToWatchlist();
               }
             })
@@ -620,6 +623,9 @@ export default {
             self.$route.query.watchLater &&
             !self.$store.state.content_page.data.watch_later
           ) {
+            let query = Object.assign({}, self.$route.query);
+            delete query.watchLater;
+            self.$router.replace({ query });
             self.addToWatchlist();
           }
         })
@@ -657,7 +663,8 @@ export default {
       .then(
         (response) => (
           (self.$store.state.content_page.crew = response.data.cast_n_crew),
-          (self.loading = false)
+          (self.loading = false),
+          (self.$store.state.content_page.rerender = false)
         )
       )
       .catch(function (error) {
@@ -712,6 +719,9 @@ export default {
             self.$route.query.watchLater &&
             !self.$store.state.content_page.data.watch_later
           ) {
+            let query = Object.assign({}, self.$route.query);
+            delete query.watchLater;
+            self.$router.replace({ query });
             self.addToWatchlist();
           }
         })
