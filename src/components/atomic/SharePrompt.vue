@@ -285,13 +285,15 @@ export default {
         .then(function (response) {
           if (response.status == 200) {
             self.contentImages = response.data.images;
-            self.selectedImage = self.contentImages[0].replace(
-              "/original/",
-              "/w500/"
-            );
-            self.$nextTick(function () {
-              self.addClickEventListener();
-            });
+            if (self.contentImages.length) {
+              self.selectedImage = self.contentImages[0].replace(
+                "/original/",
+                "/w500/"
+              );
+              self.$nextTick(function () {
+                self.addClickEventListener();
+              });
+            }
           } else if (response.status == 204) {
             self.contentImages = [];
           }

@@ -96,13 +96,18 @@ export default {
                   (image) => image != self.store.create.image
                 )
               );
-            } else {
+            } else if (response.data.images.length) {
               self.images = response.data.images;
               self.store.create.image = self.images[0];
+            } else {
+              self.images = [];
             }
-            self.$nextTick(function () {
-              self.addClickEventListener();
-            });
+
+            if (self.images.length) {
+              self.$nextTick(function () {
+                self.addClickEventListener();
+              });
+            }
           } else if (response.status == 204) {
             self.images = [];
           }
