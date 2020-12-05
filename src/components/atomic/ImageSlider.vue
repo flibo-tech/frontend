@@ -278,6 +278,7 @@ export default {
 .exclude-image {
   position: absolute;
   width: 100vw;
+  max-width: 1000px;
   margin-top: 0;
   margin-left: 0;
   z-index: 1;

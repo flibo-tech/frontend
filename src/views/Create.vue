@@ -289,7 +289,11 @@ export default {
       this.title = text;
     },
     goBack() {
-      window.history.back();
+      if (window.history.length <= 2) {
+        this.$router.push("/discover");
+      } else {
+        window.history.back();
+      }
     },
     autoGrow(element) {
       element.style.height = "auto";
