@@ -213,6 +213,17 @@ export default {
     };
   },
   beforeCreate() {
+    if (this.$route.query.type) {
+      this.$store.state.create.type = this.$route.query.type;
+      if (["review", "suggest"].includes(this.$route.query.type)) {
+        this.$store.state.create.content = {
+          subject: this.$route.query.title,
+          subject_id: parseInt(this.$route.query.contentId),
+        };
+        this.$store.state.create.ids = [parseInt(this.$route.query.contentId)];
+      }
+    }
+
     if (this.$store.state.create.type == null) {
       window.history.back();
     }
@@ -278,7 +289,11 @@ export default {
       this.title = text;
     },
     goBack() {
-      window.history.back();
+      if (window.history.length <= 2) {
+        this.$router.push("/discover");
+      } else {
+        window.history.back();
+      }
     },
     autoGrow(element) {
       element.style.height = "auto";
