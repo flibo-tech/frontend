@@ -118,6 +118,7 @@
     </div>
 
     <SpeechRecognition
+      v-if="!['/connections'].includes($route.path)"
       class="topbar-mic"
       :style="is_mobile ? '' : 'right: calc(50vw - 500px + 30px);'"
     />
