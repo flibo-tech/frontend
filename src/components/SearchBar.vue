@@ -18,13 +18,11 @@
       />
     </form>
 
-    <button
+    <SpeechRecognition
       v-if="!this.search_string.length & (parent == 'search_page')"
       class="search-icon"
       :style="is_mobile ? '' : 'right: calc(50vw - 500px + 35px);'"
-      @click="clearSearchString"
-      type="button"
-    ></button>
+    />
 
     <button
       v-if="this.search_string.length || parent == 'connections'"
@@ -243,6 +241,7 @@ const source = CancelToken.source();
 import DiscoverFilter from "./DiscoverFilter";
 import UserRating from "./molecular/UserRating";
 import ImageCard from "./atomic/ImageCard";
+import SpeechRecognition from "./molecular/SpeechRecognition";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -251,6 +250,7 @@ export default {
     DiscoverFilter,
     UserRating,
     ImageCard,
+    SpeechRecognition,
   },
   mixins: [onClickOutside],
   data() {
@@ -289,144 +289,19 @@ export default {
     },
   },
   created() {
-    var self = this;
-    if (this.$store.state.current_path == "/search-results") {
-      this.$store.state.current_path = this.$route.path;
-      this.store.discover_filters.filtered_content = [];
-      this.store.discover_filters.more_filtered_content = [];
-      this.$store.state.feed.search_results.feed_list = [];
-
-      var reset_info = {
-        parent: "search_results",
-        filters: true,
-        skip_suggestions_filter: false,
-        scroll: true,
-        paddings: true,
-        observer_current_index: true,
-        element_heights: true,
-      };
-      this.$emit("reset-feed-page", reset_info);
-
-      if (this.search_query) {
-        this.$router.push("/search");
-      }
-    } else if (this.parent == "connections") {
-      self.timeout = setTimeout(function () {
-        document.getElementById(self.parent + "_search_string").value = "";
-        document.getElementById(self.parent + "_search_string").focus();
-      }, 0);
-    } else if (
-      (this.$store.state.discover_filters.filtered_content.length != 0) &
-      (Date.now() - self.$store.state.discover_filters.last_fetch_time <
-        30 * 60 * 1000)
-    ) {
-      this.$router.push("/search-results");
-    } else if (this.parent == "search_page") {
-      if (!this.search_query) {
-        this.$store.state.current_path = this.$route.path;
-        this.filters_applied.artists = [];
-        this.filters_applied.genres = [];
-        this.filters_applied.years = [];
-        this.filters_applied.tags = [];
-        this.filters_applied.platforms = [];
-        this.filters_applied.awards = [];
-        this.filters_applied.nominations = false;
-        this.filters_applied.rating = "10";
-        this.filters_applied.runtime = "180";
-        this.filters_applied.languages = [];
-        this.filters_applied.tab = "All";
-        this.store.discover_filters.filtered_content = [];
-        this.store.discover_filters.more_filtered_content = [];
-        this.$store.state.feed.search_results.feed_list = [];
-
-        var reset_info = {
-          parent: "search_results",
-          filters: true,
-          skip_suggestions_filter: false,
-          scroll: true,
-          paddings: true,
-          observer_current_index: true,
-          element_heights: true,
-        };
-        this.$emit("reset-feed-page", reset_info);
-      } else {
-        this.store.discover_filters.is_string_query = true;
-        this.$router.push("/search-results");
-        this.$store.state.discover_filters.fetching_filtered = true;
-
-        var reset_info = {
-          parent: "search_results",
-          filters: true,
-          skip_suggestions_filter: false,
-          scroll: true,
-          paddings: true,
-          observer_current_index: true,
-          element_heights: true,
-        };
-        this.$emit("reset-feed-page", reset_info);
-
-        var self = this;
-        axios
-          .post(self.$store.state.api_host + "search_query", {
-            session_id: self.$store.state.session_id,
-            query_string: self.search_query,
-            country:
-              self.$store.state.user.profile.country ||
-              self.$store.state.guest_country,
-            guest_id: self.$store.state.guest_id,
-          })
-          .then(function (response) {
-            if ([200].includes(response.status)) {
-              if (self.$route.path == "/search-results") {
-                self.$store.state.discover_filters.filtered_content =
-                  response.data.contents;
-                self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
-                  0,
-                  self.$store.state.feed.defaultListSize
-                );
-                if (self.$route.path == "/search-results") {
-                  self.$store.state.feed.update_dom = true;
-                }
-
-                self.$store.state.discover_filters.more_filtered_content =
-                  response.data.more_contents;
-                self.$store.state.scroll_positions.discover.filter = 0;
-                self.$store.state.discover_filters.last_fetch_time = Date.now();
-                if (response.data.more_contents.length) {
-                  self.fetchRemainingResults();
-                }
-              }
-            } else if ([204].includes(response.status)) {
-              if (self.$route.path == "/search-results") {
-                self.$store.state.discover_filters.filtered_content = [];
-                self.$store.state.discover_filters.more_filtered_content = [];
-                self.$store.state.scroll_positions.discover.filter = 0;
-              }
-            } else {
-              // console.log(response.status);
-            }
-            self.$store.state.discover_filters.fetching_filtered = false;
-          })
-          .catch(function (error) {
-            if ([401, 419].includes(error.response.status)) {
-              window.location =
-                self.$store.state.login_host +
-                "logout?session_id=" +
-                self.$store.state.session_id;
-              self.$store.state.session_id = null;
-              self.$emit("logging-out");
-            } else {
-              // console.log(error.response.status);
-            }
-            self.$store.state.discover_filters.fetching_filtered = false;
-          });
-      }
-    }
+    this.manageSearchPageState();
   },
   mounted() {
     if (!this.is_mobile) {
       document.getElementById(this.parent + "_search_string").focus();
     }
+  },
+  watch: {
+    search_query: {
+      handler: function (query) {
+        this.manageSearchPageState();
+      },
+    },
   },
   methods: {
     clearSearchString() {
@@ -883,6 +758,142 @@ export default {
           }
         });
     },
+    manageSearchPageState() {
+      var self = this;
+      if (
+        this.$store.state.current_path == "/search-results" &&
+        !this.search_query
+      ) {
+        this.$store.state.current_path = this.$route.path;
+        this.store.discover_filters.filtered_content = [];
+        this.store.discover_filters.more_filtered_content = [];
+        this.$store.state.feed.search_results.feed_list = [];
+
+        var reset_info = {
+          parent: "search_results",
+          filters: true,
+          skip_suggestions_filter: false,
+          scroll: true,
+          paddings: true,
+          observer_current_index: true,
+          element_heights: true,
+        };
+        this.$emit("reset-feed-page", reset_info);
+      } else if (this.parent == "connections") {
+        self.timeout = setTimeout(function () {
+          document.getElementById(self.parent + "_search_string").value = "";
+          document.getElementById(self.parent + "_search_string").focus();
+        }, 0);
+      } else if (
+        this.$store.state.discover_filters.filtered_content.length != 0 &&
+        Date.now() - self.$store.state.discover_filters.last_fetch_time <
+          30 * 60 * 1000 &&
+        !this.search_query
+      ) {
+        this.$router.push("/search-results");
+      } else if (this.parent == "search_page") {
+        if (!this.search_query) {
+          this.$store.state.current_path = this.$route.path;
+          this.filters_applied.artists = [];
+          this.filters_applied.genres = [];
+          this.filters_applied.years = [];
+          this.filters_applied.tags = [];
+          this.filters_applied.platforms = [];
+          this.filters_applied.awards = [];
+          this.filters_applied.nominations = false;
+          this.filters_applied.rating = "10";
+          this.filters_applied.runtime = "180";
+          this.filters_applied.languages = [];
+          this.filters_applied.tab = "All";
+          this.store.discover_filters.filtered_content = [];
+          this.store.discover_filters.more_filtered_content = [];
+          this.$store.state.feed.search_results.feed_list = [];
+
+          var reset_info = {
+            parent: "search_results",
+            filters: true,
+            skip_suggestions_filter: false,
+            scroll: true,
+            paddings: true,
+            observer_current_index: true,
+            element_heights: true,
+          };
+          this.$emit("reset-feed-page", reset_info);
+        } else {
+          this.$router.push("/search");
+          this.store.discover_filters.is_string_query = true;
+          this.$router.push("/search-results");
+          this.$store.state.discover_filters.fetching_filtered = true;
+
+          var reset_info = {
+            parent: "search_results",
+            filters: true,
+            skip_suggestions_filter: false,
+            scroll: true,
+            paddings: true,
+            observer_current_index: true,
+            element_heights: true,
+          };
+          this.$emit("reset-feed-page", reset_info);
+
+          var self = this;
+          axios
+            .post(self.$store.state.api_host + "search_query", {
+              session_id: self.$store.state.session_id,
+              query_string: self.search_query,
+              country:
+                self.$store.state.user.profile.country ||
+                self.$store.state.guest_country,
+              guest_id: self.$store.state.guest_id,
+            })
+            .then(function (response) {
+              if ([200].includes(response.status)) {
+                if (self.$route.path == "/search-results") {
+                  self.$store.state.discover_filters.filtered_content =
+                    response.data.contents;
+                  self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
+                    0,
+                    self.$store.state.feed.defaultListSize
+                  );
+                  if (self.$route.path == "/search-results") {
+                    self.$store.state.feed.update_dom = true;
+                  }
+
+                  self.$store.state.discover_filters.more_filtered_content =
+                    response.data.more_contents;
+                  self.$store.state.scroll_positions.discover.filter = 0;
+                  self.$store.state.discover_filters.last_fetch_time = Date.now();
+                  if (response.data.more_contents.length) {
+                    self.fetchRemainingResults();
+                  }
+                }
+              } else if ([204].includes(response.status)) {
+                if (self.$route.path == "/search-results") {
+                  self.$store.state.discover_filters.filtered_content = [];
+                  self.$store.state.discover_filters.more_filtered_content = [];
+                  self.$store.state.scroll_positions.discover.filter = 0;
+                }
+              } else {
+                // console.log(response.status);
+              }
+              self.$store.state.discover_filters.fetching_filtered = false;
+            })
+            .catch(function (error) {
+              if ([401, 419].includes(error.response.status)) {
+                window.location =
+                  self.$store.state.login_host +
+                  "logout?session_id=" +
+                  self.$store.state.session_id;
+                self.$store.state.session_id = null;
+                self.$emit("logging-out");
+              } else {
+                // console.log(error.response.status);
+              }
+              self.$store.state.discover_filters.fetching_filtered = false;
+            });
+        }
+      }
+    },
   },
 };
 </script>
@@ -929,20 +940,9 @@ export default {
   z-index: 1000000;
 }
 .search-icon {
-  position: absolute;
-  display: block;
-  right: 5%;
-  top: 28px;
-  height: 23px;
-  width: 23px;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  background-image: url("./../images/search-icon.svg");
-  background-size: 100% 100%;
+  position: fixed;
+  right: 8px;
+  top: 14px;
   z-index: 1000000;
 }
 .filter-contents {

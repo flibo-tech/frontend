@@ -116,18 +116,25 @@
         class="new-notification"
       />
     </div>
+
+    <SpeechRecognition
+      class="topbar-mic"
+      :style="is_mobile ? '' : 'right: calc(50vw - 500px + 30px);'"
+    />
   </div>
 </template>
 
 <script>
 import { mixin as onClickOutside } from "vue-on-click-outside";
 import Button from "./../components/atomic/Button";
+import SpeechRecognition from "./../components/molecular/SpeechRecognition";
 import axios from "axios";
 
 export default {
   name: "TopBar",
   components: {
     Button,
+    SpeechRecognition,
   },
 
   mixins: [onClickOutside],
@@ -244,5 +251,10 @@ export default {
   border: none;
   outline: 0;
   z-index: 10000;
+}
+.topbar-mic {
+  position: fixed;
+  top: -1px;
+  right: calc(5% + 30px);
 }
 </style>
