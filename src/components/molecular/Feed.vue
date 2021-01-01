@@ -771,10 +771,6 @@ export default {
 
         self.initIntersectionObserver();
       });
-
-      if (self.hide_feed) {
-        self.hide_feed = false;
-      }
     },
     applyQuickFilters() {
       if (this.observer) {
