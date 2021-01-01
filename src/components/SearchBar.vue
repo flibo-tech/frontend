@@ -835,6 +835,7 @@ export default {
             element_heights: true,
           };
           this.$emit("reset-feed-page", reset_info);
+          this.store.discover_filters.query = this.search_query;
 
           var self = this;
           axios
@@ -849,6 +850,8 @@ export default {
             .then(function (response) {
               if ([200].includes(response.status)) {
                 if (self.$route.path == "/search-results") {
+                  self.$store.state.feed.search_results.scroll_position = 0;
+
                   self.$store.state.discover_filters.filtered_content =
                     response.data.contents;
                   self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(

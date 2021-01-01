@@ -467,6 +467,7 @@ export const store = new Vuex.Store({
       fetching_filtered: false,
       fetching_filter_incremental: false,
       is_string_query: false,
+      query: null,
       filtered_content: my_store
         ? my_store.discover_filters.filtered_content
         : [],

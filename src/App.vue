@@ -816,7 +816,7 @@ export default {
       self.$store.state.notifications.suggestions = false;
 
       axios
-        .post(self.$store.state.api_host + "flibo_feed", {
+        .post(self.$store.state.api_host + "flibo_feedd", {
           session_id: self.$store.state.session_id,
           country: self.$store.state.user.profile.country,
           fetched_items: fetched_items,
@@ -1435,6 +1435,9 @@ export default {
 
       if (info.parent == "home") {
         eval("this.$store.state.feed." + info.parent + ".seenElements = []");
+      } else if (info.parent == "search_results") {
+        this.store.discover_filters.query = null;
+        this.$store.state.feed.search_results.feed_list = [];
       }
 
       if (info.scroll) {

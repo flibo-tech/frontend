@@ -98,7 +98,6 @@
           v-if="
             parent == 'search_results' &&
             store.session_id != null &&
-            !is_string_query &&
             currentIndex == 0 &&
             index == 0
           "
@@ -109,7 +108,13 @@
               : 'margin-bottom: 24px;width: 1000px;'
           "
         >
-          <p style="font-weight: normal; text-align: center">
+          <p
+            v-if="store.discover_filters.query"
+            style="font-weight: normal; text-align: center"
+          >
+            "{{ store.discover_filters.query }}"
+          </p>
+          <p v-else style="font-weight: normal; text-align: center">
             Your watched movies & shows have been removed from the results.
           </p>
         </div>
@@ -262,7 +267,12 @@
         <div class="sk-cube3 sk-cube"></div>
       </div>
       <br />
-      <div class="quote-font">
+      <div v-if="is_string_query" class="quote-font">
+        Searching for "{{ store.discover_filters.query }}"
+        <br />
+        Hold on, good things take time.
+      </div>
+      <div v-else class="quote-font">
         {{ store.quotes[Math.floor(Math.random() * 22)] }}
       </div>
     </div>
@@ -761,6 +771,10 @@ export default {
 
         self.initIntersectionObserver();
       });
+
+      if (self.hide_feed) {
+        self.hide_feed = false;
+      }
     },
     applyQuickFilters() {
       if (this.observer) {

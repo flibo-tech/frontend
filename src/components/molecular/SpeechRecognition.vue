@@ -31,31 +31,40 @@ export default {
   methods: {
     greet: function (event) {},
     listen() {
-      this.listening = true;
-      if (this.store.is_webview) {
-        Android.requestMicrophone();
-      }
-
-      var recognition = new window.webkitSpeechRecognition();
-
-      recognition.lang = "en-US";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 5;
-      recognition.start();
-
-      recognition.onresult = (event) => {
-        this.listening = false;
-        const query = event.results[0][0].transcript;
-        this.$router.push("/search?search=" + encodeURIComponent(query));
-        return;
-      };
-
-      recognition.onend = (event) => {
-        if (this.listening) {
-          this.listening = false;
-          return;
+      if (!this.listening) {
+        this.listening = true;
+        if (this.store.is_webview) {
+          Android.requestMicrophone();
         }
-      };
+
+        var recognition = new window.webkitSpeechRecognition();
+
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 5;
+        recognition.start();
+
+        setTimeout(() => {
+          if (this.listening) {
+            recognition.stop();
+            this.listening = false;
+          }
+        }, 10000);
+
+        recognition.onresult = (event) => {
+          this.listening = false;
+          const query = event.results[0][0].transcript;
+          this.$router.push("/search?search=" + encodeURIComponent(query));
+          return;
+        };
+
+        recognition.onend = (event) => {
+          if (this.listening) {
+            this.listening = false;
+            return;
+          }
+        };
+      }
     },
   },
 };
