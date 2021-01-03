@@ -455,6 +455,9 @@ export default {
         if (is_webview) {
           this.$store.state.is_webview = is_webview;
         }
+        if (this.$route.query.releaseNo) {
+          this.$store.state.releaseNo = parseInt(this.$route.query.releaseNo);
+        }
       }
       if (!this.$store.state.session_id) {
         window.location = this.$store.state.login_host;

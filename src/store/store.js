@@ -14,10 +14,11 @@ if (my_store) {
     if (typeof my_store.unused_key_bg == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
+      var temp_releaseNo = my_store.releaseNo;
       localStorage.clear();
       if (temp_is_webview == "true") {
         window.location =
-          "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&webview=true&path=" + encodeURIComponent(window.location.pathname + window.location.search);
+          "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&webview=true" + (temp_releaseNo ? ("&releaseNo="+temp_releaseNo) : "") + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       } else {
         window.location = "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       }
@@ -26,10 +27,11 @@ if (my_store) {
   } catch (err) {
     var temp_session_id = my_store.session_id;
     var temp_is_webview = my_store.is_webview;
+    var temp_releaseNo = my_store.releaseNo;
     localStorage.clear();
     if (temp_is_webview == "true") {
       window.location =
-        "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&webview=true&path=" + encodeURIComponent(window.location.pathname + window.location.search);
+      "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&webview=true" + (temp_releaseNo ? ("&releaseNo="+temp_releaseNo) : "") + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     } else {
       window.location = "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     }
@@ -88,6 +90,7 @@ export const store = new Vuex.Store({
     instructions_seen: true,
     session_id: my_store ? my_store.session_id : null,
     is_webview: my_store ? my_store.is_webview : false,
+    releaseNo: my_store ? my_store.releaseNo : null,
     login_host: "https://yzal-dev-signin.flibo.ai/",
     api_host: "https://yzal-dev-app.flibo.ai/",
     ai_host: "https://yzal-dev-ai.flibo.ai/",
