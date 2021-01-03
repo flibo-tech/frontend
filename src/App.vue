@@ -825,7 +825,7 @@ export default {
       self.$store.state.notifications.suggestions = false;
 
       axios
-        .post(self.$store.state.api_host + "flibo_feedd", {
+        .post(self.$store.state.api_host + "flibo_feed", {
           session_id: self.$store.state.session_id,
           country: self.$store.state.user.profile.country,
           fetched_items: fetched_items,
