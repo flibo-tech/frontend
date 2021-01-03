@@ -8,9 +8,9 @@
         name="search"
         v-bind:placeholder="
           store.session_id == null
-            ? 'Search Movies & Shows'
+            ? 'Search movies based on your mood'
             : parent == 'search_page'
-            ? 'Search Movies, Shows & Users'
+            ? 'Search movies based on mood, users'
             : 'Search Users'
         "
         @keyup="searchString"
