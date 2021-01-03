@@ -16,16 +16,28 @@
         :style="is_mobile ? 'width: 85vw;' : ''"
         v-if="store.showSpeechInfo"
       >
-        <p
+        <div
           style="
-            font-size: 18px;
+            display: flex;
+            align-self: self-start;
+            align-items: center;
             margin-bottom: 16px;
-            align-self: flex-start;
-            text-align: left;
           "
         >
-          Find movies based on your mood. Some examples of what you can say -
-        </p>
+          <Button class="mic" buttonType="iconOnly" icon="mic" :size="28" />
+
+          <p
+            style="
+              font-size: 24px;
+              font-weight: bold;
+              margin-left: 8px;
+              align-self: flex-start;
+              text-align: left;
+            "
+          >
+            Mood based search
+          </p>
+        </div>
 
         <div class="speech-info-text">
           <p>"Best heartwarming movies on Netflix"</p>
@@ -34,7 +46,7 @@
 
           <p>"Movies to watch after breakup"</p>
 
-          <p>"Shows like G.O.T. on my apps"</p>
+          <p>"Shows like Sense 8 on my apps"</p>
 
           <p>"Movies like Interstellar on my platforms"</p>
         </div>
