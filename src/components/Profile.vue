@@ -1252,7 +1252,7 @@ export default {
           "profile__" +
           traffic_origin,
       };
-      this.$emit("update-api-counter", activity);
+      this.$emit("outbound-traffic", activity);
     },
     reRender() {
       window.scrollTo(0, 0);

@@ -604,6 +604,7 @@ export const store = new Vuex.Store({
     },
     hostName: window.location.hostname,
     listen: false,
-    never_tapped_mic: my_store ? my_store.never_tapped_mic : true
+    never_tapped_mic: my_store ? my_store.never_tapped_mic : true,
+    outbound_traffic: my_store ? my_store.outbound_traffic : []
   }
 });

@@ -379,7 +379,7 @@ export default {
         url: link,
         traffic_origin: traffic_origin,
       };
-      this.$emit("update-api-counter", activity);
+      this.$emit("outbound-traffic", activity);
     },
   },
 };

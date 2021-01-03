@@ -31,6 +31,7 @@
       @logging-out="loggingOut"
       @refresh-feed="refreshDiscoverPage"
       @update-api-counter="updateApiCounter"
+      @outbound-traffic="outboundTraffic"
       @open-content-page="openContentPage"
       @submit-rating="submitRating"
       @add-to-watchlist="addToWatchlist"
@@ -94,6 +95,7 @@
   >
     <router-view
       @update-api-counter="updateApiCounter"
+      @outbound-traffic="outboundTraffic"
       @open-content-page="openContentPage"
       @open-uesr-profile="goToProfile"
       @reset-feed-page="resetFeedPage"
@@ -656,12 +658,17 @@ export default {
           self.timeout = setTimeout(function () {
             self.updateProfile();
             self.updateFriendsPage();
+            self.updateOutboundApiCounter();
           }, 5000);
         }
 
         self.timeout = setInterval(function () {
           self.updateProfile();
         }, 2 * 60 * 1000);
+
+        self.timeout = setInterval(function () {
+          self.updateOutboundApiCounter();
+        }, 5 * 60 * 1000);
       }
     } else if (this.is_signup_page) {
       this.$router.push(current_path);
@@ -946,26 +953,17 @@ export default {
           trailer_origin: Object.keys(activity).includes("trailer_origin")
             ? activity.trailer_origin
             : null,
+          created_at: Object.keys(activity).includes("created_at")
+            ? activity.created_at
+            : null,
         })
         .then(function (response) {
-          if (
-            activity.api == "outbound_traffic" &&
-            Object.keys(activity).includes("url")
-          ) {
-            window.open(activity.url);
-          }
           if ([200].includes(response.status)) {
           } else {
             // console.log(response.status);
           }
         })
         .catch(function (error) {
-          if (
-            activity.api == "outbound_traffic" &&
-            Object.keys(activity).includes("url")
-          ) {
-            window.open(activity.url);
-          }
           // console.log(error);
           if (self.$store.state.session_id) {
             if ([401, 419].includes(error.response.status)) {
@@ -980,6 +978,17 @@ export default {
             }
           }
         });
+    },
+    outboundTraffic(activity) {
+      activity.created_at = Date.now() / 1000;
+      this.store.outbound_traffic.push(activity);
+      window.open(activity.url);
+    },
+    updateOutboundApiCounter() {
+      for (const [index, item] of this.store.outbound_traffic.entries()) {
+        this.updateApiCounter(item);
+      }
+      this.store.outbound_traffic = [];
     },
     updateDeviceInfo() {
       var self = this;

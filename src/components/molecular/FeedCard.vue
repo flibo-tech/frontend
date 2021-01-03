@@ -456,7 +456,7 @@ export default {
         url: link,
         traffic_origin: this.parent + "__" + traffic_origin,
       };
-      this.$emit("update-api-counter", activity);
+      this.$emit("outbound-traffic", activity);
     },
     onCardComments() {
       var output = [];

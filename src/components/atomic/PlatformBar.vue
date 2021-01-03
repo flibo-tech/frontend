@@ -155,7 +155,7 @@ export default {
           (this.parent == "search_results" ? "search_filter" : this.parent) +
           (traffic_origin ? "__" + traffic_origin + "_poster" : ""),
       };
-      this.$emit("update-api-counter", activity);
+      this.$emit("outbound-traffic", activity);
     },
   },
 };

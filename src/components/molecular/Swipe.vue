@@ -446,15 +446,6 @@ export default {
       this.removingCard = true;
       this.$emit("update-api-counter", activity);
     },
-    goToPlatform(link, content_id, traffic_origin) {
-      var activity = {
-        api: "outbound_traffic",
-        content_id: content_id,
-        url: link,
-        traffic_origin: traffic_origin,
-      };
-      this.$emit("update-api-counter", activity);
-    },
   },
 };
 </script>
