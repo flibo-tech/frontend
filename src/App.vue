@@ -44,6 +44,8 @@
       "
       @update-api-counter="updateApiCounter"
     />
+
+    <SpeechInfo />
   </div>
 
   <LandingPage
@@ -108,6 +110,7 @@
       "
     />
     <SignUpPrompt />
+    <SpeechInfo />
   </div>
 </template>
 
@@ -119,6 +122,7 @@ import TopBar from "./components/TopBar";
 import MainNavigation from "./components/MainNavigation";
 import LandingPage from "./components/LandingPage";
 import SignUpPrompt from "./components/SignUpPrompt";
+import SpeechInfo from "./components/molecular/SpeechInfo";
 
 export default {
   name: "App",
@@ -128,6 +132,7 @@ export default {
     MainNavigation,
     LandingPage,
     SignUpPrompt,
+    SpeechInfo,
   },
   data() {
     return {
@@ -624,6 +629,7 @@ export default {
               response.data.never_tapped_any_artist;
             self.$store.state.rate.never_tapped_any_card =
               response.data.never_tapped_any_card;
+            self.$store.state.never_tapped_mic = response.data.never_tapped_mic;
             self.$store.state.suggestions.suggestions_ready_message_seen =
               response.data.suggestions_ready_message_seen;
             if (!self.$route.query.search) {

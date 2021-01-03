@@ -87,6 +87,7 @@ export const store = new Vuex.Store({
     guest_id: my_store ? my_store.guest_id : null,
     guest_country: my_store ? my_store.guest_country : null,
     prompt_signup: false,
+    showSpeechInfo: false,
     instructions_seen: true,
     session_id: my_store ? my_store.session_id : null,
     is_webview: my_store ? my_store.is_webview : false,
@@ -601,6 +602,8 @@ export const store = new Vuex.Store({
       width: null,
       height: null
     },
-    hostName: window.location.hostname
+    hostName: window.location.hostname,
+    listen: false,
+    never_tapped_mic: my_store ? my_store.never_tapped_mic : true
   }
 });

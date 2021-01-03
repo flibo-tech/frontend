@@ -28,10 +28,30 @@ export default {
       listening: false,
     };
   },
+  computed: {
+    startListening() {
+      return this.store.listen;
+    },
+  },
+  watch: {
+    startListening: {
+      handler: function (check) {
+        if (check) {
+          this.listen();
+        }
+      },
+    },
+  },
   methods: {
-    greet: function (event) {},
     listen() {
-      if (!this.listening) {
+      this.store.listen = false;
+
+      if (
+        (this.store.is_webview && (this.store.releaseNo || 0) < 4) ||
+        this.store.never_tapped_mic
+      ) {
+        this.store.showSpeechInfo = true;
+      } else if (!this.listening) {
         this.listening = true;
         if (this.store.is_webview) {
           Android.requestMicrophone();
@@ -47,7 +67,6 @@ export default {
         setTimeout(() => {
           if (this.listening) {
             recognition.stop();
-            this.listening = false;
           }
         }, 10000);
 
