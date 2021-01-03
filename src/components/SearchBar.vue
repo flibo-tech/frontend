@@ -820,6 +820,7 @@ export default {
           };
           this.$emit("reset-feed-page", reset_info);
         } else {
+          var voiceSearch = this.$route.query.voiceSearch;
           this.$router.push("/search");
           this.store.discover_filters.is_string_query = true;
           this.$router.push("/search-results");
@@ -842,6 +843,7 @@ export default {
             .post(self.$store.state.api_host + "search_query", {
               session_id: self.$store.state.session_id,
               query_string: self.search_query,
+              voice_search: voiceSearch ? true : false,
               country:
                 self.$store.state.user.profile.country ||
                 self.$store.state.guest_country,

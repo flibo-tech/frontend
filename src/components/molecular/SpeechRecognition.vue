@@ -73,7 +73,9 @@ export default {
         recognition.onresult = (event) => {
           this.listening = false;
           const query = event.results[0][0].transcript;
-          this.$router.push("/search?search=" + encodeURIComponent(query));
+          this.$router.push(
+            "/search?voiceSearch=true&search=" + encodeURIComponent(query)
+          );
           return;
         };
 
