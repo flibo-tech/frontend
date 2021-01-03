@@ -226,7 +226,9 @@
 
         <div
           v-if="
-            parent == 'home' && currentIndex <= 10 && index == 10 - currentIndex
+            ['home', 'suggestions'].includes(parent) &&
+            currentIndex <= 10 &&
+            index == 10 - currentIndex
           "
           class="user-suggestions-container"
           :style="
@@ -235,10 +237,33 @@
               : 'margin-top: 8px; margin-bottom: -16px; width: 1000px;'
           "
         >
-          <p style="font-weight: normal; text-align: center">
+          <p
+            v-if="parent == 'home'"
+            style="font-weight: normal; text-align: center"
+          >
             Search your friends on FLIBO and connect with them.
           </p>
-          <p style="text-align: center">Discover Together</p>
+          <p v-if="parent == 'home'" style="text-align: center">
+            Discover Together
+          </p>
+
+          <p
+            v-if="parent == 'suggestions'"
+            style="font-weight: normal; text-align: center"
+          >
+            Thinking of watching something based on your mood?
+          </p>
+          <p
+            style="
+              text-align: center;
+              margin-top: 8px;
+              color: #405eed;
+              cursor: pointer;
+            "
+            @click="store.listen = true"
+          >
+            Try FLIBO voice search.
+          </p>
         </div>
       </div>
     </div>
