@@ -259,6 +259,7 @@
               margin-top: 8px;
               color: #405eed;
               cursor: pointer;
+              font-size: 18px;
             "
             @click="store.listen = true"
           >

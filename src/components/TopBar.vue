@@ -246,8 +246,8 @@ export default {
   top: 5px;
   height: 7px;
   width: 7px;
-  background-image: url("./../images/red_dot.png");
-  background-color: #e9f3f8;
+  border-radius: 50%;
+  background-color: #f26b6b;
   background-size: 100% 100%;
   border: none;
   outline: 0;
