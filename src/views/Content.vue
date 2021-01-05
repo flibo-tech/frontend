@@ -886,7 +886,7 @@ export default {
         url: link,
         traffic_origin: "content_page__" + traffic_origin,
       };
-      this.$emit("update-api-counter", activity);
+      this.$emit("outbound-traffic", activity);
     },
     submitRating(user_rating) {
       if (this.$store.state.session_id != null) {

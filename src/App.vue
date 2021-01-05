@@ -31,6 +31,7 @@
       @logging-out="loggingOut"
       @refresh-feed="refreshDiscoverPage"
       @update-api-counter="updateApiCounter"
+      @outbound-traffic="outboundTraffic"
       @open-content-page="openContentPage"
       @submit-rating="submitRating"
       @add-to-watchlist="addToWatchlist"
@@ -44,6 +45,8 @@
       "
       @update-api-counter="updateApiCounter"
     />
+
+    <SpeechInfo />
   </div>
 
   <LandingPage
@@ -92,6 +95,7 @@
   >
     <router-view
       @update-api-counter="updateApiCounter"
+      @outbound-traffic="outboundTraffic"
       @open-content-page="openContentPage"
       @open-uesr-profile="goToProfile"
       @reset-feed-page="resetFeedPage"
@@ -108,6 +112,7 @@
       "
     />
     <SignUpPrompt />
+    <SpeechInfo />
   </div>
 </template>
 
@@ -119,6 +124,7 @@ import TopBar from "./components/TopBar";
 import MainNavigation from "./components/MainNavigation";
 import LandingPage from "./components/LandingPage";
 import SignUpPrompt from "./components/SignUpPrompt";
+import SpeechInfo from "./components/molecular/SpeechInfo";
 
 export default {
   name: "App",
@@ -128,6 +134,7 @@ export default {
     MainNavigation,
     LandingPage,
     SignUpPrompt,
+    SpeechInfo,
   },
   data() {
     return {
@@ -455,6 +462,9 @@ export default {
         if (is_webview) {
           this.$store.state.is_webview = is_webview;
         }
+        if (this.$route.query.releaseNo) {
+          this.$store.state.releaseNo = parseInt(this.$route.query.releaseNo);
+        }
       }
       if (!this.$store.state.session_id) {
         window.location = this.$store.state.login_host;
@@ -621,6 +631,7 @@ export default {
               response.data.never_tapped_any_artist;
             self.$store.state.rate.never_tapped_any_card =
               response.data.never_tapped_any_card;
+            self.$store.state.never_tapped_mic = response.data.never_tapped_mic;
             self.$store.state.suggestions.suggestions_ready_message_seen =
               response.data.suggestions_ready_message_seen;
             if (!self.$route.query.search) {
@@ -647,12 +658,17 @@ export default {
           self.timeout = setTimeout(function () {
             self.updateProfile();
             self.updateFriendsPage();
+            self.updateOutboundApiCounter();
           }, 5000);
         }
 
         self.timeout = setInterval(function () {
           self.updateProfile();
         }, 2 * 60 * 1000);
+
+        self.timeout = setInterval(function () {
+          self.updateOutboundApiCounter();
+        }, 5 * 60 * 1000);
       }
     } else if (this.is_signup_page) {
       this.$router.push(current_path);
@@ -937,26 +953,17 @@ export default {
           trailer_origin: Object.keys(activity).includes("trailer_origin")
             ? activity.trailer_origin
             : null,
+          created_at: Object.keys(activity).includes("created_at")
+            ? activity.created_at
+            : null,
         })
         .then(function (response) {
-          if (
-            activity.api == "outbound_traffic" &&
-            Object.keys(activity).includes("url")
-          ) {
-            window.open(activity.url);
-          }
           if ([200].includes(response.status)) {
           } else {
             // console.log(response.status);
           }
         })
         .catch(function (error) {
-          if (
-            activity.api == "outbound_traffic" &&
-            Object.keys(activity).includes("url")
-          ) {
-            window.open(activity.url);
-          }
           // console.log(error);
           if (self.$store.state.session_id) {
             if ([401, 419].includes(error.response.status)) {
@@ -971,6 +978,17 @@ export default {
             }
           }
         });
+    },
+    outboundTraffic(activity) {
+      activity.created_at = Date.now() / 1000;
+      this.store.outbound_traffic.push(activity);
+      window.open(activity.url);
+    },
+    updateOutboundApiCounter() {
+      for (const [index, item] of this.store.outbound_traffic.entries()) {
+        this.updateApiCounter(item);
+      }
+      this.store.outbound_traffic = [];
     },
     updateDeviceInfo() {
       var self = this;
@@ -1435,6 +1453,9 @@ export default {
 
       if (info.parent == "home") {
         eval("this.$store.state.feed." + info.parent + ".seenElements = []");
+      } else if (info.parent == "search_results") {
+        this.store.discover_filters.query = null;
+        this.$store.state.feed.search_results.feed_list = [];
       }
 
       if (info.scroll) {

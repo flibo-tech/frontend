@@ -98,7 +98,6 @@
           v-if="
             parent == 'search_results' &&
             store.session_id != null &&
-            !is_string_query &&
             currentIndex == 0 &&
             index == 0
           "
@@ -109,7 +108,13 @@
               : 'margin-bottom: 24px;width: 1000px;'
           "
         >
-          <p style="font-weight: normal; text-align: center">
+          <p
+            v-if="store.discover_filters.query"
+            style="font-weight: normal; text-align: center"
+          >
+            "{{ store.discover_filters.query }}"
+          </p>
+          <p v-else style="font-weight: normal; text-align: center">
             Your watched movies & shows have been removed from the results.
           </p>
         </div>
@@ -221,7 +226,9 @@
 
         <div
           v-if="
-            parent == 'home' && currentIndex <= 10 && index == 10 - currentIndex
+            ['home', 'suggestions'].includes(parent) &&
+            currentIndex <= 10 &&
+            index == 10 - currentIndex
           "
           class="user-suggestions-container"
           :style="
@@ -230,10 +237,34 @@
               : 'margin-top: 8px; margin-bottom: -16px; width: 1000px;'
           "
         >
-          <p style="font-weight: normal; text-align: center">
+          <p
+            v-if="parent == 'home'"
+            style="font-weight: normal; text-align: center"
+          >
             Search your friends on FLIBO and connect with them.
           </p>
-          <p style="text-align: center">Discover Together</p>
+          <p v-if="parent == 'home'" style="text-align: center">
+            Discover Together
+          </p>
+
+          <p
+            v-if="parent == 'suggestions'"
+            style="font-weight: normal; text-align: center"
+          >
+            Thinking of watching something based on your mood?
+          </p>
+          <p
+            style="
+              text-align: center;
+              margin-top: 8px;
+              color: #405eed;
+              cursor: pointer;
+              font-size: 18px;
+            "
+            @click="store.listen = true"
+          >
+            Try FLIBO voice search.
+          </p>
         </div>
       </div>
     </div>
@@ -262,7 +293,12 @@
         <div class="sk-cube3 sk-cube"></div>
       </div>
       <br />
-      <div class="quote-font">
+      <div v-if="is_string_query" class="quote-font">
+        Searching for "{{ store.discover_filters.query }}"
+        <br />
+        Hold on, good things take time.
+      </div>
+      <div v-else class="quote-font">
         {{ store.quotes[Math.floor(Math.random() * 22)] }}
       </div>
     </div>

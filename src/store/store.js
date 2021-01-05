@@ -11,13 +11,14 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_bg == "undefined") {
+    if (typeof my_store.unused_key_bi == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
+      var temp_releaseNo = my_store.releaseNo;
       localStorage.clear();
       if (temp_is_webview == "true") {
         window.location =
-          "https://flibo.ai/?id=" + temp_session_id + "&webview=true&path=" + encodeURIComponent(window.location.pathname + window.location.search);
+          "https://flibo.ai/?id=" + temp_session_id + "&webview=true" + (temp_releaseNo ? ("&releaseNo="+temp_releaseNo) : "") + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       } else {
         window.location = "https://flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       }
@@ -26,10 +27,11 @@ if (my_store) {
   } catch (err) {
     var temp_session_id = my_store.session_id;
     var temp_is_webview = my_store.is_webview;
+    var temp_releaseNo = my_store.releaseNo;
     localStorage.clear();
     if (temp_is_webview == "true") {
       window.location =
-        "https://flibo.ai/?id=" + temp_session_id + "&webview=true&path=" + encodeURIComponent(window.location.pathname + window.location.search);
+      "https://flibo.ai/?id=" + temp_session_id + "&webview=true" + (temp_releaseNo ? ("&releaseNo="+temp_releaseNo) : "") + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     } else {
       window.location = "https://flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     }
@@ -40,7 +42,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_bg: my_store ? my_store.unused_key_bg : true,
+    unused_key_bi: my_store ? my_store.unused_key_bi : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -85,9 +87,11 @@ export const store = new Vuex.Store({
     guest_id: my_store ? my_store.guest_id : null,
     guest_country: my_store ? my_store.guest_country : null,
     prompt_signup: false,
+    showSpeechInfo: false,
     instructions_seen: true,
     session_id: my_store ? my_store.session_id : null,
     is_webview: my_store ? my_store.is_webview : false,
+    releaseNo: my_store ? my_store.releaseNo : null,
     login_host: "https://signin.flibo.ai/",
     api_host: "https://app.flibo.ai/",
     ai_host: "https://ai.flibo.ai/",
@@ -432,7 +436,7 @@ export const store = new Vuex.Store({
           : "180",
         languages: my_store
           ? my_store.discover_filters.filters_applied.languages
-          : {},
+          : [],
         tab: my_store ? my_store.discover_filters.filters_applied.tab : "All"
       },
       filters_applied: {
@@ -467,6 +471,7 @@ export const store = new Vuex.Store({
       fetching_filtered: false,
       fetching_filter_incremental: false,
       is_string_query: false,
+      query: null,
       filtered_content: my_store
         ? my_store.discover_filters.filtered_content
         : [],
@@ -597,6 +602,9 @@ export const store = new Vuex.Store({
       width: null,
       height: null
     },
-    hostName: window.location.hostname
+    hostName: window.location.hostname,
+    listen: false,
+    never_tapped_mic: my_store ? my_store.never_tapped_mic : true,
+    outbound_traffic: my_store ? my_store.outbound_traffic : []
   }
 });

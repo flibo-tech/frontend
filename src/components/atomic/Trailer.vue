@@ -177,7 +177,7 @@ export default {
           "__" +
           traffic_origin,
       };
-      this.$emit("update-api-counter", activity);
+      this.$emit("outbound-traffic", activity);
     },
     playTrailer() {
       this.play_trailer = true;
