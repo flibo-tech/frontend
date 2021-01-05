@@ -168,7 +168,7 @@ export const store = new Vuex.Store({
           : "180",
         languages: my_store
           ? my_store.rate_filters.filters_applied.languages
-          : {},
+          : [],
         tab: my_store ? my_store.rate_filters.filters_applied.tab : "All"
       },
       filters_applied: {
@@ -189,7 +189,7 @@ export const store = new Vuex.Store({
           : "180",
         languages: my_store
           ? my_store.rate_filters.filters_applied.languages
-          : {},
+          : [],
         tab: my_store ? my_store.rate_filters.filters_applied.tab : "All"
       },
       visible_cards: my_store ? my_store.rate_filters.visible_cards : [],
@@ -465,7 +465,7 @@ export const store = new Vuex.Store({
           : "180",
         languages: my_store
           ? my_store.discover_filters.filters_applied.languages
-          : {},
+          : [],
         tab: my_store ? my_store.discover_filters.filters_applied.tab : "All"
       },
       fetching_filtered: false,

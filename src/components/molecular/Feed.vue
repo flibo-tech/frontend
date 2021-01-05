@@ -254,6 +254,7 @@
             Thinking of watching something based on your mood?
           </p>
           <p
+            v-if="parent == 'suggestions'"
             style="
               text-align: center;
               margin-top: 8px;

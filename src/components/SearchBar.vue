@@ -662,51 +662,55 @@ export default {
             guest_id: self.$store.state.guest_id,
           })
           .then(function (response) {
-            if ([200].includes(response.status)) {
-              if (self.$route.path == "/search-results") {
-                self.$store.state.discover_filters.filtered_content =
-                  response.data.contents;
-                self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
-                  0,
-                  self.$store.state.feed.defaultListSize
-                );
+            if (self.$store.state.discover_filters.query == null) {
+              if ([200].includes(response.status)) {
                 if (self.$route.path == "/search-results") {
-                  self.$store.state.feed.update_dom = true;
+                  self.$store.state.discover_filters.filtered_content =
+                    response.data.contents;
+                  self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
+                    0,
+                    self.$store.state.feed.defaultListSize
+                  );
+                  if (self.$route.path == "/search-results") {
+                    self.$store.state.feed.update_dom = true;
+                  }
+                  self.$store.state.discover_filters.more_filtered_content =
+                    response.data.more_contents;
+                  self.$store.state.scroll_positions.discover.filter = 0;
+                  self.$store.state.discover_filters.last_fetch_time = Date.now();
+                  if (
+                    self.$store.state.discover_filters.more_filtered_content
+                      .length
+                  ) {
+                    self.fetchRemainingResults();
+                  }
                 }
-                self.$store.state.discover_filters.more_filtered_content =
-                  response.data.more_contents;
-                self.$store.state.scroll_positions.discover.filter = 0;
-                self.$store.state.discover_filters.last_fetch_time = Date.now();
-                if (
-                  self.$store.state.discover_filters.more_filtered_content
-                    .length
-                ) {
-                  self.fetchRemainingResults();
+              } else if ([204].includes(response.status)) {
+                if (self.$route.path == "/search-results") {
+                  self.$store.state.discover_filters.filtered_content = [];
+                  self.$store.state.discover_filters.more_filtered_content = [];
+                  self.$store.state.scroll_positions.discover.filter = 0;
                 }
+              } else {
+                // console.log(response.status);
               }
-            } else if ([204].includes(response.status)) {
-              if (self.$route.path == "/search-results") {
-                self.$store.state.discover_filters.filtered_content = [];
-                self.$store.state.discover_filters.more_filtered_content = [];
-                self.$store.state.scroll_positions.discover.filter = 0;
-              }
-            } else {
-              // console.log(response.status);
+              self.$store.state.discover_filters.fetching_filtered = false;
             }
-            self.$store.state.discover_filters.fetching_filtered = false;
           })
           .catch(function (error) {
-            if ([401, 419].includes(error.response.status)) {
-              window.location =
-                self.$store.state.login_host +
-                "logout?session_id=" +
-                self.$store.state.session_id;
-              self.$store.state.session_id = null;
-              self.$emit("logging-out");
-            } else {
-              // console.log(error.response.status);
+            if (self.$store.state.discover_filters.query == null) {
+              if ([401, 419].includes(error.response.status)) {
+                window.location =
+                  self.$store.state.login_host +
+                  "logout?session_id=" +
+                  self.$store.state.session_id;
+                self.$store.state.session_id = null;
+                self.$emit("logging-out");
+              } else {
+                // console.log(error.response.status);
+              }
+              self.$store.state.discover_filters.fetching_filtered = false;
             }
-            self.$store.state.discover_filters.fetching_filtered = false;
           });
       } else {
         // do nothing
@@ -723,38 +727,50 @@ export default {
             self.$store.state.user.profile.country || self.store.guest_country,
         })
         .then(function (response) {
-          if ([200].includes(response.status)) {
-            if (self.$route.path != "/search") {
-              self.$store.state.discover_filters.filtered_content.push(
-                ...response.data.contents
-              );
-              self.$store.state.discover_filters.more_filtered_content = [];
+          if (
+            self.search_query
+              ? self.search_query == self.$store.state.discover_filters.query
+              : self.$store.state.discover_filters.query == null
+          ) {
+            if ([200].includes(response.status)) {
+              if (self.$route.path != "/search") {
+                self.$store.state.discover_filters.filtered_content.push(
+                  ...response.data.contents
+                );
+                self.$store.state.discover_filters.more_filtered_content = [];
 
-              if (self.$route.path == "/search-results") {
-                self.$store.state.feed_filters.apply_filters_wo_reset = true;
-              } else if (
-                self.$store.state.feed.search_results.feed_list.length <
-                self.$store.state.feed.defaultListSize
-              ) {
-                self.store.feed.search_results.apply_filters_on_create = true;
+                if (self.$route.path == "/search-results") {
+                  self.$store.state.feed_filters.apply_filters_wo_reset = true;
+                } else if (
+                  self.$store.state.feed.search_results.feed_list.length <
+                  self.$store.state.feed.defaultListSize
+                ) {
+                  self.store.feed.search_results.apply_filters_on_create = true;
+                }
               }
+            } else {
+              // console.log(response.status);
             }
-          } else {
-            // console.log(response.status);
+            self.store.discover_filters.fetching_filter_incremental = false;
           }
-          self.store.discover_filters.fetching_filter_incremental = false;
         })
         .catch(function (error) {
-          self.store.discover_filters.fetching_filter_incremental = false;
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
+          if (
+            self.search_query
+              ? self.search_query == self.$store.state.discover_filters.query
+              : self.$store.state.discover_filters.query == null
+          ) {
+            self.store.discover_filters.fetching_filter_incremental = false;
+            if ([401, 419].includes(error.response.status)) {
+              window.location =
+                self.$store.state.login_host +
+                "logout?session_id=" +
+                self.$store.state.session_id;
+              self.$store.state.session_id = null;
+              self.$emit("logging-out");
+            } else {
+              // console.log(error.response.status);
+            }
           }
         });
     },
@@ -850,51 +866,59 @@ export default {
               guest_id: self.$store.state.guest_id,
             })
             .then(function (response) {
-              if ([200].includes(response.status)) {
-                if (self.$route.path == "/search-results") {
-                  self.$store.state.feed.search_results.scroll_position = 0;
-
-                  self.$store.state.discover_filters.filtered_content =
-                    response.data.contents;
-                  self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
-                    0,
-                    self.$store.state.feed.defaultListSize
-                  );
+              if (
+                self.search_query == self.$store.state.discover_filters.query
+              ) {
+                if ([200].includes(response.status)) {
                   if (self.$route.path == "/search-results") {
-                    self.$store.state.feed.update_dom = true;
-                  }
+                    self.$store.state.feed.search_results.scroll_position = 0;
 
-                  self.$store.state.discover_filters.more_filtered_content =
-                    response.data.more_contents;
-                  self.$store.state.scroll_positions.discover.filter = 0;
-                  self.$store.state.discover_filters.last_fetch_time = Date.now();
-                  if (response.data.more_contents.length) {
-                    self.fetchRemainingResults();
+                    self.$store.state.discover_filters.filtered_content =
+                      response.data.contents;
+                    self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
+                      0,
+                      self.$store.state.feed.defaultListSize
+                    );
+                    if (self.$route.path == "/search-results") {
+                      self.$store.state.feed.update_dom = true;
+                    }
+
+                    self.$store.state.discover_filters.more_filtered_content =
+                      response.data.more_contents;
+                    self.$store.state.scroll_positions.discover.filter = 0;
+                    self.$store.state.discover_filters.last_fetch_time = Date.now();
+                    if (response.data.more_contents.length) {
+                      self.fetchRemainingResults();
+                    }
                   }
+                } else if ([204].includes(response.status)) {
+                  if (self.$route.path == "/search-results") {
+                    self.$store.state.discover_filters.filtered_content = [];
+                    self.$store.state.discover_filters.more_filtered_content = [];
+                    self.$store.state.scroll_positions.discover.filter = 0;
+                  }
+                } else {
+                  // console.log(response.status);
                 }
-              } else if ([204].includes(response.status)) {
-                if (self.$route.path == "/search-results") {
-                  self.$store.state.discover_filters.filtered_content = [];
-                  self.$store.state.discover_filters.more_filtered_content = [];
-                  self.$store.state.scroll_positions.discover.filter = 0;
-                }
-              } else {
-                // console.log(response.status);
+                self.$store.state.discover_filters.fetching_filtered = false;
               }
-              self.$store.state.discover_filters.fetching_filtered = false;
             })
             .catch(function (error) {
-              if ([401, 419].includes(error.response.status)) {
-                window.location =
-                  self.$store.state.login_host +
-                  "logout?session_id=" +
-                  self.$store.state.session_id;
-                self.$store.state.session_id = null;
-                self.$emit("logging-out");
-              } else {
-                // console.log(error.response.status);
+              if (
+                self.search_query == self.$store.state.discover_filters.query
+              ) {
+                if ([401, 419].includes(error.response.status)) {
+                  window.location =
+                    self.$store.state.login_host +
+                    "logout?session_id=" +
+                    self.$store.state.session_id;
+                  self.$store.state.session_id = null;
+                  self.$emit("logging-out");
+                } else {
+                  // console.log(error.response.status);
+                }
+                self.$store.state.discover_filters.fetching_filtered = false;
               }
-              self.$store.state.discover_filters.fetching_filtered = false;
             });
         }
       }
