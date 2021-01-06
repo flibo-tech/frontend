@@ -632,6 +632,8 @@ export default {
             self.$store.state.rate.never_tapped_any_card =
               response.data.never_tapped_any_card;
             self.$store.state.never_tapped_mic = response.data.never_tapped_mic;
+            self.$store.state.feed.show_voice_search_card =
+              response.data.never_tapped_mic;
             self.$store.state.suggestions.suggestions_ready_message_seen =
               response.data.suggestions_ready_message_seen;
             if (!self.$route.query.search) {
@@ -1502,6 +1504,7 @@ export default {
 }
 
 * {
+  font-family: "Roboto", sans-serif;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;

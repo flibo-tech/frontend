@@ -226,7 +226,8 @@
 
         <div
           v-if="
-            ['home', 'suggestions'].includes(parent) &&
+            (parent == 'home' ||
+              (parent == 'suggestions' && store.feed.show_voice_search_card)) &&
             currentIndex <= 10 &&
             index == 10 - currentIndex
           "
@@ -238,34 +239,28 @@
           "
         >
           <p
-            v-if="parent == 'home'"
+            v-if="parent == 'home' && !store.feed.show_voice_search_card"
             style="font-weight: normal; text-align: center"
           >
             Search your friends on FLIBO and connect with them.
           </p>
-          <p v-if="parent == 'home'" style="text-align: center">
+          <p
+            v-if="parent == 'home' && !store.feed.show_voice_search_card"
+            style="text-align: center"
+          >
             Discover Together
           </p>
 
-          <p
-            v-if="parent == 'suggestions'"
-            style="font-weight: normal; text-align: center"
-          >
-            Thinking of watching something based on your mood?
-          </p>
-          <p
-            v-if="parent == 'suggestions'"
-            style="
-              text-align: center;
-              margin-top: 8px;
-              color: #405eed;
-              cursor: pointer;
-              font-size: 18px;
-            "
+          <div
+            v-if="store.feed.show_voice_search_card"
             @click="store.listen = true"
+            class="feed-voice-search-card"
           >
-            Try FLIBO voice search.
-          </p>
+            <img
+              src="https://flibo-images.s3-us-west-2.amazonaws.com/other/voice-search-intro.png"
+              alt="voice-search-info"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -1703,5 +1698,17 @@ export default {
   width: fit-content;
   margin-left: 50%;
   transform: translateX(-50%) rotate(25deg);
+}
+.feed-voice-search-card {
+  position: relative;
+  display: flex;
+  align-self: center;
+  margin-top: 16px;
+}
+.feed-voice-search-card img {
+  width: 100%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 </style>
