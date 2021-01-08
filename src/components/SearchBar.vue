@@ -53,7 +53,7 @@
       >
         <Button
           buttonType="iconOnly"
-          icon="search-inverted"
+          icon="arrow-inverted"
           :size="32"
           @clicked="
             $router.push('/search?search=' + encodeURIComponent(search_string))
@@ -340,7 +340,7 @@ export default {
         "movies about families",
         "greatest animated films of all time",
         "beautiful teenage romance movies",
-        "movies like Interstellar on my platforms",
+        "movies like Interstellar",
         "visually stunning movies of all time",
         "best shows ever",
         "shows with female leads",
@@ -349,7 +349,7 @@ export default {
         "historical tv shows",
         "historical tv shows",
         "best sci-fi shows on my apps",
-        "shows like westworld on my platforms",
+        "shows like westworld",
         "shows like sense 8",
         "best european movies ever",
         "movies with non linear narrative",
