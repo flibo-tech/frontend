@@ -1521,6 +1521,7 @@ export default {
   display: inline-grid;
   white-space: nowrap;
   margin-top: 165px;
+  margin-bottom: 50px;
   padding-bottom: 3%;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -1544,6 +1545,7 @@ export default {
 .fetching-incremental-feed {
   position: relative;
   margin-top: 45px;
+  padding-bottom: 50px;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
   width: 95%;

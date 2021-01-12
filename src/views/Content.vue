@@ -1123,7 +1123,7 @@ export default {
   margin-top: -40px;
   border-radius: 24px;
   background-color: #fff;
-  padding: 24px 24px 0px 24px;
+  padding: 24px 24px 50px 24px;
 }
 .cover-trailer {
   position: absolute;
