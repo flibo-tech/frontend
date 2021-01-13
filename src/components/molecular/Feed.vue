@@ -194,6 +194,7 @@
           v-if="parent != 'notifications'"
           :content="item"
           :parent="parent"
+          :showTapInstruction="currentIndex + index == tapInstructionIndex"
           @see-more="
             [
               updateElementHeights(),
@@ -602,6 +603,25 @@ export default {
     },
     contentsCount() {
       return eval(this.feed_mappings[this.parent].contents).length;
+    },
+    tapInstructionIndex() {
+      if (this.$store.state.never_tapped_feed_card) {
+        var feed_contents = eval(this.feed_mappings[this.parent].contents);
+        var feed_item;
+        for (feed_item in feed_contents) {
+          if (
+            feed_item > 2 &&
+            ((feed_contents[feed_item].image_info
+              ? feed_contents[feed_item].image_info.where_to_watch
+              : null) ||
+              feed_contents[feed_item].where_to_watch)
+          ) {
+            return feed_item;
+          }
+        }
+      }
+
+      return -1;
     },
     div_height() {
       var elems = document.getElementsByClassName(this.containerTile);

@@ -132,9 +132,33 @@
               />
             </div>
           </div>
+
+          <TapInstruction
+            v-if="store.never_tapped_platform"
+            style="margin-top: -7.5px; margin-left: -7.5px"
+            text="Tap to watch here"
+            toolTipMargin="margin-top: 180%; margin-left: 165%;"
+            @tapped="
+              goToPlatform(
+                Object.values(whereToWatchOptions)[0],
+                id,
+                'content_preview'
+              )
+            "
+          />
         </div>
 
-        <h3 v-if="crewInfo.length">Cast and Crew</h3>
+        <h3
+          v-if="crewInfo.length"
+          :style="
+            Object.keys(whereToWatchOptions).length &&
+            store.never_tapped_platform
+              ? 'margin-top: 60px'
+              : ''
+          "
+        >
+          Cast and Crew
+        </h3>
 
         <div class="content-preview-info-artists" v-if="crewInfo.length">
           <ImageCard
@@ -186,6 +210,7 @@ import ImageCard from "./../atomic/ImageCard";
 import Button from "./../atomic/Button";
 import ContentMetaBlock from "./../atomic/ContentMetaBlock";
 import Poster from "./Poster";
+import TapInstruction from "./TapInstruction";
 
 export default {
   name: "ContentPreview",
@@ -195,6 +220,7 @@ export default {
     Button,
     ContentMetaBlock,
     Poster,
+    TapInstruction,
   },
   props: {
     id: {
@@ -222,6 +248,7 @@ export default {
   },
   created() {
     var self = this;
+
     axios
       .post(this.$store.state.api_host + "content_page", {
         session_id: this.$store.state.session_id,
@@ -236,6 +263,7 @@ export default {
         self.fetching = false;
         self.$refs.contentPreviewInfoContainer.style.display = "block";
         self.$refs.contentPreviewInfoContainer.style.textAlign = "left";
+        self.updatePlatformTap();
       })
       .catch(function (error) {
         self.fetching = false;
@@ -273,6 +301,26 @@ export default {
       .catch(function (error) {
         // console.log(error);
       });
+
+    if (this.$store.state.never_tapped_feed_card) {
+      this.$store.state.never_tapped_feed_card = false;
+      if (self.$store.state.session_id) {
+        axios
+          .post(self.$store.state.api_host + "update_profile", {
+            session_id: self.$store.state.session_id,
+            never_tapped_feed_card: false,
+          })
+          .then(function (response) {
+            if ([200].includes(response.status)) {
+            } else {
+              // console.log(response.status);
+            }
+          })
+          .catch(function (error) {
+            // console.log(error);
+          });
+      }
+    }
   },
   computed: {
     contentType() {
@@ -434,6 +482,30 @@ export default {
         traffic_origin: traffic_origin,
       };
       this.$emit("outbound-traffic", activity);
+    },
+    updatePlatformTap() {
+      var self = this;
+
+      if (
+        this.$store.state.session_id &&
+        this.$store.state.never_tapped_platform &&
+        Object.keys(this.whereToWatchOptions).length
+      ) {
+        axios
+          .post(self.$store.state.api_host + "update_profile", {
+            session_id: self.$store.state.session_id,
+            never_tapped_platform: false,
+          })
+          .then(function (response) {
+            if ([200].includes(response.status)) {
+            } else {
+              // console.log(response.status);
+            }
+          })
+          .catch(function (error) {
+            // console.log(error);
+          });
+      }
     },
   },
 };
