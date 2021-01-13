@@ -8,6 +8,7 @@
       :reverse="true"
       :fontSize="14"
       color="#666"
+      bg="#f1f1f1"
     />
   </div>
 </template>
@@ -54,7 +55,7 @@ export default {
   to {
     width: 60px;
     height: 60px;
-    background: #405ded41;
+    background: #405ded67;
   }
 }
 
