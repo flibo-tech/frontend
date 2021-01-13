@@ -167,6 +167,7 @@ img {
   position: relative;
   margin: 0;
   white-space: normal;
+  overflow-wrap: break-word;
   font-stretch: normal;
   font-style: normal;
   line-height: 1.17;

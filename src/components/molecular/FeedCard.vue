@@ -139,6 +139,23 @@
         "
       />
 
+      <TapInstruction
+        v-if="showTapInstruction"
+        style="
+          margin-top: 65px;
+          margin-left: 50%;
+          transform: translate(-50%, 50%);
+        "
+        text="Tap to see more info"
+        toolTipMargin="margin-top: 180%; margin-left: 185%;"
+        @tapped="
+          showPreview(
+            content.image_info.content_id,
+            content.image_info.content_title
+          )
+        "
+      />
+
       <PlatformBar
         v-if="whereToWatchOptions"
         class="feed-card-platform-bar"
@@ -352,6 +369,7 @@ import SharePrompt from "./../atomic/SharePrompt";
 import Button from "./../atomic/Button";
 import TextEditor from "./TextEditor";
 import ContentMetaBlock from "./../atomic/ContentMetaBlock";
+import TapInstruction from "./TapInstruction";
 
 export default {
   name: "App",
@@ -365,6 +383,7 @@ export default {
     Button,
     TextEditor,
     ContentMetaBlock,
+    TapInstruction,
   },
   props: {
     content: {
@@ -379,6 +398,11 @@ export default {
       type: Object,
       required: false,
       default: null,
+    },
+    showTapInstruction: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {

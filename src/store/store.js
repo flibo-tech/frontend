@@ -11,7 +11,7 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_bi == "undefined") {
+    if (typeof my_store.unused_key_bn == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       var temp_releaseNo = my_store.releaseNo;
@@ -42,7 +42,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_bi: my_store ? my_store.unused_key_bi : true,
+    unused_key_bn: my_store ? my_store.unused_key_bn : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -168,7 +168,7 @@ export const store = new Vuex.Store({
           : "180",
         languages: my_store
           ? my_store.rate_filters.filters_applied.languages
-          : {},
+          : [],
         tab: my_store ? my_store.rate_filters.filters_applied.tab : "All"
       },
       filters_applied: {
@@ -189,7 +189,7 @@ export const store = new Vuex.Store({
           : "180",
         languages: my_store
           ? my_store.rate_filters.filters_applied.languages
-          : {},
+          : [],
         tab: my_store ? my_store.rate_filters.filters_applied.tab : "All"
       },
       visible_cards: my_store ? my_store.rate_filters.visible_cards : [],
@@ -355,7 +355,8 @@ export const store = new Vuex.Store({
         observer_current_index: 0,
         see_more_elements: [],
         element_comments: {}
-      }
+      },
+      show_voice_search_card: false
     },
     feed_filters: {
       filters_meta: {
@@ -465,7 +466,7 @@ export const store = new Vuex.Store({
           : "180",
         languages: my_store
           ? my_store.discover_filters.filters_applied.languages
-          : {},
+          : [],
         tab: my_store ? my_store.discover_filters.filters_applied.tab : "All"
       },
       fetching_filtered: false,
@@ -605,6 +606,8 @@ export const store = new Vuex.Store({
     hostName: window.location.hostname,
     listen: false,
     never_tapped_mic: my_store ? my_store.never_tapped_mic : true,
-    outbound_traffic: my_store ? my_store.outbound_traffic : []
+    outbound_traffic: my_store ? my_store.outbound_traffic : [],
+    never_tapped_feed_card: my_store ? my_store.never_tapped_feed_card : true,
+    never_tapped_platform: my_store ? my_store.never_tapped_platform : true,
   }
 });

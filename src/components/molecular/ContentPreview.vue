@@ -13,19 +13,28 @@
 
       <div v-else>
         <div class="content-preview-info-name" @click="openContent">
-          <span>
-            {{ name }}
-          </span>
+          <div>
+            <span>
+              {{ name }}
+            </span>
 
-          <span v-if="contentType == 'tv'" style="font-weight: normal">
-            ({{ metaInfo.release_year }}-{{
-              metaInfo.end_year ? metaInfo.end_year : "Present"
-            }})
-          </span>
+            <span v-if="contentType == 'tv'" style="font-weight: normal">
+              ({{ metaInfo.release_year }}-{{
+                metaInfo.end_year ? metaInfo.end_year : "Present"
+              }})
+            </span>
 
-          <span v-if="contentType == 'movie'" style="font-weight: normal">
-            ({{ metaInfo.release_year }})
-          </span>
+            <span v-if="contentType == 'movie'" style="font-weight: normal">
+              ({{ metaInfo.release_year }})
+            </span>
+          </div>
+
+          <Button
+            icon="arrow"
+            buttonType="iconOnly"
+            :size="18"
+            style="margin-left: 16px"
+          />
         </div>
 
         <div
@@ -123,9 +132,33 @@
               />
             </div>
           </div>
+
+          <TapInstruction
+            v-if="store.never_tapped_platform"
+            style="margin-top: -7.5px; margin-left: -7.5px"
+            text="Tap to watch here"
+            toolTipMargin="margin-top: 180%; margin-left: 165%;"
+            @tapped="
+              goToPlatform(
+                Object.values(whereToWatchOptions)[0],
+                id,
+                'content_preview'
+              )
+            "
+          />
         </div>
 
-        <h3 v-if="crewInfo.length">Cast and Crew</h3>
+        <h3
+          v-if="crewInfo.length"
+          :style="
+            Object.keys(whereToWatchOptions).length &&
+            store.never_tapped_platform
+              ? 'margin-top: 60px'
+              : ''
+          "
+        >
+          Cast and Crew
+        </h3>
 
         <div class="content-preview-info-artists" v-if="crewInfo.length">
           <ImageCard
@@ -140,6 +173,29 @@
             fontWeight="normal"
           />
         </div>
+
+        <h3 v-if="similarContents.length">Similar</h3>
+
+        <div class="content-preview-similar-content">
+          <Poster
+            v-for="(item, index) in similarContents"
+            :key="index"
+            class="content-preview-content-container"
+            :containerWidth="125"
+            :contentId="item.content_id"
+            :title="item.title"
+            :image="item.poster"
+            :showTrailer="false"
+            :whereToWatch="item.where_to_watch"
+            :userPlatforms="
+              store.user.id ? store.user.profile.platforms || [''] : ['']
+            "
+            :showName="true"
+            parent="content_preview"
+            posterLocation="similar"
+            v-on="$listeners"
+          />
+        </div>
       </div>
     </div>
 
@@ -151,14 +207,20 @@
 import axios from "axios";
 import UserRating from "./UserRating";
 import ImageCard from "./../atomic/ImageCard";
+import Button from "./../atomic/Button";
 import ContentMetaBlock from "./../atomic/ContentMetaBlock";
+import Poster from "./Poster";
+import TapInstruction from "./TapInstruction";
 
 export default {
   name: "ContentPreview",
   components: {
     UserRating,
     ImageCard,
+    Button,
     ContentMetaBlock,
+    Poster,
+    TapInstruction,
   },
   props: {
     id: {
@@ -181,10 +243,12 @@ export default {
       fetching: true,
       metaInfo: null,
       crewInfo: [],
+      similarContents: [],
     };
   },
   created() {
     var self = this;
+
     axios
       .post(this.$store.state.api_host + "content_page", {
         session_id: this.$store.state.session_id,
@@ -199,6 +263,7 @@ export default {
         self.fetching = false;
         self.$refs.contentPreviewInfoContainer.style.display = "block";
         self.$refs.contentPreviewInfoContainer.style.textAlign = "left";
+        self.updatePlatformTap();
       })
       .catch(function (error) {
         self.fetching = false;
@@ -220,6 +285,42 @@ export default {
       .catch(function (error) {
         // console.log(error.response.status);
       });
+
+    axios
+      .post(self.$store.state.api_host + "similar_content", {
+        session_id: self.$store.state.session_id,
+        content_id: self.id,
+        country:
+          self.$store.state.user.profile.country || self.store.guest_country,
+      })
+      .then(function (response) {
+        if (response.status == 200) {
+          self.similarContents = response.data.contents;
+        }
+      })
+      .catch(function (error) {
+        // console.log(error);
+      });
+
+    if (this.$store.state.never_tapped_feed_card) {
+      this.$store.state.never_tapped_feed_card = false;
+      if (self.$store.state.session_id) {
+        axios
+          .post(self.$store.state.api_host + "update_profile", {
+            session_id: self.$store.state.session_id,
+            never_tapped_feed_card: false,
+          })
+          .then(function (response) {
+            if ([200].includes(response.status)) {
+            } else {
+              // console.log(response.status);
+            }
+          })
+          .catch(function (error) {
+            // console.log(error);
+          });
+      }
+    }
   },
   computed: {
     contentType() {
@@ -246,6 +347,7 @@ export default {
       this.$emit("leave-feed");
       var info = {
         origin: this.parent,
+        sub_origin: "content_preview",
         content_id: this.id,
         title: this.name,
       };
@@ -380,6 +482,30 @@ export default {
         traffic_origin: traffic_origin,
       };
       this.$emit("outbound-traffic", activity);
+    },
+    updatePlatformTap() {
+      var self = this;
+
+      if (
+        this.$store.state.session_id &&
+        this.$store.state.never_tapped_platform &&
+        Object.keys(this.whereToWatchOptions).length
+      ) {
+        axios
+          .post(self.$store.state.api_host + "update_profile", {
+            session_id: self.$store.state.session_id,
+            never_tapped_platform: false,
+          })
+          .then(function (response) {
+            if ([200].includes(response.status)) {
+            } else {
+              // console.log(response.status);
+            }
+          })
+          .catch(function (error) {
+            // console.log(error);
+          });
+      }
     },
   },
 };
@@ -527,6 +653,8 @@ export default {
   z-index: 1000001;
 }
 .content-preview-info-name {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 16px;
   white-space: initial;
   position: relative;
@@ -731,5 +859,15 @@ export default {
   width: 95vw;
   max-width: 800px;
   height: 35vh;
+}
+.content-preview-similar-content {
+  display: inline-flex;
+  overflow-x: scroll;
+  white-space: nowrap;
+  margin-top: 10px;
+  width: 100%;
+}
+.content-preview-content-container {
+  margin-right: 20px;
 }
 </style>

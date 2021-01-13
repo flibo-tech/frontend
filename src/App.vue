@@ -632,6 +632,12 @@ export default {
             self.$store.state.rate.never_tapped_any_card =
               response.data.never_tapped_any_card;
             self.$store.state.never_tapped_mic = response.data.never_tapped_mic;
+            self.$store.state.feed.show_voice_search_card =
+              response.data.never_tapped_mic;
+            self.$store.state.never_tapped_feed_card =
+              response.data.never_tapped_feed_card;
+            self.$store.state.never_tapped_platform =
+              response.data.never_tapped_platform;
             self.$store.state.suggestions.suggestions_ready_message_seen =
               response.data.suggestions_ready_message_seen;
             if (!self.$route.query.search) {
@@ -982,9 +988,29 @@ export default {
     outboundTraffic(activity) {
       activity.created_at = Date.now() / 1000;
       this.store.outbound_traffic.push(activity);
+      this.store.never_tapped_platform = false;
       window.open(activity.url);
     },
     updateOutboundApiCounter() {
+      var self = this;
+
+      if (this.store.outbound_traffic.length && this.$store.state.session_id) {
+        axios
+          .post(self.$store.state.api_host + "update_profile", {
+            session_id: self.$store.state.session_id,
+            never_tapped_platform: false,
+          })
+          .then(function (response) {
+            if ([200].includes(response.status)) {
+            } else {
+              // console.log(response.status);
+            }
+          })
+          .catch(function (error) {
+            // console.log(error);
+          });
+      }
+
       for (const [index, item] of this.store.outbound_traffic.entries()) {
         this.updateApiCounter(item);
       }
@@ -1502,6 +1528,7 @@ export default {
 }
 
 * {
+  font-family: "Roboto", sans-serif;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;

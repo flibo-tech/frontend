@@ -194,6 +194,7 @@
           v-if="parent != 'notifications'"
           :content="item"
           :parent="parent"
+          :showTapInstruction="currentIndex + index == tapInstructionIndex"
           @see-more="
             [
               updateElementHeights(),
@@ -226,7 +227,8 @@
 
         <div
           v-if="
-            ['home', 'suggestions'].includes(parent) &&
+            (parent == 'home' ||
+              (parent == 'suggestions' && store.feed.show_voice_search_card)) &&
             currentIndex <= 10 &&
             index == 10 - currentIndex
           "
@@ -238,33 +240,28 @@
           "
         >
           <p
-            v-if="parent == 'home'"
+            v-if="parent == 'home' && !store.feed.show_voice_search_card"
             style="font-weight: normal; text-align: center"
           >
             Search your friends on FLIBO and connect with them.
           </p>
-          <p v-if="parent == 'home'" style="text-align: center">
+          <p
+            v-if="parent == 'home' && !store.feed.show_voice_search_card"
+            style="text-align: center"
+          >
             Discover Together
           </p>
 
-          <p
-            v-if="parent == 'suggestions'"
-            style="font-weight: normal; text-align: center"
-          >
-            Thinking of watching something based on your mood?
-          </p>
-          <p
-            style="
-              text-align: center;
-              margin-top: 8px;
-              color: #405eed;
-              cursor: pointer;
-              font-size: 18px;
-            "
+          <div
+            v-if="store.feed.show_voice_search_card"
             @click="store.listen = true"
+            class="feed-voice-search-card"
           >
-            Try FLIBO voice search.
-          </p>
+            <img
+              src="https://flibo-images.s3-us-west-2.amazonaws.com/other/voice-search-intro.png"
+              alt="voice-search-info"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -606,6 +603,25 @@ export default {
     },
     contentsCount() {
       return eval(this.feed_mappings[this.parent].contents).length;
+    },
+    tapInstructionIndex() {
+      if (this.$store.state.never_tapped_feed_card) {
+        var feed_contents = eval(this.feed_mappings[this.parent].contents);
+        var feed_item;
+        for (feed_item in feed_contents) {
+          if (
+            feed_item > 2 &&
+            ((feed_contents[feed_item].image_info
+              ? feed_contents[feed_item].image_info.where_to_watch
+              : null) ||
+              feed_contents[feed_item].where_to_watch)
+          ) {
+            return feed_item;
+          }
+        }
+      }
+
+      return -1;
     },
     div_height() {
       var elems = document.getElementsByClassName(this.containerTile);
@@ -1525,6 +1541,7 @@ export default {
   display: inline-grid;
   white-space: nowrap;
   margin-top: 165px;
+  margin-bottom: 50px;
   padding-bottom: 3%;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -1548,6 +1565,7 @@ export default {
 .fetching-incremental-feed {
   position: relative;
   margin-top: 45px;
+  padding-bottom: 50px;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
   width: 95%;
@@ -1702,5 +1720,17 @@ export default {
   width: fit-content;
   margin-left: 50%;
   transform: translateX(-50%) rotate(25deg);
+}
+.feed-voice-search-card {
+  position: relative;
+  display: flex;
+  align-self: center;
+  margin-top: 16px;
+}
+.feed-voice-search-card img {
+  width: 100%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 </style>

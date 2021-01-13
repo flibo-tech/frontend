@@ -1,6 +1,9 @@
 <template>
   <div v-on-click-outside="parent != 'search_page' ? clearSearchString : ''">
-    <form class="search-box">
+    <form
+      class="search-box"
+      :style="parent != 'search_page' ? 'padding: 12px 37px 12px 12px;' : ''"
+    >
       <input
         type="text"
         class="search-text"
@@ -14,23 +17,50 @@
             : 'Search Users'
         "
         @keyup="searchString"
+        @focus="
+          parent == 'search_page'
+            ? (updateDummy(),
+              $router.push('/search?showSearchSuggestions=true'))
+            : ''
+        "
         autocomplete="off"
       />
     </form>
 
     <SpeechRecognition
-      v-if="!this.search_string.length & (parent == 'search_page')"
+      v-if="!search_string.length & (parent == 'search_page')"
       class="search-icon"
       :style="is_mobile ? '' : 'right: calc(50vw - 500px + 35px);'"
     />
 
-    <button
-      v-if="this.search_string.length || parent == 'connections'"
-      class="search-btn-clear-text"
-      :style="is_mobile ? '' : 'right: calc(50vw - 500px + 35px);'"
-      @click="clearSearchString"
-      type="button"
-    ></button>
+    <div
+      v-if="search_string.length || parent == 'connections'"
+      class="search-icons"
+      :style="`${parent != 'search_page' ? 'top: 28px;' : ''} ${
+        is_mobile ? '' : 'right: calc(50vw - 500px + 35px);'
+      }`"
+    >
+      <button
+        class="search-btn-clear-text"
+        :style="is_mobile ? '' : 'right: calc(50vw - 500px + 35px);'"
+        @click="clearSearchString"
+        type="button"
+      ></button>
+
+      <div
+        v-if="parent == 'search_page'"
+        style="border-radius: 4px; overflow: hidden; margin-left: 12px"
+      >
+        <Button
+          buttonType="iconOnly"
+          icon="arrow-inverted"
+          :size="32"
+          @clicked="
+            $router.push('/search?search=' + encodeURIComponent(search_string))
+          "
+        />
+      </div>
+    </div>
 
     <div
       class="search-type-tabs"
@@ -225,12 +255,31 @@
 
     <DiscoverFilter
       v-if="
-        (parent == 'search_page') &
-        (search_string == '') &
-        !store.discover_filters.filtered_content.length
+        parent == 'search_page' &&
+        search_string == '' &&
+        !store.discover_filters.filtered_content.length &&
+        !$route.query.showSearchSuggestions
       "
       @apply-filter="filterDiscover"
     />
+
+    <div
+      v-if="$route.query.showSearchSuggestions && !search_string.length"
+      class="search-suggestions"
+    >
+      <div
+        v-for="(item, index) in randomSearchSuggestions"
+        :key="index"
+        class="search-suggestion"
+        @click="$router.push('/search?search=' + encodeURIComponent(item))"
+      >
+        <div class="search-suggestions-icon" />
+
+        <div class="search-suggestions-text">
+          {{ item }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -242,6 +291,7 @@ import DiscoverFilter from "./DiscoverFilter";
 import UserRating from "./molecular/UserRating";
 import ImageCard from "./atomic/ImageCard";
 import SpeechRecognition from "./molecular/SpeechRecognition";
+import Button from "./atomic/Button";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
@@ -251,6 +301,7 @@ export default {
     UserRating,
     ImageCard,
     SpeechRecognition,
+    Button,
   },
   mixins: [onClickOutside],
   data() {
@@ -271,6 +322,45 @@ export default {
       window_width: window.innerWidth,
       toggle_width: Math.min(window.innerWidth * 0.23, 80),
       search_type_tab: "contents",
+      searchSuggestions: [
+        "heartwarming movies on netflix",
+        "movies with sad endings",
+        "movies to watch after breakup",
+        "shows involving drugs on my platforms",
+        "coming of age shows on my apps",
+        "most thrilling movies ever",
+        "best french movies",
+        "shows like dark",
+        "movies full of emotions",
+        "motivation movies for gym",
+        "best basketball movies",
+        "emotional movies on netflix",
+        "movies for couples on my subscriptions",
+        "movies about failing relationships",
+        "movies about families",
+        "greatest animated films of all time",
+        "beautiful teenage romance movies",
+        "movies like Interstellar",
+        "visually stunning movies of all time",
+        "best shows ever",
+        "shows with female leads",
+        "superhero tv shows",
+        "best german tv shows",
+        "historical tv shows",
+        "historical tv shows",
+        "best sci-fi shows on my apps",
+        "shows like westworld",
+        "shows like sense 8",
+        "best european movies ever",
+        "movies with non linear narrative",
+        "best old movies",
+        "movies with great actions",
+        "movies about racing",
+        "movies about middle ages",
+        "movies about youth",
+        "best outer space movies",
+      ],
+      dummy: 1,
     };
   },
   props: {
@@ -292,7 +382,7 @@ export default {
     this.manageSearchPageState();
   },
   mounted() {
-    if (!this.is_mobile) {
+    if (!this.is_mobile && this.parent != "search_page") {
       document.getElementById(this.parent + "_search_string").focus();
     }
   },
@@ -302,8 +392,34 @@ export default {
         this.manageSearchPageState();
       },
     },
+    showSearchSuggestions: {
+      handler: function (val) {
+        if (!val) {
+          document.getElementById(this.parent + "_search_string").blur();
+        }
+      },
+    },
+    search_string: {
+      handler: function (val) {
+        if (val == "") {
+          this.is_fetching = false;
+        }
+      },
+    },
+  },
+  computed: {
+    randomSearchSuggestions() {
+      this.dummy;
+      return this.searchSuggestions.sort(() => Math.random() - 0.5);
+    },
+    showSearchSuggestions() {
+      return this.$route.query.showSearchSuggestions;
+    },
   },
   methods: {
+    updateDummy() {
+      this.dummy = Math.random();
+    },
     clearSearchString() {
       if (this.search_string == "" && this.parent == "connections") {
         this.$router.push("/connections");
@@ -662,51 +778,55 @@ export default {
             guest_id: self.$store.state.guest_id,
           })
           .then(function (response) {
-            if ([200].includes(response.status)) {
-              if (self.$route.path == "/search-results") {
-                self.$store.state.discover_filters.filtered_content =
-                  response.data.contents;
-                self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
-                  0,
-                  self.$store.state.feed.defaultListSize
-                );
+            if (self.$store.state.discover_filters.query == null) {
+              if ([200].includes(response.status)) {
                 if (self.$route.path == "/search-results") {
-                  self.$store.state.feed.update_dom = true;
+                  self.$store.state.discover_filters.filtered_content =
+                    response.data.contents;
+                  self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
+                    0,
+                    self.$store.state.feed.defaultListSize
+                  );
+                  if (self.$route.path == "/search-results") {
+                    self.$store.state.feed.update_dom = true;
+                  }
+                  self.$store.state.discover_filters.more_filtered_content =
+                    response.data.more_contents;
+                  self.$store.state.scroll_positions.discover.filter = 0;
+                  self.$store.state.discover_filters.last_fetch_time = Date.now();
+                  if (
+                    self.$store.state.discover_filters.more_filtered_content
+                      .length
+                  ) {
+                    self.fetchRemainingResults();
+                  }
                 }
-                self.$store.state.discover_filters.more_filtered_content =
-                  response.data.more_contents;
-                self.$store.state.scroll_positions.discover.filter = 0;
-                self.$store.state.discover_filters.last_fetch_time = Date.now();
-                if (
-                  self.$store.state.discover_filters.more_filtered_content
-                    .length
-                ) {
-                  self.fetchRemainingResults();
+              } else if ([204].includes(response.status)) {
+                if (self.$route.path == "/search-results") {
+                  self.$store.state.discover_filters.filtered_content = [];
+                  self.$store.state.discover_filters.more_filtered_content = [];
+                  self.$store.state.scroll_positions.discover.filter = 0;
                 }
+              } else {
+                // console.log(response.status);
               }
-            } else if ([204].includes(response.status)) {
-              if (self.$route.path == "/search-results") {
-                self.$store.state.discover_filters.filtered_content = [];
-                self.$store.state.discover_filters.more_filtered_content = [];
-                self.$store.state.scroll_positions.discover.filter = 0;
-              }
-            } else {
-              // console.log(response.status);
+              self.$store.state.discover_filters.fetching_filtered = false;
             }
-            self.$store.state.discover_filters.fetching_filtered = false;
           })
           .catch(function (error) {
-            if ([401, 419].includes(error.response.status)) {
-              window.location =
-                self.$store.state.login_host +
-                "logout?session_id=" +
-                self.$store.state.session_id;
-              self.$store.state.session_id = null;
-              self.$emit("logging-out");
-            } else {
-              // console.log(error.response.status);
+            if (self.$store.state.discover_filters.query == null) {
+              if ([401, 419].includes(error.response.status)) {
+                window.location =
+                  self.$store.state.login_host +
+                  "logout?session_id=" +
+                  self.$store.state.session_id;
+                self.$store.state.session_id = null;
+                self.$emit("logging-out");
+              } else {
+                // console.log(error.response.status);
+              }
+              self.$store.state.discover_filters.fetching_filtered = false;
             }
-            self.$store.state.discover_filters.fetching_filtered = false;
           });
       } else {
         // do nothing
@@ -723,38 +843,50 @@ export default {
             self.$store.state.user.profile.country || self.store.guest_country,
         })
         .then(function (response) {
-          if ([200].includes(response.status)) {
-            if (self.$route.path != "/search") {
-              self.$store.state.discover_filters.filtered_content.push(
-                ...response.data.contents
-              );
-              self.$store.state.discover_filters.more_filtered_content = [];
+          if (
+            self.search_query
+              ? self.search_query == self.$store.state.discover_filters.query
+              : self.$store.state.discover_filters.query == null
+          ) {
+            if ([200].includes(response.status)) {
+              if (self.$route.path != "/search") {
+                self.$store.state.discover_filters.filtered_content.push(
+                  ...response.data.contents
+                );
+                self.$store.state.discover_filters.more_filtered_content = [];
 
-              if (self.$route.path == "/search-results") {
-                self.$store.state.feed_filters.apply_filters_wo_reset = true;
-              } else if (
-                self.$store.state.feed.search_results.feed_list.length <
-                self.$store.state.feed.defaultListSize
-              ) {
-                self.store.feed.search_results.apply_filters_on_create = true;
+                if (self.$route.path == "/search-results") {
+                  self.$store.state.feed_filters.apply_filters_wo_reset = true;
+                } else if (
+                  self.$store.state.feed.search_results.feed_list.length <
+                  self.$store.state.feed.defaultListSize
+                ) {
+                  self.store.feed.search_results.apply_filters_on_create = true;
+                }
               }
+            } else {
+              // console.log(response.status);
             }
-          } else {
-            // console.log(response.status);
+            self.store.discover_filters.fetching_filter_incremental = false;
           }
-          self.store.discover_filters.fetching_filter_incremental = false;
         })
         .catch(function (error) {
-          self.store.discover_filters.fetching_filter_incremental = false;
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
+          if (
+            self.search_query
+              ? self.search_query == self.$store.state.discover_filters.query
+              : self.$store.state.discover_filters.query == null
+          ) {
+            self.store.discover_filters.fetching_filter_incremental = false;
+            if ([401, 419].includes(error.response.status)) {
+              window.location =
+                self.$store.state.login_host +
+                "logout?session_id=" +
+                self.$store.state.session_id;
+              self.$store.state.session_id = null;
+              self.$emit("logging-out");
+            } else {
+              // console.log(error.response.status);
+            }
           }
         });
     },
@@ -850,51 +982,59 @@ export default {
               guest_id: self.$store.state.guest_id,
             })
             .then(function (response) {
-              if ([200].includes(response.status)) {
-                if (self.$route.path == "/search-results") {
-                  self.$store.state.feed.search_results.scroll_position = 0;
-
-                  self.$store.state.discover_filters.filtered_content =
-                    response.data.contents;
-                  self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
-                    0,
-                    self.$store.state.feed.defaultListSize
-                  );
+              if (
+                self.search_query == self.$store.state.discover_filters.query
+              ) {
+                if ([200].includes(response.status)) {
                   if (self.$route.path == "/search-results") {
-                    self.$store.state.feed.update_dom = true;
-                  }
+                    self.$store.state.feed.search_results.scroll_position = 0;
 
-                  self.$store.state.discover_filters.more_filtered_content =
-                    response.data.more_contents;
-                  self.$store.state.scroll_positions.discover.filter = 0;
-                  self.$store.state.discover_filters.last_fetch_time = Date.now();
-                  if (response.data.more_contents.length) {
-                    self.fetchRemainingResults();
+                    self.$store.state.discover_filters.filtered_content =
+                      response.data.contents;
+                    self.$store.state.feed.search_results.feed_list = self.$store.state.discover_filters.filtered_content.slice(
+                      0,
+                      self.$store.state.feed.defaultListSize
+                    );
+                    if (self.$route.path == "/search-results") {
+                      self.$store.state.feed.update_dom = true;
+                    }
+
+                    self.$store.state.discover_filters.more_filtered_content =
+                      response.data.more_contents;
+                    self.$store.state.scroll_positions.discover.filter = 0;
+                    self.$store.state.discover_filters.last_fetch_time = Date.now();
+                    if (response.data.more_contents.length) {
+                      self.fetchRemainingResults();
+                    }
                   }
+                } else if ([204].includes(response.status)) {
+                  if (self.$route.path == "/search-results") {
+                    self.$store.state.discover_filters.filtered_content = [];
+                    self.$store.state.discover_filters.more_filtered_content = [];
+                    self.$store.state.scroll_positions.discover.filter = 0;
+                  }
+                } else {
+                  // console.log(response.status);
                 }
-              } else if ([204].includes(response.status)) {
-                if (self.$route.path == "/search-results") {
-                  self.$store.state.discover_filters.filtered_content = [];
-                  self.$store.state.discover_filters.more_filtered_content = [];
-                  self.$store.state.scroll_positions.discover.filter = 0;
-                }
-              } else {
-                // console.log(response.status);
+                self.$store.state.discover_filters.fetching_filtered = false;
               }
-              self.$store.state.discover_filters.fetching_filtered = false;
             })
             .catch(function (error) {
-              if ([401, 419].includes(error.response.status)) {
-                window.location =
-                  self.$store.state.login_host +
-                  "logout?session_id=" +
-                  self.$store.state.session_id;
-                self.$store.state.session_id = null;
-                self.$emit("logging-out");
-              } else {
-                // console.log(error.response.status);
+              if (
+                self.search_query == self.$store.state.discover_filters.query
+              ) {
+                if ([401, 419].includes(error.response.status)) {
+                  window.location =
+                    self.$store.state.login_host +
+                    "logout?session_id=" +
+                    self.$store.state.session_id;
+                  self.$store.state.session_id = null;
+                  self.$emit("logging-out");
+                } else {
+                  // console.log(error.response.status);
+                }
+                self.$store.state.discover_filters.fetching_filtered = false;
               }
-              self.$store.state.discover_filters.fetching_filtered = false;
             });
         }
       }
@@ -913,7 +1053,7 @@ export default {
   text-align: left;
   border: 2px solid #333333;
   border-radius: 4px;
-  padding: 12px 37px 12px 12px;
+  padding: 12px 80px 12px 12px;
 }
 .search-text {
   border: none;
@@ -927,11 +1067,16 @@ export default {
   text-align: left;
   color: #333333;
 }
-.search-btn-clear-text {
+.search-icons {
   position: absolute;
-  display: block;
+  display: flex;
+  align-items: center;
   right: 5%;
-  top: 29px;
+  top: 24px;
+  z-index: 1000000;
+}
+.search-btn-clear-text {
+  display: block;
   height: 23px;
   width: 23px;
   background: transparent;
@@ -942,7 +1087,6 @@ export default {
   -webkit-tap-highlight-color: transparent;
   background-image: url("./../images/close.png");
   background-size: 100% 100%;
-  z-index: 1000000;
 }
 .search-icon {
   position: fixed;
@@ -1267,5 +1411,41 @@ export default {
 }
 ::-webkit-scrollbar {
   display: none;
+}
+.search-suggestions {
+  display: flex;
+  flex-direction: column;
+  width: 95%;
+  margin-left: 2.5%;
+  padding: 8px;
+  margin-top: 24px;
+  height: calc(100vh - 128px);
+  overflow-y: scroll;
+}
+.search-suggestion {
+  display: flex;
+  padding: 12px 0;
+}
+.search-suggestions-icon {
+  height: 20px;
+  width: 20px;
+  margin-right: 16px;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+  background-image: url("./../images/search-icon.svg");
+  background-size: 80%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.search-suggestions-text {
+  font-size: 16px;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.31;
+  letter-spacing: normal;
+  text-align: left;
+  color: #333333;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 </style>

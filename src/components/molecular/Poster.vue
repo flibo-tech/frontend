@@ -177,6 +177,7 @@ export default {
   margin-top: 10px;
   text-align: center;
   white-space: normal;
+  overflow-wrap: break-word;
   font-size: 12px;
   font-weight: bold;
   font-stretch: normal;

@@ -9,7 +9,6 @@
           ? 'width: 1000px;left: calc(50vw - 500px);box-shadow: black 0px -7px 8px -10px;'
           : 'width: 1000px;left: calc(50vw - 500px);box-shadow: black 0px -7px 8px -10px;display: flex;align-items: center;'
       "
-      :class="{ 'main-navigation--hidden': !showNavbar }"
       v-if="
         this.$store.state.session_id
           ? !RegExp(/^\/(review|request|suggest|activity|list)\/.*$/).test(
@@ -26,10 +25,13 @@
         >
           <img
             class="discover"
-            :src="require('./../images/home-icon.svg')"
+            :src="
+              isDiscover
+                ? require('./../images/home-icon-filled.svg')
+                : require('./../images/home-icon.svg')
+            "
             alt="home-icon"
           />
-          <span class="home-text"> Home </span>
         </div>
 
         <div
@@ -39,10 +41,13 @@
         >
           <img
             class="search"
-            :src="require('./../images/search-icon.svg')"
+            :src="
+              isSearch
+                ? require('./../images/search-icon-thicker.svg')
+                : require('./../images/search-icon.svg')
+            "
             alt="search-icon"
           />
-          <span class="search-text"> Search </span>
         </div>
 
         <div
@@ -55,7 +60,6 @@
             :src="require('./../images/plus.svg')"
             alt="post-icon"
           />
-          <span class="search-text"> Post </span>
         </div>
 
         <div
@@ -65,10 +69,13 @@
         >
           <img
             class="rate"
-            :src="require('./../images/heart.svg')"
+            :src="
+              isRate
+                ? require('./../images/heart-filled.svg')
+                : require('./../images/heart.svg')
+            "
             alt="rate-icon"
           />
-          <span class="rate-text"> Rate </span>
         </div>
 
         <div
@@ -76,14 +83,20 @@
           v-bind:class="{ active: isProfile && !promptPost }"
           @click="GoToUserProfile"
         >
-          <div class="pp-cropper">
+          <div
+            class="pp-cropper"
+            :style="
+              isProfile
+                ? 'border: solid 2px #333;width: 34px;height: 33px;'
+                : ''
+            "
+          >
             <img
               class="profile-picture"
               v-bind:src="store.user.picture"
               onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
             />
           </div>
-          <span class="profile-text"> Profile </span>
         </div>
       </nav>
 
@@ -302,8 +315,8 @@ export default {
   border-bottom: 2px solid rgb(143, 179, 245);
 }
 .pp-cropper {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   top: 0px;
   margin: 0 auto;
   position: relative;
@@ -339,7 +352,7 @@ button {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 55px;
+  height: 50px;
   background-color: #ffffff;
   border-top: 1px solid #ebebeb;
   z-index: 20000;
@@ -354,7 +367,7 @@ button {
   display: flex;
   align-items: stretch;
   justify-content: space-around;
-  height: 55px;
+  height: 50px;
 }
 .main-icon {
   text-align: center;
@@ -369,64 +382,16 @@ button {
   width: 50px;
 }
 .main-icon .rate {
-  width: 31px;
-}
-.main-icon.active span {
-  font-weight: 900;
-  color: black;
+  width: 29px;
 }
 .main-icon .search {
-  width: 28px;
+  width: 27px;
 }
 .main-icon .post {
-  width: 31px;
+  width: 29px;
 }
 .main-icon .discover {
-  width: 28px;
-}
-.home-text {
-  width: 100%;
-  font-size: 11px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: normal;
-  text-align: center;
-  color: #575757;
-}
-.search-text {
-  width: 100%;
-  font-size: 11px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: normal;
-  text-align: center;
-  color: #575757;
-}
-.rate-text {
-  width: 100%;
-  font-size: 11px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: normal;
-  text-align: center;
-  color: #575757;
-}
-.profile-text {
-  width: 100%;
-  font-size: 11px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1;
-  letter-spacing: normal;
-  text-align: center;
-  color: #575757;
+  width: 26px;
 }
 .google-play {
   position: fixed;
