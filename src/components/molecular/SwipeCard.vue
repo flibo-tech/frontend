@@ -10,24 +10,13 @@
     :style="{ transform: transformString }"
     v-bind:id="contentId"
   >
-    <div
+    <TapInstruction
       v-if="tapOpenInstruction"
-      class="card-tap-instruction"
-      :style="
-        `--card-width:` +
-        cardWidth +
-        `px;
-                  --card-height:` +
-        cardHeight +
-        `px;
-                 `
-      "
-    >
-      <p>
-        Tap to see more details about the
-        {{ contentType == "movie" ? "movie" : "show" }}
-      </p>
-    </div>
+      :style="`margin-top: ${cardHeight / 2}px; transform: translateX(-50%)`"
+      text="Tap to open"
+      toolTipMargin="margin-top: 180%; margin-left: 110%;"
+    />
+
     <img
       v-if="
         poster !=
@@ -77,6 +66,7 @@
 <script>
 import interact from "interact.js";
 import axios from "axios";
+import TapInstruction from "./TapInstruction";
 
 const LIKE_CARD = "liked";
 const DISLIKE_CARD = "disliked";
@@ -91,6 +81,8 @@ export default {
     interactYThreshold: 50,
     interactXThreshold: 50,
   },
+
+  components: { TapInstruction },
 
   props: {
     contentId: {

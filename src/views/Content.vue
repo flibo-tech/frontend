@@ -352,7 +352,6 @@
               :height="70"
               :skipContentId="content.content_id"
               parent="content_page"
-              @close-tap-instructions="show_tap_instructions = false"
               v-on="$listeners"
             />
           </div>
@@ -381,7 +380,9 @@
               :height="70"
               :skipContentId="content.content_id"
               parent="content_page"
-              @close-tap-instructions="show_tap_instructions = false"
+              :showTapInstruction="
+                store.content_page.never_tapped_any_artist && index == 0
+              "
               v-on="$listeners"
             />
           </div>
@@ -410,54 +411,12 @@
               :height="70"
               :skipContentId="content.content_id"
               parent="content_page"
-              @close-tap-instructions="show_tap_instructions = false"
               v-on="$listeners"
             />
           </div>
         </div>
       </div>
     </div>
-
-    <transition
-      appear
-      enter-active-class="animated fadeIn"
-      leave-active-class="animated fadeOut"
-    >
-      <div>
-        <div
-          class="black-background"
-          :style="
-            is_mobile
-              ? 'height: calc(100vh - 370px - 3.5% - 20px);'
-              : 'height: calc(100vh - 470px);'
-          "
-          v-if="show_tap_instructions"
-        />
-
-        <div
-          :class="
-            is_mobile
-              ? 'close-tap-instruction'
-              : 'desktop-close-tap-instruction'
-          "
-          v-if="show_tap_instructions"
-          @click="closeTapInstruction"
-        />
-
-        <div
-          class="artist-tap-instructions"
-          style="
-            top: calc(50vh - 193px - 3.5%);
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 25px;
-          "
-          v-if="show_tap_instructions"
-        >
-          {{ is_mobile ? "Tap on any artist" : "Click on any artist" }}
-        </div>
-      </div>
-    </transition>
 
     <div v-if="loading" class="content-page-fetching">
       <div class="sk-folding-cube">
@@ -524,7 +483,6 @@ export default {
       window_width: window.innerWidth,
       fetching_more: false,
       where_to_watch: null,
-      show_tap_instructions: false,
       loading: true,
       prompt_content_share: false,
       store: this.$store.state,
@@ -664,7 +622,8 @@ export default {
         (response) => (
           (self.$store.state.content_page.crew = response.data.cast_n_crew),
           (self.loading = false),
-          (self.$store.state.content_page.rerender = false)
+          (self.$store.state.content_page.rerender = false),
+          self.updateArtistTap()
         )
       )
       .catch(function (error) {
@@ -687,9 +646,6 @@ export default {
       .catch(function (error) {
         // console.log(error);
       });
-  },
-  mounted() {
-    window.addEventListener("scroll", this.promptTapOnArtist);
   },
   methods: {
     reRender() {
@@ -738,7 +694,8 @@ export default {
           (response) => (
             (self.$store.state.content_page.crew = response.data.cast_n_crew),
             (self.loading = false),
-            (self.$store.state.content_page.rerender = false)
+            (self.$store.state.content_page.rerender = false),
+            self.updateArtistTap()
           )
         )
         .catch(function (error) {
@@ -779,28 +736,6 @@ export default {
           // console.log(error);
         });
       this.fetchPosts();
-    },
-    promptTapOnArtist() {
-      var scroll_completion =
-        window.scrollY /
-        (document.documentElement.scrollHeight -
-          document.documentElement.clientHeight);
-      if (
-        document.documentElement.scrollHeight ==
-        document.documentElement.clientHeight
-      ) {
-        scroll_completion = 1;
-      }
-      if (
-        (this.store.is_webview == "true" || !this.is_mobile
-          ? scroll_completion >= 0.89
-          : scroll_completion >= 0.8) &&
-        !this.loading &&
-        this.$store.state.content_page.never_tapped_any_artist
-      ) {
-        var self = this;
-        setTimeout((self.show_tap_instructions = true), 500);
-      }
     },
     close() {
       this.$store.state.content_page.more_by_artist = [];
@@ -946,11 +881,14 @@ export default {
         this.$store.state.prompt_signup = true;
       }
     },
-    closeTapInstruction() {
+    updateArtistTap() {
       var self = this;
-      this.show_tap_instructions = false;
-      this.$store.state.content_page.never_tapped_any_artist = false;
-      if (self.$store.state.session_id) {
+      if (
+        this.$store.state.session_id &&
+        this.store.content_page.never_tapped_any_artist &&
+        this.content.crew &&
+        this.content.crew.cast.length
+      ) {
         axios
           .post(self.$store.state.api_host + "update_profile", {
             session_id: self.$store.state.session_id,
@@ -1203,6 +1141,7 @@ export default {
 .artists {
   display: inline-flex;
   overflow-x: scroll;
+  overflow-y: hidden;
   width: 94%;
   white-space: nowrap;
   padding: 10px;

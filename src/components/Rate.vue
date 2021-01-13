@@ -82,8 +82,25 @@ export default {
   },
   methods: {
     showTapOpenInstruction() {
+      var self = this;
+
       if (this.store.rate.never_tapped_any_card) {
         this.tapOpenInstruction = true;
+
+        axios
+          .post(self.$store.state.api_host + "update_profile", {
+            session_id: self.$store.state.session_id,
+            never_tapped_any_card: false,
+          })
+          .then(function (response) {
+            if ([200].includes(response.status)) {
+            } else {
+              // console.log(response.status);
+            }
+          })
+          .catch(function (error) {
+            // console.log(error);
+          });
       }
     },
   },

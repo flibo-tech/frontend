@@ -146,7 +146,7 @@
 </template>
 
 <script>
-import SwipeCard from "./../atomic/SwipeCard";
+import SwipeCard from "./SwipeCard";
 import RatingLabel from "./../atomic/RatingLabel";
 import PlatformBar from "./../atomic/PlatformBar";
 import axios from "axios";

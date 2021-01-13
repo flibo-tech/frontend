@@ -1,7 +1,22 @@
 <template>
   <div class="main-container">
     <div @click="quickView">
-      <ImageCard :image="image" :width="width" :height="height" :name="name" />
+      <ImageCard
+        style="min-height: 100px; justify-content: flex-start"
+        :image="image"
+        :width="width"
+        :height="height"
+        :name="name"
+      />
+
+      <TapInstruction
+        v-if="showTapInstruction"
+        style="margin-top: -96px; margin-left: -2.5px; z-index: 1"
+        :text="`Tap to see other ${
+          contentType == 'movie' ? 'movies' : 'shows'
+        } by the artist`"
+        toolTipMargin="margin-top: 180%; margin-left: 319%;"
+      />
     </div>
 
     <div
@@ -77,6 +92,7 @@ import axios from "axios";
 import ImageCard from "./../atomic/ImageCard";
 import Poster from "./Poster";
 import Button from "./../atomic/Button";
+import TapInstruction from "./TapInstruction";
 
 export default {
   name: "Artist",
@@ -114,8 +130,13 @@ export default {
       type: String,
       required: true,
     },
+    showTapInstruction: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
-  components: { ImageCard, Poster, Button },
+  components: { ImageCard, Poster, Button, TapInstruction },
   data() {
     return {
       store: this.$store.state,
@@ -130,7 +151,7 @@ export default {
       var self = this;
       this.quickViewEnabled = !this.quickViewEnabled;
       if (self.parent == "content_page") {
-        this.$emit("close-tap-instructions");
+        this.store.content_page.never_tapped_any_artist = false;
       }
 
       axios
@@ -182,6 +203,9 @@ export default {
     },
   },
   computed: {
+    contentType() {
+      return RegExp(/^1{1}.*$/).test(this.skipContentId) ? "movie" : "tv";
+    },
     filteredContents() {
       return this.artistData.filter(
         (el) => el.content_id != this.skipContentId

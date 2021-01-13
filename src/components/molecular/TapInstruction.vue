@@ -49,7 +49,7 @@ export default {
   from {
     width: 0px;
     height: 0px;
-    background: #405dedb9;
+    background: #405ded;
   }
   to {
     width: 60px;
