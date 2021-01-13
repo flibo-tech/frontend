@@ -291,7 +291,7 @@ import DiscoverFilter from "./DiscoverFilter";
 import UserRating from "./molecular/UserRating";
 import ImageCard from "./atomic/ImageCard";
 import SpeechRecognition from "./molecular/SpeechRecognition";
-import Button from ".//atomic/Button";
+import Button from "./atomic/Button";
 import { mixin as onClickOutside } from "vue-on-click-outside";
 
 export default {
