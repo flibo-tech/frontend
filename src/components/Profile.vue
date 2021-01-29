@@ -1388,12 +1388,21 @@ export default {
       this.$emit("update-api-counter", { api: "about_us" });
     },
     logOut() {
-      window.location =
-        this.$store.state.login_host +
-        "logout?session_id=" +
-        this.$store.state.session_id;
-      this.$store.state.session_id = null;
-      this.$emit("logging-out");
+      if (this.store.defunctLogoutUrl) {
+        this.$store.state.feed.notifications.contents = [];
+        this.$router.push(
+          this.store.defunctLogoutUrl
+            .replace("https://yzal-dev.flibo.ai", "")
+            .replace("https://flibo.ai", "")
+        );
+      } else {
+        window.location =
+          this.$store.state.login_host +
+          "logout?session_id=" +
+          this.$store.state.session_id;
+        this.$store.state.session_id = null;
+        this.$emit("logging-out");
+      }
     },
     goToFriends() {
       this.$router.push("/connections");

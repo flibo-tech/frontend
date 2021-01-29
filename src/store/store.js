@@ -609,5 +609,6 @@ export const store = new Vuex.Store({
     outbound_traffic: my_store ? my_store.outbound_traffic : [],
     never_tapped_feed_card: my_store ? my_store.never_tapped_feed_card : true,
     never_tapped_platform: my_store ? my_store.never_tapped_platform : true,
+    defunctLogoutUrl: null
   }
 });

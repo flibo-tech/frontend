@@ -601,6 +601,7 @@ export default {
 
             if (response.data.contents_rated != 0) {
               if (
+                self.$store.state.suggestions.contents &&
                 self.$store.state.suggestions.contents.length == 0 &&
                 !self.$store.state.suggestions.fetching_suggestions
               ) {
@@ -645,6 +646,8 @@ export default {
             }
             self.$store.state.notifications.notifications =
               response.data.notifications;
+            self.$store.state.defunctLogoutUrl =
+              response.data.defunct_logout_url;
           });
 
         axios
@@ -890,7 +893,9 @@ export default {
             self.$store.state.suggestions.fetching_suggestions = false;
           }
 
-          if ([401, 419].includes(error.response.status)) {
+          if (
+            [401, 419].includes(error.response ? error.response.status : -1)
+          ) {
             window.location =
               self.$store.state.login_host +
               "logout?session_id=" +
