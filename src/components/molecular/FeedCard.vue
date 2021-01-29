@@ -53,12 +53,14 @@
             content.feed_type == 'search_result' ? 'cursor: pointer;' : ''
           "
         >
-          <span style="margin-right: 8px">
-            {{
+          <span
+            style="margin-right: 8px"
+            v-html="
               content.action_title != null
                 ? content.action_title
                 : content.content_title
-            }}
+            "
+          >
           </span>
 
           <span
