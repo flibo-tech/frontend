@@ -1458,6 +1458,11 @@ export default {
               this.feed_mappings[info.parent].discover_filters +
                 ' = ["community", "friends", "flibo", "search_result"]'
             );
+          } else if (info.parent == "home") {
+            eval(
+              this.feed_mappings[info.parent].discover_filters +
+                ' = ["community", "friends", "flibo", "self"]'
+            );
           } else {
             eval(
               this.feed_mappings[info.parent].discover_filters +
