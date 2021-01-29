@@ -530,12 +530,10 @@ export default {
 
         if (this.$route.query.path) {
           this.$router.push(decodeURIComponent(this.$route.query.path));
-        } else if (this.$route.path == "/create" && this.$route.query.type) {
+        } else if (current_path != "/") {
           // do nothing
-        } else if (this.$store.state.current_path) {
-          this.$router.push(this.$store.state.current_path);
         } else {
-          this.$router.push("/");
+          this.$router.push("/discover");
         }
 
         var self = this;
