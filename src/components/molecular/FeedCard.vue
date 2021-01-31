@@ -131,7 +131,8 @@
       "
     >
       <img
-        :src="content.image_info.image"
+        :src="imageUrl"
+        :onerror="`this.onerror=null;this.src='${onErrorImageUrl}';`"
         alt="feed-image"
         @click="
           showPreview(
@@ -438,6 +439,16 @@ export default {
       } else {
         return null;
       }
+    },
+    imageUrl() {
+      return this.content.image_info.image
+        .replace("/w500/", "/w780/")
+        .replace("/original/", "/w780/");
+    },
+    onErrorImageUrl() {
+      return this.content.image_info.image
+        .replace("/w500/", "/original/")
+        .replace("/w780/", "/original/");
     },
   },
   methods: {
