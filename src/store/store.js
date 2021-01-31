@@ -11,7 +11,7 @@ var my_store = JSON.parse(localStorage.getItem("my_store"));
 
 if (my_store) {
   try {
-    if (typeof my_store.unused_key_bn == "undefined") {
+    if (typeof my_store.unused_key_bo == "undefined") {
       var temp_session_id = my_store.session_id;
       var temp_is_webview = my_store.is_webview;
       var temp_releaseNo = my_store.releaseNo;
@@ -42,7 +42,7 @@ if (my_store) {
 export const store = new Vuex.Store({
   state: {
     server_down: false,
-    unused_key_bn: my_store ? my_store.unused_key_bn : true,
+    unused_key_bo: my_store ? my_store.unused_key_bo : true,
     updated_at: my_store ? my_store.updated_at : Date.now(),
     user: {
       id: my_store ? my_store.user.id : null,
@@ -205,7 +205,7 @@ export const store = new Vuex.Store({
       more_contents: my_store ? my_store.suggestions.more_contents : [],
       discover_type_tab: my_store
         ? my_store.suggestions.discover_type_tab
-        : ["community", "friends", "flibo"],
+        : ["community", "friends", "flibo", "self"],
       content_type_tab: my_store
         ? my_store.suggestions.content_type_tab
         : ["movie", "tv", "pass_check"],
@@ -609,5 +609,6 @@ export const store = new Vuex.Store({
     outbound_traffic: my_store ? my_store.outbound_traffic : [],
     never_tapped_feed_card: my_store ? my_store.never_tapped_feed_card : true,
     never_tapped_platform: my_store ? my_store.never_tapped_platform : true,
+    defunctLogoutUrl: null
   }
 });

@@ -75,6 +75,9 @@ export default {
           status: "in_app_notification_tapped",
         });
       }
+      if (RegExp(/.*\?id=[A-Za-z0-9]{20,}$/).test(this.notification.url)) {
+        this.$store.state.feed.notifications.contents = [];
+      }
       this.$router.push(
         this.notification.url
           .replace("https://yzal-dev.flibo.ai", "")

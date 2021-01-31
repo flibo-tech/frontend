@@ -431,7 +431,7 @@ export default {
           this.store.letNavAutoHide = false;
           setTimeout(() => {
             element.scrollIntoView(false);
-            window.scrollBy(0, 10);
+            window.scrollBy(0, 60);
             setTimeout(() => {
               this.store.letNavAutoHide = true;
             }, 250);

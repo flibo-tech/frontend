@@ -530,12 +530,10 @@ export default {
 
         if (this.$route.query.path) {
           this.$router.push(decodeURIComponent(this.$route.query.path));
-        } else if (this.$route.path == "/create" && this.$route.query.type) {
+        } else if (current_path != "/") {
           // do nothing
-        } else if (this.$store.state.current_path) {
-          this.$router.push(this.$store.state.current_path);
         } else {
-          this.$router.push("/");
+          this.$router.push("/discover");
         }
 
         var self = this;
@@ -601,6 +599,7 @@ export default {
 
             if (response.data.contents_rated != 0) {
               if (
+                self.$store.state.suggestions.contents &&
                 self.$store.state.suggestions.contents.length == 0 &&
                 !self.$store.state.suggestions.fetching_suggestions
               ) {
@@ -645,6 +644,8 @@ export default {
             }
             self.$store.state.notifications.notifications =
               response.data.notifications;
+            self.$store.state.defunctLogoutUrl =
+              response.data.defunct_logout_url;
           });
 
         axios
@@ -890,7 +891,9 @@ export default {
             self.$store.state.suggestions.fetching_suggestions = false;
           }
 
-          if ([401, 419].includes(error.response.status)) {
+          if (
+            [401, 419].includes(error.response ? error.response.status : -1)
+          ) {
             window.location =
               self.$store.state.login_host +
               "logout?session_id=" +
@@ -1452,6 +1455,11 @@ export default {
             eval(
               this.feed_mappings[info.parent].discover_filters +
                 ' = ["community", "friends", "flibo", "search_result"]'
+            );
+          } else if (info.parent == "home") {
+            eval(
+              this.feed_mappings[info.parent].discover_filters +
+                ' = ["community", "friends", "flibo", "self"]'
             );
           } else {
             eval(
