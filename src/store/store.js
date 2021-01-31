@@ -18,9 +18,9 @@ if (my_store) {
       localStorage.clear();
       if (temp_is_webview == "true") {
         window.location =
-          "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&webview=true" + (temp_releaseNo ? ("&releaseNo="+temp_releaseNo) : "") + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
+          "https://flibo.ai/?id=" + temp_session_id + "&webview=true" + (temp_releaseNo ? ("&releaseNo="+temp_releaseNo) : "") + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       } else {
-        window.location = "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
+        window.location = "https://flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
       }
       my_store = JSON.parse(localStorage.getItem("my_store"));
     }
@@ -31,9 +31,9 @@ if (my_store) {
     localStorage.clear();
     if (temp_is_webview == "true") {
       window.location =
-      "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&webview=true" + (temp_releaseNo ? ("&releaseNo="+temp_releaseNo) : "") + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
+      "https://flibo.ai/?id=" + temp_session_id + "&webview=true" + (temp_releaseNo ? ("&releaseNo="+temp_releaseNo) : "") + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     } else {
-      window.location = "https://yzal-dev.flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
+      window.location = "https://flibo.ai/?id=" + temp_session_id + "&path=" + encodeURIComponent(window.location.pathname + window.location.search);
     }
     my_store = JSON.parse(localStorage.getItem("my_store"));
   }
@@ -92,9 +92,9 @@ export const store = new Vuex.Store({
     session_id: my_store ? my_store.session_id : null,
     is_webview: my_store ? my_store.is_webview : false,
     releaseNo: my_store ? my_store.releaseNo : null,
-    login_host: "https://yzal-dev-signin.flibo.ai/",
-    api_host: "https://yzal-dev-app.flibo.ai/",
-    ai_host: "https://yzal-dev-ai.flibo.ai/",
+    login_host: "https://signin.flibo.ai/",
+    api_host: "https://app.flibo.ai/",
+    ai_host: "https://ai.flibo.ai/",
     content_type: my_store ? my_store.content_type : "movie",
     last_card: my_store ? my_store.last_card : null,
     current_path: my_store ? my_store.current_path : "/rate",
