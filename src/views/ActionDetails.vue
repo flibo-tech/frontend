@@ -388,7 +388,7 @@ export default {
       if (this.reactionId) {
         element = document.getElementById("comment-" + this.reactionId);
       } else if (this.$route.query.focusComments) {
-        element = document.getElementById("comments-container");
+        element = document.getElementById("feed-card-actions-container");
       }
 
       if (element) {
@@ -446,7 +446,7 @@ export default {
 <style scoped>
 .action-details-container {
   margin-top: 66px;
-  padding-bottom: 56px;
+  padding-bottom: 106px;
   overflow-x: hidden;
 }
 .action-details-contents-discussed-container {

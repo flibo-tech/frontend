@@ -71,7 +71,10 @@ export default {
       .then(function (response) {
         self.$store.state.suggestions.rate_counter_all =
           response.data.contents_rated;
-        if (response.data.contents_rated < 25) {
+        if (
+          response.data.contents_rated < 25 &&
+          !self.$route.query.skipOnboarding
+        ) {
           self.$router.push("/onboarding");
         } else {
           if (self.store.rate.never_tapped_any_card) {

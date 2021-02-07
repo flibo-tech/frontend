@@ -209,6 +209,7 @@
     <div
       v-if="!['search_result', 'flibo'].includes(content.feed_type)"
       class="feed-card-actions-container"
+      id="feed-card-actions-container"
       :style="
         content.image_info == null ||
         (content.image_info && content.image_info.image == null) ||
@@ -310,7 +311,7 @@
       :id="'create-comment-container-' + content.action_id"
       :style="
         RegExp(/^.*_details$/).test(parent)
-          ? { position: 'fixed', bottom: 0, padding: '8px 16px 4px 16px' }
+          ? { position: 'fixed', bottom: '50px', padding: '8px 16px 4px 16px' }
           : {
               position: 'relative',
               marginTop: '16px',
@@ -463,7 +464,7 @@ export default {
       this.previewDetails.show = true;
     },
     scrollToComments() {
-      var element = document.getElementById("comments-container");
+      var element = document.getElementById("feed-card-actions-container");
       if (element) {
         var topbarHeight = 50;
         var elementPosition = element.getBoundingClientRect().top;
