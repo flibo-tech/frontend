@@ -268,7 +268,7 @@ export default {
           window.innerHeight +
           "px - " +
           this.createCommentHeight +
-          "px - 50px - 8px)";
+          "px - 90px - 8px)";
         return (
           "position: absolute; top: 0px; transform: translateY(-100%); width: 100vw; left: 0; height: " +
           tagSuggestionHeight +
@@ -398,7 +398,7 @@ export default {
                     "action-details-container"
                   );
                   container_element.style.paddingBottom =
-                    this.createCommentHeight + 8 - 24 + "px";
+                    this.createCommentHeight + 8 - 24 + 50 + "px";
                 }
               }
               this.showSpoilerTag = false;
@@ -525,7 +525,7 @@ export default {
               "action-details-container"
             );
             container_element.style.paddingBottom =
-              this.createCommentHeight + 8 + "px";
+              this.createCommentHeight + 8 + 50 + "px";
           }
         }
       }
