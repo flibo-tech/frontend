@@ -488,8 +488,9 @@
           >
             <!-- height of following button also affects min-height of parent -->
             <Button
-              v-if="rating_items > 10 && showAllRatingsMainButton"
-              buttonType="secondary"
+              v-if="rating_items > 0 && showAllRatingsMainButton"
+              buttonType="primary"
+              :capitalize="false"
               text="Show All"
               @clicked="goToRatings"
             />
@@ -548,11 +549,12 @@
             </div>
 
             <Button
-              v-if="rating_items > 10"
+              v-if="rating_items > 0"
               class="show-all-button"
               :style="is_mobile ? '' : 'margin-top: 85px'"
               id="rating-show-all"
-              buttonType="secondary"
+              buttonType="primary"
+              :capitalize="false"
               text="Show All"
               @clicked="goToRatings"
             />
@@ -582,8 +584,9 @@
           >
             <!-- height of following button also affects min-height of parent -->
             <Button
-              v-if="watchlist_items > 10 && showAllWatchlistMainButton"
-              buttonType="secondary"
+              v-if="watchlist_items > 0 && showAllWatchlistMainButton"
+              buttonType="primary"
+              :capitalize="false"
               text="Show All"
               @clicked="goToWatchlist"
             />
@@ -626,11 +629,12 @@
             </div>
 
             <Button
-              v-if="watchlist_items > 10"
+              v-if="watchlist_items > 0"
               class="show-all-button"
               :style="is_mobile ? '' : 'margin-top: 112.5px'"
               id="watchlist-show-all"
-              buttonType="secondary"
+              buttonType="primary"
+              :capitalize="false"
               text="Show All"
               @clicked="goToWatchlist"
             />
@@ -672,8 +676,9 @@
           >
             <!-- height of following button also affects min-height of parent -->
             <Button
-              v-if="totalPosts > 10 && showAllPostsMainButton"
-              buttonType="secondary"
+              v-if="totalPosts > 0 && showAllPostsMainButton"
+              buttonType="primary"
+              :capitalize="false"
               text="Show All"
               @clicked="goToPosts"
             />
@@ -695,11 +700,12 @@
             />
 
             <Button
-              v-if="totalPosts > 10"
+              v-if="totalPosts > 0"
               class="show-all-button"
               :style="is_mobile ? '' : 'margin-top: 112.5px'"
               id="posts-show-all"
-              buttonType="secondary"
+              buttonType="primary"
+              :capitalize="false"
               text="Show All"
               @clicked="goToPosts"
             />
@@ -2220,7 +2226,7 @@ h4 {
 .fav-artists-container {
   position: relative;
   margin-left: 2.5%;
-  margin-top: 15px;
+  margin-top: 24px;
   color: #333333;
   font-size: 12.5px;
   text-align: left;
@@ -2339,7 +2345,7 @@ h4 {
   -webkit-tap-highlight-color: transparent;
 }
 .genres-container {
-  margin-top: 15px;
+  margin-top: 24px;
   color: #333333;
   text-align: left;
   width: 100%;
@@ -2366,7 +2372,7 @@ h4 {
   padding: 7px;
 }
 .watched-timeline-container {
-  margin-top: 15px;
+  margin-top: 24px;
   color: #333333;
   text-align: left;
   width: 100%;
@@ -2781,7 +2787,7 @@ h4 {
 }
 .profile-ratings {
   position: relative;
-  margin-top: 15px;
+  margin-top: 24px;
   color: #333333;
   font-size: 12.5px;
   text-align: left;
