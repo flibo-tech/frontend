@@ -188,6 +188,19 @@
 
       <div v-if="no_content_found" class="no-content-box">
         <div class="no-content-found">No such content found !</div>
+        <Button
+          buttonType="primary"
+          :text="`Search '${
+            search_string.length > 10
+              ? search_string.slice(0, 10) + '...'
+              : search_string
+          }'`"
+          :capitalize="false"
+          padding="8px 16px"
+          @clicked="
+            $router.push('/search?search=' + encodeURIComponent(search_string))
+          "
+        />
       </div>
     </div>
 
@@ -1164,6 +1177,9 @@ export default {
   padding: 8px 5px;
 }
 .no-content-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: calc(50vh - 100.5px);
   background: #ffffff;
 }
@@ -1424,7 +1440,7 @@ export default {
 }
 .search-suggestion {
   display: flex;
-  padding: 12px 0;
+  padding: 16px 0;
 }
 .search-suggestions-icon {
   height: 20px;

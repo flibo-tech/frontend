@@ -97,9 +97,9 @@
         <div
           v-if="
             parent == 'search_results' &&
-            store.session_id != null &&
             currentIndex == 0 &&
-            index == 0
+            index == 0 &&
+            (store.session_id != null || store.discover_filters.query)
           "
           class="user-suggestions-container"
           :style="
@@ -114,7 +114,10 @@
           >
             "{{ store.discover_filters.query }}"
           </p>
-          <p v-else style="font-weight: normal; text-align: center">
+          <p
+            v-else-if="store.session_id != null"
+            style="font-weight: normal; text-align: center"
+          >
             Your watched movies & shows have been removed from the results.
           </p>
         </div>
@@ -1519,7 +1522,6 @@ export default {
   top: 50px;
   left: 50%;
   z-index: 1000;
-  height: fit-content;
   width: 100%;
   padding: 8px 16px 8px 16px;
   background-color: #ffffff;
