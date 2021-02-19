@@ -1549,6 +1549,14 @@ export default {
   -webkit-tap-highlight-color: transparent;
 }
 
+input {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
 .browser-alert {
   font-family: "Open Sans", sans-serif;
   text-align: center;

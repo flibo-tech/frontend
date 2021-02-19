@@ -1628,7 +1628,7 @@ export default {
 .discoverfilter-apply-container {
   position: fixed;
   width: 100%;
-  bottom: 55px;
+  bottom: 50px;
   left: 0px;
   text-align: left;
   font-size: 14px;
@@ -1644,7 +1644,7 @@ export default {
 .desktop-discoverfilter-apply-container {
   position: fixed;
   width: 900px;
-  bottom: 60px;
+  bottom: 50px;
   left: calc(50vw - 450px);
   text-align: left;
   font-size: 14px;
