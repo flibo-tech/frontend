@@ -897,6 +897,7 @@ import ImageCard from "./atomic/ImageCard";
 import Button from "./atomic/Button";
 import SharePrompt from "./atomic/SharePrompt";
 import { mixin as onClickOutside } from "vue-on-click-outside";
+import { ipInfo } from "./../utils/ipInfo";
 
 export default {
   name: "App",
@@ -997,7 +998,7 @@ export default {
       totalPosts: 0,
     };
   },
-  created() {
+  async created() {
     window.scrollTo(0, 0);
     this.$store.state.current_path = this.$route.path;
     var userid = this.$route.params.user_id;
@@ -1040,185 +1041,96 @@ export default {
       this.store.user.profile.country == null &&
       this.store.guest_country == null
     ) {
-      axios
-        .get("https://ipinfo.io/?token=a354c067e1fef5")
-        .then(function (response) {
-          if ([200].includes(response.status)) {
-            var country_code = response.data.country;
-            if (
-              Object.keys(self.$store.state.country_mappings).includes(
-                country_code
-              )
-            ) {
-              self.store.guest_country =
-                self.$store.state.country_mappings[response.data.country];
-            }
-          }
-
-          axios
-            .post(self.$store.state.api_host + "profile", {
-              session_id: self.$store.state.session_id,
-              user_id: parseInt(userid),
-              user_name: username,
-              country: self.store.guest_country,
-              guest_id: self.$store.state.guest_id,
-            })
-            .then(function (response) {
-              if ([200].includes(response.status)) {
-                self.profile_access = response.data.profile_access;
-                self.user_type = response.data.user_type;
-                self.user_id = response.data.user_id;
-                self.user_name = response.data.user_name;
-                self.profile_picture = response.data.profile_picture;
-                self.posters = response.data.profile_cover.posters;
-                self.covers = response.data.profile_cover.covers;
-                self.total_watched = response.data.total_watched;
-                self.contents_rated = response.data.contents_rated;
-                self.watchlist = response.data.watchlist;
-                self.friends = response.data.friends;
-                self.genres = response.data.genres;
-                self.watched_timeline = response.data.rating_timeline;
-                self.profile_status = response.data.profile_status;
-                self.profile_views = response.data.profile_views;
-                self.rating_items = response.data.rating_items;
-                self.watchlist_items = response.data.watchlist_items;
-                self.$nextTick(() => {
-                  self.initIntersectionObserver();
-                });
-                if (self.store.user.id == self.user_id) {
-                  self.own_profile = true;
-                  if (self.$route.query.share && !self.share_profile_banner) {
-                    let query = Object.assign({}, self.$route.query);
-                    delete query.share;
-                    self.$router.replace({ query });
-                    self.share_profile_banner = true;
-                  }
-                } else {
-                  self.own_profile = false;
-                }
-                if (self.own_profile) {
-                  self.store.user.profile.posters =
-                    response.data.profile_cover.posters;
-                  self.store.user.profile.covers =
-                    response.data.profile_cover.covers;
-                  self.store.user.profile.total_watched =
-                    response.data.total_watched;
-                  self.store.user.profile.contents_rated =
-                    response.data.contents_rated;
-                  self.store.user.profile.watchlist = response.data.watchlist;
-                  self.store.user.profile.genres = response.data.genres;
-                  self.store.user.profile.watched_timeline =
-                    response.data.rating_timeline;
-                  self.store.user.profile.profile_status =
-                    response.data.profile_status;
-                  self.store.user.profile.profile_views =
-                    response.data.profile_views;
-                }
-              } else {
-                // console.log(response.status);
-              }
-              self.fetching_profile = false;
-            })
-            .catch(function (error) {
-              self.fetching_profile = false;
-              // console.log(error);
-              if ([401, 419].includes(error.response.status)) {
-                window.location =
-                  self.$store.state.login_host +
-                  "logout?session_id=" +
-                  self.$store.state.session_id;
-                self.$store.state.session_id = null;
-                self.$emit("logging-out");
-              } else {
-                // console.log(error.response.status);
-              }
-            });
-
-          self.fetchUserPosts();
-        });
-    } else {
-      axios
-        .post(self.$store.state.api_host + "profile", {
-          session_id: self.$store.state.session_id,
-          user_id: parseInt(userid),
-          user_name: username,
-          country:
-            self.$store.state.user.profile.country || self.store.guest_country,
-          guest_id: self.$store.state.guest_id,
-        })
-        .then(function (response) {
-          if ([200].includes(response.status)) {
-            self.profile_access = response.data.profile_access;
-            self.user_type = response.data.user_type;
-            self.user_id = response.data.user_id;
-            self.user_name = response.data.user_name;
-            self.profile_picture = response.data.profile_picture;
-            self.posters = response.data.profile_cover.posters;
-            self.covers = response.data.profile_cover.covers;
-            self.total_watched = response.data.total_watched;
-            self.contents_rated = response.data.contents_rated;
-            self.watchlist = response.data.watchlist;
-            self.friends = response.data.friends;
-            self.genres = response.data.genres;
-            self.watched_timeline = response.data.rating_timeline;
-            self.profile_status = response.data.profile_status;
-            self.profile_views = response.data.profile_views;
-            self.rating_items = response.data.rating_items;
-            self.watchlist_items = response.data.watchlist_items;
-            self.$nextTick(() => {
-              self.initIntersectionObserver();
-            });
-            if (self.store.user.id == self.user_id) {
-              self.own_profile = true;
-              if (self.$route.query.share && !self.share_profile_banner) {
-                let query = Object.assign({}, self.$route.query);
-                delete query.share;
-                self.$router.replace({ query });
-                self.share_profile_banner = true;
-              }
-            } else {
-              self.own_profile = false;
-            }
-            if (self.own_profile) {
-              self.store.user.profile.posters =
-                response.data.profile_cover.posters;
-              self.store.user.profile.covers =
-                response.data.profile_cover.covers;
-              self.store.user.profile.total_watched =
-                response.data.total_watched;
-              self.store.user.profile.contents_rated =
-                response.data.contents_rated;
-              self.store.user.profile.watchlist = response.data.watchlist;
-              self.store.user.profile.genres = response.data.genres;
-              self.store.user.profile.watched_timeline =
-                response.data.rating_timeline;
-              self.store.user.profile.profile_status =
-                response.data.profile_status;
-              self.store.user.profile.profile_views =
-                response.data.profile_views;
-            }
-          } else {
-            // console.log(response.status);
-          }
-          self.fetching_profile = false;
-        })
-        .catch(function (error) {
-          self.fetching_profile = false;
-          // console.log(error);
-          if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.$emit("logging-out");
-          } else {
-            // console.log(error.response.status);
-          }
-        });
-
-      self.fetchUserPosts();
+      const userIpInfo = await ipInfo();
+      console.log(userIpInfo);
+      if (
+        Object.keys(self.$store.state.country_mappings).includes(
+          userIpInfo.country
+        )
+      ) {
+        self.store.guest_country =
+          self.$store.state.country_mappings[userIpInfo.country];
+      }
     }
+
+    axios
+      .post(self.$store.state.api_host + "profile", {
+        session_id: self.$store.state.session_id,
+        user_id: parseInt(userid),
+        user_name: username,
+        country:
+          self.$store.state.user.profile.country || self.store.guest_country,
+        guest_id: self.$store.state.guest_id,
+      })
+      .then(function (response) {
+        if ([200].includes(response.status)) {
+          self.profile_access = response.data.profile_access;
+          self.user_type = response.data.user_type;
+          self.user_id = response.data.user_id;
+          self.user_name = response.data.user_name;
+          self.profile_picture = response.data.profile_picture;
+          self.posters = response.data.profile_cover.posters;
+          self.covers = response.data.profile_cover.covers;
+          self.total_watched = response.data.total_watched;
+          self.contents_rated = response.data.contents_rated;
+          self.watchlist = response.data.watchlist;
+          self.friends = response.data.friends;
+          self.genres = response.data.genres;
+          self.watched_timeline = response.data.rating_timeline;
+          self.profile_status = response.data.profile_status;
+          self.profile_views = response.data.profile_views;
+          self.rating_items = response.data.rating_items;
+          self.watchlist_items = response.data.watchlist_items;
+          self.$nextTick(() => {
+            self.initIntersectionObserver();
+          });
+          if (self.store.user.id == self.user_id) {
+            self.own_profile = true;
+            if (self.$route.query.share && !self.share_profile_banner) {
+              let query = Object.assign({}, self.$route.query);
+              delete query.share;
+              self.$router.replace({ query });
+              self.share_profile_banner = true;
+            }
+          } else {
+            self.own_profile = false;
+          }
+          if (self.own_profile) {
+            self.store.user.profile.posters =
+              response.data.profile_cover.posters;
+            self.store.user.profile.covers = response.data.profile_cover.covers;
+            self.store.user.profile.total_watched = response.data.total_watched;
+            self.store.user.profile.contents_rated =
+              response.data.contents_rated;
+            self.store.user.profile.watchlist = response.data.watchlist;
+            self.store.user.profile.genres = response.data.genres;
+            self.store.user.profile.watched_timeline =
+              response.data.rating_timeline;
+            self.store.user.profile.profile_status =
+              response.data.profile_status;
+            self.store.user.profile.profile_views = response.data.profile_views;
+          }
+        } else {
+          // console.log(response.status);
+        }
+        self.fetching_profile = false;
+      })
+      .catch(function (error) {
+        self.fetching_profile = false;
+        // console.log(error);
+        if ([401, 419].includes(error.response.status)) {
+          window.location =
+            self.$store.state.login_host +
+            "logout?session_id=" +
+            self.$store.state.session_id;
+          self.$store.state.session_id = null;
+          self.$emit("logging-out");
+        } else {
+          // console.log(error.response.status);
+        }
+      });
+
+    self.fetchUserPosts();
 
     axios
       .post(self.$store.state.api_host + "favorite_artists", {
