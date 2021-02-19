@@ -1180,7 +1180,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: calc(50vh - 100.5px);
+  margin-top: calc(50vh - 150.5px);
   background: #ffffff;
 }
 .no-content-found {
