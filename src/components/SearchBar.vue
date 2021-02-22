@@ -93,6 +93,20 @@
       "
     >
       <div class="content-items" v-if="content_search_result.length">
+        <Button
+          style="margin: 8px 0; margin-left: 50%; transform: translateX(-50%)"
+          buttonType="primary"
+          :text="`Search deeper for '${
+            search_string.length > 10
+              ? search_string.slice(0, 10) + '...'
+              : search_string
+          }'`"
+          :capitalize="false"
+          padding="8px 16px"
+          @clicked="
+            $router.push('/search?search=' + encodeURIComponent(search_string))
+          "
+        />
         <div
           v-for="(content, index) in content_search_result"
           :key="index"
@@ -187,10 +201,10 @@
       </div>
 
       <div v-if="no_content_found" class="no-content-box">
-        <div class="no-content-found">No such content found !</div>
+        <div class="no-content-found">No such title found !</div>
         <Button
           buttonType="primary"
-          :text="`Search '${
+          :text="`Search deeper for '${
             search_string.length > 10
               ? search_string.slice(0, 10) + '...'
               : search_string
