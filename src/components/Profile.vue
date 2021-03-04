@@ -739,7 +739,7 @@
           <ImageCard
             :image="
               item.picture ||
-              'https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png'
+                'https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png'
             "
             :name="item.name"
             :width="is_mobile ? 55 : 75"
@@ -755,8 +755,8 @@
         "
         v-if="
           favoriteArtists.directed_by.length ||
-          favoriteArtists.cast.length ||
-          favoriteArtists.writing_credits.length
+            favoriteArtists.cast.length ||
+            favoriteArtists.writing_credits.length
         "
       >
         <span
@@ -911,7 +911,7 @@ export default {
     UserRating,
     Button,
     SharePrompt,
-    PostPreview,
+    PostPreview
   },
   data() {
     return {
@@ -939,13 +939,13 @@ export default {
       total_watched: {
         movies: 0,
         shows: 0,
-        time: "some good time :)",
+        time: "some good time :)"
       },
       seeking_recommendations: false,
       store: this.$store.state,
       favorite_artists: {
         movie: {},
-        tv: {},
+        tv: {}
       },
       artist: null,
       contents_rated: [],
@@ -954,12 +954,12 @@ export default {
       genres: {
         movie: {
           genre: [],
-          contribution: [],
+          contribution: []
         },
         tv: {
           genre: [],
-          contribution: [],
-        },
+          contribution: []
+        }
       },
       watched_timeline: {
         movie: {
@@ -967,15 +967,15 @@ export default {
           liked: [],
           disliked: [],
           loved: [],
-          total: [],
+          total: []
         },
         tv: {
           years: [],
           liked: [],
           disliked: [],
           loved: [],
-          total: [],
-        },
+          total: []
+        }
       },
       remove_friend_banner: false,
       cancel_request_banner: false,
@@ -994,7 +994,7 @@ export default {
       showAllWatchlistMainButton: true,
       showAllPostsMainButton: true,
       posts: [],
-      totalPosts: 0,
+      totalPosts: 0
     };
   },
   created() {
@@ -1042,7 +1042,7 @@ export default {
     ) {
       axios
         .get("https://ipinfo.io/?token=a354c067e1fef5")
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             var country_code = response.data.country;
             if (
@@ -1061,9 +1061,9 @@ export default {
               user_id: parseInt(userid),
               user_name: username,
               country: self.store.guest_country,
-              guest_id: self.$store.state.guest_id,
+              guest_id: self.$store.state.guest_id
             })
-            .then(function (response) {
+            .then(function(response) {
               if ([200].includes(response.status)) {
                 self.profile_access = response.data.profile_access;
                 self.user_type = response.data.user_type;
@@ -1119,7 +1119,7 @@ export default {
               }
               self.fetching_profile = false;
             })
-            .catch(function (error) {
+            .catch(function(error) {
               self.fetching_profile = false;
               // console.log(error);
               if ([401, 419].includes(error.response.status)) {
@@ -1144,9 +1144,9 @@ export default {
           user_name: username,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
-          guest_id: self.$store.state.guest_id,
+          guest_id: self.$store.state.guest_id
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             self.profile_access = response.data.profile_access;
             self.user_type = response.data.user_type;
@@ -1202,7 +1202,7 @@ export default {
           }
           self.fetching_profile = false;
         })
-        .catch(function (error) {
+        .catch(function(error) {
           self.fetching_profile = false;
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
@@ -1224,16 +1224,16 @@ export default {
       .post(self.$store.state.api_host + "favorite_artists", {
         session_id: self.$store.state.session_id,
         user_id: parseInt(userid),
-        user_name: username,
+        user_name: username
       })
-      .then(function (response) {
+      .then(function(response) {
         if ([200].includes(response.status)) {
           self.favorite_artists = response.data.favorite_artists;
         } else {
           // console.log(response.status);
         }
       })
-      .catch(function (error) {
+      .catch(function(error) {
         // console.log(error);
         if ([401, 419].includes(error.response.status)) {
           window.location =
@@ -1254,9 +1254,7 @@ export default {
         content_id: content_id,
         url: link,
         traffic_origin:
-          (this.own_profile ? "self_" : "other_") +
-          "profile__" +
-          traffic_origin,
+          (this.own_profile ? "self_" : "other_") + "profile__" + traffic_origin
       };
       this.$emit("outbound-traffic", activity);
     },
@@ -1293,9 +1291,9 @@ export default {
           user_name: username,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
-          guest_id: self.$store.state.guest_id,
+          guest_id: self.$store.state.guest_id
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             self.profile_access = response.data.profile_access;
             self.user_type = response.data.user_type;
@@ -1345,7 +1343,7 @@ export default {
           }
           self.fetching_profile = false;
         })
-        .catch(function (error) {
+        .catch(function(error) {
           self.fetching_profile = false;
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
@@ -1366,16 +1364,16 @@ export default {
         .post(self.$store.state.api_host + "favorite_artists", {
           session_id: self.$store.state.session_id,
           user_id: parseInt(userid),
-          user_name: username,
+          user_name: username
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             self.favorite_artists = response.data.favorite_artists;
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1442,15 +1440,15 @@ export default {
           movies_these_days: movies,
           tv_series_these_days: tv_series,
           seeking_recommendations: self.seeking_recommendations,
-          profile_status: self.profile_status,
+          profile_status: self.profile_status
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1472,7 +1470,7 @@ export default {
     },
     hideBanner() {
       var self = this;
-      setTimeout(function () {
+      setTimeout(function() {
         self.remove_friend_banner = false;
         self.cancel_request_banner = false;
         self.reset_ratings_banner = false;
@@ -1485,9 +1483,9 @@ export default {
       axios
         .post(self.$store.state.api_host + "unfriend", {
           session_id: self.$store.state.session_id,
-          friend_id: self.user_id,
+          friend_id: self.user_id
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             self.remove_friend_banner = false;
             self.cancel_request_banner = false;
@@ -1498,7 +1496,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           self.user_type = current_status;
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
@@ -1520,16 +1518,16 @@ export default {
         axios
           .post(self.$store.state.api_host + "send_request", {
             session_id: self.$store.state.session_id,
-            friend_id: self.user_id,
+            friend_id: self.user_id
           })
-          .then(function (response) {
+          .then(function(response) {
             if ([200].includes(response.status)) {
               self.remove_friend_banner = false;
             } else {
               // console.log(response.status);
             }
           })
-          .catch(function (error) {
+          .catch(function(error) {
             self.user_type = "other";
             // console.log(error);
             if ([401, 419].includes(error.response.status)) {
@@ -1552,9 +1550,9 @@ export default {
       axios
         .post(self.$store.state.api_host + "approve_request", {
           session_id: self.$store.state.session_id,
-          friend_id: self.user_id,
+          friend_id: self.user_id
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             self.remove_friend_banner = false;
             self.user_type = "friend";
@@ -1563,7 +1561,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1595,7 +1593,8 @@ export default {
         "/watchlist/" +
           this.user_id +
           "/" +
-          this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
+          this.user_name.replace(/[^a-z0-9]+/gi, "-").toLowerCase() +
+          "?refresh=true"
       );
     },
     goToPosts() {
@@ -1609,8 +1608,8 @@ export default {
     initIntersectionObserver() {
       this.resetIntersectionObserver();
 
-      const ratingsCallback = (entries) => {
-        entries.forEach((entry) => {
+      const ratingsCallback = entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             this.showAllRatingsMainButton = false;
           } else {
@@ -1619,8 +1618,8 @@ export default {
         });
       };
 
-      const watchlistCallback = (entries) => {
-        entries.forEach((entry) => {
+      const watchlistCallback = entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             this.showAllWatchlistMainButton = false;
           } else {
@@ -1629,8 +1628,8 @@ export default {
         });
       };
 
-      const postsCallback = (entries) => {
-        entries.forEach((entry) => {
+      const postsCallback = entries => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             this.showAllPostsMainButton = false;
           } else {
@@ -1645,7 +1644,7 @@ export default {
           this.ratingsObserver = new IntersectionObserver(ratingsCallback, {
             root: document.querySelector("#ratings-container"),
             rootMargin: "0px",
-            threshold: 0.0,
+            threshold: 0.0
           });
           this.ratingsObserver.observe(rateElem);
         }
@@ -1655,7 +1654,7 @@ export default {
           this.watchlistObserver = new IntersectionObserver(watchlistCallback, {
             root: document.querySelector("#watchlist-container"),
             rootMargin: "0px",
-            threshold: 0.0,
+            threshold: 0.0
           });
           this.watchlistObserver.observe(watchlistElem);
         }
@@ -1665,7 +1664,7 @@ export default {
           this.postsObserver = new IntersectionObserver(postsCallback, {
             root: document.querySelector("#posts-container"),
             rootMargin: "0px",
-            threshold: 0.0,
+            threshold: 0.0
           });
           this.postsObserver.observe(postElem);
         }
@@ -1701,9 +1700,9 @@ export default {
           limit: 10,
           country:
             self.$store.state.user.profile.country || self.store.guest_country,
-          guest_id: self.$store.state.guest_id,
+          guest_id: self.$store.state.guest_id
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             if (response.data.profile_status == "open") {
               self.posts = response.data.posts;
@@ -1714,13 +1713,13 @@ export default {
             }
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
         });
-    },
+    }
   },
   computed: {
-    router_path: function () {
+    router_path: function() {
       return this.$route.path;
     },
     rating_tab_string() {
@@ -1772,63 +1771,63 @@ export default {
       let output = {
         directed_by: [],
         cast: [],
-        writing_credits: [],
+        writing_credits: []
       };
 
-      (this.favorite_artists.movie.directed_by || []).forEach((artist) => {
+      (this.favorite_artists.movie.directed_by || []).forEach(artist => {
         if (
           !output.directed_by
-            .map((person) => person.person_id)
+            .map(person => person.person_id)
             .includes(artist.person_id)
         ) {
           output.directed_by.push(artist);
         }
       });
 
-      (this.favorite_artists.movie.cast || []).forEach((artist) => {
+      (this.favorite_artists.movie.cast || []).forEach(artist => {
         if (
           !output.cast
-            .map((person) => person.person_id)
+            .map(person => person.person_id)
             .includes(artist.person_id)
         ) {
           output.cast.push(artist);
         }
       });
 
-      (this.favorite_artists.movie.writing_credits || []).forEach((artist) => {
+      (this.favorite_artists.movie.writing_credits || []).forEach(artist => {
         if (
           !output.writing_credits
-            .map((person) => person.person_id)
+            .map(person => person.person_id)
             .includes(artist.person_id)
         ) {
           output.writing_credits.push(artist);
         }
       });
 
-      (this.favorite_artists.tv.directed_by || []).forEach((artist) => {
+      (this.favorite_artists.tv.directed_by || []).forEach(artist => {
         if (
           !output.directed_by
-            .map((person) => person.person_id)
+            .map(person => person.person_id)
             .includes(artist.person_id)
         ) {
           output.directed_by.push(artist);
         }
       });
 
-      (this.favorite_artists.tv.cast || []).forEach((artist) => {
+      (this.favorite_artists.tv.cast || []).forEach(artist => {
         if (
           !output.cast
-            .map((person) => person.person_id)
+            .map(person => person.person_id)
             .includes(artist.person_id)
         ) {
           output.cast.push(artist);
         }
       });
 
-      (this.favorite_artists.tv.writing_credits || []).forEach((artist) => {
+      (this.favorite_artists.tv.writing_credits || []).forEach(artist => {
         if (
           !output.writing_credits
-            .map((person) => person.person_id)
+            .map(person => person.person_id)
             .includes(artist.person_id)
         ) {
           output.writing_credits.push(artist);
@@ -1836,11 +1835,11 @@ export default {
       });
 
       return output;
-    },
+    }
   },
   watch: {
     router_path: {
-      handler: function (path) {
+      handler: function(path) {
         if (
           this.$store.state.current_path.startsWith("/profile/") &&
           path.startsWith("/profile/")
@@ -1851,12 +1850,12 @@ export default {
             this.reRender();
           });
         }
-      },
-    },
+      }
+    }
   },
   beforeDestroy() {
     this.resetIntersectionObserver();
-  },
+  }
 };
 </script>
 

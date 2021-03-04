@@ -19,7 +19,11 @@
       <div v-else style="width: 100%">
         <div class="user-preview-picture-box" @click="clickUser(id, name)">
           <div class="user-preview-picture-cropper">
-            <img class="user-preview-picture" :src="picture" />
+            <img
+              class="user-preview-picture"
+              :src="picture"
+              onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
+            />
           </div>
         </div>
 
@@ -127,16 +131,16 @@ export default {
   props: {
     id: {
       type: Number,
-      required: true,
+      required: true
     },
     name: {
       type: String,
-      required: true,
+      required: true
     },
     parent: {
       type: String,
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
@@ -148,7 +152,7 @@ export default {
       movies_watched: null,
       shows_watched: null,
       ratings: [],
-      mutual_friends: [],
+      mutual_friends: []
     };
   },
   created() {
@@ -162,9 +166,9 @@ export default {
           this.$store.state.guest_country,
         guest_id: this.$store.state.guest_id,
         user_id: this.id,
-        user_name: this.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase(),
+        user_name: this.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       })
-      .then((response) => {
+      .then(response => {
         this.profile_status = response.data.profile_status;
         if (this.profile_status == "open") {
           this.picture = response.data.picture;
@@ -177,7 +181,7 @@ export default {
         }
         this.fetching = false;
       })
-      .catch((error) => {
+      .catch(error => {
         this.fetching = false;
         console.log(error);
       });
@@ -188,8 +192,8 @@ export default {
       this.$router.push(
         "/profile/" + id + "/" + name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()
       );
-    },
-  },
+    }
+  }
 };
 </script>
 

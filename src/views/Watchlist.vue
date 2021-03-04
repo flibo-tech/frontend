@@ -27,7 +27,7 @@ import Feed from "./../components/molecular/Feed";
 export default {
   name: "app",
   components: {
-    Feed,
+    Feed
   },
   data() {
     return {
@@ -38,6 +38,7 @@ export default {
       userId: null,
       userName: null,
       userUrlName: null,
+      refresh: false
     };
   },
   created() {
@@ -46,9 +47,18 @@ export default {
     this.userId = parseInt(this.$route.params.user_id);
     this.userUrlName = this.$route.params.user_name;
 
+    if (this.$route.query.refresh) {
+      let query = Object.assign({}, this.$route.query);
+      delete query.refresh;
+      this.$router.replace({ query });
+      this.refresh = true;
+    }
+
     if (this.$store.state.feed.watchlist.contents.length) {
       if (
-        this.$store.state.feed.watchlist.contents[0].creator_id != this.userId
+        this.$store.state.feed.watchlist.contents[0].creator_id !=
+          this.userId ||
+        this.refresh
       ) {
         this.fetchWatchlist([]);
       } else {
@@ -66,7 +76,7 @@ export default {
       ) {
         axios
           .get("https://ipinfo.io/?token=a354c067e1fef5")
-          .then(function (response) {
+          .then(function(response) {
             if ([200].includes(response.status)) {
               var country_code = response.data.country;
               if (
@@ -89,8 +99,9 @@ export default {
     fetchWatchlist(fetchedWatchlistItems) {
       var self = this;
 
-      if (fetchedWatchlistItems.length == 0) {
+      if (fetchedWatchlistItems.length == 0 || this.refresh) {
         this.resetWatchlistStore();
+        this.refresh = false;
       }
 
       if (fetchedWatchlistItems.length) {
@@ -107,9 +118,9 @@ export default {
           guest_id: self.$store.state.guest_id,
           user_id: self.userId,
           user_name: self.userUrlName,
-          fetched_contents: fetchedWatchlistItems,
+          fetched_contents: fetchedWatchlistItems
         })
-        .then((response) => {
+        .then(response => {
           if ([200].includes(response.status)) {
             self.userName = response.data.user_name;
 
@@ -138,12 +149,12 @@ export default {
                   response.data.watchlist.length
                 ) {
                   self.fetchWatchlist(
-                    response.data.watchlist.map((content) => content.content_id)
+                    response.data.watchlist.map(content => content.content_id)
                   );
                 }
 
                 if (self.$route.path.includes("/watchlist/")) {
-                  self.$nextTick(function () {
+                  self.$nextTick(function() {
                     self.$store.state.feed.update_dom = true;
                   });
                 }
@@ -162,7 +173,7 @@ export default {
             self.$store.state.feed.watchlist.fetching = false;
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if (fetchedWatchlistItems.length) {
             self.$store.state.feed.watchlist.fetching_incremental = false;
@@ -177,15 +188,15 @@ export default {
       axios
         .post(self.$store.state.api_host + "update_profile", {
           session_id: self.$store.state.session_id,
-          profile_status: profile_status,
+          profile_status: profile_status
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -213,7 +224,7 @@ export default {
         "community",
         "friends",
         "flibo",
-        "self",
+        "self"
       ];
       this.store.feed.watchlist.platforms = [];
       this.store.feed.watchlist.genres = [];
@@ -221,8 +232,8 @@ export default {
       this.store.feed.watchlist.padding_bottom = 0;
       this.store.feed.watchlist.scroll_position = 0;
       this.store.feed.watchlist.observer_current_index = 0;
-    },
-  },
+    }
+  }
 };
 </script>
 
