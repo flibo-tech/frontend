@@ -767,32 +767,6 @@ export default {
           })
           .then(function (response) {
             if (response.status == 200) {
-              self.$store.state.feed.watchlist.fetching = true;
-              axios
-                .post(self.$store.state.api_host + "watchlist", {
-                  session_id: self.$store.state.session_id,
-                  country: self.$store.state.user.profile.country,
-                })
-                .then(function (response) {
-                  if ([200].includes(response.status)) {
-                    self.$store.state.watchlist = response.data.watchlist;
-                    self.$store.state.feed.watchlist.feed_list = self.$store.state.watchlist.slice(
-                      0,
-                      self.$store.state.feed.defaultListSize
-                    );
-                    if (self.$route.path == "/watchlist") {
-                      self.$nextTick(function () {
-                        self.$store.state.feed.update_dom = true;
-                      });
-                    }
-                  } else {
-                    // console.log(response.status);
-                  }
-                  self.$store.state.feed.watchlist.fetching = false;
-                })
-                .catch(function (error) {
-                  self.$store.state.feed.watchlist.fetching = false;
-                });
             } else {
               // console.log(response.status);
             }

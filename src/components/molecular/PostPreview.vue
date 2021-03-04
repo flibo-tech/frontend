@@ -67,20 +67,20 @@ export default {
   name: "app",
   components: {
     Vote,
-    Button,
+    Button
   },
   props: {
     post: {
       type: Object,
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
       is_mobile: window.screen.height > window.screen.width,
-      store: this.$store.state,
+      store: this.$store.state
     };
-  },
+  }
 };
 </script>
 
@@ -90,6 +90,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   width: 200px;
+  padding: 0px 8px 8px 8px;
   min-height: 175px;
   box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.07);
   cursor: pointer;
@@ -108,7 +109,6 @@ export default {
 }
 .content-post-title {
   width: calc(100% - 8px);
-  margin-left: 4px;
   overflow: hidden;
   font-size: 12px;
   font-weight: 500;
@@ -123,7 +123,6 @@ export default {
 }
 .content-post-meta-box {
   display: flex;
-  margin-left: 4px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 </style>

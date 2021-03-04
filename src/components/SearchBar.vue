@@ -36,9 +36,11 @@
     <div
       v-if="search_string.length || parent == 'connections'"
       class="search-icons"
-      :style="`${parent != 'search_page' ? 'top: 28px;' : ''} ${
-        is_mobile ? '' : 'right: calc(50vw - 500px + 35px);'
-      }`"
+      :style="
+        `${parent != 'search_page' ? 'top: 28px;' : ''} ${
+          is_mobile ? '' : 'right: calc(50vw - 500px + 35px);'
+        }`
+      "
     >
       <button
         class="search-btn-clear-text"
@@ -67,8 +69,8 @@
       :style="is_mobile ? '' : 'width: 900px;left: calc(50vw - 450px);'"
       v-if="
         (is_fetching || search_string != '') &
-        (parent == 'search_page') &
-        (store.session_id != null)
+          (parent == 'search_page') &
+          (store.session_id != null)
       "
     >
       <a
@@ -88,19 +90,21 @@
       :style="store.session_id == null ? 'top: 80px;' : ''"
       v-if="
         (is_fetching || search_string != '') &&
-        search_type_tab == 'contents' &&
-        parent == 'search_page'
+          search_type_tab == 'contents' &&
+          parent == 'search_page'
       "
     >
       <div class="content-items" v-if="content_search_result.length">
         <Button
           style="margin: 8px 0; margin-left: 50%; transform: translateX(-50%)"
           buttonType="primary"
-          :text="`Search deeper for '${
-            search_string.length > 10
-              ? search_string.slice(0, 10) + '...'
-              : search_string
-          }'`"
+          :text="
+            `Search deeper for '${
+              search_string.length > 10
+                ? search_string.slice(0, 10) + '...'
+                : search_string
+            }'`
+          "
           :capitalize="false"
           padding="8px 16px"
           @clicked="
@@ -155,7 +159,7 @@
                 :rating="content.rating"
                 :iconSize="25"
                 @update-rating="
-                  (userRating) => {
+                  userRating => {
                     submitRating(
                       content.subject_id,
                       userRating,
@@ -204,11 +208,13 @@
         <div class="no-content-found">No such title found !</div>
         <Button
           buttonType="primary"
-          :text="`Search deeper for '${
-            search_string.length > 10
-              ? search_string.slice(0, 10) + '...'
-              : search_string
-          }'`"
+          :text="
+            `Search deeper for '${
+              search_string.length > 10
+                ? search_string.slice(0, 10) + '...'
+                : search_string
+            }'`
+          "
           :capitalize="false"
           padding="8px 16px"
           @clicked="
@@ -223,7 +229,7 @@
       :style="parent == 'connections' ? 'top: 76px;' : ''"
       v-if="
         ((is_fetching || search_string != '') && search_type_tab == 'users') ||
-        parent == 'connections'
+          parent == 'connections'
       "
     >
       <div
@@ -248,6 +254,7 @@
           :fontSize="15"
           fontWeight="normal"
           :scale="true"
+          :imgOnError="true"
         />
         <div
           class="see-more-users-box"
@@ -283,9 +290,9 @@
     <DiscoverFilter
       v-if="
         parent == 'search_page' &&
-        search_string == '' &&
-        !store.discover_filters.filtered_content.length &&
-        !$route.query.showSearchSuggestions
+          search_string == '' &&
+          !store.discover_filters.filtered_content.length &&
+          !$route.query.showSearchSuggestions
       "
       @apply-filter="filterDiscover"
     />
@@ -328,7 +335,7 @@ export default {
     UserRating,
     ImageCard,
     SpeechRecognition,
-    Button,
+    Button
   },
   mixins: [onClickOutside],
   data() {
@@ -385,25 +392,25 @@ export default {
         "movies about racing",
         "movies about middle ages",
         "movies about youth",
-        "best outer space movies",
+        "best outer space movies"
       ],
-      dummy: 1,
+      dummy: 1
     };
   },
   props: {
     parent: {
       type: String,
       required: false,
-      default: "search_page",
+      default: "search_page"
     },
     parent_content_type: {
       type: String,
-      required: false,
+      required: false
     },
     search_query: {
       type: String,
-      required: false,
-    },
+      required: false
+    }
   },
   created() {
     this.manageSearchPageState();
@@ -415,24 +422,24 @@ export default {
   },
   watch: {
     search_query: {
-      handler: function (query) {
+      handler: function(query) {
         this.manageSearchPageState();
-      },
+      }
     },
     showSearchSuggestions: {
-      handler: function (val) {
+      handler: function(val) {
         if (!val) {
           document.getElementById(this.parent + "_search_string").blur();
         }
-      },
+      }
     },
     search_string: {
-      handler: function (val) {
+      handler: function(val) {
         if (val == "") {
           this.is_fetching = false;
         }
-      },
-    },
+      }
+    }
   },
   computed: {
     randomSearchSuggestions() {
@@ -441,7 +448,7 @@ export default {
     },
     showSearchSuggestions() {
       return this.$route.query.showSearchSuggestions;
-    },
+    }
   },
   methods: {
     updateDummy() {
@@ -465,7 +472,7 @@ export default {
       self.search_string = document.getElementById(
         self.parent + "_search_string"
       ).value;
-      self.timeout = setTimeout(function () {
+      self.timeout = setTimeout(function() {
         if (self.search_string) {
           self.content_search_result = [];
           self.user_search_result = [];
@@ -478,9 +485,9 @@ export default {
               string: self.search_string,
               search_type:
                 self.parent == "profile" ? self.parent_content_type : "content",
-              guest_id: self.$store.state.guest_id,
+              guest_id: self.$store.state.guest_id
             })
-            .then(function (response) {
+            .then(function(response) {
               if (response.status == 200) {
                 self.content_search_result = response.data.result.contents;
                 self.content_search_ids =
@@ -496,7 +503,7 @@ export default {
                 // console.log(response.status);
               }
             })
-            .catch(function (error) {
+            .catch(function(error) {
               // console.log(error);
               if ([401, 419].includes(error.response.status)) {
                 window.location =
@@ -517,9 +524,9 @@ export default {
             axios
               .post(self.$store.state.api_host + "search_friend", {
                 session_id: self.$store.state.session_id,
-                name_string: self.search_string,
+                name_string: self.search_string
               })
-              .then(function (response) {
+              .then(function(response) {
                 if (response.status == 200) {
                   self.user_search_result = response.data.users;
                   self.user_ids = response.data.user_ids;
@@ -534,7 +541,7 @@ export default {
                   // console.log(response.status);
                 }
               })
-              .catch(function (error) {
+              .catch(function(error) {
                 // console.log(error);
                 if ([401, 419].includes(error.response.status)) {
                   window.location =
@@ -584,9 +591,9 @@ export default {
       axios
         .post(self.$store.state.api_host + "get_searched_contents", {
           session_id: self.$store.state.session_id,
-          content_search_ids: self.content_search_ids.slice(0, 10),
+          content_search_ids: self.content_search_ids.slice(0, 10)
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             self.content_search_result.push(...response.data.contents);
             self.content_search_ids.splice(0, 10);
@@ -594,7 +601,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -612,9 +619,9 @@ export default {
       axios
         .post(self.$store.state.api_host + "get_searched_friends", {
           session_id: self.$store.state.session_id,
-          user_ids: self.user_ids.slice(0, 10),
+          user_ids: self.user_ids.slice(0, 10)
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             self.user_search_result.push(...response.data.users);
             self.user_ids.splice(0, 10);
@@ -622,7 +629,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -644,9 +651,9 @@ export default {
             session_id: this.$store.state.session_id,
             content_ids: [content_id],
             rating: user_rating,
-            privacy: this.$store.state.user.profile.profile_status || "public",
+            privacy: this.$store.state.user.profile.profile_status || "public"
           })
-          .then(function (response) {
+          .then(function(response) {
             var index = self.$store.state.suggestions.rate_counter.indexOf(
               content_id
             );
@@ -662,10 +669,10 @@ export default {
                     self.$store.state.ai_host +
                       "calculate_contents_to_recommend",
                     {
-                      session_id: self.$store.state.session_id,
+                      session_id: self.$store.state.session_id
                     }
                   )
-                  .then(function (response) {
+                  .then(function(response) {
                     if (response.data.notify) {
                       self.$store.state.notifications.notifications = 1;
                     }
@@ -673,7 +680,7 @@ export default {
               }
             }
           })
-          .catch(function (error) {
+          .catch(function(error) {
             self.content_search_result[index].rating = prev_rating;
 
             if ([401, 419].includes(error.response.status)) {
@@ -725,7 +732,7 @@ export default {
           scroll: true,
           paddings: true,
           observer_current_index: true,
-          element_heights: true,
+          element_heights: true
         };
         this.$emit("reset-feed-page", reset_info);
 
@@ -802,9 +809,9 @@ export default {
             country:
               self.$store.state.user.profile.country ||
               self.$store.state.guest_country,
-            guest_id: self.$store.state.guest_id,
+            guest_id: self.$store.state.guest_id
           })
-          .then(function (response) {
+          .then(function(response) {
             if (self.$store.state.discover_filters.query == null) {
               if ([200].includes(response.status)) {
                 if (self.$route.path == "/search-results") {
@@ -840,7 +847,7 @@ export default {
               self.$store.state.discover_filters.fetching_filtered = false;
             }
           })
-          .catch(function (error) {
+          .catch(function(error) {
             if (self.$store.state.discover_filters.query == null) {
               if ([401, 419].includes(error.response.status)) {
                 window.location =
@@ -867,9 +874,9 @@ export default {
           session_id: self.$store.state.session_id,
           content_ids: self.$store.state.discover_filters.more_filtered_content,
           country:
-            self.$store.state.user.profile.country || self.store.guest_country,
+            self.$store.state.user.profile.country || self.store.guest_country
         })
-        .then(function (response) {
+        .then(function(response) {
           if (
             self.search_query
               ? self.search_query == self.$store.state.discover_filters.query
@@ -897,7 +904,7 @@ export default {
             self.store.discover_filters.fetching_filter_incremental = false;
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           if (
             self.search_query
               ? self.search_query == self.$store.state.discover_filters.query
@@ -935,11 +942,11 @@ export default {
           scroll: true,
           paddings: true,
           observer_current_index: true,
-          element_heights: true,
+          element_heights: true
         };
         this.$emit("reset-feed-page", reset_info);
       } else if (this.parent == "connections") {
-        self.timeout = setTimeout(function () {
+        self.timeout = setTimeout(function() {
           document.getElementById(self.parent + "_search_string").value = "";
           document.getElementById(self.parent + "_search_string").focus();
         }, 0);
@@ -975,7 +982,7 @@ export default {
             scroll: true,
             paddings: true,
             observer_current_index: true,
-            element_heights: true,
+            element_heights: true
           };
           this.$emit("reset-feed-page", reset_info);
         } else {
@@ -992,7 +999,7 @@ export default {
             scroll: true,
             paddings: true,
             observer_current_index: true,
-            element_heights: true,
+            element_heights: true
           };
           this.$emit("reset-feed-page", reset_info);
           this.store.discover_filters.query = this.search_query;
@@ -1006,9 +1013,9 @@ export default {
               country:
                 self.$store.state.user.profile.country ||
                 self.$store.state.guest_country,
-              guest_id: self.$store.state.guest_id,
+              guest_id: self.$store.state.guest_id
             })
-            .then(function (response) {
+            .then(function(response) {
               if (
                 self.search_query == self.$store.state.discover_filters.query
               ) {
@@ -1046,7 +1053,7 @@ export default {
                 self.$store.state.discover_filters.fetching_filtered = false;
               }
             })
-            .catch(function (error) {
+            .catch(function(error) {
               if (
                 self.search_query == self.$store.state.discover_filters.query
               ) {
@@ -1065,8 +1072,8 @@ export default {
             });
         }
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -7,6 +7,7 @@
             @click="showPreview = true"
             class="comment-comp-profile"
             :src="currentComment.creator_picture"
+            onerror="this.onerror=null;this.src='https://flibo-images.s3-us-west-2.amazonaws.com/profile_pictures/avatar.png';"
           />
 
           <div class="comment-comp-content">
@@ -35,8 +36,8 @@
                 class="comment-spoiler-layer"
                 v-if="
                   isSpoiler &&
-                  showSpoilerAlert &&
-                  currentComment.creator_id != store.user.id
+                    showSpoilerAlert &&
+                    currentComment.creator_id != store.user.id
                 "
                 @click="alterSpoilerAlert"
               />
@@ -64,7 +65,7 @@
                 (currentComment.total_comments >
                   currentComment.comments.length &&
                   showRepliesHeader) ||
-                (!showComments && currentComment.total_comments > 0)
+                  (!showComments && currentComment.total_comments > 0)
               "
               @click="fetchComments"
               class="comment-comp-more"
@@ -166,17 +167,17 @@ export default {
   props: {
     currentComment: {
       type: Object,
-      required: true,
+      required: true
     },
     isChild: {
       type: Boolean,
       required: false,
-      default: true,
+      default: true
     },
     parent: {
       type: String,
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
@@ -186,7 +187,7 @@ export default {
       fetchingData: false,
       showSpoilerAlert: true,
       store: this.$store.state,
-      showOptions: false,
+      showOptions: false
     };
   },
   mounted() {
@@ -197,7 +198,7 @@ export default {
   computed: {
     isSpoiler() {
       return this.currentComment.spoiler;
-    },
+    }
   },
   watch: {
     currentComment: {
@@ -206,8 +207,8 @@ export default {
           this.showComments = true;
         }
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   methods: {
     alterSpoilerAlert() {
@@ -232,10 +233,10 @@ export default {
           action_id: this.currentComment.action_id,
           parent_reaction_id: this.currentComment.reaction_id,
           fetched_comment_ids: this.currentComment.comments.map(
-            (item) => item.reaction_id
-          ),
+            item => item.reaction_id
+          )
         })
-        .then((response) => {
+        .then(response => {
           if (response.status == 200) {
             this.$emit("add-fetched-comments", response.data.comments);
             this.fetchingData = false;
@@ -244,7 +245,7 @@ export default {
             this.fetchingData = false;
           }
         })
-        .catch((error) => {
+        .catch(error => {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -264,17 +265,17 @@ export default {
         this.$emit("reply", {
           creator_id: this.currentComment.creator_id,
           creator_name: this.currentComment.creator_name,
-          reaction_id: this.currentComment.reaction_id,
+          reaction_id: this.currentComment.reaction_id
         });
       } else {
         this.$emit("reply", {
           creator_id: this.currentComment.creator_id,
           creator_name: this.currentComment.creator_name,
-          reaction_id: this.currentComment.parent_reaction_id,
+          reaction_id: this.currentComment.parent_reaction_id
         });
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
