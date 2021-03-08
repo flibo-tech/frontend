@@ -5,7 +5,7 @@
       class="quick-filters-container"
       :class="{
         'quick-filters-container--hidden':
-          parent == 'home' ? false : !showRefreshButton,
+          parent == 'home' ? false : !showRefreshButton
       }"
       :style="is_mobile ? '' : 'top: 50px;width: 1000px;'"
     >
@@ -83,12 +83,12 @@
                 width: is_mobile ? '100vw' : '100%;',
                 padding: '0',
                 border: 0,
-                marginBottom: '0px',
+                marginBottom: '0px'
               }
             : ['search_results', 'suggestions'].includes(parent) ||
               (item.feed_type && item.feed_type == 'flibo')
             ? {
-                padding: '16px 0',
+                padding: '16px 0'
               }
             : { width: is_mobile ? '100vw' : '100%;' }
         "
@@ -97,9 +97,9 @@
         <div
           v-if="
             parent == 'search_results' &&
-            currentIndex == 0 &&
-            index == 0 &&
-            (store.session_id != null || store.discover_filters.query)
+              currentIndex == 0 &&
+              index == 0 &&
+              (store.session_id != null || store.discover_filters.query)
           "
           class="user-suggestions-container"
           :style="
@@ -125,8 +125,8 @@
         <div
           v-if="
             ['watchlist', 'ratings'].includes(parent) &&
-            currentIndex == 0 &&
-            index == 0
+              currentIndex == 0 &&
+              index == 0
           "
           class="user-suggestions-container"
           :style="
@@ -162,10 +162,10 @@
         <div
           v-if="
             parent == 'ratings' &&
-            userType == 'self' &&
-            store.session_id != null &&
-            currentIndex == 0 &&
-            index == 0
+              userType == 'self' &&
+              store.session_id != null &&
+              currentIndex == 0 &&
+              index == 0
           "
           style="
             padding: 0px 16px;
@@ -185,12 +185,22 @@
         <SavePlatforms
           v-if="
             ['home', 'suggestions'].includes(parent) &&
-            store.user.profile.platforms == null &&
-            currentIndex == 0 &&
-            index == 0
+              store.user.profile.platforms == null &&
+              currentIndex == 0 &&
+              index == 0
           "
           @refresh-suggestions="refreshFeed"
           v-on="$listeners"
+        />
+
+        <Button
+          style="margin-left: 50%; transform: translateX(-50%); margin-bottom: 16px; margin-top: -16px;"
+          v-if="parent == 'home' && currentIndex == 0 && index == 0"
+          buttonType="primary"
+          text="Show Only Suggestions"
+          :capitalize="false"
+          padding="4px"
+          @clicked="$router.push('/suggestions')"
         />
 
         <FeedCard
@@ -201,7 +211,7 @@
           @see-more="
             [
               updateElementHeights(),
-              updateSeeMoreElements(item.action_id || item.content_id),
+              updateSeeMoreElements(item.action_id || item.content_id)
             ]
           "
           @update-element-heights="updateElementHeights"
@@ -221,9 +231,9 @@
           style="margin-top: 24px; margin-bottom: -16px"
           v-if="
             parent == 'home' &&
-            store.suggestions.users_suggestions.length &&
-            currentIndex <= 6 &&
-            index == 6 - currentIndex
+              store.suggestions.users_suggestions.length &&
+              currentIndex <= 6 &&
+              index == 6 - currentIndex
           "
           v-on="$listeners"
         />
@@ -232,8 +242,8 @@
           v-if="
             (parent == 'home' ||
               (parent == 'suggestions' && store.feed.show_voice_search_card)) &&
-            currentIndex <= 10 &&
-            index == 10 - currentIndex
+              currentIndex <= 10 &&
+              index == 10 - currentIndex
           "
           class="user-suggestions-container"
           :style="
@@ -342,23 +352,23 @@ export default {
     SavePlatforms,
     SharePrompt,
     Button,
-    Notification,
+    Notification
   },
   props: {
     parent: {
       type: String,
-      required: true,
+      required: true
     },
     userType: {
       type: String,
       required: false,
-      default: "self",
+      default: "self"
     },
     userName: {
       type: String,
       required: false,
-      default: null,
-    },
+      default: null
+    }
   },
   data() {
     return {
@@ -381,7 +391,7 @@ export default {
           genre_filters: null,
           rating_filter: "this.$store.state.feed.home.rating_tab",
           element_heights: "this.$store.state.feed.home.element_heights",
-          see_more_elements: "this.$store.state.feed.home.see_more_elements",
+          see_more_elements: "this.$store.state.feed.home.see_more_elements"
         },
         search_results: {
           contents: "this.$store.state.discover_filters.filtered_content",
@@ -398,7 +408,7 @@ export default {
           element_heights:
             "this.$store.state.feed.search_results.element_heights",
           see_more_elements:
-            "this.$store.state.feed.search_results.see_more_elements",
+            "this.$store.state.feed.search_results.see_more_elements"
         },
         watchlist: {
           contents: "this.$store.state.feed.watchlist.contents",
@@ -414,7 +424,7 @@ export default {
           rating_filter: null,
           element_heights: "this.$store.state.feed.watchlist.element_heights",
           see_more_elements:
-            "this.$store.state.feed.watchlist.see_more_elements",
+            "this.$store.state.feed.watchlist.see_more_elements"
         },
         ratings: {
           contents: "this.$store.state.feed.ratings.contents",
@@ -428,7 +438,7 @@ export default {
           genre_filters: "this.$store.state.feed.ratings.genres",
           rating_filter: "this.$store.state.feed.ratings.rating_tab",
           element_heights: "this.$store.state.feed.ratings.element_heights",
-          see_more_elements: "this.$store.state.feed.ratings.see_more_elements",
+          see_more_elements: "this.$store.state.feed.ratings.see_more_elements"
         },
         posts: {
           contents: "this.$store.state.feed.posts.contents",
@@ -442,7 +452,7 @@ export default {
           genre_filters: null,
           rating_filter: null,
           element_heights: "this.$store.state.feed.posts.element_heights",
-          see_more_elements: "this.$store.state.feed.posts.see_more_elements",
+          see_more_elements: "this.$store.state.feed.posts.see_more_elements"
         },
         notifications: {
           contents: "this.$store.state.feed.notifications.contents",
@@ -456,7 +466,7 @@ export default {
           genre_filters: null,
           rating_filter: null,
           element_heights:
-            "this.$store.state.feed.notifications.element_heights",
+            "this.$store.state.feed.notifications.element_heights"
         },
         suggestions: {
           contents: "this.$store.state.feed.suggestions.contents",
@@ -472,8 +482,8 @@ export default {
           rating_filter: null,
           element_heights: "this.$store.state.feed.suggestions.element_heights",
           see_more_elements:
-            "this.$store.state.feed.suggestions.see_more_elements",
-        },
+            "this.$store.state.feed.suggestions.see_more_elements"
+        }
       },
       observer: null,
       mainContainer: ".feed-cards-container",
@@ -498,8 +508,8 @@ export default {
         updating: false,
         paddingTop: 0,
         paddingBottom: 0,
-        scrollPosition: 0,
-      },
+        scrollPosition: 0
+      }
     };
   },
   created() {
@@ -524,8 +534,8 @@ export default {
         this.refreshFeed();
       }, 0);
     } else if (this.listSize || this.contentsCount) {
-      this.$nextTick(function () {
-        setTimeout(function () {
+      this.$nextTick(function() {
+        setTimeout(function() {
           if (
             !self.updating_dom &&
             !eval(
@@ -541,7 +551,7 @@ export default {
             ) {
               self.applyFilters();
 
-              setTimeout(function () {
+              setTimeout(function() {
                 eval(
                   "self.store.feed." +
                     self.parent +
@@ -709,7 +719,7 @@ export default {
       }
 
       return output_list;
-    },
+    }
   },
   watch: {
     ifUpdateDom: {
@@ -732,7 +742,7 @@ export default {
           this.updating_dom = false;
           this.$store.state.feed.update_dom = false;
         }
-      },
+      }
     },
     ifApplyFilters: {
       handler(apply) {
@@ -740,15 +750,15 @@ export default {
           this.applyFilters();
           this.$store.state.feed_filters.apply_filters_wo_reset = false;
         }
-      },
+      }
     },
     feed_list: {
       handler(param) {
         this.$nextTick(() => {
           this.updateElementHeights();
         });
-      },
-    },
+      }
+    }
   },
   methods: {
     resetIntersectionObserver() {
@@ -807,7 +817,7 @@ export default {
     scrollToLastPosition() {
       var self = this;
 
-      self.$nextTick(function () {
+      self.$nextTick(function() {
         window.scrollTo(
           0,
           eval("self.$store.state.feed." + self.parent + ".scroll_position")
@@ -830,7 +840,7 @@ export default {
         scroll: true,
         paddings: true,
         observer_current_index: true,
-        element_heights: false,
+        element_heights: false
       };
       this.$emit("reset-feed-page", reset_info);
 
@@ -938,7 +948,7 @@ export default {
             " = this.parent_feed_list.slice(0, this.defaultListSize)"
         );
 
-        this.$nextTick(function () {
+        this.$nextTick(function() {
           self.initIntersectionObserver();
         });
       } else {
@@ -968,7 +978,7 @@ export default {
           scroll: true,
           paddings: true,
           observer_current_index: true,
-          element_heights: true,
+          element_heights: true
         };
         this.$emit("reset-feed-page", reset_info);
 
@@ -1137,7 +1147,7 @@ export default {
         if (actionIds.length) {
           axios.post(this.$store.state.api_host + "mark_posts_as_seen", {
             session_id: this.$store.state.session_id,
-            action_ids: actionIds,
+            action_ids: actionIds
           });
         }
       }
@@ -1220,7 +1230,7 @@ export default {
       }
 
       if (isAfterDelete) {
-        output = output.filter((item) => item);
+        output = output.filter(item => item);
 
         if (firstIndex > 0 && output.length < this.listSize) {
           output = [];
@@ -1246,14 +1256,14 @@ export default {
           for (let i = 0; i < this.listSize; i++) {
             output.push(this.parent_feed_list[i + firstIndex - 1]);
           }
-          output = output.filter((item) => item);
+          output = output.filter(item => item);
         }
       }
 
       eval(this.feed_mappings[this.parent].feed + " = output.slice()");
     },
 
-    getNumFromStyle: (numStr) => Number(numStr.substring(0, numStr.length - 2)),
+    getNumFromStyle: numStr => Number(numStr.substring(0, numStr.length - 2)),
 
     adjustPaddings(firstIndex, isScrollDown, isEndCase = false) {
       this.updateElementHeights();
@@ -1441,11 +1451,11 @@ export default {
     initIntersectionObserver() {
       const options = {
         rootMargin: "0px",
-        threshold: [0, 1],
+        threshold: [0, 1]
       };
 
-      const callback = (entries) => {
-        entries.forEach((entry) => {
+      const callback = entries => {
+        entries.forEach(entry => {
           if (this.parent == "home") {
             this.updateSeenList(entry);
           }
@@ -1503,8 +1513,8 @@ export default {
           }
         }
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
