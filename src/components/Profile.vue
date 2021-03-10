@@ -1005,7 +1005,7 @@ export default {
 
     var self = this;
     self.fetching_profile = true;
-    if (self.store.user.id == userid) {
+    if (self.store.user.id == userid && self.store.session_id) {
       if (this.$route.query.share) {
         let query = Object.assign({}, this.$route.query);
         delete query.share;
@@ -1085,7 +1085,10 @@ export default {
                 self.$nextTick(() => {
                   self.initIntersectionObserver();
                 });
-                if (self.store.user.id == self.user_id) {
+                if (
+                  self.store.user.id == self.user_id &&
+                  self.store.session_id
+                ) {
                   self.own_profile = true;
                   if (self.$route.query.share && !self.share_profile_banner) {
                     let query = Object.assign({}, self.$route.query);
@@ -1168,7 +1171,7 @@ export default {
             self.$nextTick(() => {
               self.initIntersectionObserver();
             });
-            if (self.store.user.id == self.user_id) {
+            if (self.store.user.id == self.user_id && self.store.session_id) {
               self.own_profile = true;
               if (self.$route.query.share && !self.share_profile_banner) {
                 let query = Object.assign({}, self.$route.query);
@@ -1266,7 +1269,7 @@ export default {
       var self = this;
       self.profile_access = "open";
       self.fetching_profile = true;
-      if (self.store.user.id == userid) {
+      if (self.store.user.id == userid && self.store.session_id) {
         self.own_profile = true;
         self.user_type = "self";
         self.user_id = self.store.user.id;
@@ -1315,7 +1318,7 @@ export default {
             self.$nextTick(() => {
               self.initIntersectionObserver();
             });
-            if (self.store.user.id == self.user_id) {
+            if (self.store.user.id == self.user_id && self.store.session_id) {
               self.own_profile = true;
             } else {
               self.own_profile = false;
