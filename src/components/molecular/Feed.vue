@@ -189,6 +189,7 @@
               currentIndex == 0 &&
               index == 0
           "
+          style="margin-bottom: 32px;"
           @refresh-suggestions="refreshFeed"
           v-on="$listeners"
         />
