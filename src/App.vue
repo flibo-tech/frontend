@@ -646,13 +646,17 @@ export default {
           .catch(function(error) {
             // console.log(error);
             if ([401, 419].includes(error.response.status)) {
-              window.location = `${
-                self.$store.state.login_host
-              }logout?session_id=${
-                self.$store.state.session_id
-              }&redirect_path=${encodeURIComponent(
-                window.location.pathname + window.location.search
-              )}`;
+              if (self.$store.state.is_webview) {
+                window.location = `${self.$store.state.login_host}logout?session_id=${self.$store.state.session_id}`;
+              } else {
+                window.location = `${
+                  self.$store.state.login_host
+                }logout?session_id=${
+                  self.$store.state.session_id
+                }&redirect_path=${encodeURIComponent(
+                  window.location.pathname + window.location.search
+                )}`;
+              }
               self.$store.state.session_id = null;
               self.logging_out = true;
             } else {
