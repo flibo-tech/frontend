@@ -5,10 +5,10 @@
         class="liked"
         :style="
           `--liked-margin-top:` +
-          (marginTop + cardHeight / 2) +
-          `px;--liked-margin-left:translateX(calc(-50% + ` +
-          cardHeight / 3 +
-          `px)) translateY(-50%)`
+            (marginTop + cardHeight / 2) +
+            `px;--liked-margin-left:translateX(calc(-50% + ` +
+            cardHeight / 3 +
+            `px)) translateY(-50%)`
         "
         rating="liked"
         :active="isLiked"
@@ -18,10 +18,10 @@
         class="disliked"
         :style="
           `--disliked-margin-top:` +
-          (marginTop + cardHeight / 2) +
-          `px;--disliked-margin-left:translateX(calc(-50% - ` +
-          cardHeight / 3 +
-          `px)) translateY(-50%)`
+            (marginTop + cardHeight / 2) +
+            `px;--disliked-margin-left:translateX(calc(-50% - ` +
+            cardHeight / 3 +
+            `px)) translateY(-50%)`
         "
         rating="disliked"
         :active="isDisliked"
@@ -47,8 +47,8 @@
       :style="`--margin-top:` + marginTop + `px;`"
       v-if="
         store.rate.visible_cards.length &&
-        !store.rate.fetching_cards &&
-        is_mobile
+          !store.rate.fetching_cards &&
+          is_mobile
       "
     >
       <SwipeCard
@@ -97,17 +97,17 @@
       <button
         v-if="
           is_mobile &&
-          !tapOpenInstruction &&
-          show_last_card_button &&
-          this.$store.state.last_card
+            !tapOpenInstruction &&
+            show_last_card_button &&
+            this.$store.state.last_card
         "
         :style="
           `--last-card-button-top-margin:` +
-          (marginTop + 15) +
-          `px;
+            (marginTop + 15) +
+            `px;
                       --last-card-button-left-margin:translateX(calc(-` +
-          cardHeight / 3 +
-          `px + 15px))`
+            cardHeight / 3 +
+            `px + 15px))`
         "
         v-bind:class="[this.$store.state.last_card ? 'last-card-true' : '']"
         @click="showLastCard"
@@ -122,13 +122,13 @@
       <PlatformBar
         v-if="
           is_mobile &&
-          store.rate.visible_cards.length &&
-          !tapOpenInstruction &&
-          showPlatforms &&
-          !removingCard &&
-          show_last_card_button &&
-          Object.keys(store.rate.visible_cards[0].where_to_watch || {})
-            .length != 0
+            store.rate.visible_cards.length &&
+            !tapOpenInstruction &&
+            showPlatforms &&
+            !removingCard &&
+            show_last_card_button &&
+            Object.keys(store.rate.visible_cards[0].where_to_watch || {})
+              .length != 0
         "
         class="rate-item-platforms"
         :style="`--platforms-top-margin:` + (marginTop + cardHeight) + `px;`"
@@ -156,33 +156,33 @@ export default {
   components: {
     SwipeCard,
     RatingLabel,
-    PlatformBar,
+    PlatformBar
   },
   props: {
     cardHeight: {
       type: Number,
       default: this.card_height,
-      required: true,
+      required: true
     },
     marginTop: {
       type: Number,
-      required: true,
+      required: true
     },
     showPlatforms: {
       type: Boolean,
       default: true,
-      required: false,
+      required: false
     },
     tapOpen: {
       type: Boolean,
       default: true,
-      required: false,
+      required: false
     },
     tapOpenInstruction: {
       type: Boolean,
       default: false,
-      required: false,
-    },
+      required: false
+    }
   },
   data() {
     return {
@@ -206,7 +206,7 @@ export default {
       isLoved: false,
       isHaventSeen: false,
       showRating: false,
-      removingCard: false,
+      removingCard: false
     };
   },
   created() {
@@ -223,10 +223,10 @@ export default {
           content_ids: null,
           rest_of_queue: null,
           visible_cards: null,
-          country: self.$store.state.user.profile.country,
+          country: self.$store.state.user.profile.country
         })
         .then(
-          (response) => (
+          response => (
             (self.$store.state.rate.visible_cards = response.data.contents),
             (self.$store.state.rate.content_ids = response.data.content_ids),
             (self.store.rate.fetching_cards = false)
@@ -235,9 +235,9 @@ export default {
     }
     axios
       .post(self.$store.state.api_host + "get_favorite_artists_search", {
-        session_id: self.$store.state.session_id,
+        session_id: self.$store.state.session_id
       })
-      .then(function (response) {
+      .then(function(response) {
         if ([200].includes(response.status)) {
           self.$store.state.rate_filters.filters_meta.artists =
             response.data.favorite_artists;
@@ -245,15 +245,9 @@ export default {
           // console.log(response.status);
         }
       })
-      .catch(function (error) {
+      .catch(function(error) {
         // console.log(error);
         if ([401, 419].includes(error.response.status)) {
-          window.location =
-            self.$store.state.login_host +
-            "logout?session_id=" +
-            self.$store.state.session_id;
-          self.$store.state.session_id = null;
-          self.$emit("logging-out");
         } else {
           // console.log(error.response.status);
         }
@@ -261,9 +255,9 @@ export default {
   },
 
   computed: {
-    visible_cards_count: function () {
+    visible_cards_count: function() {
       return this.$store.state.rate.visible_cards.length;
-    },
+    }
   },
   watch: {
     visible_cards_count: {
@@ -287,9 +281,9 @@ export default {
               content_ids: self.$store.state.rate.content_ids.slice(0, 25),
               rest_of_queue: self.$store.state.rate.content_ids.slice(25),
               visible_cards: visible_cards,
-              country: self.$store.state.user.profile.country,
+              country: self.$store.state.user.profile.country
             })
-            .then(function (response) {
+            .then(function(response) {
               if ([200].includes(response.status)) {
                 var new_visible_cards = [];
                 for (var i = 0; i < response.data.contents.length; ++i) {
@@ -308,7 +302,7 @@ export default {
                 // console.log(response.status);
               }
             })
-            .catch(function (error) {
+            .catch(function(error) {
               self.internal_fetch_check = false;
               if ([401, 419].includes(error.response.status)) {
                 window.location =
@@ -322,8 +316,8 @@ export default {
               }
             });
         }
-      },
-    },
+      }
+    }
   },
 
   methods: {
@@ -391,9 +385,9 @@ export default {
             session_id: this.$store.state.session_id,
             content_ids: [last_content_id],
             rating: 0,
-            privacy: this.$store.state.user.profile.profile_status || "public",
+            privacy: this.$store.state.user.profile.profile_status || "public"
           })
-          .then(function (response) {
+          .then(function(response) {
             var index = self.$store.state.suggestions.rate_counter.indexOf(
               last_content_id
             );
@@ -409,10 +403,10 @@ export default {
                     self.$store.state.ai_host +
                       "calculate_contents_to_recommend",
                     {
-                      session_id: self.$store.state.session_id,
+                      session_id: self.$store.state.session_id
                     }
                   )
-                  .then(function (response) {
+                  .then(function(response) {
                     if (self.$route.path == "/onboarding") {
                       self.$store.state.suggestions.refresh_feed = true;
                     } else {
@@ -424,7 +418,7 @@ export default {
               }
             }
           })
-          .catch(function (error) {
+          .catch(function(error) {
             if ([401, 419].includes(error.response.status)) {
               window.location =
                 self.$store.state.login_host +
@@ -445,8 +439,8 @@ export default {
     swipeApiCounter(activity) {
       this.removingCard = true;
       this.$emit("update-api-counter", activity);
-    },
-  },
+    }
+  }
 };
 </script>
 
