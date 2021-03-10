@@ -19,10 +19,10 @@
     <TopBar
       v-if="
         !this.is_search_page &&
-        !this.is_user_search_page &&
-        !this.is_onboarding &&
-        !this.is_landing_page &&
-        !this.is_create_page
+          !this.is_user_search_page &&
+          !this.is_onboarding &&
+          !this.is_landing_page &&
+          !this.is_create_page
       "
     />
 
@@ -52,19 +52,19 @@
   <LandingPage
     v-else-if="
       !this.$store.state.session_id &&
-      !this.logging_out &&
-      !this.is_signup_page &&
-      !this.is_content_page &&
-      !this.is_activity_page &&
-      !this.is_ratings_page &&
-      !this.is_posts_page &&
-      !this.is_watchlist_page &&
-      !this.is_search_page &&
-      !this.is_search_results_page &&
-      !this.is_profile_page &&
-      !this.is_policy_page &&
-      !this.is_alert_page &&
-      !this.is_blog_page
+        !this.logging_out &&
+        !this.is_signup_page &&
+        !this.is_content_page &&
+        !this.is_activity_page &&
+        !this.is_ratings_page &&
+        !this.is_posts_page &&
+        !this.is_watchlist_page &&
+        !this.is_search_page &&
+        !this.is_search_results_page &&
+        !this.is_profile_page &&
+        !this.is_policy_page &&
+        !this.is_alert_page &&
+        !this.is_blog_page
     "
     :is_mobile="is_mobile"
   />
@@ -106,9 +106,9 @@
     <TopBar
       v-if="
         !this.is_search_page &&
-        !this.is_policy_page &&
-        !this.is_alert_page &&
-        !this.is_blog_page
+          !this.is_policy_page &&
+          !this.is_alert_page &&
+          !this.is_blog_page
       "
     />
     <SignUpPrompt />
@@ -134,7 +134,7 @@ export default {
     MainNavigation,
     LandingPage,
     SignUpPrompt,
-    SpeechInfo,
+    SpeechInfo
   },
   data() {
     return {
@@ -164,7 +164,7 @@ export default {
         location: null,
         network_org: null,
         postal: null,
-        timezone: null,
+        timezone: null
       },
       is_blog_page: false,
       feed_mappings: {
@@ -175,7 +175,7 @@ export default {
           discover_filters: "this.$store.state.suggestions.discover_type_tab",
           platform_filters:
             "this.$store.state.feed_filters.filters_applied.home.platforms",
-          genre_filters: null,
+          genre_filters: null
         },
         search_results: {
           contents: "this.$store.state.discover_filters.filtered_content",
@@ -184,7 +184,7 @@ export default {
           discover_filters:
             "this.$store.state.discover_filters.discover_type_tab",
           platform_filters: null,
-          genre_filters: null,
+          genre_filters: null
         },
         watchlist: {
           contents: "this.$store.state.feed.watchlist.contents",
@@ -193,7 +193,7 @@ export default {
           discover_filters:
             "this.$store.state.feed.watchlist.discover_type_tab",
           platform_filters: "this.$store.state.feed.watchlist.platforms",
-          genre_filters: "this.$store.state.feed.watchlist.genres",
+          genre_filters: "this.$store.state.feed.watchlist.genres"
         },
         ratings: {
           contents: "this.$store.state.feed.ratings.contents",
@@ -201,19 +201,19 @@ export default {
           content_filter: "this.$store.state.feed.ratings.content_type_tab",
           discover_filters: "this.$store.state.feed.ratings.discover_type_tab",
           platform_filters: "this.$store.state.feed.ratings.platforms",
-          genre_filters: "this.$store.state.feed.ratings.genres",
-        },
-      },
+          genre_filters: "this.$store.state.feed.ratings.genres"
+        }
+      }
     };
   },
 
   computed: {
-    my_store: function () {
+    my_store: function() {
       return this.$store.state;
     },
-    router_path: function () {
+    router_path: function() {
       return this.$route.path;
-    },
+    }
   },
 
   watch: {
@@ -221,10 +221,10 @@ export default {
       handler(val) {
         localStorage.setItem("my_store", JSON.stringify(this.my_store));
       },
-      deep: true,
+      deep: true
     },
     router_path: {
-      handler: function (path) {
+      handler: function(path) {
         this.is_signup_page = path.startsWith("/signup");
         this.is_content_page = path.startsWith("/content/");
         this.is_activity_page =
@@ -253,8 +253,8 @@ export default {
         ) {
           this.$store.state.content_page.rerender = true;
         }
-      },
-    },
+      }
+    }
   },
 
   created() {
@@ -316,7 +316,7 @@ export default {
         if (this.$store.state.guest_country == null) {
           axios
             .get("https://ipinfo.io/?token=a354c067e1fef5")
-            .then(function (response) {
+            .then(function(response) {
               if ([200].includes(response.status)) {
                 self.ip_info.ip = response.data.ip;
                 self.ip_info.city = response.data.city;
@@ -343,10 +343,10 @@ export default {
                 axios
                   .post(self.$store.state.api_host + "search_filters", {
                     session_id: null,
-                    country: self.$store.state.guest_country,
+                    country: self.$store.state.guest_country
                   })
                   .then(
-                    (response) => (
+                    response => (
                       (self.$store.state.rate_filters.filters_meta.genres =
                         response.data.genres),
                       (self.$store.state.rate_filters.filters_meta.decades =
@@ -382,10 +382,10 @@ export default {
                   .post(
                     self.$store.state.api_host + "get_favorite_artists_search",
                     {
-                      session_id: null,
+                      session_id: null
                     }
                   )
-                  .then(function (response) {
+                  .then(function(response) {
                     if ([200].includes(response.status)) {
                       self.$store.state.discover_filters.filters_meta.artists =
                         response.data.favorite_artists;
@@ -401,10 +401,10 @@ export default {
           axios
             .post(this.$store.state.api_host + "search_filters", {
               session_id: null,
-              country: this.$store.state.guest_country,
+              country: this.$store.state.guest_country
             })
             .then(
-              (response) => (
+              response => (
                 (self.$store.state.rate_filters.filters_meta.genres =
                   response.data.genres),
                 (self.$store.state.rate_filters.filters_meta.decades =
@@ -438,9 +438,9 @@ export default {
 
           axios
             .post(self.$store.state.api_host + "get_favorite_artists_search", {
-              session_id: null,
+              session_id: null
             })
-            .then(function (response) {
+            .then(function(response) {
               if ([200].includes(response.status)) {
                 self.$store.state.discover_filters.filters_meta.artists =
                   response.data.favorite_artists;
@@ -479,11 +479,11 @@ export default {
             scroll: true,
             paddings: true,
             observer_current_index: true,
-            element_heights: true,
+            element_heights: true
           };
 
           var feed_parents = ["home", "search_results"];
-          feed_parents.forEach(function (item, index) {
+          feed_parents.forEach(function(item, index) {
             reset_info.parent = item;
             self.resetFeedPage(reset_info);
           });
@@ -497,24 +497,18 @@ export default {
 
         axios
           .post(this.$store.state.api_host + "get_name_picture", {
-            session_id: this.$store.state.session_id,
+            session_id: this.$store.state.session_id
           })
           .then(
-            (response) => (
+            response => (
               (self.$store.state.user.id = response.data.id),
               (self.$store.state.user.name = response.data.name),
               (self.$store.state.user.picture = response.data.picture),
               (self.$store.state.user.authorized = response.data.authorized)
             )
           )
-          .catch(function (error) {
+          .catch(function(error) {
             if ([401, 419].includes(error.response.status)) {
-              window.location =
-                self.$store.state.login_host +
-                "logout?session_id=" +
-                self.$store.state.session_id;
-              self.$store.state.session_id = null;
-              self.logging_out = true;
             } else {
               // console.log(error.response.status);
             }
@@ -540,18 +534,17 @@ export default {
         axios
           .get(self.$store.state.api_host + "get_countries_platforms")
           .then(
-            (response) =>
-              (self.$store.state.countries = response.data.countries)
+            response => (self.$store.state.countries = response.data.countries)
           );
 
         if (this.$store.state.rate_filters.filters_meta.genres.length == 0) {
           var self = this;
           axios
             .post(self.$store.state.api_host + "search_filters", {
-              session_id: self.$store.state.session_id,
+              session_id: self.$store.state.session_id
             })
             .then(
-              (response) => (
+              response => (
                 (self.$store.state.rate_filters.filters_meta.genres =
                   response.data.genres),
                 (self.$store.state.rate_filters.filters_meta.decades =
@@ -586,9 +579,9 @@ export default {
 
         axios
           .post(self.$store.state.api_host + "counts", {
-            session_id: self.$store.state.session_id,
+            session_id: self.$store.state.session_id
           })
-          .then(function (response) {
+          .then(function(response) {
             self.$store.state.suggestions.rate_counter_all =
               response.data.contents_rated;
             if (
@@ -649,13 +642,29 @@ export default {
               response.data.notifications;
             self.$store.state.defunctLogoutUrl =
               response.data.defunct_logout_url;
+          })
+          .catch(function(error) {
+            // console.log(error);
+            if ([401, 419].includes(error.response.status)) {
+              window.location = `${
+                self.$store.state.login_host
+              }logout?session_id=${
+                self.$store.state.session_id
+              }&redirect_path=${encodeURIComponent(
+                window.location.pathname + window.location.search
+              )}`;
+              self.$store.state.session_id = null;
+              self.logging_out = true;
+            } else {
+              // console.log(error.response.status);
+            }
           });
 
         axios
           .post(self.$store.state.api_host + "get_favorite_artists_search", {
-            session_id: self.$store.state.session_id,
+            session_id: self.$store.state.session_id
           })
-          .then(function (response) {
+          .then(function(response) {
             if ([200].includes(response.status)) {
               self.$store.state.discover_filters.filters_meta.artists =
                 response.data.favorite_artists;
@@ -665,18 +674,18 @@ export default {
           });
 
         if (!this.$route.query.search) {
-          self.timeout = setTimeout(function () {
+          self.timeout = setTimeout(function() {
             self.updateProfile();
             self.updateFriendsPage();
             self.updateOutboundApiCounter();
           }, 5000);
         }
 
-        self.timeout = setInterval(function () {
+        self.timeout = setInterval(function() {
           self.updateProfile();
         }, 2 * 60 * 1000);
 
-        self.timeout = setInterval(function () {
+        self.timeout = setInterval(function() {
           self.updateOutboundApiCounter();
         }, 5 * 60 * 1000);
       }
@@ -698,9 +707,9 @@ export default {
             user_id: self.$store.state.user.id,
             user_name: self.$store.state.user.name
               .replace(/[^a-z0-9]+/gi, "-")
-              .toLowerCase(),
+              .toLowerCase()
           })
-          .then(function (response) {
+          .then(function(response) {
             if ([200].includes(response.status)) {
               self.$store.state.user.profile.posters =
                 response.data.profile_cover.posters;
@@ -723,7 +732,7 @@ export default {
               // console.log(response.status);
             }
           })
-          .catch(function (error) {
+          .catch(function(error) {
             // console.log(error);
             if ([401, 419].includes(error.response.status)) {
               window.location =
@@ -768,9 +777,9 @@ export default {
       var index;
       axios
         .post(this.$store.state.api_host + "get_friends", {
-          session_id: this.$store.state.session_id,
+          session_id: this.$store.state.session_id
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             new_friends = response.data.people;
 
@@ -803,7 +812,7 @@ export default {
             self.$store.state.friends_page.friends = [];
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           if ([401, 419].includes(error.response.status)) {
             window.location =
               self.$store.state.login_host +
@@ -829,7 +838,7 @@ export default {
         scroll: true,
         paddings: true,
         observer_current_index: true,
-        element_heights: true,
+        element_heights: true
       };
       self.resetFeedPage(reset_info);
 
@@ -845,9 +854,9 @@ export default {
         .post(self.$store.state.api_host + "flibo_feed", {
           session_id: self.$store.state.session_id,
           country: self.$store.state.user.profile.country,
-          fetched_items: fetched_items,
+          fetched_items: fetched_items
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             if (fetched_items.length) {
               self.$store.state.suggestions.contents.push(
@@ -869,11 +878,11 @@ export default {
               );
 
               self.refreshDiscoverPage(
-                response.data.contents.map((item) => item.action_id)
+                response.data.contents.map(item => item.action_id)
               );
 
               if (self.$route.path == "/discover") {
-                self.$nextTick(function () {
+                self.$nextTick(function() {
                   self.$store.state.feed.update_dom = true;
                 });
               }
@@ -886,7 +895,7 @@ export default {
             self.$store.state.suggestions.fetching_suggestions = false;
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if (fetched_items.length) {
             self.store.suggestions.fetching_feed_incremental = false;
@@ -897,12 +906,6 @@ export default {
           if (
             [401, 419].includes(error.response ? error.response.status : -1)
           ) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.logging_out = true;
           } else {
             // console.log(error.response.status);
           }
@@ -910,9 +913,9 @@ export default {
 
       axios
         .post(self.$store.state.api_host + "users_to_befriend", {
-          session_id: self.$store.state.session_id,
+          session_id: self.$store.state.session_id
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             self.$store.state.suggestions.users_suggestions =
               response.data.users;
@@ -920,15 +923,9 @@ export default {
             self.$store.state.suggestions.users_suggestions = [];
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
-            window.location =
-              self.$store.state.login_host +
-              "logout?session_id=" +
-              self.$store.state.session_id;
-            self.$store.state.session_id = null;
-            self.logging_out = true;
           } else {
             // console.log(error.response.status);
           }
@@ -967,15 +964,15 @@ export default {
             : null,
           created_at: Object.keys(activity).includes("created_at")
             ? activity.created_at
-            : null,
+            : null
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if (self.$store.state.session_id) {
             if ([401, 419].includes(error.response.status)) {
@@ -1004,15 +1001,15 @@ export default {
         axios
           .post(self.$store.state.api_host + "update_profile", {
             session_id: self.$store.state.session_id,
-            never_tapped_platform: false,
+            never_tapped_platform: false
           })
-          .then(function (response) {
+          .then(function(response) {
             if ([200].includes(response.status)) {
             } else {
               // console.log(response.status);
             }
           })
-          .catch(function (error) {
+          .catch(function(error) {
             // console.log(error);
           });
       }
@@ -1028,7 +1025,7 @@ export default {
       if (this.ip_info.country == null) {
         axios
           .get("https://ipinfo.io/?token=a354c067e1fef5")
-          .then(function (response) {
+          .then(function(response) {
             if ([200].includes(response.status)) {
               self.ip_info.ip = response.data.ip;
               self.ip_info.city = response.data.city;
@@ -1100,7 +1097,7 @@ export default {
               bot: device.bot,
 
               screen_width: window.outerWidth,
-              screen_height: window.outerHeight,
+              screen_height: window.outerHeight
             });
           });
       } else {
@@ -1140,7 +1137,7 @@ export default {
           bot: device.bot,
 
           screen_width: window.outerWidth,
-          screen_height: window.outerHeight,
+          screen_height: window.outerHeight
         });
       }
     },
@@ -1149,16 +1146,16 @@ export default {
       axios
         .post(self.$store.state.api_host + "update_profile", {
           session_id: self.$store.state.session_id,
-          country: self.$store.state.user.profile.country,
+          country: self.$store.state.user.profile.country
         })
-        .then(function (response) {
+        .then(function(response) {
           if ([200].includes(response.status)) {
             axios
               .post(self.$store.state.api_host + "search_filters", {
-                session_id: self.$store.state.session_id,
+                session_id: self.$store.state.session_id
               })
               .then(
-                (response) => (
+                response => (
                   (self.$store.state.rate_filters.filters_meta.genres =
                     response.data.genres),
                   (self.$store.state.rate_filters.filters_meta.decades =
@@ -1193,7 +1190,7 @@ export default {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1216,16 +1213,16 @@ export default {
           content_ids: null,
           rest_of_queue: null,
           visible_cards: null,
-          country: self.$store.state.user.profile.country,
+          country: self.$store.state.user.profile.country
         })
         .then(
-          (response) => (
+          response => (
             (self.$store.state.rate.visible_cards = response.data.contents),
             (self.$store.state.rate.content_ids = response.data.content_ids),
             (self.store.rate.fetching_cards = false)
           )
         )
-        .catch(function (error) {
+        .catch(function(error) {
           // console.log(error);
           if ([401, 419].includes(error.response.status)) {
             window.location =
@@ -1327,9 +1324,9 @@ export default {
           session_id: this.$store.state.session_id,
           content_ids: [info.content_id],
           rating: info.user_rating,
-          privacy: this.$store.state.user.profile.profile_status || "public",
+          privacy: this.$store.state.user.profile.profile_status || "public"
         })
-        .then(function (response) {
+        .then(function(response) {
           var index = self.$store.state.suggestions.rate_counter.indexOf(
             info.content_id
           );
@@ -1344,10 +1341,10 @@ export default {
                 .post(
                   self.$store.state.ai_host + "calculate_contents_to_recommend",
                   {
-                    session_id: self.$store.state.session_id,
+                    session_id: self.$store.state.session_id
                   }
                 )
-                .then(function (response) {
+                .then(function(response) {
                   if (response.data.notify) {
                     self.$store.state.notifications.notifications = 1;
                   }
@@ -1355,7 +1352,7 @@ export default {
             }
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           eval(content_list_location)[contents_index].rating = prev_rating;
           eval(feed_list_location)[feed_index].rating = prev_rating;
 
@@ -1401,16 +1398,16 @@ export default {
           session_id: this.$store.state.session_id,
           content_id: info.content_id,
           status: info.watch_later ? false : true,
-          privacy: this.$store.state.user.profile.profile_status || "public",
+          privacy: this.$store.state.user.profile.profile_status || "public"
         })
-        .then(function (response) {
+        .then(function(response) {
           if (response.status == 200) {
             // console.log(response.status);
           } else {
             // console.log(response.status);
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           eval(content_list_location)[contents_index].watch_later = prev_state;
           eval(feed_list_location)[feed_index].watch_later = prev_state;
 
@@ -1521,8 +1518,8 @@ export default {
           "this.$store.state.feed." + info.parent + ".element_comments = {}"
         );
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
