@@ -210,7 +210,7 @@
       </div>
 
       <div v-if="no_content_found" class="no-content-box">
-        <div class="no-content-found">No such title found !</div>
+        <div class="no-content-found">No such title found. Search deeper.</div>
         <Button
           buttonType="primary"
           :text="
