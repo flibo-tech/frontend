@@ -53,6 +53,15 @@
       </p>
     </div>
 
+    <Button
+      :class="is_mobile ? 'blogs-button' : 'desktop-blogs-button'"
+      buttonType="primary"
+      text="Open Blogs"
+      :capitalize="false"
+      :padding="is_mobile ? '3px 46px' : '6px 68px'"
+      @clicked="goToBlogs"
+    />
+
     <div
       :class="
         is_mobile ? 'landing-page-section-1' : 'desktop-landing-page-section-1'
@@ -204,13 +213,18 @@
 </template>
 
 <script>
+import Button from "./atomic/Button";
+
 export default {
   name: "App",
+  components: {
+    Button
+  },
   props: {
     is_mobile: {
       type: Boolean,
-      required: true,
-    },
+      required: true
+    }
   },
   methods: {
     goToGoogleLogin() {
@@ -226,7 +240,10 @@ export default {
         window.open(app_location);
       }
     },
-  },
+    goToBlogs() {
+      window.location = "https://blog.flibo.ai";
+    }
+  }
 };
 </script>
 
@@ -885,5 +902,22 @@ export default {
   font-size: 10px;
   line-height: 1.8;
   font-weight: normal;
+}
+.blogs-button {
+  cursor: pointer;
+  right: 10px;
+  top: 126px;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+}
+.desktop-blogs-button {
+  cursor: pointer;
+  right: 20px;
+  top: 160px;
+  position: absolute;
+  display: flex;
+  z-index: 1000;
 }
 </style>
