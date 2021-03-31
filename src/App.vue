@@ -453,6 +453,7 @@ export default {
         if (!this.$route.query.search) {
           this.updateDeviceInfo();
         }
+      } else if (current_path == "/ads.txt") {
       } else if (current_path != "/") {
         this.$router.push("/");
       }
