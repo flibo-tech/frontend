@@ -13,7 +13,7 @@
     "build": "node build/build.js",
     "deploy": "aws s3 sync ./dist s3://flibo && npm run s3-cache-control && npm run invalidate",
     "s3-cache-control": "aws s3 cp s3://flibo/ s3://flibo/ --exclude \"*\" --include \"*.js\" --include \"*.css\" --include \"*.svg\" --include \"*.png\" --metadata-directive REPLACE --recursive --cache-control max-age=2592000",
-    "invalidate": "aws cloudfront create-invalidation --distribution-id EGDUUDMGSSLTQ --paths /*"
+    "invalidate": "aws cloudfront create-invalidation --distribution-id EGDUUDMGSSLTQ --paths \"/*\""
   },
   "dependencies": {
     "axios": "^0.18.0",

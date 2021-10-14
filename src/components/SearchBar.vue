@@ -111,6 +111,11 @@
             $router.push('/search?search=' + encodeURIComponent(search_string))
           "
         />
+        <p
+          style="text-align: left; padding: 16px 4px 8px 4px; color: #999; font-size: 14px;"
+        >
+          Search based on titles
+        </p>
         <div
           v-for="(content, index) in content_search_result"
           :key="index"
