@@ -217,6 +217,15 @@
                 cannot guarantee its absolute security.
               </p>
               <br />
+              <h2>Getting your data deleted</h2>
+              <p>
+                If you have logged in using Facebook - 1. Go to your Facebook
+                profile's Apps and Websites settings tab:
+                https://www.facebook.com/settings?tab=applications 2. Remove
+                your app. 3. Click the Removed sub-tab and click on your app. 4.
+                Click Send Request to trigger your callback.
+              </p>
+              <br />
               <br />
               <h2>Service Providers</h2>
               <p>
